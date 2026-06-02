@@ -1,0 +1,374 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free UCAS Deadline Calendar 2025–26 — Stoday Plus</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 900: '#0f1f3d', 800: '#162a52', 700: '#1e3a6e', 600: '#2952a3' },
+            teal: { 400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488' }
+          },
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    .gradient-hero { background: linear-gradient(135deg, #0f1f3d 0%, #162a52 50%, #1a3a6a 100%); }
+    .gradient-cta { background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%); }
+    .deadline-card { transition: transform 0.15s ease; }
+    .deadline-card:hover { transform: translateX(4px); }
+    .days-urgent { background: #fef2f2; border-left: 4px solid #ef4444; }
+    .days-soon   { background: #fffbeb; border-left: 4px solid #f59e0b; }
+    .days-ok     { background: #f0fdf4; border-left: 4px solid #22c55e; }
+    .days-past   { background: #f9fafb; border-left: 4px solid #9ca3af; opacity: 0.7; }
+  </style>
+</head>
+<body class="font-sans bg-gray-50 text-gray-900 antialiased">
+
+<!-- Navbar -->
+<nav class="bg-navy-900 border-b border-white border-opacity-10">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
+    <a href="index.html" class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-lg bg-teal-500 flex items-center justify-center">
+        <span class="text-white font-bold text-sm">S+</span>
+      </div>
+      <span class="text-white font-bold text-lg">Stoday Plus</span>
+    </a>
+    <a href="signup.html" class="gradient-cta text-white text-sm font-semibold px-4 py-2 rounded-lg">
+      Get Pro — £6/mo
+    </a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="gradient-hero py-16 text-center">
+  <div class="max-w-3xl mx-auto px-4">
+    <div class="inline-flex items-center gap-2 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-full px-4 py-2 text-sm text-teal-400 font-medium mb-6">
+      Free — no account needed
+    </div>
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">
+      UCAS Deadline Calendar 2025–26
+    </h1>
+    <p class="text-gray-300 text-lg mb-2">
+      Every deadline for the UK 2026 entry cycle. Always up to date.
+    </p>
+    <p class="text-gray-400 text-sm">
+      Upgrade to Pro to personalise this for your course choices and get email reminders.
+    </p>
+  </div>
+</div>
+
+<!-- Upgrade banner -->
+<div class="bg-teal-600 text-white">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
+    <p>🔒 <strong>Pro:</strong> Personalise this calendar for your exact universities & courses. Get email reminders 30, 14, and 7 days before each deadline.</p>
+    <a href="signup.html" class="flex-shrink-0 bg-white text-teal-700 font-semibold px-4 py-2 rounded-lg hover:bg-teal-50 transition-colors">
+      Start free trial →
+    </a>
+  </div>
+</div>
+
+<!-- Main content -->
+<div class="max-w-4xl mx-auto px-4 sm:px-6 py-12">
+
+  <!-- Filter bar -->
+  <div class="flex flex-wrap gap-3 mb-8">
+    <button onclick="filterDeadlines('all')" id="btn-all" class="filter-btn bg-navy-900 text-white px-4 py-2 rounded-lg text-sm font-medium">All deadlines</button>
+    <button onclick="filterDeadlines('critical')" id="btn-critical" class="filter-btn bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50">Critical</button>
+    <button onclick="filterDeadlines('application')" id="btn-application" class="filter-btn bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50">Applications</button>
+    <button onclick="filterDeadlines('personal-statement')" id="btn-personal-statement" class="filter-btn bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50">Personal Statement</button>
+    <button onclick="filterDeadlines('offers')" id="btn-offers" class="filter-btn bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50">Offers & Results</button>
+  </div>
+
+  <!-- Countdown to next big deadline -->
+  <div id="next-deadline-banner" class="bg-navy-900 text-white rounded-2xl p-6 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div>
+      <p class="text-gray-400 text-sm">Next major deadline</p>
+      <p class="text-white font-bold text-xl mt-1" id="next-deadline-name">Loading...</p>
+      <p class="text-gray-400 text-sm mt-1" id="next-deadline-date"></p>
+    </div>
+    <div class="text-center">
+      <p class="text-5xl font-extrabold text-teal-400" id="days-remaining">—</p>
+      <p class="text-gray-400 text-sm mt-1">days remaining</p>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="space-y-3" id="deadline-list">
+
+    <!-- Sep 2025 -->
+    <div class="text-xs font-bold text-gray-400 uppercase tracking-widest pt-4 pb-2">September 2025</div>
+
+    <div class="deadline-card rounded-xl p-5 days-ok" data-tags="all application" data-date="2025-09-16">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="bg-green-100 text-green-700 text-xs font-semibold px-2 py-0.5 rounded-full">Application</span>
+          </div>
+          <h3 class="font-bold text-gray-900">UCAS opens for 2026 entry</h3>
+          <p class="text-gray-600 text-sm mt-1">You can begin your UCAS application. Start filling in your personal details and course choices.</p>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <p class="font-bold text-gray-900">16 Sep 2025</p>
+          <p class="text-xs text-gray-500 mt-1" data-days="2025-09-16"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Oct 2025 -->
+    <div class="text-xs font-bold text-gray-400 uppercase tracking-widest pt-4 pb-2">October 2025</div>
+
+    <div class="deadline-card rounded-xl p-5 days-urgent" data-tags="all application critical" data-date="2025-10-15">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="bg-red-100 text-red-700 text-xs font-semibold px-2 py-0.5 rounded-full">CRITICAL</span>
+            <span class="bg-red-50 text-red-600 text-xs px-2 py-0.5 rounded-full">Oxford · Cambridge · Medicine · Dentistry · Vet</span>
+          </div>
+          <h3 class="font-bold text-gray-900">Oxford, Cambridge + Medical courses deadline</h3>
+          <p class="text-gray-600 text-sm mt-1">If applying to Oxford, Cambridge, or any medicine/dentistry/veterinary science course — this is your deadline. Missing it means waiting a full year.</p>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <p class="font-bold text-red-700">15 Oct 2025</p>
+          <p class="text-xs text-gray-500 mt-1" data-days="2025-10-15"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nov 2025 -->
+    <div class="text-xs font-bold text-gray-400 uppercase tracking-widest pt-4 pb-2">November 2025</div>
+
+    <div class="deadline-card rounded-xl p-5 days-soon" data-tags="all personal-statement" data-date="2025-11-30">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="bg-amber-100 text-amber-700 text-xs font-semibold px-2 py-0.5 rounded-full">Personal Statement</span>
+          </div>
+          <h3 class="font-bold text-gray-900">Recommended: Personal statement first draft complete</h3>
+          <p class="text-gray-600 text-sm mt-1">Not an official UCAS deadline — but to meet the Jan 31 deadline comfortably, aim to finish your first full draft by end of November and give time for feedback.</p>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <p class="font-bold text-gray-900">30 Nov 2025</p>
+          <p class="text-xs text-gray-500 mt-1" data-days="2025-11-30"></p>
+          <p class="text-xs text-amber-500 mt-1">Recommended</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Jan 2026 -->
+    <div class="text-xs font-bold text-gray-400 uppercase tracking-widest pt-4 pb-2">January 2026</div>
+
+    <div class="deadline-card rounded-xl p-5 days-urgent" data-tags="all application critical" data-date="2026-01-31">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="bg-red-100 text-red-700 text-xs font-semibold px-2 py-0.5 rounded-full">CRITICAL</span>
+            <span class="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full">All other courses</span>
+          </div>
+          <h3 class="font-bold text-gray-900">Main UCAS application deadline</h3>
+          <p class="text-gray-600 text-sm mt-1">The deadline for the vast majority of courses at all UK universities. Your entire application — personal statement, references, all 5 course choices — must be submitted by 6pm UK time.</p>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <p class="font-bold text-red-700">31 Jan 2026</p>
+          <p class="text-xs text-gray-500 mt-1">6pm UK time</p>
+          <p class="text-xs text-gray-400 mt-1" data-days="2026-01-31"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feb 2026 -->
+    <div class="text-xs font-bold text-gray-400 uppercase tracking-widest pt-4 pb-2">February 2026</div>
+
+    <div class="deadline-card rounded-xl p-5 days-soon" data-tags="all application" data-date="2026-02-25">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="bg-amber-100 text-amber-700 text-xs font-semibold px-2 py-0.5 rounded-full">Late Applications</span>
+          </div>
+          <h3 class="font-bold text-gray-900">Last date for late applications (may still be considered)</h3>
+          <p class="text-gray-600 text-sm mt-1">Applications after Jan 31 are considered "late" and universities are not obligated to consider them. However, many still do — especially if they have unfilled places. Don't rely on this.</p>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <p class="font-bold text-gray-900">25 Feb 2026</p>
+          <p class="text-xs text-gray-500 mt-1" data-days="2026-02-25"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mar 2026 -->
+    <div class="text-xs font-bold text-gray-400 uppercase tracking-widest pt-4 pb-2">March–April 2026</div>
+
+    <div class="deadline-card rounded-xl p-5 days-ok" data-tags="all offers" data-date="2026-03-31">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="bg-blue-100 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded-full">Offers & Decisions</span>
+          </div>
+          <h3 class="font-bold text-gray-900">Universities begin sending decisions</h3>
+          <p class="text-gray-600 text-sm mt-1">Most universities will send offers, rejections, or interview invitations between February and May. You don't need to reply until UCAS sets your reply deadline.</p>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <p class="font-bold text-gray-900">Feb – May 2026</p>
+          <p class="text-xs text-gray-500 mt-1">Ongoing</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- May 2026 -->
+    <div class="text-xs font-bold text-gray-400 uppercase tracking-widest pt-4 pb-2">May 2026</div>
+
+    <div class="deadline-card rounded-xl p-5 days-ok" data-tags="all offers critical" data-date="2026-05-07">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="bg-red-100 text-red-700 text-xs font-semibold px-2 py-0.5 rounded-full">CRITICAL</span>
+            <span class="bg-blue-100 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded-full">Offers</span>
+          </div>
+          <h3 class="font-bold text-gray-900">Deadline to reply to your offers (if all decisions received by 31 Mar)</h3>
+          <p class="text-gray-600 text-sm mt-1">You must choose your Firm and Insurance choices by this date. UCAS will set your personal deadline — check your UCAS Hub. Ignoring this cancels all your offers.</p>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <p class="font-bold text-gray-900">7 May 2026</p>
+          <p class="text-xs text-gray-500 mt-1" data-days="2026-05-07"></p>
+          <p class="text-xs text-red-500 mt-1">Check your personal deadline</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Jul 2026 -->
+    <div class="text-xs font-bold text-gray-400 uppercase tracking-widest pt-4 pb-2">July–August 2026</div>
+
+    <div class="deadline-card rounded-xl p-5 days-ok" data-tags="all offers" data-date="2026-08-13">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="bg-purple-100 text-purple-700 text-xs font-semibold px-2 py-0.5 rounded-full">Results Day</span>
+          </div>
+          <h3 class="font-bold text-gray-900">A-Level results day (approx.)</h3>
+          <p class="text-gray-600 text-sm mt-1">UK A-Level results are released in mid-August. If your grades meet your Firm offer conditions, your place is confirmed. If not, you may go into Clearing.</p>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <p class="font-bold text-gray-900">~14 Aug 2026</p>
+          <p class="text-xs text-gray-400 mt-1" data-days="2026-08-14"></p>
+          <p class="text-xs text-gray-400 mt-1">Exact date TBC by Ofqual</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="deadline-card rounded-xl p-5 days-ok" data-tags="all offers" data-date="2026-09-01">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="bg-gray-100 text-gray-700 text-xs font-semibold px-2 py-0.5 rounded-full">Clearing</span>
+          </div>
+          <h3 class="font-bold text-gray-900">Clearing closes</h3>
+          <p class="text-gray-600 text-sm mt-1">Clearing is the process that matches students without places to universities with unfilled spots. Opens after A-Level results and closes in mid-October.</p>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <p class="font-bold text-gray-900">Mid-Oct 2026</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Legend -->
+  <div class="mt-8 flex flex-wrap gap-4 text-sm text-gray-600">
+    <div class="flex items-center gap-2"><span class="w-4 h-4 rounded bg-red-100 border-l-4 border-red-500 inline-block"></span> Critical deadline</div>
+    <div class="flex items-center gap-2"><span class="w-4 h-4 rounded bg-amber-50 border-l-4 border-amber-400 inline-block"></span> Approaching</div>
+    <div class="flex items-center gap-2"><span class="w-4 h-4 rounded bg-green-50 border-l-4 border-green-400 inline-block"></span> Upcoming</div>
+    <div class="flex items-center gap-2"><span class="w-4 h-4 rounded bg-gray-100 border-l-4 border-gray-400 inline-block"></span> Past</div>
+  </div>
+
+  <!-- Upgrade CTA -->
+  <div class="mt-12 bg-navy-900 rounded-2xl p-8 text-center">
+    <h3 class="text-white font-extrabold text-2xl mb-3">Want personalised reminders?</h3>
+    <p class="text-gray-400 mb-6">Upgrade to Pro and we'll send you email reminders 30, 14, and 7 days before each deadline — personalised for the courses you're applying to.</p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a href="signup.html" class="gradient-cta text-white font-semibold px-6 py-3 rounded-xl hover:opacity-90 transition-opacity">
+        Get Pro — £6/month
+      </a>
+      <a href="index.html" class="border border-white border-opacity-20 text-gray-300 font-semibold px-6 py-3 rounded-xl hover:bg-white hover:bg-opacity-10 transition-colors">
+        Learn more
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="bg-navy-900 py-8 mt-12 text-center text-gray-600 text-sm">
+  <a href="index.html" class="text-teal-400 hover:text-teal-300">← Back to Stoday Plus</a>
+  <p class="mt-2">Deadlines are based on publicly available UCAS information. Always verify at ucas.com.</p>
+</footer>
+
+<script>
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Compute days remaining labels
+  document.querySelectorAll('[data-days]').forEach(el => {
+    const dateStr = el.getAttribute('data-days');
+    const target = new Date(dateStr);
+    target.setHours(0, 0, 0, 0);
+    const diff = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+    if (diff < 0) el.textContent = 'Passed';
+    else if (diff === 0) el.textContent = 'Today!';
+    else if (diff === 1) el.textContent = 'Tomorrow!';
+    else el.textContent = diff + ' days away';
+  });
+
+  // Style past deadlines
+  document.querySelectorAll('.deadline-card').forEach(card => {
+    const dateStr = card.getAttribute('data-date');
+    if (!dateStr) return;
+    const target = new Date(dateStr);
+    target.setHours(0, 0, 0, 0);
+    if (target < today) {
+      card.classList.remove('days-urgent', 'days-soon', 'days-ok');
+      card.classList.add('days-past');
+    }
+  });
+
+  // Next major deadline banner
+  const criticals = [...document.querySelectorAll('[data-tags*="critical"]')]
+    .map(el => ({ el, date: new Date(el.getAttribute('data-date')) }))
+    .filter(d => d.date >= today)
+    .sort((a, b) => a.date - b.date);
+
+  if (criticals.length > 0) {
+    const next = criticals[0];
+    const diff = Math.ceil((next.date - today) / (1000 * 60 * 60 * 24));
+    const name = next.el.querySelector('h3').textContent;
+    document.getElementById('next-deadline-name').textContent = name;
+    document.getElementById('next-deadline-date').textContent = next.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    document.getElementById('days-remaining').textContent = diff;
+    if (diff <= 30) document.getElementById('days-remaining').classList.add('text-red-400');
+  } else {
+    document.getElementById('next-deadline-banner').style.display = 'none';
+  }
+
+  // Filter
+  function filterDeadlines(tag) {
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.classList.remove('bg-navy-900', 'text-white');
+      btn.classList.add('bg-white', 'border', 'border-gray-300', 'text-gray-700');
+    });
+    const activeBtn = document.getElementById('btn-' + tag);
+    activeBtn.classList.add('bg-navy-900', 'text-white');
+    activeBtn.classList.remove('bg-white', 'border-gray-300', 'text-gray-700');
+
+    document.querySelectorAll('.deadline-card').forEach(card => {
+      const tags = card.getAttribute('data-tags') || '';
+      card.style.display = (tag === 'all' || tags.includes(tag)) ? '' : 'none';
+    });
+  }
+</script>
+</body>
+</html>

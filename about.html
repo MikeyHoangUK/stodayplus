@@ -1,0 +1,180 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Mikey — Stoday Plus</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy:   { DEFAULT: '#1e3a8a', dark: '#1e1b4b', mid: '#3730a3' },
+            purple: { light: '#f3e8ff', soft: '#e9d5ff', mid: '#c084fc', DEFAULT: '#9333ea', deep: '#7e22ce', dark: '#6b21a8' }
+          },
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    .gradient-dark  { background: linear-gradient(135deg, #1e1b4b 0%, #1e3a8a 100%); }
+    .gradient-brand { background: linear-gradient(135deg, #9333ea 0%, #3730a3 100%); }
+    .gradient-hero  { background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #e0e7ff 100%); }
+    .timeline-line::before { content:''; position:absolute; left:19px; top:0; bottom:0; width:2px; background: linear-gradient(180deg, #9333ea, #1e3a8a); }
+  </style>
+</head>
+<body class="font-sans bg-white text-gray-900 antialiased">
+
+<!-- Navbar -->
+<nav style="background:#1e1b4b;" class="fixed top-0 left-0 right-0 z-50 border-b border-white border-opacity-10">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
+    <a href="index.html" class="flex items-center gap-2">
+      <img src="Marketing/Logo/rendered%20logo.png" alt="" class="w-9 h-9 object-contain" />
+      <span class="text-white font-extrabold text-lg">Stoday <span class="text-purple-mid">Plus</span></span>
+    </a>
+    <div class="hidden md:flex items-center gap-6 text-sm text-gray-300">
+      <a href="index.html#techniques"     class="hover:text-white transition-colors">Techniques</a>
+      <a href="index.html#whats-included" class="hover:text-white transition-colors">What's Included</a>
+      <a href="index.html#pricing"        class="hover:text-white transition-colors">Pricing</a>
+    </div>
+    <a href="join.html" class="gradient-brand text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity">Get Started →</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="gradient-hero pt-32 pb-20">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+    <img src="Marketing/Logo/rendered%20logo.png" alt="Stoday Plus mascot" class="w-28 h-28 object-contain mx-auto mb-6" />
+    <h1 class="text-4xl sm:text-5xl font-extrabold text-navy-dark mb-4">
+      Who I Was. Who I Became.<br />
+      <span class="text-purple-DEFAULT">Why Stoday Exists.</span>
+    </h1>
+    <p class="text-gray-500 text-lg max-w-2xl mx-auto leading-relaxed">
+      This isn't a corporate product. It's a system built out of frustration — by a student who refused to accept that effort alone was enough.
+    </p>
+  </div>
+</section>
+
+<!-- Story -->
+<section class="py-20 bg-white">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6">
+
+    <!-- Credentials bar -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-16">
+      <div class="bg-purple-light border border-purple-soft rounded-2xl p-5 text-center">
+        <p class="text-3xl font-extrabold text-purple-DEFAULT mb-1">20+</p>
+        <p class="text-gray-600 text-sm">International Olympiad awards</p>
+      </div>
+      <div class="bg-purple-light border border-purple-soft rounded-2xl p-5 text-center">
+        <p class="text-3xl font-extrabold text-purple-DEFAULT mb-1">Top 1%</p>
+        <p class="text-gray-600 text-sm">Pharmacy school offer in London</p>
+      </div>
+      <div class="bg-purple-light border border-purple-soft rounded-2xl p-5 text-center">
+        <p class="text-3xl font-extrabold text-purple-DEFAULT mb-1">Scholar</p>
+        <p class="text-gray-600 text-sm">Scholarship student, UK private college</p>
+      </div>
+    </div>
+
+    <!-- Timeline story -->
+    <div class="relative timeline-line space-y-10 pl-12">
+
+      <div class="relative">
+        <div class="absolute left-0 top-1 w-10 h-10 rounded-full gradient-brand flex items-center justify-center text-white font-bold text-sm shadow-lg" style="left:-12px;">1</div>
+        <h3 class="font-extrabold text-navy-dark text-lg mb-2">The student who followed the rules</h3>
+        <p class="text-gray-600 leading-relaxed text-sm sm:text-base">I was the kid who did everything right. Extra classes. Revision packs. My mum spent money we didn't have on worksheets. I sat in classrooms where teachers stood at the front like gods, and we sat in silence, wasting time we'd never get back.</p>
+        <p class="text-gray-600 leading-relaxed mt-3 text-sm sm:text-base">I studied hard. But I wasn't getting smarter. I was getting exhausted.</p>
+      </div>
+
+      <div class="relative">
+        <div class="absolute top-1 w-10 h-10 rounded-full gradient-brand flex items-center justify-center text-white font-bold text-sm shadow-lg" style="left:-12px;">2</div>
+        <h3 class="font-extrabold text-navy-dark text-lg mb-2">The crack</h3>
+        <p class="text-gray-600 leading-relaxed text-sm sm:text-base">Then something broke. I realised this wasn't education — it was a system designed to keep students busy, not make them better. And I started asking <em>why</em>.</p>
+        <p class="text-gray-600 leading-relaxed mt-3 text-sm sm:text-base">Why does everyone study the same way? Why does nobody question the grind? Why are we spending hours revising only to forget it all by exam day?</p>
+      </div>
+
+      <div class="relative">
+        <div class="absolute top-1 w-10 h-10 rounded-full gradient-brand flex items-center justify-center text-white font-bold text-sm shadow-lg" style="left:-12px;">3</div>
+        <h3 class="font-extrabold text-navy-dark text-lg mb-2">The system</h3>
+        <p class="text-gray-600 leading-relaxed text-sm sm:text-base">I started paying attention. Testing methods. Looking at the science of how memory actually works — spaced repetition, active recall, the Forgetting Curve. I stopped copying notes and started testing myself. I stopped re-reading and started explaining things back to myself out loud.</p>
+        <p class="text-gray-600 leading-relaxed mt-3 text-sm sm:text-base">I trained my brain. Not just for exams — for understanding.</p>
+      </div>
+
+      <div class="relative">
+        <div class="absolute top-1 w-10 h-10 rounded-full gradient-brand flex items-center justify-center text-white font-bold text-sm shadow-lg" style="left:-12px;">4</div>
+        <h3 class="font-extrabold text-navy-dark text-lg mb-2">The result</h3>
+        <p class="text-gray-600 leading-relaxed text-sm sm:text-base">A-Levels I'm still proud of. An offer to study Pharmacy at one of the top schools in London. 20+ international Olympiad awards. Not from grinding harder — from thinking smarter.</p>
+        <p class="text-gray-600 leading-relaxed mt-3 text-sm sm:text-base">Even when I couldn't afford to accept the offer, I knew one thing: I had built something powerful. And I wasn't going to keep it to myself.</p>
+      </div>
+
+      <div class="relative">
+        <div class="absolute top-1 w-10 h-10 rounded-full gradient-brand flex items-center justify-center text-white font-bold text-sm shadow-lg" style="left:-12px;">5</div>
+        <h3 class="font-extrabold text-navy-dark text-lg mb-2">Stoday Plus</h3>
+        <p class="text-gray-600 leading-relaxed text-sm sm:text-base">Not as a product. Not as a brand. As a quiet decision: <strong>I'm done wasting time. I want freedom. And I'm going to build the system myself.</strong></p>
+        <p class="text-gray-600 leading-relaxed mt-3 text-sm sm:text-base">Stoday = Study Today. Because your future doesn't wait. And 30 minutes a day — done right — is all it takes to change it.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Quote section -->
+<section class="gradient-dark py-20">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 text-center">
+    <p class="text-purple-mid text-5xl font-serif mb-4">"</p>
+    <p class="text-white text-xl sm:text-2xl font-semibold leading-relaxed mb-6">
+      I didn't build this because I love helping people.<br />
+      I built it because I hate watching people stuck in a loop that breaks them.
+    </p>
+    <p class="text-gray-400">— Mikey Hoang, founder of Stoday Plus</p>
+  </div>
+</section>
+
+<!-- What I believe -->
+<section class="py-20" style="background:#f5f3ff;">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-extrabold text-navy-dark">What I believe</h2>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <div class="bg-white border border-purple-soft rounded-2xl p-6">
+        <div class="text-3xl mb-3">🔬</div>
+        <h3 class="font-extrabold text-navy-dark mb-2">Effort ≠ Progress</h3>
+        <p class="text-gray-500 text-sm leading-relaxed">Hours spent studying is not the same as learning. The method is everything. You can work twice as hard and get half the result if your method is wrong.</p>
+      </div>
+      <div class="bg-white border border-purple-soft rounded-2xl p-6">
+        <div class="text-3xl mb-3">🧠</div>
+        <h3 class="font-extrabold text-navy-dark mb-2">The brain is trainable</h3>
+        <p class="text-gray-500 text-sm leading-relaxed">Nobody is born a good studier. It's a skill. And like any skill, once you understand how it works, you can build it deliberately — in a fraction of the time most people spend.</p>
+      </div>
+      <div class="bg-white border border-purple-soft rounded-2xl p-6">
+        <div class="text-3xl mb-3">⏱</div>
+        <h3 class="font-extrabold text-navy-dark mb-2">30 minutes is enough</h3>
+        <p class="text-gray-500 text-sm leading-relaxed">Done with the right method, 30 minutes of focused, active study outperforms 3 hours of passive grinding. The research backs it. The results prove it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="py-20 bg-white text-center">
+  <div class="max-w-2xl mx-auto px-4 sm:px-6">
+    <h2 class="text-3xl font-extrabold text-navy-dark mb-4">Ready to study differently?</h2>
+    <p class="text-gray-500 mb-8">Start with the free Blurting Sheet or get the full system. Either way — start today.</p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a href="join.html" class="gradient-brand text-white font-bold px-8 py-4 rounded-xl hover:opacity-90 transition-opacity">Get the System — £37</a>
+      <a href="index.html" class="border-2 border-purple-soft text-purple-deep font-semibold px-8 py-4 rounded-xl hover:bg-purple-light transition-colors">← Back to home</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer style="background:#1e1b4b;" class="py-8 text-center">
+  <a href="index.html" class="text-purple-mid hover:text-purple-mid font-semibold text-sm">← Back to Stoday Plus</a>
+  <p class="text-gray-600 text-xs mt-2">© 2026 Stoday Plus. Study Today.</p>
+</footer>
+
+</body>
+</html>

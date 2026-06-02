@@ -1,0 +1,19 @@
+# Claude memory files
+.claude/
+
+# Large video file (1.4 GB — too large for GitHub)
+Core/11-min Sales Call/Sales.mp4
+
+# Old website subfolder (HTML files are now at repo root)
+website/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Zip archives
+*.zip
+
+# Personal certs (optional — remove this line if you want to include them)
+Certs/

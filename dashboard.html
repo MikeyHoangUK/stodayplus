@@ -1,0 +1,408 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Resources — Stoday Plus</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy:   { DEFAULT: '#1e3a8a', dark: '#1e1b4b', mid: '#3730a3' },
+            purple: { light: '#f3e8ff', soft: '#e9d5ff', mid: '#c084fc', DEFAULT: '#9333ea', deep: '#7e22ce', dark: '#6b21a8' }
+          },
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    .gradient-brand { background: linear-gradient(135deg, #9333ea 0%, #3730a3 100%); }
+    .gradient-dark  { background: linear-gradient(135deg, #1e1b4b 0%, #1e3a8a 100%); }
+    .sidebar-link   { transition: background .12s, color .12s; }
+    .sidebar-link.active { background: #f3e8ff; color: #7e22ce; font-weight: 700; }
+    .sidebar-link:hover:not(.active) { background: #f5f3ff; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .resource-card:hover { border-color: #c084fc; box-shadow: 0 8px 24px rgba(147,51,234,.1); }
+    .resource-card { transition: border-color .15s, box-shadow .15s; }
+  </style>
+</head>
+<body class="font-sans bg-gray-50 text-gray-900 antialiased flex h-screen overflow-hidden">
+
+<!-- ── SIDEBAR ─────────────────────────────────────────────── -->
+<aside class="w-64 flex-shrink-0 hidden lg:flex flex-col" style="background:#1e1b4b;">
+  <!-- Logo -->
+  <div class="px-5 py-5 border-b border-white border-opacity-10 flex items-center gap-2">
+    <img src="Marketing/Logo/rendered%20logo.png" alt="" class="w-9 h-9 object-contain" />
+    <span class="text-white font-extrabold">Stoday <span class="text-purple-mid">Plus</span></span>
+  </div>
+  <!-- User -->
+  <div class="px-5 py-4 border-b border-white border-opacity-10">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full gradient-brand flex items-center justify-center text-white font-bold text-sm flex-shrink-0">M</div>
+      <div>
+        <p class="text-white text-sm font-semibold">Mikey's Student</p>
+        <p class="text-gray-500 text-xs">Full System</p>
+      </div>
+    </div>
+  </div>
+  <!-- Nav -->
+  <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+    <button onclick="showTab('home')"       id="nav-home"       class="sidebar-link active w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-left text-purple-deep">
+      <span>🏠</span> Home
+    </button>
+    <button onclick="showTab('techniques')" id="nav-techniques" class="sidebar-link w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-left text-gray-400">
+      <span>🧠</span> 5 Techniques
+    </button>
+    <button onclick="showTab('blurting')"   id="nav-blurting"   class="sidebar-link w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-left text-gray-400">
+      <span>📝</span> Blurting Sheet
+    </button>
+    <button onclick="showTab('system')"     id="nav-system"     class="sidebar-link w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-left text-gray-400">
+      <span>⚡</span> Daily System
+    </button>
+    <button onclick="showTab('resources')"  id="nav-resources"  class="sidebar-link w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-left text-gray-400">
+      <span>📦</span> All Resources
+    </button>
+    <button onclick="showTab('video')"      id="nav-video"      class="sidebar-link w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-left text-gray-400">
+      <span>▶️</span> Video Walkthrough
+    </button>
+    <div class="pt-4 border-t border-white border-opacity-10 mt-4">
+      <button onclick="showTab('mentoring')" id="nav-mentoring" class="sidebar-link w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-left text-gray-400">
+        <span>📞</span> Book Mentoring
+      </button>
+    </div>
+  </nav>
+  <div class="px-4 py-3 border-t border-white border-opacity-10">
+    <a href="index.html" class="text-gray-600 text-xs hover:text-gray-400 transition-colors">← Back to site</a>
+  </div>
+</aside>
+
+<!-- ── MAIN ───────────────────────────────────────────────── -->
+<div class="flex-1 flex flex-col overflow-hidden">
+  <!-- Topbar -->
+  <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between flex-shrink-0">
+    <div>
+      <h1 class="font-extrabold text-navy-dark text-lg" id="page-title">Home</h1>
+      <p class="text-gray-400 text-sm" id="page-sub">Welcome back. Let's study smart today.</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full gradient-brand flex items-center justify-center text-white font-bold text-sm">M</div>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <main class="flex-1 overflow-y-auto p-6">
+
+    <!-- ── HOME ─────────────────────────────────────────────── -->
+    <div id="tab-home" class="tab-content active">
+      <!-- Welcome card -->
+      <div class="rounded-2xl p-6 mb-6 text-white relative overflow-hidden" style="background: linear-gradient(135deg, #1e1b4b 0%, #3730a3 60%, #1e3a8a 100%);">
+        <div class="absolute right-0 bottom-0 opacity-10">
+          <img src="Marketing/Logo/rendered%20logo.png" class="w-40" alt="" />
+        </div>
+        <p class="text-purple-mid font-semibold text-sm mb-1">Stoday Plus — Study Today</p>
+        <h2 class="text-2xl font-extrabold mb-2">Your system is ready. 🎓</h2>
+        <p class="text-gray-300 text-sm max-w-md">You've got access to everything. Start with the 11-minute video, or jump straight into the Blurting Sheet if you have a topic to revise right now.</p>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <button onclick="showTab('blurting')" class="bg-white border border-purple-soft rounded-2xl p-5 text-left hover:border-purple-DEFAULT transition-colors resource-card">
+          <div class="text-2xl mb-2">📝</div>
+          <p class="font-bold text-navy-dark text-sm">Use the Blurting Sheet</p>
+          <p class="text-gray-400 text-xs mt-1">Active recall right now</p>
+        </button>
+        <button onclick="showTab('video')" class="bg-white border border-purple-soft rounded-2xl p-5 text-left hover:border-purple-DEFAULT transition-colors resource-card">
+          <div class="text-2xl mb-2">▶️</div>
+          <p class="font-bold text-navy-dark text-sm">Watch the breakdown</p>
+          <p class="text-gray-400 text-xs mt-1">11-minute full walkthrough</p>
+        </button>
+        <button onclick="showTab('techniques')" class="bg-white border border-purple-soft rounded-2xl p-5 text-left hover:border-purple-DEFAULT transition-colors resource-card">
+          <div class="text-2xl mb-2">🧠</div>
+          <p class="font-bold text-navy-dark text-sm">Read the techniques</p>
+          <p class="text-gray-400 text-xs mt-1">All 5, in detail</p>
+        </button>
+      </div>
+
+      <!-- Today's focus -->
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-6">
+        <h3 class="font-extrabold text-navy-dark mb-4">Today's focus</h3>
+        <div class="space-y-3">
+          <label class="flex items-center gap-3 cursor-pointer group">
+            <input type="checkbox" class="rounded border-gray-300 text-purple-DEFAULT focus:ring-purple-DEFAULT" />
+            <div>
+              <p class="text-sm font-medium text-gray-900 group-hover:text-purple-deep transition-colors">Watch the 11-minute video walkthrough</p>
+              <p class="text-xs text-gray-400">Start here — understand the full system</p>
+            </div>
+          </label>
+          <label class="flex items-center gap-3 cursor-pointer group">
+            <input type="checkbox" class="rounded border-gray-300 text-purple-DEFAULT focus:ring-purple-DEFAULT" />
+            <div>
+              <p class="text-sm font-medium text-gray-900 group-hover:text-purple-deep transition-colors">Complete one Blurting Sheet on a topic you're studying</p>
+              <p class="text-xs text-gray-400">Any topic, any subject — 5-10 minutes</p>
+            </div>
+          </label>
+          <label class="flex items-center gap-3 cursor-pointer group">
+            <input type="checkbox" class="rounded border-gray-300 text-purple-DEFAULT focus:ring-purple-DEFAULT" />
+            <div>
+              <p class="text-sm font-medium text-gray-900 group-hover:text-purple-deep transition-colors">Read through one technique from the 5 Techniques guide</p>
+              <p class="text-xs text-gray-400">Pick the one that feels most useful right now</p>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Quote -->
+      <div class="bg-purple-light border border-purple-soft rounded-2xl p-5 text-center">
+        <p class="text-purple-dark font-semibold text-sm">"15 minutes of smart is better than 3 hours of stuck."</p>
+        <p class="text-gray-400 text-xs mt-1">— Mikey Hoang, Stoday Plus</p>
+      </div>
+    </div>
+
+    <!-- ── TECHNIQUES ──────────────────────────────────────── -->
+    <div id="tab-techniques" class="tab-content">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div class="bg-white border border-purple-soft rounded-2xl p-6 resource-card">
+          <div class="w-10 h-10 rounded-xl gradient-brand flex items-center justify-center text-white font-extrabold mb-4">01</div>
+          <h3 class="font-extrabold text-navy-dark mb-2">Pomodoro+</h3>
+          <p class="text-gray-600 text-sm leading-relaxed mb-4">25 min work + 5 min break. For deeper sessions: 45-60 min. Scientifically proven to sustain focus without mental fatigue.</p>
+          <div class="bg-purple-light rounded-xl p-3 text-xs text-purple-deep font-semibold">Tip: Set a timer right now. The ritual starts the focus.</div>
+        </div>
+        <div class="bg-white border border-purple-soft rounded-2xl p-6 resource-card">
+          <div class="w-10 h-10 rounded-xl gradient-brand flex items-center justify-center text-white font-extrabold mb-4">02</div>
+          <h3 class="font-extrabold text-navy-dark mb-2">Active Recall</h3>
+          <p class="text-gray-600 text-sm leading-relaxed mb-4">Close your notes. Write or say everything you can remember. Then check. This is 300% more effective than re-reading.</p>
+          <div class="bg-purple-light rounded-xl p-3 text-xs text-purple-deep font-semibold">Use the Blurting Sheet to do this properly →</div>
+        </div>
+        <div class="bg-white border border-purple-soft rounded-2xl p-6 resource-card">
+          <div class="w-10 h-10 rounded-xl gradient-brand flex items-center justify-center text-white font-extrabold mb-4">03</div>
+          <h3 class="font-extrabold text-navy-dark mb-2">Spaced Repetition</h3>
+          <p class="text-gray-600 text-sm leading-relaxed mb-4">Review material at increasing intervals. Day 1, Day 3, Day 7, Day 14. Fights the Forgetting Curve and locks info into long-term memory.</p>
+          <div class="bg-purple-light rounded-xl p-3 text-xs text-purple-deep font-semibold">Schedule: revise every topic within 3 days of first learning it.</div>
+        </div>
+        <div class="bg-white border border-purple-soft rounded-2xl p-6 resource-card">
+          <div class="w-10 h-10 rounded-xl gradient-brand flex items-center justify-center text-white font-extrabold mb-4">04</div>
+          <h3 class="font-extrabold text-navy-dark mb-2">3-Day Retention</h3>
+          <p class="text-gray-600 text-sm leading-relaxed mb-4">Memory plummets after 3 days if not reviewed. Structure your sessions so nothing falls into the dead window and gets erased.</p>
+          <div class="bg-purple-light rounded-xl p-3 text-xs text-purple-deep font-semibold">Rule: if you learned it today, revisit it within 3 days.</div>
+        </div>
+        <div class="bg-white border border-purple-soft rounded-2xl p-6 resource-card sm:col-span-2">
+          <div class="w-10 h-10 rounded-xl gradient-brand flex items-center justify-center text-white font-extrabold mb-4">05</div>
+          <h3 class="font-extrabold text-navy-dark mb-2">Feynman Technique</h3>
+          <p class="text-gray-600 text-sm leading-relaxed mb-4">If you can explain a concept in simple words to a 12-year-old, you understand it. If you can't, you don't — no matter how many times you've read it. Write your explanation. Find the gaps.</p>
+          <div class="bg-purple-light rounded-xl p-3 text-xs text-purple-deep font-semibold">Exercise: Pick one topic. Explain it in 5 sentences without looking at your notes.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BLURTING SHEET ──────────────────────────────────── -->
+    <div id="tab-blurting" class="tab-content">
+      <div class="max-w-2xl">
+        <div class="bg-white border border-purple-soft rounded-2xl p-6 mb-5">
+          <h3 class="font-extrabold text-navy-dark text-lg mb-1">The Blurting Sheet</h3>
+          <p class="text-gray-500 text-sm mb-5">The simplest and most powerful active recall tool. Use it after every lecture, reading, or revision session.</p>
+          <div class="flex flex-col sm:flex-row gap-6 items-start">
+            <img src="Core/Blurting%20Sheet/Blurting%20Sheet.png" alt="Blurting Sheet" class="w-40 rounded-xl border border-gray-200 shadow flex-shrink-0" />
+            <div>
+              <h4 class="font-bold text-navy-dark mb-3">How to use it</h4>
+              <ol class="space-y-3 text-sm text-gray-700">
+                <li class="flex gap-3"><span class="w-6 h-6 rounded-full gradient-brand text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">1</span><span>Write the topic at the top. Close all notes.</span></li>
+                <li class="flex gap-3"><span class="w-6 h-6 rounded-full gradient-brand text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">2</span><span>Blurt out <em>everything</em> you remember for 3–5 minutes. No peeking.</span></li>
+                <li class="flex gap-3"><span class="w-6 h-6 rounded-full gradient-brand text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">3</span><span>Open your notes. Check and correct in a different colour.</span></li>
+                <li class="flex gap-3"><span class="w-6 h-6 rounded-full gradient-brand text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">4</span><span>Note: what did you forget? What was wrong? That's your revision priority.</span></li>
+              </ol>
+              <a href="Core/Blurting%20Sheet/Blurting%20Sheet.png" download class="inline-block mt-5 gradient-brand text-white font-semibold text-sm px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity">
+                Download PDF →
+              </a>
+            </div>
+          </div>
+        </div>
+        <!-- Interactive blurt -->
+        <div class="bg-white border border-purple-soft rounded-2xl p-6">
+          <h3 class="font-extrabold text-navy-dark mb-1">Quick blurt — right now</h3>
+          <p class="text-gray-500 text-sm mb-4">Pick a topic and blurt what you know. No notes open.</p>
+          <input type="text" placeholder="Topic (e.g. Photosynthesis, World War II, Calculus)" class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" />
+          <textarea rows="5" placeholder="Write everything you can remember... don't stop, don't edit, just blurt." class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT mb-3"></textarea>
+          <div class="flex gap-3">
+            <button class="gradient-brand text-white font-semibold text-sm px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity">Start 5-min timer ⏱</button>
+            <button class="border border-gray-300 text-gray-600 font-semibold text-sm px-5 py-2.5 rounded-xl hover:bg-gray-50 transition-colors">Clear</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DAILY SYSTEM ─────────────────────────────────────── -->
+    <div id="tab-system" class="tab-content">
+      <div class="max-w-2xl">
+        <div class="bg-white border border-purple-soft rounded-2xl p-6 mb-5">
+          <h3 class="font-extrabold text-navy-dark text-lg mb-4">The Stoday Daily System</h3>
+          <p class="text-gray-500 text-sm mb-6">A repeatable daily structure. 30 minutes minimum. Follow this every day and you will outperform students doing 3-hour sessions.</p>
+          <div class="space-y-4">
+            <div class="flex items-start gap-4 p-4 bg-purple-light rounded-xl">
+              <div class="w-10 h-10 rounded-xl gradient-brand flex items-center justify-center text-white font-extrabold text-sm flex-shrink-0">1</div>
+              <div>
+                <p class="font-bold text-navy-dark">Warm-up — 5 min</p>
+                <p class="text-gray-600 text-sm mt-1">Blurt everything you remember from your last session. No notes. Just memory. This activates recall and shows you what's still in your head.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4 p-4 bg-purple-light rounded-xl">
+              <div class="w-10 h-10 rounded-xl gradient-brand flex items-center justify-center text-white font-extrabold text-sm flex-shrink-0">2</div>
+              <div>
+                <p class="font-bold text-navy-dark">Deep Work — 20 min (Pomodoro+)</p>
+                <p class="text-gray-600 text-sm mt-1">One topic only. New material or a deep review. Use the Feynman method: explain it back to yourself as if teaching someone else.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4 p-4 bg-purple-light rounded-xl">
+              <div class="w-10 h-10 rounded-xl gradient-brand flex items-center justify-center text-white font-extrabold text-sm flex-shrink-0">3</div>
+              <div>
+                <p class="font-bold text-navy-dark">Review + Space — 5 min</p>
+                <p class="text-gray-600 text-sm mt-1">Quick review of something you studied 3 days ago. This is your spaced repetition slot. Mark it in your notes. Schedule next review.</p>
+              </div>
+            </div>
+          </div>
+          <div class="mt-5 p-4 rounded-xl border border-purple-DEFAULT bg-white">
+            <p class="font-bold text-purple-dark text-sm">Total: 30 minutes. That's it.</p>
+            <p class="text-gray-500 text-xs mt-1">Add more Pomodoro blocks if you have time. But 30 minutes done right is non-negotiable.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ALL RESOURCES ────────────────────────────────────── -->
+    <div id="tab-resources" class="tab-content">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <a href="Core/MVP/5%20Novel%20SP%20Techniques/5%20Novel%20Stoday%20Plus%20Technique%20-%20second%20draft.pdf" target="_blank"
+           class="bg-white border border-purple-soft rounded-2xl p-6 resource-card flex flex-col">
+          <img src="Marketing/Store%20Page%20Esstls/1.png" alt="" class="w-12 h-12 rounded-xl mb-4 object-cover" />
+          <h4 class="font-extrabold text-navy-dark mb-1">5 Techniques Guide (PDF)</h4>
+          <p class="text-gray-500 text-xs flex-1 mb-3">The full written guide for all 5 Stoday Plus study techniques.</p>
+          <span class="text-purple-DEFAULT text-xs font-bold">Open PDF →</span>
+        </a>
+        <a href="Core/Blurting%20Sheet/Blurting%20Sheet.png" download
+           class="bg-white border border-purple-soft rounded-2xl p-6 resource-card flex flex-col">
+          <img src="Marketing/Store%20Page%20Esstls/3.png" alt="" class="w-12 h-12 rounded-xl mb-4 object-cover" />
+          <h4 class="font-extrabold text-navy-dark mb-1">Blurting Sheet Template</h4>
+          <p class="text-gray-500 text-xs flex-1 mb-3">Printable active recall worksheet. Use after every session.</p>
+          <span class="text-purple-DEFAULT text-xs font-bold">Download →</span>
+        </a>
+        <a href="Core/Blurting%20Sheet/Blurting%20Guide%20-%20How%20to%20Blurt.pdf" target="_blank"
+           class="bg-white border border-purple-soft rounded-2xl p-6 resource-card flex flex-col">
+          <div class="w-12 h-12 rounded-xl gradient-brand flex items-center justify-center text-white text-xl mb-4">📖</div>
+          <h4 class="font-extrabold text-navy-dark mb-1">How to Blurt Guide</h4>
+          <p class="text-gray-500 text-xs flex-1 mb-3">Step-by-step instructions for using the Blurting Sheet correctly.</p>
+          <span class="text-purple-DEFAULT text-xs font-bold">Open PDF →</span>
+        </a>
+        <a href="Core/Scientific%20Papers/SP%20-%20Final.pdf" target="_blank"
+           class="bg-white border border-purple-soft rounded-2xl p-6 resource-card flex flex-col">
+          <img src="Marketing/Store%20Page%20Esstls/4.png" alt="" class="w-12 h-12 rounded-xl mb-4 object-cover" />
+          <h4 class="font-extrabold text-navy-dark mb-1">Scientific Research Papers</h4>
+          <p class="text-gray-500 text-xs flex-1 mb-3">The neuroscience behind why the Stoday techniques work.</p>
+          <span class="text-purple-DEFAULT text-xs font-bold">Open PDF →</span>
+        </a>
+        <button onclick="showTab('video')"
+           class="bg-white border border-purple-soft rounded-2xl p-6 resource-card flex flex-col text-left">
+          <div class="w-12 h-12 rounded-xl gradient-brand flex items-center justify-center text-white text-xl mb-4">▶</div>
+          <h4 class="font-extrabold text-navy-dark mb-1">11-min Video Walkthrough</h4>
+          <p class="text-gray-500 text-xs flex-1 mb-3">Mikey explains the full system in under 11 minutes.</p>
+          <span class="text-purple-DEFAULT text-xs font-bold">Watch →</span>
+        </button>
+        <a href="Core/About%20Me/About%20Me.pdf" target="_blank"
+           class="bg-white border border-purple-soft rounded-2xl p-6 resource-card flex flex-col">
+          <div class="w-12 h-12 rounded-xl overflow-hidden mb-4 flex-shrink-0">
+            <img src="Marketing/Logo/rendered%20logo.png" class="w-full h-full object-contain bg-purple-light p-1" alt="" />
+          </div>
+          <h4 class="font-extrabold text-navy-dark mb-1">About Mikey (PDF)</h4>
+          <p class="text-gray-500 text-xs flex-1 mb-3">The full story behind Stoday Plus — who Mikey is and why he built it.</p>
+          <span class="text-purple-DEFAULT text-xs font-bold">Open PDF →</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- ── VIDEO ────────────────────────────────────────────── -->
+    <div id="tab-video" class="tab-content">
+      <div class="max-w-2xl">
+        <div class="bg-white border border-purple-soft rounded-2xl p-6">
+          <h3 class="font-extrabold text-navy-dark text-lg mb-1">11-min Video Walkthrough</h3>
+          <p class="text-gray-500 text-sm mb-5">Mikey walks through the complete Stoday Plus system. Watch this first.</p>
+          <div class="relative rounded-xl overflow-hidden shadow-lg cursor-pointer group mb-4"
+               onclick="this.querySelector('img').style.display='none'; this.querySelector('.play-overlay').style.display='none';">
+            <img src="Core/11-min%20Sales%20Call/Thumbnail.png" alt="Video thumbnail" class="w-full" />
+            <div class="play-overlay absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 group-hover:bg-opacity-40 transition-all">
+              <div class="w-16 h-16 rounded-full gradient-brand flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
+                <svg class="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="bg-purple-light rounded-xl p-4 text-sm">
+            <p class="font-bold text-navy-dark mb-1">What's covered:</p>
+            <ul class="space-y-1 text-gray-600 text-sm">
+              <li>• Why most students study ineffectively (and don't know it)</li>
+              <li>• The 5 techniques — how each one works in practice</li>
+              <li>• The 30-minute daily system</li>
+              <li>• How to apply this starting today</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MENTORING ────────────────────────────────────────── -->
+    <div id="tab-mentoring" class="tab-content">
+      <div class="max-w-xl">
+        <div class="rounded-2xl p-6 text-white mb-5" style="background: linear-gradient(135deg, #1e1b4b 0%, #3730a3 100%);">
+          <div class="flex items-start gap-4">
+            <img src="Marketing/Logo/rendered%20logo.png" alt="" class="w-16 h-16 object-contain flex-shrink-0" />
+            <div>
+              <h3 class="font-extrabold text-xl mb-1">1:1 Session with Mikey</h3>
+              <p class="text-gray-300 text-sm leading-relaxed">A personalised strategy call. Mikey reviews your current approach, identifies what's costing you time, and builds a custom system around your subjects and goals.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white border border-purple-soft rounded-2xl p-6">
+          <h4 class="font-extrabold text-navy-dark mb-4">What's included — £55</h4>
+          <ul class="space-y-2 text-sm text-gray-700 mb-6">
+            <li class="flex gap-2"><span class="text-purple-DEFAULT">✓</span> 50-minute 1:1 video call with Mikey</li>
+            <li class="flex gap-2"><span class="text-purple-DEFAULT">✓</span> Review of your current study approach</li>
+            <li class="flex gap-2"><span class="text-purple-DEFAULT">✓</span> Custom system built around your subjects</li>
+            <li class="flex gap-2"><span class="text-purple-DEFAULT">✓</span> Exam schedule and revision plan</li>
+            <li class="flex gap-2"><span class="text-purple-DEFAULT">✓</span> Written follow-up summary</li>
+          </ul>
+          <a href="join.html#mentoring" class="block text-center gradient-brand text-white font-bold px-6 py-3 rounded-xl hover:opacity-90 transition-opacity">Book a session — £55</a>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  const tabs = ['home','techniques','blurting','system','resources','video','mentoring'];
+  const titles = {
+    home:       ['Home',              'Welcome back. Let\'s study smart today.'],
+    techniques: ['5 Techniques',      'The science-backed methods inside Stoday Plus'],
+    blurting:   ['Blurting Sheet',    'Active recall — the most powerful thing you can do right now'],
+    system:     ['Daily System',      '30 minutes, done right, every day'],
+    resources:  ['All Resources',     'Every guide, PDF, and tool in your bundle'],
+    video:      ['Video Walkthrough', 'The 11-minute full system breakdown'],
+    mentoring:  ['Book Mentoring',    '1:1 session with Mikey — personalised to you'],
+  };
+  function showTab(tab) {
+    tabs.forEach(t => {
+      document.getElementById('tab-'+t)?.classList.remove('active');
+      document.getElementById('nav-'+t)?.classList.remove('active');
+      document.getElementById('nav-'+t)?.classList.add('text-gray-400');
+    });
+    document.getElementById('tab-'+tab)?.classList.add('active');
+    document.getElementById('nav-'+tab)?.classList.add('active');
+    document.getElementById('nav-'+tab)?.classList.remove('text-gray-400');
+    const [title, sub] = titles[tab] || ['',''];
+    document.getElementById('page-title').textContent = title;
+    document.getElementById('page-sub').textContent = sub;
+  }
+</script>
+</body>
+</html>

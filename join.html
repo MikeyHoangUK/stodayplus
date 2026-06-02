@@ -1,0 +1,229 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Get Started — Stoday Plus</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy:   { DEFAULT: '#1e3a8a', dark: '#1e1b4b', mid: '#3730a3' },
+            purple: { light: '#f3e8ff', soft: '#e9d5ff', mid: '#c084fc', DEFAULT: '#9333ea', deep: '#7e22ce', dark: '#6b21a8' }
+          },
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    .gradient-dark  { background: linear-gradient(135deg, #1e1b4b 0%, #1e3a8a 100%); }
+    .gradient-brand { background: linear-gradient(135deg, #9333ea 0%, #3730a3 100%); }
+    .option-card { transition: border-color .15s, box-shadow .15s, transform .15s; cursor: pointer; }
+    .option-card:hover { border-color: #9333ea; box-shadow: 0 8px 24px rgba(147,51,234,.12); transform: translateY(-2px); }
+    .option-card.selected { border-color: #9333ea; background: #f3e8ff; box-shadow: 0 8px 24px rgba(147,51,234,.15); }
+  </style>
+</head>
+<body class="font-sans bg-gray-50 antialiased">
+
+<!-- Navbar -->
+<nav style="background:#1e1b4b;" class="border-b border-white border-opacity-10">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
+    <a href="index.html" class="flex items-center gap-2">
+      <img src="Marketing/Logo/rendered%20logo.png" alt="" class="w-9 h-9 object-contain" />
+      <span class="text-white font-extrabold text-lg">Stoday <span class="text-purple-mid">Plus</span></span>
+    </a>
+    <a href="login.html" class="text-gray-400 hover:text-white text-sm transition-colors">Already have an account? Log in</a>
+  </div>
+</nav>
+
+<div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+
+  <!-- Header -->
+  <div class="text-center mb-10">
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-navy-dark mb-3">Choose how you want to start</h1>
+    <p class="text-gray-500">Pick the option that fits where you are right now.</p>
+  </div>
+
+  <!-- Options -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-10" id="option-grid">
+
+    <!-- Free -->
+    <div id="opt-free" class="option-card bg-white border-2 border-gray-200 rounded-2xl p-6 flex flex-col" onclick="selectOption('free')">
+      <div class="mb-4">
+        <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-3 py-1 rounded-full mb-3">FREE</span>
+        <h2 class="text-xl font-extrabold text-navy-dark mb-1">Blurting Sheet</h2>
+        <p class="text-3xl font-extrabold text-navy-dark">£0</p>
+      </div>
+      <ul class="space-y-2 text-sm text-gray-600 flex-1 mb-6">
+        <li class="flex items-start gap-2"><span class="text-purple-DEFAULT mt-0.5">✓</span> Blurting Sheet PDF template</li>
+        <li class="flex items-start gap-2"><span class="text-purple-DEFAULT mt-0.5">✓</span> How to Blurt guide</li>
+        <li class="flex items-start gap-2"><span class="text-purple-DEFAULT mt-0.5">✓</span> Intro to the 5 techniques</li>
+        <li class="flex items-start gap-2 text-gray-300"><span>✗</span> Full system + guides</li>
+        <li class="flex items-start gap-2 text-gray-300"><span>✗</span> Video walkthrough</li>
+      </ul>
+      <button onclick="selectOption('free')" class="w-full border-2 border-purple-soft text-purple-deep font-semibold py-3 rounded-xl hover:bg-purple-light transition-colors text-sm">
+        Download Free
+      </button>
+    </div>
+
+    <!-- Full System -->
+    <div id="opt-full" class="option-card selected bg-white border-2 border-purple-DEFAULT rounded-2xl p-6 flex flex-col relative">
+      <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+        <span class="gradient-brand text-white text-xs font-bold px-4 py-1 rounded-full">RECOMMENDED</span>
+      </div>
+      <div class="mb-4">
+        <span class="inline-block bg-purple-DEFAULT text-white text-xs font-bold px-3 py-1 rounded-full mb-3">FULL SYSTEM</span>
+        <h2 class="text-xl font-extrabold text-navy-dark mb-1">Stoday Plus</h2>
+        <p class="text-3xl font-extrabold text-navy-dark">£37 <span class="text-sm font-medium text-gray-400">one-time</span></p>
+      </div>
+      <ul class="space-y-2 text-sm text-gray-600 flex-1 mb-6">
+        <li class="flex items-start gap-2"><span class="text-purple-DEFAULT mt-0.5">✓</span> Everything in Free</li>
+        <li class="flex items-start gap-2"><span class="text-purple-DEFAULT mt-0.5">✓</span> 5 techniques full guide + PDFs</li>
+        <li class="flex items-start gap-2"><span class="text-purple-DEFAULT mt-0.5">✓</span> Complete Stoday daily system</li>
+        <li class="flex items-start gap-2"><span class="text-purple-DEFAULT mt-0.5">✓</span> Scientific papers + research</li>
+        <li class="flex items-start gap-2"><span class="text-purple-DEFAULT mt-0.5">✓</span> 11-minute video walkthrough</li>
+        <li class="flex items-start gap-2"><span class="text-purple-DEFAULT mt-0.5">✓</span> All future updates</li>
+      </ul>
+      <button onclick="selectOption('full')" class="w-full gradient-brand text-white font-bold py-3 rounded-xl hover:opacity-90 transition-opacity text-sm">
+        Get Full System — £37
+      </button>
+    </div>
+
+    <!-- Mentoring -->
+    <div id="opt-mentoring" class="option-card bg-white border-2 border-gray-200 rounded-2xl p-6 flex flex-col" onclick="selectOption('mentoring')">
+      <div class="mb-4">
+        <span class="inline-block bg-navy-dark text-white text-xs font-bold px-3 py-1 rounded-full mb-3">1:1 SESSION</span>
+        <h2 class="text-xl font-extrabold text-navy-dark mb-1">Mentoring</h2>
+        <p class="text-3xl font-extrabold text-navy-dark">£55 <span class="text-sm font-medium text-gray-400">per session</span></p>
+      </div>
+      <ul class="space-y-2 text-sm text-gray-600 flex-1 mb-6">
+        <li class="flex items-start gap-2"><span class="text-purple-DEFAULT mt-0.5">✓</span> Everything in Full System</li>
+        <li class="flex items-start gap-2"><span class="text-purple-DEFAULT mt-0.5">✓</span> 1:1 session with Mikey</li>
+        <li class="flex items-start gap-2"><span class="text-purple-DEFAULT mt-0.5">✓</span> Custom system for your subjects</li>
+        <li class="flex items-start gap-2"><span class="text-purple-DEFAULT mt-0.5">✓</span> Exam schedule & revision plan</li>
+        <li class="flex items-start gap-2"><span class="text-purple-DEFAULT mt-0.5">✓</span> Direct feedback + follow-up</li>
+      </ul>
+      <button onclick="selectOption('mentoring')" class="w-full border-2 border-gray-200 text-navy-dark font-semibold py-3 rounded-xl hover:border-purple-DEFAULT hover:text-purple-deep transition-colors text-sm">
+        Book a Session
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Form panels -->
+  <div id="form-free" class="hidden max-w-md mx-auto bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+    <h3 class="font-extrabold text-navy-dark text-lg mb-1">Download the Free Resources</h3>
+    <p class="text-gray-500 text-sm mb-6">Enter your email and we'll send the Blurting Sheet and intro guide straight to your inbox.</p>
+    <form onsubmit="handleForm(event, 'dashboard.html')" class="space-y-4">
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Your name</label>
+        <input type="text" placeholder="First name" class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" required />
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Email address</label>
+        <input type="email" placeholder="you@example.com" class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" required />
+      </div>
+      <button type="submit" class="w-full gradient-brand text-white font-bold py-3.5 rounded-xl hover:opacity-90 transition-opacity text-sm">Send me the free resources →</button>
+      <p class="text-gray-400 text-xs text-center">No spam. Unsubscribe any time.</p>
+    </form>
+  </div>
+
+  <div id="form-full" class="max-w-md mx-auto bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+    <h3 class="font-extrabold text-navy-dark text-lg mb-1">Get the Full System</h3>
+    <p class="text-gray-500 text-sm mb-6">Create your account to access everything instantly after payment.</p>
+    <form onsubmit="handleForm(event, 'dashboard.html')" class="space-y-4">
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Full name</label>
+        <input type="text" placeholder="Your name" class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" required />
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Email address</label>
+        <input type="email" placeholder="you@example.com" class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" required />
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Create a password</label>
+        <input type="password" placeholder="At least 8 characters" class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" required />
+      </div>
+      <!-- Secure payment mock -->
+      <div class="bg-purple-light border border-purple-soft rounded-xl p-4">
+        <p class="text-xs text-purple-deep font-semibold mb-2">💳 Payment — £37 one-time</p>
+        <input type="text" placeholder="Card number" class="w-full border border-purple-soft rounded-lg px-3 py-2.5 text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT bg-white" />
+        <div class="grid grid-cols-2 gap-2">
+          <input type="text" placeholder="MM / YY" class="border border-purple-soft rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT bg-white" />
+          <input type="text" placeholder="CVC" class="border border-purple-soft rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT bg-white" />
+        </div>
+      </div>
+      <button type="submit" class="w-full gradient-brand text-white font-bold py-3.5 rounded-xl hover:opacity-90 transition-opacity text-sm">Pay £37 — Get Instant Access →</button>
+      <div class="flex items-center justify-center gap-4 text-xs text-gray-400">
+        <span>🔒 Secure payment</span>
+        <span>✓ Instant access</span>
+        <span>✓ No subscription</span>
+      </div>
+    </form>
+  </div>
+
+  <div id="form-mentoring" class="hidden max-w-md mx-auto bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+    <h3 class="font-extrabold text-navy-dark text-lg mb-1">Book a 1:1 Session with Mikey</h3>
+    <p class="text-gray-500 text-sm mb-6">Tell Mikey a little about where you are right now — he'll reach out within 24 hours to arrange a time.</p>
+    <form onsubmit="handleForm(event, 'dashboard.html')" class="space-y-4">
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Your name</label>
+        <input type="text" placeholder="Your name" class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" required />
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Email address</label>
+        <input type="email" placeholder="you@example.com" class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" required />
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">What subjects are you studying?</label>
+        <input type="text" placeholder="e.g. Maths, Biology, Chemistry" class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" />
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">What's your biggest challenge right now?</label>
+        <textarea rows="3" placeholder="Tell Mikey what's not working..." class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT resize-none"></textarea>
+      </div>
+      <button type="submit" class="w-full gradient-brand text-white font-bold py-3.5 rounded-xl hover:opacity-90 transition-opacity text-sm">Request a Session — £55 →</button>
+      <p class="text-gray-400 text-xs text-center">Mikey will be in touch within 24 hours to confirm your booking.</p>
+    </form>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<footer style="background:#1e1b4b;" class="mt-16 py-8 text-center">
+  <a href="index.html" class="text-purple-mid text-sm hover:opacity-80 transition-opacity">← Back to Stoday Plus</a>
+  <p class="text-gray-600 text-xs mt-2">© 2026 Stoday Plus. Study Today.</p>
+</footer>
+
+<script>
+  function selectOption(opt) {
+    ['free','full','mentoring'].forEach(o => {
+      const card = document.getElementById('opt-' + o);
+      const form = document.getElementById('form-' + o);
+      card.classList.remove('selected');
+      if (form) form.classList.add('hidden');
+    });
+    document.getElementById('opt-' + opt).classList.add('selected');
+    const form = document.getElementById('form-' + opt);
+    if (form) { form.classList.remove('hidden'); form.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+  }
+
+  function handleForm(e, dest) {
+    e.preventDefault();
+    window.location.href = dest;
+  }
+
+  // Check URL hash on load
+  window.addEventListener('DOMContentLoaded', () => {
+    const hash = window.location.hash;
+    if (hash === '#free')      selectOption('free');
+    else if (hash === '#mentoring') selectOption('mentoring');
+    else                       selectOption('full');
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Log In — Stoday Plus</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy:   { DEFAULT: '#1e3a8a', dark: '#1e1b4b', mid: '#3730a3' },
+            purple: { light: '#f3e8ff', soft: '#e9d5ff', mid: '#c084fc', DEFAULT: '#9333ea', deep: '#7e22ce' }
+          },
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    .gradient-dark  { background: linear-gradient(135deg, #1e1b4b 0%, #1e3a8a 100%); }
+    .gradient-brand { background: linear-gradient(135deg, #9333ea 0%, #3730a3 100%); }
+  </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex">
+
+  <!-- Left panel (decorative, desktop only) -->
+  <div class="hidden lg:flex lg:w-5/12 gradient-dark flex-col justify-between p-12">
+    <a href="index.html" class="flex items-center gap-2">
+      <img src="Marketing/Logo/rendered%20logo.png" alt="" class="w-10 h-10 object-contain" />
+      <span class="text-white font-extrabold text-xl">Stoday <span class="text-purple-mid">Plus</span></span>
+    </a>
+    <div>
+      <img src="Marketing/Logo/rendered%20logo.png" alt="" class="w-36 mx-auto mb-8 opacity-90" />
+      <blockquote class="text-white text-xl font-semibold leading-relaxed mb-4">
+        "I study because I choose to.<br />Not because I have to."
+      </blockquote>
+      <p class="text-gray-400 text-sm">— The Stoday Plus mindset</p>
+    </div>
+    <div class="space-y-2">
+      <div class="flex items-center gap-2 text-gray-300 text-sm"><span class="text-purple-mid">✓</span> Science-backed techniques</div>
+      <div class="flex items-center gap-2 text-gray-300 text-sm"><span class="text-purple-mid">✓</span> 30 minutes a day</div>
+      <div class="flex items-center gap-2 text-gray-300 text-sm"><span class="text-purple-mid">✓</span> Built by a student who did it</div>
+    </div>
+  </div>
+
+  <!-- Right panel: login form -->
+  <div class="flex-1 bg-gray-50 flex flex-col justify-center px-6 sm:px-12 lg:px-16 py-12">
+    <div class="max-w-md w-full mx-auto">
+
+      <!-- Mobile logo -->
+      <a href="index.html" class="flex items-center gap-2 mb-8 lg:hidden">
+        <img src="Marketing/Logo/rendered%20logo.png" alt="" class="w-9 h-9 object-contain" />
+        <span class="font-extrabold text-navy-dark text-lg">Stoday <span class="text-purple-DEFAULT">Plus</span></span>
+      </a>
+
+      <h1 class="text-2xl font-extrabold text-navy-dark mb-1">Welcome back</h1>
+      <p class="text-gray-500 text-sm mb-8">Log in to access your resources.</p>
+
+      <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+        <form class="space-y-5" onsubmit="e => { e.preventDefault(); window.location.href='dashboard.html'; }">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Email address</label>
+            <input type="email" placeholder="you@example.com"
+                   class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT focus:border-transparent transition" />
+          </div>
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label class="text-sm font-semibold text-gray-700">Password</label>
+              <a href="#" class="text-xs text-purple-DEFAULT hover:underline">Forgot password?</a>
+            </div>
+            <input type="password" placeholder="Your password"
+                   class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT focus:border-transparent transition" />
+          </div>
+          <button type="button" onclick="window.location.href='dashboard.html'"
+                  class="w-full gradient-brand text-white font-bold py-3.5 rounded-xl hover:opacity-90 transition-opacity text-sm">
+            Log in →
+          </button>
+        </form>
+      </div>
+
+      <p class="text-center text-gray-500 text-sm mt-6">
+        Don't have an account?
+        <a href="join.html" class="text-purple-DEFAULT font-semibold hover:underline">Get started →</a>
+      </p>
+      <p class="text-center mt-2">
+        <a href="index.html" class="text-gray-400 text-xs hover:text-gray-600 transition-colors">← Back to site</a>
+      </p>
+    </div>
+  </div>
+
+</body>
+</html>
