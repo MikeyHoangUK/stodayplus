@@ -39,72 +39,132 @@
 <body class="font-sans bg-white text-gray-900 antialiased">
 
 <!-- ── NAVBAR ─────────────────────────────────────────────── -->
-<nav class="fixed top-0 left-0 right-0 z-50 bg-navy-dark bg-opacity-97 backdrop-blur-sm border-b border-white border-opacity-10" style="background-color:#1e1b4b;">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
+<nav class="fixed top-0 left-0 right-0 z-50 backdrop-blur-sm border-b border-white border-opacity-10" style="background-color:#1e1b4b;">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
     <!-- Logo -->
     <a href="index.html" class="flex items-center gap-3 flex-shrink-0">
-      <img src="Marketing/Logo/rendered%20logo.png" alt="Stoday Plus mascot" class="w-12 h-12 object-contain" />
-      <span class="text-white font-extrabold text-xl tracking-wide">Stoday <span class="text-purple-mid font-extrabold">Plus</span></span>
+      <img src="Marketing/Logo/rendered%20logo.png" alt="Stoday Plus" class="w-10 h-10 object-contain" />
+      <span class="text-white font-extrabold text-xl tracking-wide">Stoday <span class="text-purple-mid">Plus</span></span>
     </a>
-    <!-- Desktop nav -->
-    <div class="hidden md:flex items-center gap-5 text-sm text-gray-300 font-medium">
-      <a href="#how-it-works"   class="nav-link hover:text-white transition-colors">How It Works</a>
-      <span class="text-gray-600 select-none text-xs">·</span>
-      <a href="#techniques"     class="nav-link hover:text-white transition-colors">Techniques</a>
-      <span class="text-gray-600 select-none text-xs">·</span>
-      <a href="#whats-included" class="nav-link hover:text-white transition-colors">What's Included</a>
-      <span class="text-gray-600 select-none text-xs">·</span>
-      <a href="about.html"      class="nav-link hover:text-white transition-colors">About Mikey</a>
-      <span class="text-gray-600 select-none text-xs">·</span>
-      <a href="#pricing"        class="nav-link hover:text-white transition-colors">Build Your System</a>
+    <!-- Desktop nav — 3 key links only -->
+    <div class="hidden md:flex items-center gap-5 text-sm text-gray-400 font-medium">
+      <a href="#techniques"  class="nav-link hover:text-white transition-colors">Techniques</a>
+      <span class="text-gray-700 select-none text-xs">·</span>
+      <a href="about.html"   class="nav-link hover:text-white transition-colors">About</a>
+      <span class="text-gray-700 select-none text-xs">·</span>
+      <a href="#pricing"     class="nav-link hover:text-white transition-colors">Build Your System</a>
     </div>
     <!-- CTA -->
     <div class="flex items-center gap-3">
-      <a href="login.html"  class="hidden sm:inline text-gray-400 hover:text-white text-sm transition-colors">Log in</a>
-      <a href="join.html"   class="gradient-brand text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity">Get Started →</a>
+      <a href="login.html" class="hidden sm:inline text-gray-500 hover:text-white text-sm transition-colors">Log in</a>
+      <a href="join.html"  class="gradient-brand text-white text-sm font-bold px-5 py-2 rounded-xl hover:opacity-90 transition-opacity">Get Started →</a>
     </div>
   </div>
 </nav>
 
 <!-- ── HERO ───────────────────────────────────────────────── -->
-<section class="gradient-hero min-h-screen flex items-center pt-16">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 w-full py-20">
-    <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+<section class="gradient-hero min-h-screen flex items-center pt-14">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 w-full py-24">
+    <div class="flex flex-col lg:flex-row items-center gap-16 lg:gap-20">
 
       <!-- Left: Copy -->
       <div class="flex-1 text-center lg:text-left">
-        <div class="inline-flex items-center gap-2 bg-white bg-opacity-70 border border-purple-soft rounded-full px-4 py-2 text-sm text-purple-deep font-semibold mb-6 shadow-sm">
-          <span>🎓</span> Built from real experience as a scholarship student
+        <div class="inline-flex items-center gap-2 bg-white bg-opacity-60 border border-purple-soft rounded-full px-4 py-2 text-sm text-purple-deep font-semibold mb-8 shadow-sm">
+          <span>✦</span> Science-backed and built from real student experience
         </div>
-        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-navy-dark leading-tight mb-5">
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-navy-dark leading-tight mb-6">
           Less study time.<br />
           <span class="text-purple-DEFAULT">Better results.</span>
         </h1>
-        <p class="text-lg text-gray-600 max-w-xl leading-relaxed mb-8 mx-auto lg:mx-0">
-          Stoday Plus is a science-backed study system that gets you better results in <strong>30 minutes a day</strong> — without the burnout, the guilt, or the endless re-reading that goes nowhere.
+        <p class="text-lg text-gray-500 max-w-lg leading-relaxed mb-10 mx-auto lg:mx-0">
+          A science-backed study system to help you get better results in less time — without burnout or pointless re-reading.
         </p>
-        <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-          <a href="join.html" class="w-full sm:w-auto gradient-brand text-white font-bold px-8 py-4 rounded-xl hover:opacity-90 transition-opacity text-center shadow-lg shadow-purple-DEFAULT shadow-opacity-30">
-            Get the Full System — £37
+        <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-5">
+          <a href="join.html" class="w-full sm:w-auto gradient-brand text-white font-bold px-8 py-4 rounded-xl hover:opacity-90 transition-opacity text-center shadow-lg">
+            Get the Full System
           </a>
-          <a href="#free-resource" class="w-full sm:w-auto bg-white border-2 border-purple-soft text-purple-deep font-semibold px-8 py-4 rounded-xl hover:bg-purple-light transition-colors text-center">
-            Free Blurting Sheet ↓
+          <a href="#free-resource" class="w-full sm:w-auto bg-white border border-purple-soft text-purple-deep font-semibold px-8 py-4 rounded-xl hover:bg-purple-light transition-colors text-center">
+            Get the Free Blurting Sheet
           </a>
         </div>
-        <p class="text-gray-400 text-sm mt-4">One-time payment. No subscription. Yours forever.</p>
+        <p class="text-gray-400 text-sm">£37 one-time · No subscription · Yours for life</p>
       </div>
 
-      <!-- Right: Mascot -->
-      <div class="flex-shrink-0 relative">
-        <div class="w-64 h-64 sm:w-80 sm:h-80 lg:w-96 lg:h-96 rounded-3xl bg-white shadow-2xl shadow-purple-DEFAULT shadow-opacity-20 flex items-center justify-center p-6 border border-purple-soft">
-          <img src="Marketing/Logo/rendered%20logo.png" alt="Stoday Plus" class="w-full h-full object-contain" />
-        </div>
-        <!-- Floating badges -->
-        <div class="absolute -top-4 -right-4 bg-purple-DEFAULT text-white text-xs font-bold px-3 py-2 rounded-xl shadow-lg">
-          30 min/day ⚡
-        </div>
-        <div class="absolute -bottom-4 -left-4 bg-navy-dark text-white text-xs font-bold px-3 py-2 rounded-xl shadow-lg">
-          Science-backed 🧠
+      <!-- Right: Product preview -->
+      <div class="flex-shrink-0 w-full max-w-sm lg:max-w-md">
+        <div class="rounded-2xl overflow-hidden shadow-2xl" style="background:linear-gradient(135deg,#1e1b4b 0%,#1e3a8a 100%);">
+          <!-- Window bar -->
+          <div class="px-5 py-3 border-b border-white border-opacity-10 flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <div class="w-3 h-3 rounded-full bg-red-400 opacity-60"></div>
+              <div class="w-3 h-3 rounded-full bg-yellow-400 opacity-60"></div>
+              <div class="w-3 h-3 rounded-full bg-green-400 opacity-60"></div>
+            </div>
+            <span class="text-gray-500 text-xs font-medium">stoday.plus — today's session</span>
+            <div class="w-12"></div>
+          </div>
+          <!-- Body -->
+          <div class="p-6">
+            <!-- Session header -->
+            <div class="flex items-center justify-between mb-5">
+              <div>
+                <p class="text-gray-500 text-xs mb-0.5 uppercase tracking-widest">Today</p>
+                <p class="text-white font-bold text-base">30-min deep work session</p>
+              </div>
+              <div class="text-xs font-bold text-purple-mid border border-purple-mid border-opacity-30 bg-white bg-opacity-5 rounded-lg px-3 py-1.5">
+                ⏱ 24:00
+              </div>
+            </div>
+            <!-- Overall progress -->
+            <div class="mb-5">
+              <div class="flex justify-between text-xs mb-2">
+                <span class="text-gray-400">Session progress</span>
+                <span class="text-purple-mid font-semibold">68%</span>
+              </div>
+              <div class="w-full bg-white bg-opacity-10 rounded-full h-1.5">
+                <div class="h-1.5 rounded-full" style="width:68%;background:linear-gradient(90deg,#9333ea,#3730a3)"></div>
+              </div>
+            </div>
+            <!-- Steps -->
+            <div class="space-y-2.5">
+              <div class="flex items-center gap-3 p-3 rounded-xl bg-white bg-opacity-5">
+                <div class="w-7 h-7 rounded-lg flex items-center justify-center text-xs flex-shrink-0 bg-green-500 bg-opacity-20 text-green-400 font-bold">✓</div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-white text-sm font-medium">Pomodoro+ warm-up</p>
+                  <p class="text-gray-500 text-xs">5 min · Complete</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3 p-3 rounded-xl border border-purple-DEFAULT border-opacity-30" style="background:rgba(147,51,234,.08)">
+                <div class="w-7 h-7 rounded-lg flex items-center justify-center text-xs flex-shrink-0 gradient-brand text-white font-bold">→</div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-white text-sm font-medium">Active Recall — Chemistry</p>
+                  <p class="text-purple-mid text-xs">20 min · In progress</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3 p-3 rounded-xl bg-white bg-opacity-5 opacity-50">
+                <div class="w-7 h-7 rounded-lg flex items-center justify-center text-xs flex-shrink-0 border border-white border-opacity-10 text-gray-500">○</div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-white text-sm font-medium">Spaced review · 3-day topics</p>
+                  <p class="text-gray-500 text-xs">5 min · Upcoming</p>
+                </div>
+              </div>
+            </div>
+            <!-- Bottom stats -->
+            <div class="grid grid-cols-3 gap-3 mt-5">
+              <div class="bg-white bg-opacity-5 rounded-xl p-3 text-center">
+                <p class="text-white font-extrabold text-lg leading-none">4</p>
+                <p class="text-gray-500 text-xs mt-1">topics done</p>
+              </div>
+              <div class="bg-white bg-opacity-5 rounded-xl p-3 text-center">
+                <p class="text-white font-extrabold text-lg leading-none">30</p>
+                <p class="text-gray-500 text-xs mt-1">min session</p>
+              </div>
+              <div class="bg-white bg-opacity-5 rounded-xl p-3 text-center">
+                <p class="text-purple-mid font-extrabold text-lg leading-none">+68%</p>
+                <p class="text-gray-500 text-xs mt-1">retention</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
