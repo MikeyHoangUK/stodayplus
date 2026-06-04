@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Owner Dashboard — Stoday Plus</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy:   { DEFAULT: '#1e3a8a', dark: '#1e1b4b', mid: '#3730a3' },
+            purple: { light: '#f3e8ff', soft: '#e9d5ff', mid: '#c084fc', DEFAULT: '#9333ea', deep: '#7e22ce', dark: '#6b21a8' }
+          },
+          fontFamily: { sans: ['Raleway', 'system-ui', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    .gradient-brand { background: linear-gradient(135deg, #9333ea 0%, #3730a3 100%); }
+    .sidebar-link   { transition: background .12s, color .12s; }
+    .sidebar-link.active { background: rgba(147,51,234,.15); color: #c084fc; }
+    .sidebar-link:hover:not(.active) { background: rgba(255,255,255,.05); color: #fff; }
+    .tab-section    { display: none; }
+    .tab-section.active { display: block; }
+    .modal-overlay  { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 100; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .status-paid    { background: #dcfce7; color: #166534; }
+    .status-failed  { background: #fee2e2; color: #991b1b; }
+    .status-pending { background: #fef9c3; color: #854d0e; }
+    .status-complete{ background: #ede9fe; color: #5b21b6; }
+    .toggle-on  { background: #9333ea; }
+    .toggle-off { background: #d1d5db; }
+  </style>
+</head>
+<body class="font-sans bg-gray-50 antialiased flex h-screen overflow-hidden" style="color:#1e1b4b;">
+
+<!-- ── SIDEBAR ─────────────────────────────────────────────── -->
+<aside class="w-60 flex-shrink-0 flex flex-col hidden lg:flex" style="background:#1e1b4b;">
+  <div class="px-5 py-4 border-b border-white border-opacity-10">
+    <div class="flex items-center gap-2 mb-0.5">
+      <img src="Marketing/Logo/rendered%20logo.png" alt="" class="w-8 h-8 object-contain" />
+      <span class="text-white font-extrabold">Stoday <span class="text-purple-mid">Plus</span></span>
+    </div>
+    <span class="text-xs text-purple-mid font-semibold ml-10">Owner Dashboard</span>
+  </div>
+  <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto text-sm">
+    <button onclick="showSection('overview')"       id="nav-overview"       class="sidebar-link active w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-gray-300">📊 Overview</button>
+    <button onclick="showSection('customers')"      id="nav-customers"      class="sidebar-link w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-gray-400">👥 Customers</button>
+    <button onclick="showSection('sales')"          id="nav-sales"          class="sidebar-link w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-gray-400">💳 Sales & Payments</button>
+    <button onclick="showSection('delivery')"       id="nav-delivery"       class="sidebar-link w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-gray-400">📦 Product Delivery</button>
+    <button onclick="showSection('mentoring')"      id="nav-mentoring"      class="sidebar-link w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-gray-400">📞 Mentoring</button>
+    <button onclick="showSection('email')"          id="nav-email"          class="sidebar-link w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-gray-400">✉️ Email</button>
+    <button onclick="showSection('content')"        id="nav-content"        class="sidebar-link w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-gray-400">✏️ Website Content</button>
+    <button onclick="showSection('analytics')"      id="nav-analytics"      class="sidebar-link w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-gray-400">📈 Analytics</button>
+    <div class="border-t border-white border-opacity-10 my-2"></div>
+    <button onclick="showSection('roles')"          id="nav-roles"          class="sidebar-link w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-gray-400">🔑 Account Roles</button>
+  </nav>
+  <div class="px-4 py-3 border-t border-white border-opacity-10 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <div class="w-7 h-7 rounded-full gradient-brand flex items-center justify-center text-white text-xs font-bold">M</div>
+      <div>
+        <p class="text-white text-xs font-semibold">Mikey Hoang</p>
+        <p class="text-gray-500 text-xs">Owner</p>
+      </div>
+    </div>
+    <a href="login.html" class="text-gray-600 text-xs hover:text-gray-400 transition-colors" title="Log out">⏻</a>
+  </div>
+</aside>
+
+<!-- ── MAIN ───────────────────────────────────────────────── -->
+<div class="flex-1 flex flex-col overflow-hidden">
+
+  <!-- Topbar -->
+  <header class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between flex-shrink-0">
+    <div>
+      <h1 class="font-extrabold text-navy-dark text-lg" id="section-title">Overview</h1>
+      <p class="text-gray-400 text-xs" id="section-sub">Stoday Plus — owner view</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="hidden sm:inline text-xs text-gray-400">mikey@stoday.plus</span>
+      <div class="w-8 h-8 rounded-full gradient-brand flex items-center justify-center text-white text-sm font-bold">M</div>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <main class="flex-1 overflow-y-auto p-6">
+
+    <!-- ── OVERVIEW ──────────────────────────────────────── -->
+    <section id="sec-overview" class="tab-section active">
+      <!-- Stat cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white border border-gray-200 rounded-2xl p-5">
+          <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">Total Revenue</p>
+          <p class="text-2xl font-extrabold text-navy-dark">£295</p>
+          <p class="text-green-500 text-xs mt-1 font-semibold">↑ 7 transactions</p>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-2xl p-5">
+          <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">Customers</p>
+          <p class="text-2xl font-extrabold text-navy-dark">6</p>
+          <p class="text-purple-DEFAULT text-xs mt-1 font-semibold">4 paid · 1 free · 1 mentoring</p>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-2xl p-5">
+          <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">Pending Sessions</p>
+          <p class="text-2xl font-extrabold text-navy-dark">2</p>
+          <p class="text-amber-500 text-xs mt-1 font-semibold">Next: Jun 5, 3:00 PM</p>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-2xl p-5">
+          <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">This Week</p>
+          <p class="text-2xl font-extrabold text-navy-dark">£129</p>
+          <p class="text-green-500 text-xs mt-1 font-semibold">↑ 3 new customers</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Recent transactions -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-5">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-navy-dark">Recent Transactions</h3>
+            <button onclick="showSection('sales')" class="text-purple-DEFAULT text-xs hover:underline">View all</button>
+          </div>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between py-2 border-b border-gray-100">
+              <div><p class="text-sm font-semibold">Linh Nguyen</p><p class="text-xs text-gray-400">Full System + Mentoring</p></div>
+              <div class="text-right"><p class="font-bold text-sm">£92</p><p class="text-xs text-gray-400">Jun 2</p></div>
+            </div>
+            <div class="flex items-center justify-between py-2 border-b border-gray-100">
+              <div><p class="text-sm font-semibold">Marco Tan</p><p class="text-xs text-gray-400">Full System</p></div>
+              <div class="text-right"><p class="font-bold text-sm">£37</p><p class="text-xs text-gray-400">Jun 1</p></div>
+            </div>
+            <div class="flex items-center justify-between py-2">
+              <div><p class="text-sm font-semibold text-red-500">Unknown</p><p class="text-xs text-gray-400">Full System — failed</p></div>
+              <div class="text-right"><p class="font-bold text-sm text-red-400">£37</p><p class="text-xs text-gray-400">May 30</p></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upcoming bookings -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-5">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-navy-dark">Upcoming Sessions</h3>
+            <button onclick="showSection('mentoring')" class="text-purple-DEFAULT text-xs hover:underline">View all</button>
+          </div>
+          <div class="space-y-3">
+            <div class="p-3 bg-amber-50 border border-amber-100 rounded-xl">
+              <div class="flex justify-between items-start">
+                <div><p class="text-sm font-semibold">James Koh</p><p class="text-xs text-gray-500">Jun 5 · 3:00 PM GMT</p></div>
+                <span class="text-xs font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Upcoming</span>
+              </div>
+              <p class="text-xs text-gray-500 mt-1.5 italic">"Struggling with revision schedule for NUS and KCL applications"</p>
+            </div>
+            <div class="p-3 bg-amber-50 border border-amber-100 rounded-xl">
+              <div class="flex justify-between items-start">
+                <div><p class="text-sm font-semibold">Linh Nguyen</p><p class="text-xs text-gray-500">Jun 7 · 11:00 AM GMT</p></div>
+                <span class="text-xs font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Upcoming</span>
+              </div>
+              <p class="text-xs text-gray-500 mt-1.5 italic">"A-Level Chemistry and Maths, exam in 8 weeks"</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CUSTOMERS ─────────────────────────────────────── -->
+    <section id="sec-customers" class="tab-section">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
+        <input id="customer-search" type="text" placeholder="Search by name or email…"
+               class="flex-1 border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT"
+               oninput="filterCustomers()" />
+        <select id="customer-filter" class="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" onchange="filterCustomers()">
+          <option value="">All plans</option>
+          <option value="Full System">Full System</option>
+          <option value="Mentoring">Mentoring</option>
+          <option value="Free">Free</option>
+        </select>
+        <button onclick="openAddCustomer()" class="gradient-brand text-white font-semibold px-5 py-2.5 rounded-xl text-sm hover:opacity-90 flex-shrink-0">+ Add Customer</button>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-gray-100 text-xs text-gray-400 uppercase tracking-wide">
+              <th class="text-left px-5 py-3 font-semibold">Customer</th>
+              <th class="text-left px-4 py-3 font-semibold hidden sm:table-cell">Plan</th>
+              <th class="text-left px-4 py-3 font-semibold hidden md:table-cell">Paid</th>
+              <th class="text-left px-4 py-3 font-semibold hidden lg:table-cell">Joined</th>
+              <th class="text-left px-4 py-3 font-semibold hidden lg:table-cell">Downloads</th>
+              <th class="px-4 py-3"></th>
+            </tr>
+          </thead>
+          <tbody id="customer-table">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── SALES & PAYMENTS ──────────────────────────────── -->
+    <section id="sec-sales" class="tab-section">
+      <!-- Revenue summary -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white border border-gray-200 rounded-2xl p-5">
+          <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">All Time</p>
+          <p class="text-2xl font-extrabold text-navy-dark">£295</p>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-2xl p-5">
+          <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">This Month</p>
+          <p class="text-2xl font-extrabold text-navy-dark">£295</p>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-2xl p-5">
+          <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">This Week</p>
+          <p class="text-2xl font-extrabold text-navy-dark">£129</p>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-2xl p-5">
+          <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">Failed</p>
+          <p class="text-2xl font-extrabold text-red-500">1</p>
+          <p class="text-xs text-red-400 mt-1">£37 uncaptured</p>
+        </div>
+      </div>
+
+      <!-- Transaction table -->
+      <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden mb-6">
+        <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+          <h3 class="font-bold text-navy-dark">All Transactions</h3>
+          <span class="text-xs text-gray-400">8 records</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-gray-100 text-xs text-gray-400 uppercase tracking-wide">
+                <th class="text-left px-5 py-3 font-semibold">ID</th>
+                <th class="text-left px-4 py-3 font-semibold">Customer</th>
+                <th class="text-left px-4 py-3 font-semibold">Amount</th>
+                <th class="text-left px-4 py-3 font-semibold">Date</th>
+                <th class="text-left px-4 py-3 font-semibold">Status</th>
+                <th class="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-gray-50 hover:bg-gray-50"><td class="px-5 py-3 text-gray-400 font-mono text-xs">txn_001</td><td class="px-4 py-3 font-medium">Minh Tran</td><td class="px-4 py-3 font-bold">£37</td><td class="px-4 py-3 text-gray-400">May 12, 2026</td><td class="px-4 py-3"><span class="status-paid text-xs font-bold px-2 py-1 rounded-full">Paid</span></td><td class="px-4 py-3 text-right"><button class="text-xs text-gray-400 hover:text-red-500 transition-colors">Refund</button></td></tr>
+              <tr class="border-b border-gray-50 hover:bg-gray-50"><td class="px-5 py-3 text-gray-400 font-mono text-xs">txn_002</td><td class="px-4 py-3 font-medium">Aisha Rahman</td><td class="px-4 py-3 font-bold">£37</td><td class="px-4 py-3 text-gray-400">May 18, 2026</td><td class="px-4 py-3"><span class="status-paid text-xs font-bold px-2 py-1 rounded-full">Paid</span></td><td class="px-4 py-3 text-right"><button class="text-xs text-gray-400 hover:text-red-500 transition-colors">Refund</button></td></tr>
+              <tr class="border-b border-gray-50 hover:bg-gray-50"><td class="px-5 py-3 text-gray-400 font-mono text-xs">txn_003</td><td class="px-4 py-3 font-medium">James Koh</td><td class="px-4 py-3 font-bold">£37</td><td class="px-4 py-3 text-gray-400">May 20, 2026</td><td class="px-4 py-3"><span class="status-paid text-xs font-bold px-2 py-1 rounded-full">Paid</span></td><td class="px-4 py-3 text-right"><button class="text-xs text-gray-400 hover:text-red-500 transition-colors">Refund</button></td></tr>
+              <tr class="border-b border-gray-50 hover:bg-gray-50"><td class="px-5 py-3 text-gray-400 font-mono text-xs">txn_004</td><td class="px-4 py-3 font-medium">James Koh</td><td class="px-4 py-3 font-bold">£55</td><td class="px-4 py-3 text-gray-400">May 21, 2026</td><td class="px-4 py-3"><span class="status-paid text-xs font-bold px-2 py-1 rounded-full">Paid</span></td><td class="px-4 py-3 text-right"><button class="text-xs text-gray-400 hover:text-red-500 transition-colors">Refund</button></td></tr>
+              <tr class="border-b border-gray-50 hover:bg-gray-50 bg-red-50"><td class="px-5 py-3 text-gray-400 font-mono text-xs">txn_005</td><td class="px-4 py-3 font-medium text-gray-400">Unknown</td><td class="px-4 py-3 font-bold text-red-400">£37</td><td class="px-4 py-3 text-gray-400">May 30, 2026</td><td class="px-4 py-3"><span class="status-failed text-xs font-bold px-2 py-1 rounded-full">Failed</span></td><td class="px-4 py-3 text-right"><button class="text-xs text-gray-400">—</button></td></tr>
+              <tr class="border-b border-gray-50 hover:bg-gray-50"><td class="px-5 py-3 text-gray-400 font-mono text-xs">txn_006</td><td class="px-4 py-3 font-medium">Marco Tan</td><td class="px-4 py-3 font-bold">£37</td><td class="px-4 py-3 text-gray-400">Jun 1, 2026</td><td class="px-4 py-3"><span class="status-paid text-xs font-bold px-2 py-1 rounded-full">Paid</span></td><td class="px-4 py-3 text-right"><button class="text-xs text-gray-400 hover:text-red-500 transition-colors">Refund</button></td></tr>
+              <tr class="border-b border-gray-50 hover:bg-gray-50"><td class="px-5 py-3 text-gray-400 font-mono text-xs">txn_007</td><td class="px-4 py-3 font-medium">Linh Nguyen</td><td class="px-4 py-3 font-bold">£37</td><td class="px-4 py-3 text-gray-400">Jun 2, 2026</td><td class="px-4 py-3"><span class="status-paid text-xs font-bold px-2 py-1 rounded-full">Paid</span></td><td class="px-4 py-3 text-right"><button class="text-xs text-gray-400 hover:text-red-500 transition-colors">Refund</button></td></tr>
+              <tr class="hover:bg-gray-50"><td class="px-5 py-3 text-gray-400 font-mono text-xs">txn_008</td><td class="px-4 py-3 font-medium">Linh Nguyen</td><td class="px-4 py-3 font-bold">£55</td><td class="px-4 py-3 text-gray-400">Jun 2, 2026</td><td class="px-4 py-3"><span class="status-paid text-xs font-bold px-2 py-1 rounded-full">Paid</span></td><td class="px-4 py-3 text-right"><button class="text-xs text-gray-400 hover:text-red-500 transition-colors">Refund</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PRODUCT DELIVERY ──────────────────────────────── -->
+    <section id="sec-delivery" class="tab-section">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <!-- Plan access matrix -->
+        <div class="lg:col-span-1 bg-white border border-gray-200 rounded-2xl p-5">
+          <h3 class="font-bold text-navy-dark mb-4">Plan Access Control</h3>
+          <div class="space-y-3 text-sm">
+            <div class="p-3 bg-gray-50 rounded-xl">
+              <p class="font-bold text-gray-700 mb-2">Free</p>
+              <ul class="space-y-1 text-xs text-gray-500">
+                <li class="flex items-center gap-2"><span class="text-green-500">✓</span>Blurting Sheet PDF</li>
+                <li class="flex items-center gap-2"><span class="text-green-500">✓</span>How to Blurt Guide</li>
+                <li class="flex items-center gap-2"><span class="text-red-400">✗</span>Techniques Guide</li>
+                <li class="flex items-center gap-2"><span class="text-red-400">✗</span>Scientific Papers</li>
+              </ul>
+            </div>
+            <div class="p-3 rounded-xl border-2 border-purple-DEFAULT border-opacity-30" style="background:#f9f5ff;">
+              <p class="font-bold text-purple-dark mb-2">Full System — £37</p>
+              <ul class="space-y-1 text-xs text-gray-500">
+                <li class="flex items-center gap-2"><span class="text-green-500">✓</span>Everything in Free</li>
+                <li class="flex items-center gap-2"><span class="text-green-500">✓</span>5 Techniques Guide</li>
+                <li class="flex items-center gap-2"><span class="text-green-500">✓</span>Scientific Papers</li>
+                <li class="flex items-center gap-2"><span class="text-green-500">✓</span>Video walkthrough</li>
+              </ul>
+            </div>
+            <div class="p-3 rounded-xl" style="background:#1e1b4b;">
+              <p class="font-bold text-white mb-2">Mentoring — £55 add-on</p>
+              <ul class="space-y-1 text-xs text-gray-400">
+                <li class="flex items-center gap-2"><span class="text-purple-mid">✓</span>Everything in Full System</li>
+                <li class="flex items-center gap-2"><span class="text-purple-mid">✓</span>1:1 session access</li>
+                <li class="flex items-center gap-2"><span class="text-purple-mid">✓</span>Priority email support</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- File list -->
+        <div class="lg:col-span-2 bg-white border border-gray-200 rounded-2xl p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-navy-dark">Managed Files</h3>
+            <button class="gradient-brand text-white text-xs font-semibold px-4 py-2 rounded-xl hover:opacity-90">+ Upload File</button>
+          </div>
+          <div class="space-y-2">
+            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+              <span class="text-xl">📄</span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold truncate">5 Novel Stoday Plus Techniques.pdf</p>
+                <p class="text-xs text-gray-400">Full System · 2.1 MB · 12 downloads</p>
+              </div>
+              <div class="flex gap-2 flex-shrink-0">
+                <button class="text-xs text-purple-DEFAULT hover:underline">Replace</button>
+                <button class="text-xs text-red-400 hover:underline">Remove</button>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+              <span class="text-xl">📄</span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold truncate">Blurting Sheet Template.pdf</p>
+                <p class="text-xs text-gray-400">Free + Full · 0.4 MB · 28 downloads</p>
+              </div>
+              <div class="flex gap-2 flex-shrink-0">
+                <button class="text-xs text-purple-DEFAULT hover:underline">Replace</button>
+                <button class="text-xs text-red-400 hover:underline">Remove</button>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+              <span class="text-xl">📄</span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold truncate">How to Blurt Guide.pdf</p>
+                <p class="text-xs text-gray-400">Free + Full · 0.8 MB · 23 downloads</p>
+              </div>
+              <div class="flex gap-2 flex-shrink-0">
+                <button class="text-xs text-purple-DEFAULT hover:underline">Replace</button>
+                <button class="text-xs text-red-400 hover:underline">Remove</button>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+              <span class="text-xl">📄</span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold truncate">Scientific Papers — Final.pdf</p>
+                <p class="text-xs text-gray-400">Full System · 4.6 MB · 7 downloads</p>
+              </div>
+              <div class="flex gap-2 flex-shrink-0">
+                <button class="text-xs text-purple-DEFAULT hover:underline">Replace</button>
+                <button class="text-xs text-red-400 hover:underline">Remove</button>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+              <span class="text-xl">🎬</span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold truncate">11-min Video Walkthrough</p>
+                <p class="text-xs text-gray-400">Full System · External link · 18 views</p>
+              </div>
+              <div class="flex gap-2 flex-shrink-0">
+                <button class="text-xs text-purple-DEFAULT hover:underline">Edit link</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── MENTORING ─────────────────────────────────────── -->
+    <section id="sec-mentoring" class="tab-section">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Bookings -->
+        <div class="lg:col-span-2 space-y-4">
+          <h3 class="font-bold text-navy-dark">All Sessions</h3>
+
+          <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5">
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <p class="font-bold text-navy-dark">James Koh</p>
+                <p class="text-sm text-gray-500">jameskoh@gmail.com</p>
+                <p class="text-sm text-gray-600 mt-1">📅 Jun 5, 2026 · 3:00 PM GMT · £55 paid</p>
+              </div>
+              <span class="status-pending text-xs font-bold px-3 py-1 rounded-full">Upcoming</span>
+            </div>
+            <div class="bg-white rounded-xl p-3 text-sm text-gray-600 italic mb-3">"Struggling with revision schedule for NUS and KCL applications — need help structuring my time."</div>
+            <div class="flex gap-2">
+              <button onclick="markComplete(this)" class="gradient-brand text-white text-xs font-semibold px-4 py-2 rounded-xl hover:opacity-90">Mark Complete</button>
+              <button class="border border-gray-300 text-gray-600 text-xs font-semibold px-4 py-2 rounded-xl hover:bg-gray-50">Reschedule</button>
+              <button class="border border-red-200 text-red-500 text-xs font-semibold px-4 py-2 rounded-xl hover:bg-red-50">Cancel</button>
+            </div>
+          </div>
+
+          <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5">
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <p class="font-bold text-navy-dark">Linh Nguyen</p>
+                <p class="text-sm text-gray-500">linh.ng@gmail.com</p>
+                <p class="text-sm text-gray-600 mt-1">📅 Jun 7, 2026 · 11:00 AM GMT · £55 paid</p>
+              </div>
+              <span class="status-pending text-xs font-bold px-3 py-1 rounded-full">Upcoming</span>
+            </div>
+            <div class="bg-white rounded-xl p-3 text-sm text-gray-600 italic mb-3">"A-Level Chemistry and Maths exam in 8 weeks — need a focused revision plan."</div>
+            <div class="flex gap-2">
+              <button onclick="markComplete(this)" class="gradient-brand text-white text-xs font-semibold px-4 py-2 rounded-xl hover:opacity-90">Mark Complete</button>
+              <button class="border border-gray-300 text-gray-600 text-xs font-semibold px-4 py-2 rounded-xl hover:bg-gray-50">Reschedule</button>
+              <button class="border border-red-200 text-red-500 text-xs font-semibold px-4 py-2 rounded-xl hover:bg-red-50">Cancel</button>
+            </div>
+          </div>
+
+          <div class="bg-white border border-gray-200 rounded-2xl p-5 opacity-70">
+            <div class="flex items-start justify-between mb-2">
+              <div>
+                <p class="font-bold text-navy-dark">Minh Tran</p>
+                <p class="text-sm text-gray-500">minh.tran@gmail.com</p>
+                <p class="text-sm text-gray-600 mt-1">📅 May 15, 2026 · 2:00 PM GMT · £55 paid</p>
+              </div>
+              <span class="status-complete text-xs font-bold px-3 py-1 rounded-full">Completed</span>
+            </div>
+            <div class="bg-gray-50 rounded-xl p-3 text-sm text-gray-500 italic">"UCAS application strategy + personal statement review session."</div>
+          </div>
+        </div>
+
+        <!-- Availability -->
+        <div class="space-y-4">
+          <h3 class="font-bold text-navy-dark">Availability</h3>
+          <div class="bg-white border border-gray-200 rounded-2xl p-5">
+            <p class="text-sm text-gray-500 mb-4">Toggle days you're available for bookings.</p>
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium">Monday</span>
+                <button onclick="toggleDay(this)" class="toggle-on w-10 h-5 rounded-full relative transition-colors" data-on="true"><span class="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all"></span></button>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium">Tuesday</span>
+                <button onclick="toggleDay(this)" class="toggle-off w-10 h-5 rounded-full relative transition-colors" data-on="false"><span class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all"></span></button>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium">Wednesday</span>
+                <button onclick="toggleDay(this)" class="toggle-on w-10 h-5 rounded-full relative transition-colors" data-on="true"><span class="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all"></span></button>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium">Thursday</span>
+                <button onclick="toggleDay(this)" class="toggle-on w-10 h-5 rounded-full relative transition-colors" data-on="true"><span class="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all"></span></button>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium">Friday</span>
+                <button onclick="toggleDay(this)" class="toggle-off w-10 h-5 rounded-full relative transition-colors" data-on="false"><span class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all"></span></button>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium text-gray-400">Saturday</span>
+                <button onclick="toggleDay(this)" class="toggle-off w-10 h-5 rounded-full relative transition-colors" data-on="false"><span class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all"></span></button>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium text-gray-400">Sunday</span>
+                <button onclick="toggleDay(this)" class="toggle-off w-10 h-5 rounded-full relative transition-colors" data-on="false"><span class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all"></span></button>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white border border-gray-200 rounded-2xl p-5">
+            <p class="text-sm font-semibold text-gray-700 mb-2">Booking link</p>
+            <p class="text-xs text-gray-400 break-all font-mono bg-gray-50 p-2 rounded-lg">stoday.plus/book</p>
+            <button class="text-xs text-purple-DEFAULT hover:underline mt-2">Copy link</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── EMAIL ─────────────────────────────────────────── -->
+    <section id="sec-email" class="tab-section">
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <!-- Compose -->
+        <div class="lg:col-span-2">
+          <div class="bg-white border border-gray-200 rounded-2xl p-5 sticky top-0">
+            <h3 class="font-bold text-navy-dark mb-4">Compose</h3>
+            <div class="space-y-3">
+              <div>
+                <label class="text-xs font-semibold text-gray-600 block mb-1">To</label>
+                <select class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT">
+                  <option>All customers (5)</option>
+                  <option>Full System customers (4)</option>
+                  <option>Mentoring customers (2)</option>
+                  <option>Free users (1)</option>
+                  <option>— Individual —</option>
+                  <option>Minh Tran</option>
+                  <option>Aisha Rahman</option>
+                  <option>James Koh</option>
+                  <option>Priya Nair</option>
+                  <option>Marco Tan</option>
+                  <option>Linh Nguyen</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-gray-600 block mb-1">Subject</label>
+                <input type="text" placeholder="Email subject…" class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" />
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-gray-600 block mb-1">Message</label>
+                <textarea rows="6" placeholder="Write your message…" class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT"></textarea>
+              </div>
+              <button class="w-full gradient-brand text-white font-bold py-3 rounded-xl hover:opacity-90 text-sm">Send Email</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message history -->
+        <div class="lg:col-span-3">
+          <h3 class="font-bold text-navy-dark mb-4">Message History</h3>
+          <div class="space-y-3">
+            <div class="bg-white border border-gray-200 rounded-2xl p-5">
+              <div class="flex justify-between items-start mb-2">
+                <div>
+                  <p class="font-semibold text-sm">New resource added — Blurting Guide visual version</p>
+                  <p class="text-xs text-gray-400 mt-0.5">To: All customers (5) · Jun 2, 2026</p>
+                </div>
+                <span class="text-xs text-green-500 font-semibold flex-shrink-0">Sent</span>
+              </div>
+              <p class="text-gray-500 text-xs line-clamp-2">Hey! Just added a new visual version of the Blurting Sheet to your dashboard — check it out in Product Delivery…</p>
+            </div>
+            <div class="bg-white border border-gray-200 rounded-2xl p-5">
+              <div class="flex justify-between items-start mb-2">
+                <div>
+                  <p class="font-semibold text-sm">Your session is confirmed — May 15 at 2pm</p>
+                  <p class="text-xs text-gray-400 mt-0.5">To: Minh Tran · May 14, 2026</p>
+                </div>
+                <span class="text-xs text-green-500 font-semibold flex-shrink-0">Sent</span>
+              </div>
+              <p class="text-gray-500 text-xs line-clamp-2">Hi Minh — just confirming your session tomorrow at 2pm GMT. We'll be going through your UCAS strategy and personal statement…</p>
+            </div>
+            <div class="bg-white border border-gray-200 rounded-2xl p-5">
+              <div class="flex justify-between items-start mb-2">
+                <div>
+                  <p class="font-semibold text-sm">Welcome to Stoday Plus</p>
+                  <p class="text-xs text-gray-400 mt-0.5">To: All customers (3) · May 12, 2026</p>
+                </div>
+                <span class="text-xs text-green-500 font-semibold flex-shrink-0">Sent</span>
+              </div>
+              <p class="text-gray-500 text-xs line-clamp-2">Welcome! Your resources are ready to access in your dashboard. Start with the 11-minute video walkthrough…</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── WEBSITE CONTENT ───────────────────────────────── -->
+    <section id="sec-content" class="tab-section">
+      <div class="max-w-2xl space-y-5">
+        <div class="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-700">
+          ⚠ Changes here update the live text saved for your site. Save each field to apply.
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-2xl p-5">
+          <h3 class="font-bold text-navy-dark mb-4">Hero Section</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="text-xs font-semibold text-gray-600 block mb-1">Main headline</label>
+              <input type="text" value="Less study time." class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" />
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-gray-600 block mb-1">Headline — second line (purple)</label>
+              <input type="text" value="Better results." class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" />
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-gray-600 block mb-1">Subheadline</label>
+              <textarea rows="2" class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT">A science-backed study system to help you get better results in less time — without burnout or pointless re-reading.</textarea>
+            </div>
+            <button class="gradient-brand text-white text-xs font-bold px-5 py-2.5 rounded-xl hover:opacity-90">Save Hero</button>
+          </div>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-2xl p-5">
+          <h3 class="font-bold text-navy-dark mb-4">Pricing</h3>
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs font-semibold text-gray-600 block mb-1">Full System price (£)</label>
+                <input type="number" value="37" class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" />
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-gray-600 block mb-1">Mentoring session price (£)</label>
+                <input type="number" value="55" class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" />
+              </div>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+              <div>
+                <p class="text-sm font-semibold">Free Blurting Sheet</p>
+                <p class="text-xs text-gray-400">Visible to all visitors without login</p>
+              </div>
+              <button onclick="toggleDay(this)" class="toggle-on w-10 h-5 rounded-full relative transition-colors" data-on="true"><span class="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow"></span></button>
+            </div>
+            <button class="gradient-brand text-white text-xs font-bold px-5 py-2.5 rounded-xl hover:opacity-90">Save Pricing</button>
+          </div>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-2xl p-5">
+          <h3 class="font-bold text-navy-dark mb-4">CTA Buttons</h3>
+          <div class="space-y-3">
+            <div>
+              <label class="text-xs font-semibold text-gray-600 block mb-1">Primary button text</label>
+              <input type="text" value="Get the Full System" class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" />
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-gray-600 block mb-1">Secondary button text</label>
+              <input type="text" value="Get the Free Blurting Sheet" class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" />
+            </div>
+            <button class="gradient-brand text-white text-xs font-bold px-5 py-2.5 rounded-xl hover:opacity-90">Save Buttons</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── ANALYTICS ─────────────────────────────────────── -->
+    <section id="sec-analytics" class="tab-section">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white border border-gray-200 rounded-2xl p-5">
+          <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">Total Visitors</p>
+          <p class="text-2xl font-extrabold text-navy-dark">1,248</p>
+          <p class="text-green-500 text-xs mt-1">↑ 18% this week</p>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-2xl p-5">
+          <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">Conversion Rate</p>
+          <p class="text-2xl font-extrabold text-navy-dark">0.8%</p>
+          <p class="text-gray-400 text-xs mt-1">10 paid of 1,248</p>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-2xl p-5">
+          <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">Avg. Time on Site</p>
+          <p class="text-2xl font-extrabold text-navy-dark">2m 14s</p>
+          <p class="text-gray-400 text-xs mt-1">Benchmark: 1m 30s</p>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-2xl p-5">
+          <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">Drop-off Page</p>
+          <p class="text-xl font-extrabold text-amber-500">Pricing</p>
+          <p class="text-gray-400 text-xs mt-1">41% exit here</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Traffic sources -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-5">
+          <h3 class="font-bold text-navy-dark mb-5">Traffic Sources</h3>
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between text-sm mb-1"><span class="font-medium">TikTok</span><span class="text-gray-400">38%</span></div>
+              <div class="w-full bg-gray-100 rounded-full h-2"><div class="h-2 rounded-full" style="width:38%;background:linear-gradient(90deg,#9333ea,#3730a3)"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1"><span class="font-medium">Direct</span><span class="text-gray-400">27%</span></div>
+              <div class="w-full bg-gray-100 rounded-full h-2"><div class="h-2 rounded-full bg-navy-dark" style="width:27%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1"><span class="font-medium">Google</span><span class="text-gray-400">18%</span></div>
+              <div class="w-full bg-gray-100 rounded-full h-2"><div class="h-2 rounded-full bg-blue-400" style="width:18%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1"><span class="font-medium">Instagram</span><span class="text-gray-400">11%</span></div>
+              <div class="w-full bg-gray-100 rounded-full h-2"><div class="h-2 rounded-full bg-pink-400" style="width:11%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1"><span class="font-medium">Other</span><span class="text-gray-400">6%</span></div>
+              <div class="w-full bg-gray-100 rounded-full h-2"><div class="h-2 rounded-full bg-gray-300" style="width:6%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page funnel -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-5">
+          <h3 class="font-bold text-navy-dark mb-5">Conversion Funnel</h3>
+          <div class="space-y-3">
+            <div class="flex items-center gap-3">
+              <span class="text-xs w-24 text-gray-500 flex-shrink-0">Landing page</span>
+              <div class="flex-1 bg-gray-100 rounded-full h-5 relative overflow-hidden">
+                <div class="h-5 rounded-full flex items-center justify-end pr-2" style="width:100%;background:linear-gradient(90deg,#9333ea,#3730a3)"><span class="text-white text-xs font-bold">1,248</span></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs w-24 text-gray-500 flex-shrink-0">Techniques</span>
+              <div class="flex-1 bg-gray-100 rounded-full h-5 relative overflow-hidden">
+                <div class="h-5 rounded-full flex items-center justify-end pr-2" style="width:72%;background:linear-gradient(90deg,#7e22ce,#3730a3)"><span class="text-white text-xs font-bold">898</span></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs w-24 text-gray-500 flex-shrink-0">Pricing</span>
+              <div class="flex-1 bg-gray-100 rounded-full h-5 relative overflow-hidden">
+                <div class="h-5 rounded-full flex items-center justify-end pr-2" style="width:34%;background:#6b21a8"><span class="text-white text-xs font-bold">424</span></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs w-24 text-gray-500 flex-shrink-0">Join page</span>
+              <div class="flex-1 bg-gray-100 rounded-full h-5 relative overflow-hidden">
+                <div class="h-5 rounded-full flex items-center justify-end pr-2" style="width:12%;background:#1e1b4b"><span class="text-white text-xs font-bold">149</span></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs w-24 text-gray-500 flex-shrink-0 text-green-600 font-semibold">Purchased</span>
+              <div class="flex-1 bg-gray-100 rounded-full h-5 relative overflow-hidden">
+                <div class="h-5 rounded-full flex items-center justify-end pr-2 bg-green-500" style="width:4%"><span class="text-white text-xs font-bold">10</span></div>
+              </div>
+            </div>
+          </div>
+          <p class="text-xs text-amber-600 mt-4 font-semibold">⚠ 41% drop off at pricing — consider a price anchor or testimonial here.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── ACCOUNT ROLES ─────────────────────────────────── -->
+    <section id="sec-roles" class="tab-section">
+      <div class="max-w-3xl">
+        <div class="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-700 mb-6">
+          🔑 Owner accounts have full access to this dashboard. Customers are redirected to their own portal.
+        </div>
+
+        <!-- Owner accounts -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-5 mb-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-navy-dark">Owner Accounts</h3>
+            <button onclick="document.getElementById('add-owner-form').classList.toggle('hidden')" class="gradient-brand text-white text-xs font-semibold px-4 py-2 rounded-xl hover:opacity-90">+ Add Owner</button>
+          </div>
+          <div id="add-owner-form" class="hidden mb-4 flex gap-2">
+            <input type="email" id="new-owner-email" placeholder="owner@email.com" class="flex-1 border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" />
+            <button onclick="addOwner()" class="gradient-brand text-white text-xs font-bold px-4 py-2 rounded-xl hover:opacity-90">Add</button>
+          </div>
+          <div id="owner-list" class="space-y-2">
+            <div class="flex items-center justify-between p-3 bg-purple-light rounded-xl">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full gradient-brand flex items-center justify-center text-white text-xs font-bold">M</div>
+                <div><p class="text-sm font-semibold">Mikey Hoang</p><p class="text-xs text-gray-400">mikey@stoday.plus</p></div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-purple-DEFAULT bg-white px-2 py-0.5 rounded-full border border-purple-soft">Owner</span>
+                <span class="text-xs text-gray-300">Primary</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-purple-light rounded-xl">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-navy-dark flex items-center justify-center text-white text-xs font-bold">H</div>
+                <div><p class="text-sm font-semibold">haianhverynice@gmail.com</p><p class="text-xs text-gray-400">Backup admin</p></div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-purple-DEFAULT bg-white px-2 py-0.5 rounded-full border border-purple-soft">Owner</span>
+                <button class="text-xs text-red-400 hover:underline">Remove</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customer accounts -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-5">
+          <h3 class="font-bold text-navy-dark mb-4">Customer Accounts</h3>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+              <div class="flex items-center gap-3">
+                <div class="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-xs font-bold">M</div>
+                <div><p class="text-sm font-medium">Minh Tran</p><p class="text-xs text-gray-400">minh.tran@gmail.com · Full System</p></div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-gray-500 bg-white px-2 py-0.5 rounded-full border border-gray-200">Customer</span>
+                <button class="text-xs text-purple-DEFAULT hover:underline">Make Owner</button>
+              </div>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+              <div class="flex items-center gap-3">
+                <div class="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-xs font-bold">A</div>
+                <div><p class="text-sm font-medium">Aisha Rahman</p><p class="text-xs text-gray-400">aisha.r@outlook.com · Full System</p></div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-gray-500 bg-white px-2 py-0.5 rounded-full border border-gray-200">Customer</span>
+                <button class="text-xs text-purple-DEFAULT hover:underline">Make Owner</button>
+              </div>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+              <div class="flex items-center gap-3">
+                <div class="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-xs font-bold">J</div>
+                <div><p class="text-sm font-medium">James Koh</p><p class="text-xs text-gray-400">jameskoh@gmail.com · Full System + Mentoring</p></div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-gray-500 bg-white px-2 py-0.5 rounded-full border border-gray-200">Customer</span>
+                <button class="text-xs text-purple-DEFAULT hover:underline">Make Owner</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ── CUSTOMER MODAL ─────────────────────────────────────── -->
+<div id="customer-modal" class="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
+    <div class="gradient-brand px-6 py-4 flex items-center justify-between">
+      <h3 class="text-white font-bold" id="modal-title">Customer Profile</h3>
+      <button onclick="closeModal()" class="text-white opacity-60 hover:opacity-100 text-xl">✕</button>
+    </div>
+    <div id="modal-body" class="p-6 space-y-4 max-h-96 overflow-y-auto"></div>
+    <div class="px-6 pb-5 flex gap-3">
+      <button onclick="closeModal()" class="flex-1 border border-gray-300 text-gray-600 font-semibold py-2.5 rounded-xl text-sm hover:bg-gray-50">Close</button>
+      <button class="flex-1 border border-red-200 text-red-500 font-semibold py-2.5 rounded-xl text-sm hover:bg-red-50">Remove Customer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── ADD CUSTOMER MODAL ─────────────────────────────────── -->
+<div id="add-customer-modal" class="modal-overlay" onclick="if(event.target===this)closeAddModal()">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4">
+    <div class="gradient-brand px-6 py-4 flex items-center justify-between">
+      <h3 class="text-white font-bold">Add Customer Manually</h3>
+      <button onclick="closeAddModal()" class="text-white opacity-60 hover:opacity-100 text-xl">✕</button>
+    </div>
+    <div class="p-6 space-y-4">
+      <div><label class="text-xs font-semibold text-gray-600 block mb-1">Full name</label><input type="text" placeholder="Customer name" class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" /></div>
+      <div><label class="text-xs font-semibold text-gray-600 block mb-1">Email</label><input type="email" placeholder="customer@email.com" class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" /></div>
+      <div><label class="text-xs font-semibold text-gray-600 block mb-1">Plan</label>
+        <select class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT">
+          <option>Free</option><option>Full System</option><option>Full System + Mentoring</option>
+        </select>
+      </div>
+      <div><label class="text-xs font-semibold text-gray-600 block mb-1">Note (optional)</label><input type="text" placeholder="e.g. gift, refund replacement…" class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" /></div>
+      <div class="flex gap-3 pt-1">
+        <button onclick="closeAddModal()" class="flex-1 border border-gray-300 text-gray-600 font-semibold py-2.5 rounded-xl text-sm hover:bg-gray-50">Cancel</button>
+        <button onclick="closeAddModal()" class="flex-1 gradient-brand text-white font-bold py-2.5 rounded-xl text-sm hover:opacity-90">Add Customer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Data ──
+var customers = [
+  { id:1, name:'Minh Tran',     email:'minh.tran@gmail.com',  plan:'Full System',               paid:37,  joined:'May 12, 2026', downloads:5, sessions:1 },
+  { id:2, name:'Aisha Rahman',  email:'aisha.r@outlook.com',  plan:'Full System',               paid:37,  joined:'May 18, 2026', downloads:3, sessions:0 },
+  { id:3, name:'James Koh',     email:'jameskoh@gmail.com',   plan:'Full System + Mentoring',   paid:92,  joined:'May 20, 2026', downloads:7, sessions:1 },
+  { id:4, name:'Priya Nair',    email:'priya.n@gmail.com',    plan:'Free',                      paid:0,   joined:'May 25, 2026', downloads:1, sessions:0 },
+  { id:5, name:'Marco Tan',     email:'marco.tan@yahoo.com',  plan:'Full System',               paid:37,  joined:'Jun 1, 2026',  downloads:2, sessions:0 },
+  { id:6, name:'Linh Nguyen',   email:'linh.ng@gmail.com',    plan:'Full System + Mentoring',   paid:92,  joined:'Jun 2, 2026',  downloads:4, sessions:1 }
+];
+
+// ── Section navigation ──
+var sections = ['overview','customers','sales','delivery','mentoring','email','content','analytics','roles'];
+var sectionTitles = {
+  overview:  ['Overview',          'Stoday Plus — owner view'],
+  customers: ['Customers',         'Manage your customer list'],
+  sales:     ['Sales & Payments',  'Revenue and transaction history'],
+  delivery:  ['Product Delivery',  'Files, plans, and access control'],
+  mentoring: ['Mentoring',         'Bookings, sessions, and availability'],
+  email:     ['Email',             'Message your customers'],
+  content:   ['Website Content',   'Edit copy, prices, and toggles'],
+  analytics: ['Analytics',         'Traffic, conversions, and funnel'],
+  roles:     ['Account Roles',     'Manage who has owner access']
+};
+function showSection(id) {
+  sections.forEach(function(s) {
+    document.getElementById('sec-'+s)?.classList.remove('active');
+    var nav = document.getElementById('nav-'+s);
+    if (nav) { nav.classList.remove('active'); }
+  });
+  document.getElementById('sec-'+id)?.classList.add('active');
+  document.getElementById('nav-'+id)?.classList.add('active');
+  var t = sectionTitles[id] || ['',''];
+  document.getElementById('section-title').textContent = t[0];
+  document.getElementById('section-sub').textContent   = t[1];
+}
+
+// ── Customer table ──
+function renderCustomers(list) {
+  var tbody = document.getElementById('customer-table');
+  tbody.innerHTML = list.map(function(c) {
+    var planBadge = c.plan === 'Free'
+      ? '<span class="text-xs font-semibold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">Free</span>'
+      : c.plan.includes('Mentoring')
+        ? '<span class="text-xs font-semibold text-purple-DEFAULT bg-purple-light px-2 py-0.5 rounded-full">'+c.plan+'</span>'
+        : '<span class="text-xs font-semibold text-navy-dark bg-blue-50 px-2 py-0.5 rounded-full">'+c.plan+'</span>';
+    return '<tr class="border-b border-gray-50 hover:bg-gray-50 transition-colors">'
+      + '<td class="px-5 py-3"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full gradient-brand flex items-center justify-center text-white text-xs font-bold flex-shrink-0">'+c.name[0]+'</div><div><p class="font-semibold text-sm">'+c.name+'</p><p class="text-xs text-gray-400">'+c.email+'</p></div></div></td>'
+      + '<td class="px-4 py-3 hidden sm:table-cell">'+planBadge+'</td>'
+      + '<td class="px-4 py-3 font-bold hidden md:table-cell">'+(c.paid > 0 ? '£'+c.paid : '—')+'</td>'
+      + '<td class="px-4 py-3 text-gray-400 text-xs hidden lg:table-cell">'+c.joined+'</td>'
+      + '<td class="px-4 py-3 text-xs text-gray-500 hidden lg:table-cell">'+c.downloads+' files</td>'
+      + '<td class="px-4 py-3 text-right"><button onclick="viewCustomer('+c.id+')" class="text-xs text-purple-DEFAULT hover:underline font-semibold">View →</button></td>'
+      + '</tr>';
+  }).join('');
+}
+function filterCustomers() {
+  var q = document.getElementById('customer-search').value.toLowerCase();
+  var f = document.getElementById('customer-filter').value;
+  var filtered = customers.filter(function(c) {
+    var matchQ = !q || c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q);
+    var matchF = !f || c.plan.includes(f);
+    return matchQ && matchF;
+  });
+  renderCustomers(filtered);
+}
+function viewCustomer(id) {
+  var c = customers.find(function(x){ return x.id === id; });
+  if (!c) return;
+  document.getElementById('modal-title').textContent = c.name;
+  document.getElementById('modal-body').innerHTML =
+    '<div class="grid grid-cols-2 gap-3 text-sm">'
+    + '<div class="bg-gray-50 rounded-xl p-3"><p class="text-xs text-gray-400 mb-0.5">Email</p><p class="font-semibold text-xs break-all">'+c.email+'</p></div>'
+    + '<div class="bg-gray-50 rounded-xl p-3"><p class="text-xs text-gray-400 mb-0.5">Plan</p><p class="font-semibold text-xs">'+c.plan+'</p></div>'
+    + '<div class="bg-gray-50 rounded-xl p-3"><p class="text-xs text-gray-400 mb-0.5">Total paid</p><p class="font-bold">'+(c.paid > 0 ? '£'+c.paid : 'Free')+'</p></div>'
+    + '<div class="bg-gray-50 rounded-xl p-3"><p class="text-xs text-gray-400 mb-0.5">Joined</p><p class="font-semibold text-xs">'+c.joined+'</p></div>'
+    + '<div class="bg-gray-50 rounded-xl p-3"><p class="text-xs text-gray-400 mb-0.5">Downloads</p><p class="font-bold">'+c.downloads+' files</p></div>'
+    + '<div class="bg-gray-50 rounded-xl p-3"><p class="text-xs text-gray-400 mb-0.5">Sessions</p><p class="font-bold">'+c.sessions+' booked</p></div>'
+    + '</div>';
+  document.getElementById('customer-modal').classList.add('open');
+}
+function closeModal()    { document.getElementById('customer-modal').classList.remove('open'); }
+function openAddCustomer(){ document.getElementById('add-customer-modal').classList.add('open'); }
+function closeAddModal() { document.getElementById('add-customer-modal').classList.remove('open'); }
+
+// ── Mentoring session complete ──
+function markComplete(btn) {
+  var card = btn.closest('.rounded-2xl');
+  card.classList.remove('bg-amber-50','border-amber-200');
+  card.classList.add('bg-white','border-gray-200','opacity-70');
+  card.querySelector('.status-pending').className = 'status-complete text-xs font-bold px-3 py-1 rounded-full';
+  card.querySelector('.status-complete').textContent = 'Completed';
+  btn.closest('.flex').innerHTML = '';
+}
+
+// ── Availability toggle ──
+function toggleDay(btn) {
+  var on = btn.getAttribute('data-on') === 'true';
+  var dot = btn.querySelector('span');
+  if (on) {
+    btn.setAttribute('data-on','false');
+    btn.classList.remove('toggle-on'); btn.classList.add('toggle-off');
+    dot.style.left = '2px'; dot.style.right = '';
+  } else {
+    btn.setAttribute('data-on','true');
+    btn.classList.remove('toggle-off'); btn.classList.add('toggle-on');
+    dot.style.right = '2px'; dot.style.left = '';
+  }
+}
+
+// ── Add owner ──
+function addOwner() {
+  var email = document.getElementById('new-owner-email').value.trim();
+  if (!email) return;
+  var div = document.createElement('div');
+  div.className = 'flex items-center justify-between p-3 bg-purple-light rounded-xl';
+  div.innerHTML = '<div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-navy-dark flex items-center justify-center text-white text-xs font-bold">'+email[0].toUpperCase()+'</div><div><p class="text-sm font-semibold">'+email+'</p><p class="text-xs text-gray-400">New admin</p></div></div><div class="flex items-center gap-2"><span class="text-xs font-bold text-purple-DEFAULT bg-white px-2 py-0.5 rounded-full border border-purple-soft">Owner</span><button onclick="this.closest(\'.flex.items-center.justify-between\').remove()" class="text-xs text-red-400 hover:underline">Remove</button></div>';
+  document.getElementById('owner-list').appendChild(div);
+  document.getElementById('new-owner-email').value = '';
+  document.getElementById('add-owner-form').classList.add('hidden');
+}
+
+// ── Init ──
+renderCustomers(customers);
+</script>
+</body>
+</html>
