@@ -83,6 +83,7 @@
         <script>
           // Owner accounts — add any admin email here
           var OWNER_EMAILS = ['mikey@stoday.plus', 'haianhverynice@gmail.com'];
+          var OWNER_PASSWORD = '1234';
           function handleLogin(e) {
             e.preventDefault();
             var email = document.getElementById('login-email').value.trim().toLowerCase();
@@ -93,7 +94,11 @@
             }
             document.getElementById('login-error').classList.add('hidden');
             if (OWNER_EMAILS.indexOf(email) !== -1) {
-              window.location.href = 'admin.html';
+              if (pass === OWNER_PASSWORD) {
+                window.location.href = 'admin.html';
+              } else {
+                document.getElementById('login-error').classList.remove('hidden');
+              }
             } else {
               window.location.href = 'dashboard.html';
             }
