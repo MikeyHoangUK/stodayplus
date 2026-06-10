@@ -84,6 +84,13 @@
           // Owner accounts — add any admin email here
           var OWNER_EMAILS = ['mikey@stoday.plus', 'haianhverynice@gmail.com'];
           var OWNER_PASSWORD = '1234';
+          var DEMO_EMAIL = 'demo@stoday.plus';
+          var DEMO_PASSWORD = 'demo';
+          function tryDemo() {
+            sessionStorage.setItem('sp_user', DEMO_EMAIL);
+            sessionStorage.setItem('sp_role', 'customer');
+            window.location.href = 'dashboard.html';
+          }
           function handleLogin(e) {
             e.preventDefault();
             var email = document.getElementById('login-email').value.trim().toLowerCase();
@@ -93,6 +100,12 @@
               return;
             }
             document.getElementById('login-error').classList.add('hidden');
+            if (email === DEMO_EMAIL && pass === DEMO_PASSWORD) {
+              sessionStorage.setItem('sp_user', DEMO_EMAIL);
+              sessionStorage.setItem('sp_role', 'customer');
+              window.location.href = 'dashboard.html';
+              return;
+            }
             if (OWNER_EMAILS.indexOf(email) !== -1) {
               if (pass === OWNER_PASSWORD) {
                 sessionStorage.setItem('sp_user', email);
@@ -110,7 +123,19 @@
         </script>
       </div>
 
-      <p class="text-center text-gray-500 text-sm mt-6">
+      <div class="mt-5">
+        <div class="relative flex items-center justify-center mb-5">
+          <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-200"></div></div>
+          <span class="relative bg-gray-50 px-3 text-xs text-gray-400">or</span>
+        </div>
+        <button onclick="tryDemo()"
+                class="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-xl py-3 text-sm font-bold text-gray-600 hover:bg-gray-100 transition bg-white shadow-sm">
+          <span>👀</span> Try the demo
+        </button>
+        <p class="text-center text-gray-400 text-xs mt-2">demo@stoday.plus · no sign-up needed</p>
+      </div>
+
+      <p class="text-center text-gray-500 text-sm mt-5">
         Don't have an account?
         <a href="join.html" class="text-purple-DEFAULT font-semibold hover:underline">Get started →</a>
       </p>
