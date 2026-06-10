@@ -618,18 +618,19 @@ function startMarvelIntro(){
       f.style.animation='flashBurst .45s ease forwards';
       setTimeout(function(){f.style.animation='none';f.style.opacity='0';},460);
     },820);
-    setTimeout(function(){document.getElementById('entry-brand').style.animation='brandSlam .52s cubic-bezier(.34,1.56,.64,1) forwards';},1130);
-    setTimeout(function(){document.getElementById('entry-tagline').style.animation='taglineUp .42s ease forwards';},1380);
-    setTimeout(function(){document.getElementById('ewelcome').style.animation='fadeUp .44s ease forwards';},1660);
-    setTimeout(function(){document.getElementById('entry-sub-text').style.animation='fadeUp .44s ease forwards';},1860);
-    // Fade out at 2.2s regardless of video length
+    setTimeout(function(){document.getElementById('entry-brand').style.animation='brandSlam .52s cubic-bezier(.34,1.56,.64,1) forwards';},1080);
+    setTimeout(function(){document.getElementById('entry-tagline').style.animation='taglineUp .42s ease forwards';},1310);
+    // Welcome name appears early — holds on screen for ~1.5s for premium feel
+    setTimeout(function(){document.getElementById('ewelcome').style.animation='fadeUp .5s ease forwards';},1520);
+    setTimeout(function(){document.getElementById('entry-sub-text').style.animation='fadeUp .44s ease forwards';},1720);
+    // Video cinematic beat ends ~2.2s — overlay stays 1s longer so name breathes
     setTimeout(function(){
       var ov=document.getElementById('entry-overlay');
-      ov.style.transition='opacity .85s ease';
+      ov.style.transition='opacity 1s ease';
       ov.style.opacity='0';
       ov.style.pointerEvents='none';
-      setTimeout(function(){ov.style.display='none';},900);
-    },2200);
+      setTimeout(function(){ov.style.display='none';},1050);
+    },3100);
   }
 
   vid.addEventListener('canplaythrough',runTextOver);
