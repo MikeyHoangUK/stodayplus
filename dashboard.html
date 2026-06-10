@@ -49,6 +49,9 @@
     .entry-welcome{font-size:1rem;font-weight:700;background:linear-gradient(135deg,#e2e8f0,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-top:20px;opacity:0}
     .entry-sub{font-size:.73rem;color:#374151;margin-top:4px;opacity:0}
     @keyframes fadeUp{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+    /* video intro */
+    #intro-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+    #text-grad{position:absolute;bottom:0;left:0;right:0;height:65%;background:linear-gradient(to top,rgba(3,3,12,.82) 0%,rgba(3,3,12,.4) 40%,transparent 100%);z-index:4;pointer-events:none}
 
     /* ── LAYOUT ── */
     #app{display:flex;height:100vh;overflow:hidden}
@@ -253,13 +256,22 @@
 
 <!-- ENTRY OVERLAY -->
 <div id="entry-overlay">
-  <div id="chaos-vig"></div>
-  <div id="entry-glow-bg"></div>
-  <canvas id="particle-canvas"></canvas>
-  <svg id="lightning-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <!-- Primary: AI video -->
+  <video id="intro-video" autoplay muted playsinline>
+    <source src="intro.mp4" type="video/mp4"/>
+  </video>
+  <!-- Fallback: canvas animation (activates if video fails) -->
+  <div id="chaos-vig" style="display:none"></div>
+  <div id="entry-glow-bg" style="display:none"></div>
+  <canvas id="particle-canvas" style="display:none"></canvas>
+  <svg id="lightning-svg" viewBox="0 0 100 100" preserveAspectRatio="none" style="display:none">
     <path id="lpath" d="M50,0 L43,14 L55,16 L38,36 L56,38 L44,58 L58,60 L45,80 L56,83 L50,100"/>
   </svg>
+  <!-- Readability gradient behind text -->
+  <div id="text-grad"></div>
+  <!-- Flash effect for logo entrance -->
   <div id="flash-burst"></div>
+  <!-- Text overlay -->
   <div class="entry-center">
     <div id="entry-logo-wrap">
       <div class="lglow"></div>
@@ -594,54 +606,70 @@ function triggerFlash(){
 }
 
 function startMarvelIntro(){
+  var vid=document.getElementById('intro-video');
+  var textStarted=false, fbUsed=false;
+
+  function runTextOver(){
+    if(textStarted)return; textStarted=true;
+    // Logo slams in timed to video's transformation flash
+    setTimeout(function(){
+      document.getElementById('entry-logo-wrap').style.animation='logoSlam .58s cubic-bezier(.17,.67,.45,1.32) forwards';
+      var f=document.getElementById('flash-burst');
+      f.style.animation='flashBurst .45s ease forwards';
+      setTimeout(function(){f.style.animation='none';f.style.opacity='0';},460);
+    },820);
+    setTimeout(function(){document.getElementById('entry-brand').style.animation='brandSlam .52s cubic-bezier(.34,1.56,.64,1) forwards';},1130);
+    setTimeout(function(){document.getElementById('entry-tagline').style.animation='taglineUp .42s ease forwards';},1380);
+    setTimeout(function(){document.getElementById('ewelcome').style.animation='fadeUp .44s ease forwards';},1660);
+    setTimeout(function(){document.getElementById('entry-sub-text').style.animation='fadeUp .44s ease forwards';},1860);
+    // Fade out at 2.2s regardless of video length
+    setTimeout(function(){
+      var ov=document.getElementById('entry-overlay');
+      ov.style.transition='opacity .85s ease';
+      ov.style.opacity='0';
+      ov.style.pointerEvents='none';
+      setTimeout(function(){ov.style.display='none';},900);
+    },2200);
+  }
+
+  vid.addEventListener('canplaythrough',runTextOver);
+  vid.addEventListener('playing',runTextOver);
+
+  // Fallback: video error
+  vid.addEventListener('error',function(){
+    if(!fbUsed){fbUsed=true;textStarted=true;vid.style.display='none';startCanvasFallback();}
+  });
+  // Fallback: video too slow to load (1s timeout)
+  setTimeout(function(){
+    if(!textStarted&&!fbUsed){fbUsed=true;textStarted=true;vid.style.display='none';startCanvasFallback();}
+  },1000);
+}
+
+function startCanvasFallback(){
+  ['chaos-vig','entry-glow-bg','particle-canvas','lightning-svg'].forEach(function(id){
+    document.getElementById(id).style.display='block';
+  });
   aC=document.getElementById('particle-canvas');
   aX=aC.getContext('2d');
   aC.width=window.innerWidth;aC.height=window.innerHeight;
-
-  // Phase 1: red chaos (0-510ms)
   aIn1=setInterval(spawnChaos,38);
   setTimeout(function(){clearInterval(aIn1);},510);
-
-  // Phase 2: lightning (530ms)
   setTimeout(triggerLightning,530);
-
-  // Phase 3: flash + shake (650ms)
   setTimeout(function(){
     triggerFlash();
     var ov=document.getElementById('entry-overlay');
     ov.classList.add('do-shake');
     setTimeout(function(){ov.classList.remove('do-shake');},430);
   },650);
-
-  // Phase 4: logo SLAMS in (730ms) + start explosion
   setTimeout(function(){
-    var lw=document.getElementById('entry-logo-wrap');
-    lw.style.animation='logoSlam .58s cubic-bezier(.17,.67,.45,1.32) forwards';
+    document.getElementById('entry-logo-wrap').style.animation='logoSlam .58s cubic-bezier(.17,.67,.45,1.32) forwards';
     aIn2=setInterval(spawnExplosion,22);
     setTimeout(function(){clearInterval(aIn2);},950);
   },730);
-
-  // Phase 5: brand text (1120ms)
-  setTimeout(function(){
-    document.getElementById('entry-brand').style.animation='brandSlam .52s cubic-bezier(.34,1.56,.64,1) forwards';
-  },1120);
-
-  // Phase 6: tagline (1390ms)
-  setTimeout(function(){
-    document.getElementById('entry-tagline').style.animation='taglineUp .42s ease forwards';
-  },1390);
-
-  // Phase 7: welcome (1660ms)
-  setTimeout(function(){
-    document.getElementById('ewelcome').style.animation='fadeUp .44s ease forwards';
-  },1660);
-
-  // Phase 8: sub text (1870ms)
-  setTimeout(function(){
-    document.getElementById('entry-sub-text').style.animation='fadeUp .44s ease forwards';
-  },1870);
-
-  // Phase 9: fade out overlay (2220ms)
+  setTimeout(function(){document.getElementById('entry-brand').style.animation='brandSlam .52s cubic-bezier(.34,1.56,.64,1) forwards';},1120);
+  setTimeout(function(){document.getElementById('entry-tagline').style.animation='taglineUp .42s ease forwards';},1390);
+  setTimeout(function(){document.getElementById('ewelcome').style.animation='fadeUp .44s ease forwards';},1660);
+  setTimeout(function(){document.getElementById('entry-sub-text').style.animation='fadeUp .44s ease forwards';},1870);
   setTimeout(function(){
     var ov=document.getElementById('entry-overlay');
     ov.style.transition='opacity .82s ease';
@@ -649,7 +677,6 @@ function startMarvelIntro(){
     ov.style.pointerEvents='none';
     setTimeout(function(){ov.style.display='none';},850);
   },2220);
-
   requestAnimationFrame(animLoop);
 }
 
