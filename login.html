@@ -95,11 +95,15 @@
             document.getElementById('login-error').classList.add('hidden');
             if (OWNER_EMAILS.indexOf(email) !== -1) {
               if (pass === OWNER_PASSWORD) {
+                sessionStorage.setItem('sp_user', email);
+                sessionStorage.setItem('sp_role', 'owner');
                 window.location.href = 'admin.html';
               } else {
                 document.getElementById('login-error').classList.remove('hidden');
               }
             } else {
+              sessionStorage.setItem('sp_user', email);
+              sessionStorage.setItem('sp_role', 'customer');
               window.location.href = 'dashboard.html';
             }
           }

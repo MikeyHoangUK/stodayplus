@@ -1,408 +1,779 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Resources — Stoday Plus</title>
+  <title>Study Space — Stoday Plus</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            navy:   { DEFAULT: '#1e3a8a', dark: '#1e1b4b', mid: '#3730a3' },
-            purple: { light: '#f3e8ff', soft: '#e9d5ff', mid: '#c084fc', DEFAULT: '#9333ea', deep: '#7e22ce', dark: '#6b21a8' }
-          },
-          fontFamily: { sans: ['Raleway', 'system-ui', 'sans-serif'] }
-        }
-      }
-    }
-  </script>
-  <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet" />
+  <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Raleway','system-ui','sans-serif']}}}}</script>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <style>
-    .gradient-brand { background: linear-gradient(135deg, #9333ea 0%, #3730a3 100%); }
-    .gradient-dark  { background: linear-gradient(135deg, #1e1b4b 0%, #1e3a8a 100%); }
-    .sidebar-link   { transition: background .12s, color .12s; }
-    .sidebar-link.active { background: #f3e8ff; color: #7e22ce; font-weight: 700; }
-    .sidebar-link:hover:not(.active) { background: #f5f3ff; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    .resource-card:hover { border-color: #c084fc; box-shadow: 0 8px 24px rgba(147,51,234,.1); }
-    .resource-card { transition: border-color .15s, box-shadow .15s; }
+    *,*::before,*::after{box-sizing:border-box}
+    body{margin:0;background:#06061a;color:#e2e8f0;font-family:'Raleway',sans-serif;min-height:100vh;overflow-x:hidden}
+
+    /* ── ENTRY OVERLAY ── */
+    #entry-overlay{position:fixed;inset:0;z-index:9999;background:#03030e;display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity .7s ease}
+    .star{position:absolute;border-radius:50%;background:#fff;pointer-events:none}
+    @keyframes starTwinkle{from{opacity:.05}to{opacity:.9}}
+    .ring{position:absolute;border-radius:50%;border:1px solid;animation:ringOut 2s ease-out forwards}
+    .ring:nth-child(1){width:80px;height:80px;border-color:rgba(168,85,247,.9);animation-delay:0s}
+    .ring:nth-child(2){width:80px;height:80px;border-color:rgba(96,165,250,.7);animation-delay:.18s}
+    .ring:nth-child(3){width:80px;height:80px;border-color:rgba(168,85,247,.45);animation-delay:.36s}
+    .ring:nth-child(4){width:80px;height:80px;border-color:rgba(96,165,250,.2);animation-delay:.54s}
+    @keyframes ringOut{0%{transform:scale(1);opacity:1}100%{transform:scale(10);opacity:0}}
+    .entry-center{position:relative;z-index:1;text-align:center}
+    .entry-logo{width:80px;height:80px;margin:0 auto 16px;display:block;filter:drop-shadow(0 0 24px rgba(168,85,247,.9));animation:logoBeat 1.4s ease-in-out infinite alternate}
+    @keyframes logoBeat{from{filter:drop-shadow(0 0 16px rgba(168,85,247,.6))}to{filter:drop-shadow(0 0 40px rgba(96,165,250,.9))}}
+    .entry-welcome{font-size:1.5rem;font-weight:900;background:linear-gradient(135deg,#a855f7,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:fadeUp .45s ease .3s both}
+    .entry-sub{font-size:.82rem;color:#4b5563;margin-top:6px;animation:fadeUp .45s ease .55s both}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+    /* ── LAYOUT ── */
+    #app{display:flex;height:100vh;overflow:hidden}
+
+    /* ── SIDEBAR ── */
+    #sidebar{width:210px;min-width:210px;background:#050514;border-right:1px solid rgba(168,85,247,.12);display:flex;flex-direction:column;overflow-y:auto}
+    .sb-logo{padding:18px 14px;border-bottom:1px solid rgba(168,85,247,.1);display:flex;align-items:center;gap:8px}
+    .sb-logo img{width:30px;height:30px;object-fit:contain}
+    .sb-logo span{font-weight:900;font-size:.82rem;color:#e2e8f0}
+    .sb-logo em{color:#a855f7;font-style:normal}
+    .sb-nav{padding:10px 8px;flex:1}
+    .sb-sec{margin-bottom:14px}
+    .sb-lbl{font-size:.6rem;font-weight:700;letter-spacing:.1em;color:#374151;text-transform:uppercase;padding:0 8px;margin-bottom:4px}
+    .nav-item{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:8px;cursor:pointer;transition:background .15s;font-size:.78rem;font-weight:700;color:#6b7280;margin-bottom:2px;user-select:none}
+    .nav-item:hover:not(.soon){background:rgba(168,85,247,.1);color:#d1d5db}
+    .nav-item.active{background:rgba(168,85,247,.18);color:#a855f7}
+    .nav-item.soon{opacity:.35;cursor:default}
+    .soon-pill{margin-left:auto;font-size:.55rem;font-weight:700;background:rgba(168,85,247,.15);color:#a855f7;padding:1px 5px;border-radius:8px;text-transform:uppercase}
+    .sb-user{padding:12px 14px;border-top:1px solid rgba(168,85,247,.1);font-size:.72rem}
+    .sb-email{color:#4b5563;word-break:break-all}
+    .logout-link{color:#ef4444;cursor:pointer;font-weight:700;margin-top:4px;display:inline-block}
+    .logout-link:hover{text-decoration:underline}
+
+    /* ── MAIN ── */
+    #main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#06061a}
+
+    /* ── TOP BAR ── */
+    #topbar{height:54px;min-height:54px;background:rgba(5,5,20,.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(168,85,247,.12);display:flex;align-items:center;padding:0 20px;gap:14px}
+    .tb-title{font-weight:900;font-size:.88rem;color:#e2e8f0;flex:1}
+
+    /* Pomodoro */
+    #pomo-display{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:5px 12px;cursor:pointer;transition:background .15s;font-size:.78rem;white-space:nowrap}
+    #pomo-display:hover{background:rgba(255,255,255,.08)}
+    #pomo-time{font-weight:900;font-size:.88rem;letter-spacing:.05em}
+    #pomo-time.idle{color:#4b5563}
+    #pomo-time.t-normal{color:#f87171}
+    #pomo-time.t-plus{color:#60a5fa}
+    #pomo-time.t-max{color:#a855f7}
+    .pomo-ctrl{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:none;align-items:center;justify-content:center;cursor:pointer;font-size:.68rem;transition:background .15s;color:#9ca3af}
+    .pomo-ctrl:hover{background:rgba(255,255,255,.12);color:#e2e8f0}
+
+    /* Mode */
+    #mode-toggle{display:flex;align-items:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:3px;gap:2px}
+    .mode-btn{padding:4px 11px;border-radius:16px;font-size:.68rem;font-weight:800;cursor:pointer;transition:all .2s;color:#4b5563}
+    .mode-btn.m-chill{background:linear-gradient(135deg,#1d4ed8,#7c3aed);color:#fff}
+    .mode-btn.m-hard{background:linear-gradient(135deg,#3b0764,#1e0035);color:#c084fc}
+
+    /* ── CONTENT ── */
+    #content{flex:1;overflow-y:auto;padding:28px 32px;scrollbar-width:thin;scrollbar-color:rgba(168,85,247,.25) transparent}
+    #content::-webkit-scrollbar{width:4px}
+    #content::-webkit-scrollbar-thumb{background:rgba(168,85,247,.25);border-radius:2px}
+    .panel{display:none}
+    .panel.active{display:block}
+    @keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    .anim{animation:slideUp .3s ease}
+
+    /* ── MCQ ── */
+    .mcq-h1{font-size:1.45rem;font-weight:900;background:linear-gradient(135deg,#a855f7,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .mcq-sub{color:#4b5563;font-size:.82rem;margin-top:3px;margin-bottom:22px}
+
+    .mcq-tabs{display:flex;gap:3px;background:rgba(255,255,255,.03);border:1px solid rgba(168,85,247,.12);border-radius:11px;padding:3px;width:fit-content;margin-bottom:24px}
+    .mcq-tab{padding:6px 17px;border-radius:8px;font-size:.75rem;font-weight:800;cursor:pointer;transition:all .15s;color:#4b5563}
+    .mcq-tab.active{background:linear-gradient(135deg,rgba(168,85,247,.28),rgba(59,130,246,.28));color:#a855f7;box-shadow:0 0 14px rgba(168,85,247,.18)}
+    .mcq-tab:hover:not(.active){color:#9ca3af;background:rgba(255,255,255,.04)}
+
+    /* Form */
+    .form-card{background:#0d0d2e;border:1px solid rgba(168,85,247,.18);border-radius:16px;padding:24px;max-width:680px}
+    .f-lbl{display:block;font-size:.72rem;font-weight:800;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:.07em}
+    .f-grp{margin-bottom:18px}
+    .f-input,.f-ta{width:100%;background:rgba(255,255,255,.03);border:1px solid rgba(168,85,247,.18);border-radius:10px;padding:9px 13px;color:#e2e8f0;font-family:'Raleway',sans-serif;font-size:.83rem;outline:none;transition:border-color .15s,box-shadow .15s}
+    .f-input:focus,.f-ta:focus{border-color:#9333ea;box-shadow:0 0 0 3px rgba(147,51,234,.14)}
+    .f-ta{resize:vertical;min-height:78px}
+    .opt-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+    .opt-ltr{width:27px;height:27px;min-width:27px;border-radius:50%;background:rgba(168,85,247,.14);color:#a855f7;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:900}
+    .opt-row .f-input{flex:1}
+    .opt-radio{width:16px;height:16px;cursor:pointer;accent-color:#60a5fa}
+    .opt-rlbl{font-size:.62rem;color:#374151;white-space:nowrap}
+    .diff-row{display:flex;gap:8px}
+    .diff-btn{flex:1;padding:8px;border-radius:8px;font-size:.72rem;font-weight:800;cursor:pointer;border:1px solid rgba(255,255,255,.08);transition:all .15s;color:#4b5563;text-align:center;background:rgba(255,255,255,.02)}
+    .diff-btn:hover:not(.sel){border-color:rgba(255,255,255,.18);color:#9ca3af}
+    .diff-btn[data-d="easy"].sel{background:rgba(34,197,94,.12);border-color:#22c55e;color:#4ade80}
+    .diff-btn[data-d="medium"].sel{background:rgba(251,191,36,.12);border-color:#fbbf24;color:#fcd34d}
+    .diff-btn[data-d="hard"].sel{background:rgba(239,68,68,.12);border-color:#ef4444;color:#f87171}
+    .add-btn{background:linear-gradient(135deg,#9333ea,#3730a3);color:#fff;font-weight:900;font-size:.83rem;padding:12px 24px;border-radius:10px;cursor:pointer;border:none;width:100%;margin-top:6px;transition:opacity .15s;font-family:'Raleway',sans-serif}
+    .add-btn:hover{opacity:.9}
+    .success-msg{text-align:center;color:#4ade80;font-size:.78rem;font-weight:800;margin-top:10px;display:none;animation:fadeUp .3s ease}
+
+    /* Bank */
+    .bank-bar{display:flex;gap:8px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
+    .bank-stat{background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.18);border-radius:7px;padding:5px 12px;font-size:.75rem;font-weight:800;color:#a855f7}
+    .filt-btn{padding:4px 11px;border-radius:6px;font-size:.7rem;font-weight:800;cursor:pointer;border:1px solid rgba(255,255,255,.08);transition:all .15s;color:#4b5563;background:transparent}
+    .filt-btn.active{background:rgba(168,85,247,.18);border-color:#9333ea;color:#a855f7}
+    .q-card{background:#0d0d2e;border:1px solid rgba(168,85,247,.12);border-radius:12px;padding:14px;margin-bottom:9px;transition:border-color .15s}
+    .q-card:hover{border-color:rgba(168,85,247,.28)}
+    .q-top{display:flex;align-items:flex-start;gap:9px;margin-bottom:8px}
+    .q-num{min-width:24px;height:24px;background:linear-gradient(135deg,#9333ea,#3730a3);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:900;color:#fff}
+    .q-stem-t{flex:1;font-size:.82rem;color:#d1d5db;font-weight:700;line-height:1.5}
+    .q-btns{display:flex;gap:5px;flex-shrink:0}
+    .q-btn{padding:3px 8px;border-radius:5px;font-size:.62rem;font-weight:800;cursor:pointer;border:1px solid;transition:all .15s}
+    .q-btn.edit{border-color:rgba(96,165,250,.3);color:#60a5fa;background:rgba(96,165,250,.07)}
+    .q-btn.edit:hover{background:rgba(96,165,250,.18)}
+    .q-btn.del{border-color:rgba(248,113,113,.3);color:#f87171;background:rgba(248,113,113,.07)}
+    .q-btn.del:hover{background:rgba(248,113,113,.18)}
+    .q-meta{display:flex;gap:8px;align-items:center}
+    .diff-badge{font-size:.6rem;font-weight:800;padding:2px 7px;border-radius:8px;text-transform:uppercase;letter-spacing:.04em}
+    .diff-badge.easy{background:rgba(34,197,94,.12);color:#4ade80}
+    .diff-badge.medium{background:rgba(251,191,36,.12);color:#fcd34d}
+    .diff-badge.hard{background:rgba(239,68,68,.12);color:#f87171}
+    .bank-empty{text-align:center;padding:56px 20px;color:#374151}
+    .bank-empty .ei{font-size:2.5rem;margin-bottom:10px}
+    .bank-empty h3{font-size:.95rem;font-weight:800;color:#4b5563;margin-bottom:5px}
+    .bank-empty p{font-size:.78rem}
+
+    /* Quiz setup */
+    .qs-h{font-size:1.15rem;font-weight:900;color:#e2e8f0;margin-bottom:6px}
+    .qs-p{color:#4b5563;font-size:.82rem;margin-bottom:22px}
+    .cfg-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:480px;margin-bottom:16px}
+    .cfg-card{background:#0d0d2e;border:1px solid rgba(168,85,247,.15);border-radius:12px;padding:14px}
+    .cfg-lbl{display:block;font-size:.68rem;font-weight:800;color:#4b5563;margin-bottom:7px;text-transform:uppercase;letter-spacing:.07em}
+    .cfg-sel{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(168,85,247,.18);border-radius:8px;padding:7px 10px;color:#e2e8f0;font-family:'Raleway',sans-serif;font-size:.8rem;outline:none;cursor:pointer}
+    .cfg-sel option{background:#0d0d2e}
+    .avail-msg{font-size:.78rem;color:#4b5563;margin-bottom:16px;font-weight:600}
+    .start-btn{background:linear-gradient(135deg,#7c3aed,#1d4ed8);color:#fff;font-weight:900;font-size:.88rem;padding:13px 38px;border-radius:12px;cursor:pointer;border:none;font-family:'Raleway',sans-serif;box-shadow:0 0 28px rgba(124,58,237,.28);transition:all .2s}
+    .start-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 0 40px rgba(124,58,237,.45)}
+    .start-btn:disabled{opacity:.35;cursor:default;box-shadow:none;transform:none}
+
+    /* Active quiz */
+    .q-prog-bar{height:4px;background:rgba(255,255,255,.05);border-radius:2px;margin-bottom:24px;overflow:hidden;max-width:680px}
+    .q-prog-fill{height:100%;background:linear-gradient(90deg,#9333ea,#3b82f6);border-radius:2px;transition:width .4s ease}
+    .q-meta-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;max-width:680px}
+    .q-counter{font-size:.75rem;color:#4b5563;font-weight:800}
+    .q-score-lbl{font-size:.75rem;font-weight:900;color:#a855f7}
+    .quiz-card{background:#0d0d2e;border:1px solid rgba(168,85,247,.18);border-radius:18px;padding:26px;max-width:680px;margin-bottom:18px;transition:border-color .3s,box-shadow .3s}
+    .quiz-card.c-flash{border-color:#60a5fa;box-shadow:0 0 28px rgba(96,165,250,.2)}
+    .quiz-card.w-flash{border-color:#f87171;box-shadow:0 0 28px rgba(248,113,113,.2)}
+    .quiz-stem{font-size:.97rem;font-weight:700;color:#e2e8f0;line-height:1.7;margin-bottom:22px}
+    .quiz-opts{display:grid;gap:9px}
+    .qopt{display:flex;align-items:center;gap:11px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:11px;padding:11px 14px;cursor:pointer;transition:all .2s}
+    .qopt:hover:not(.locked){background:rgba(168,85,247,.09);border-color:rgba(168,85,247,.28)}
+    .qopt.locked{cursor:default}
+    .qopt .ol{width:28px;height:28px;min-width:28px;border-radius:50%;background:rgba(168,85,247,.13);color:#a855f7;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:900;transition:all .2s}
+    .qopt .ot{font-size:.83rem;color:#d1d5db;font-weight:600;line-height:1.4}
+    .qopt.c-opt{background:rgba(96,165,250,.1);border-color:#60a5fa}
+    .qopt.c-opt .ol{background:#60a5fa;color:#fff}
+    .qopt.w-opt{background:rgba(248,113,113,.1);border-color:#f87171}
+    .qopt.w-opt .ol{background:#f87171;color:#fff}
+    .hint-area{margin-top:14px}
+    .hint-toggle{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:800;color:#a855f7;cursor:pointer;padding:4px 11px;border:1px solid rgba(168,85,247,.28);border-radius:16px;transition:all .15s;background:rgba(168,85,247,.07)}
+    .hint-toggle:hover{background:rgba(168,85,247,.15)}
+    .hint-txt{display:none;margin-top:9px;padding:11px 13px;background:rgba(168,85,247,.07);border-left:3px solid #9333ea;border-radius:0 8px 8px 0;font-size:.78rem;color:#c4b5fd;font-style:italic;line-height:1.5}
+    .hint-txt.show{display:block;animation:fadeUp .2s ease}
+    .next-btn{background:linear-gradient(135deg,#9333ea,#3730a3);color:#fff;font-weight:900;font-size:.82rem;padding:11px 28px;border-radius:10px;cursor:pointer;border:none;font-family:'Raleway',sans-serif;display:none;margin-top:4px;transition:all .2s}
+    .next-btn.show{display:inline-block;animation:fadeUp .3s ease}
+    .next-btn:hover{opacity:.9;transform:translateY(-1px)}
+
+    /* Results */
+    .results-wrap{text-align:center;max-width:460px;margin:0 auto;padding:36px 0;display:none}
+    .score-circle{width:130px;height:130px;border-radius:50%;border:4px solid;display:flex;align-items:center;justify-content:center;flex-direction:column;margin:0 auto 22px;animation:scoreIn .5s ease}
+    @keyframes scoreIn{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+    .score-pct{font-size:2.1rem;font-weight:900;line-height:1}
+    .score-lbl{font-size:.65rem;color:#6b7280;margin-top:2px}
+    .res-title{font-size:1.2rem;font-weight:900;margin-bottom:7px}
+    .res-sub{color:#4b5563;font-size:.82rem;margin-bottom:26px}
+    .res-btns{display:flex;gap:9px;justify-content:center;flex-wrap:wrap}
+    .res-btn{padding:9px 22px;border-radius:9px;font-size:.78rem;font-weight:800;cursor:pointer;border:none;font-family:'Raleway',sans-serif;transition:all .15s}
+    .res-btn.pri{background:linear-gradient(135deg,#9333ea,#3730a3);color:#fff}
+    .res-btn.sec{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#6b7280}
+    .res-btn.pri:hover{opacity:.9}
+    .res-btn.sec:hover{color:#e2e8f0;border-color:rgba(255,255,255,.2)}
+
+    /* Pomo modal */
+    #pomo-modal{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center}
+    #pomo-modal.open{display:flex}
+    .pomo-card{background:#0d0d2e;border:1px solid rgba(168,85,247,.28);border-radius:20px;padding:26px;width:340px;text-align:center;box-shadow:0 0 56px rgba(168,85,247,.28)}
+    .pomo-card h2{font-size:.95rem;font-weight:900;color:#e2e8f0;margin-bottom:4px}
+    .pomo-card p{font-size:.75rem;color:#4b5563;margin-bottom:18px}
+    .pomo-opts{display:grid;gap:8px}
+    .pomo-opt{display:flex;align-items:center;gap:11px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:11px;padding:13px 14px;cursor:pointer;transition:all .2s;text-align:left}
+    .pomo-opt:hover{background:rgba(168,85,247,.09);border-color:rgba(168,85,247,.28)}
+    .pomo-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+    .pomo-name{font-size:.82rem;font-weight:900;color:#e2e8f0}
+    .pomo-desc{font-size:.68rem;color:#4b5563;margin-top:1px}
+    .pomo-dur{font-size:.82rem;font-weight:900;margin-left:auto}
+
+    /* Hardcore */
+    body.hc #main{background:#020208}
+    body.hc #sidebar{background:#030309}
+    body.hc #topbar{background:rgba(2,2,8,.9)}
+    body.hc .quiz-card,body.hc .form-card,body.hc .q-card,body.hc .cfg-card{border-color:rgba(124,58,237,.22)}
+    body.hc #content{background:#020208}
+
+    /* Mascot */
+    #mascot{position:fixed;bottom:-80px;right:20px;width:66px;z-index:50;pointer-events:none;transition:bottom .5s cubic-bezier(.34,1.56,.64,1)}
+    #mascot.up{bottom:0}
+    #mascot img{width:66px;filter:drop-shadow(0 -4px 16px rgba(168,85,247,.65))}
+
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    select option{background:#0d0d2e}
   </style>
 </head>
-<body class="font-sans bg-gray-50 text-gray-900 antialiased flex h-screen overflow-hidden">
+<body class="font-sans">
 
-<!-- ── SIDEBAR ─────────────────────────────────────────────── -->
-<aside class="w-64 flex-shrink-0 hidden lg:flex flex-col" style="background:#1e1b4b;">
-  <!-- Logo -->
-  <div class="px-5 py-5 border-b border-white border-opacity-10 flex items-center gap-2">
-    <img src="Marketing/Logo/rendered%20logo.png" alt="" class="w-9 h-9 object-contain" />
-    <span class="text-white font-extrabold">Stoday <span class="text-purple-mid">Plus</span></span>
+<!-- ENTRY OVERLAY -->
+<div id="entry-overlay">
+  <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+    <div class="ring"></div><div class="ring"></div><div class="ring"></div><div class="ring"></div>
   </div>
-  <!-- User -->
-  <div class="px-5 py-4 border-b border-white border-opacity-10">
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-full gradient-brand flex items-center justify-center text-white font-bold text-sm flex-shrink-0">M</div>
-      <div>
-        <p class="text-white text-sm font-semibold">Mikey's Student</p>
-        <p class="text-gray-500 text-xs">Full System</p>
-      </div>
-    </div>
+  <div class="entry-center">
+    <img src="Marketing/Logo/rendered%20logo.png" class="entry-logo" alt=""/>
+    <div class="entry-welcome" id="ewelcome">Welcome back</div>
+    <div class="entry-sub">Your study space is ready.</div>
   </div>
-  <!-- Nav -->
-  <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-    <button onclick="showTab('home')"       id="nav-home"       class="sidebar-link active w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-left text-purple-deep">
-      <span>🏠</span> Home
-    </button>
-    <button onclick="showTab('techniques')" id="nav-techniques" class="sidebar-link w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-left text-gray-400">
-      <span>🧠</span> 5 Techniques
-    </button>
-    <button onclick="showTab('blurting')"   id="nav-blurting"   class="sidebar-link w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-left text-gray-400">
-      <span>📝</span> Blurting Sheet
-    </button>
-    <button onclick="showTab('system')"     id="nav-system"     class="sidebar-link w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-left text-gray-400">
-      <span>⚡</span> Daily System
-    </button>
-    <button onclick="showTab('resources')"  id="nav-resources"  class="sidebar-link w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-left text-gray-400">
-      <span>📦</span> All Resources
-    </button>
-    <button onclick="showTab('video')"      id="nav-video"      class="sidebar-link w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-left text-gray-400">
-      <span>▶️</span> Video Walkthrough
-    </button>
-    <div class="pt-4 border-t border-white border-opacity-10 mt-4">
-      <button onclick="showTab('mentoring')" id="nav-mentoring" class="sidebar-link w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-left text-gray-400">
-        <span>📞</span> Book Mentoring
-      </button>
-    </div>
-  </nav>
-  <div class="px-4 py-3 border-t border-white border-opacity-10">
-    <a href="index.html" class="text-gray-600 text-xs hover:text-gray-400 transition-colors">← Back to site</a>
-  </div>
-</aside>
-
-<!-- ── MAIN ───────────────────────────────────────────────── -->
-<div class="flex-1 flex flex-col overflow-hidden">
-  <!-- Topbar -->
-  <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between flex-shrink-0">
-    <div>
-      <h1 class="font-extrabold text-navy-dark text-lg" id="page-title">Home</h1>
-      <p class="text-gray-400 text-sm" id="page-sub">Welcome back. Let's study smart today.</p>
-    </div>
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-full gradient-brand flex items-center justify-center text-white font-bold text-sm">M</div>
-    </div>
-  </header>
-
-  <!-- Content -->
-  <main class="flex-1 overflow-y-auto p-6">
-
-    <!-- ── HOME ─────────────────────────────────────────────── -->
-    <div id="tab-home" class="tab-content active">
-      <!-- Welcome card -->
-      <div class="rounded-2xl p-6 mb-6 text-white relative overflow-hidden" style="background: linear-gradient(135deg, #1e1b4b 0%, #3730a3 60%, #1e3a8a 100%);">
-        <div class="absolute right-0 bottom-0 opacity-10">
-          <img src="Marketing/Logo/rendered%20logo.png" class="w-40" alt="" />
-        </div>
-        <p class="text-purple-mid font-semibold text-sm mb-1">Stoday Plus — Study Today</p>
-        <h2 class="text-2xl font-extrabold mb-2">Your system is ready. 🎓</h2>
-        <p class="text-gray-300 text-sm max-w-md">You've got access to everything. Start with the 11-minute video, or jump straight into the Blurting Sheet if you have a topic to revise right now.</p>
-      </div>
-
-      <!-- Quick actions -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <button onclick="showTab('blurting')" class="bg-white border border-purple-soft rounded-2xl p-5 text-left hover:border-purple-DEFAULT transition-colors resource-card">
-          <div class="text-2xl mb-2">📝</div>
-          <p class="font-bold text-navy-dark text-sm">Use the Blurting Sheet</p>
-          <p class="text-gray-400 text-xs mt-1">Active recall right now</p>
-        </button>
-        <button onclick="showTab('video')" class="bg-white border border-purple-soft rounded-2xl p-5 text-left hover:border-purple-DEFAULT transition-colors resource-card">
-          <div class="text-2xl mb-2">▶️</div>
-          <p class="font-bold text-navy-dark text-sm">Watch the breakdown</p>
-          <p class="text-gray-400 text-xs mt-1">11-minute full walkthrough</p>
-        </button>
-        <button onclick="showTab('techniques')" class="bg-white border border-purple-soft rounded-2xl p-5 text-left hover:border-purple-DEFAULT transition-colors resource-card">
-          <div class="text-2xl mb-2">🧠</div>
-          <p class="font-bold text-navy-dark text-sm">Read the techniques</p>
-          <p class="text-gray-400 text-xs mt-1">All 5, in detail</p>
-        </button>
-      </div>
-
-      <!-- Today's focus -->
-      <div class="bg-white border border-gray-200 rounded-2xl p-6 mb-6">
-        <h3 class="font-extrabold text-navy-dark mb-4">Today's focus</h3>
-        <div class="space-y-3">
-          <label class="flex items-center gap-3 cursor-pointer group">
-            <input type="checkbox" class="rounded border-gray-300 text-purple-DEFAULT focus:ring-purple-DEFAULT" />
-            <div>
-              <p class="text-sm font-medium text-gray-900 group-hover:text-purple-deep transition-colors">Watch the 11-minute video walkthrough</p>
-              <p class="text-xs text-gray-400">Start here — understand the full system</p>
-            </div>
-          </label>
-          <label class="flex items-center gap-3 cursor-pointer group">
-            <input type="checkbox" class="rounded border-gray-300 text-purple-DEFAULT focus:ring-purple-DEFAULT" />
-            <div>
-              <p class="text-sm font-medium text-gray-900 group-hover:text-purple-deep transition-colors">Complete one Blurting Sheet on a topic you're studying</p>
-              <p class="text-xs text-gray-400">Any topic, any subject — 5-10 minutes</p>
-            </div>
-          </label>
-          <label class="flex items-center gap-3 cursor-pointer group">
-            <input type="checkbox" class="rounded border-gray-300 text-purple-DEFAULT focus:ring-purple-DEFAULT" />
-            <div>
-              <p class="text-sm font-medium text-gray-900 group-hover:text-purple-deep transition-colors">Read through one technique from the 5 Techniques guide</p>
-              <p class="text-xs text-gray-400">Pick the one that feels most useful right now</p>
-            </div>
-          </label>
-        </div>
-      </div>
-
-      <!-- Quote -->
-      <div class="bg-purple-light border border-purple-soft rounded-2xl p-5 text-center">
-        <p class="text-purple-dark font-semibold text-sm">"15 minutes of smart is better than 3 hours of stuck."</p>
-        <p class="text-gray-400 text-xs mt-1">— Mikey Hoang, Stoday Plus</p>
-      </div>
-    </div>
-
-    <!-- ── TECHNIQUES ──────────────────────────────────────── -->
-    <div id="tab-techniques" class="tab-content">
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        <div class="bg-white border border-purple-soft rounded-2xl p-6 resource-card">
-          <div class="w-10 h-10 rounded-xl gradient-brand flex items-center justify-center text-white font-extrabold mb-4">01</div>
-          <h3 class="font-extrabold text-navy-dark mb-2">Pomodoro+</h3>
-          <p class="text-gray-600 text-sm leading-relaxed mb-4">25 min work + 5 min break. For deeper sessions: 45-60 min. Scientifically proven to sustain focus without mental fatigue.</p>
-          <div class="bg-purple-light rounded-xl p-3 text-xs text-purple-deep font-semibold">Tip: Set a timer right now. The ritual starts the focus.</div>
-        </div>
-        <div class="bg-white border border-purple-soft rounded-2xl p-6 resource-card">
-          <div class="w-10 h-10 rounded-xl gradient-brand flex items-center justify-center text-white font-extrabold mb-4">02</div>
-          <h3 class="font-extrabold text-navy-dark mb-2">Active Recall</h3>
-          <p class="text-gray-600 text-sm leading-relaxed mb-4">Close your notes. Write or say everything you can remember. Then check. This is 300% more effective than re-reading.</p>
-          <div class="bg-purple-light rounded-xl p-3 text-xs text-purple-deep font-semibold">Use the Blurting Sheet to do this properly →</div>
-        </div>
-        <div class="bg-white border border-purple-soft rounded-2xl p-6 resource-card">
-          <div class="w-10 h-10 rounded-xl gradient-brand flex items-center justify-center text-white font-extrabold mb-4">03</div>
-          <h3 class="font-extrabold text-navy-dark mb-2">Spaced Repetition</h3>
-          <p class="text-gray-600 text-sm leading-relaxed mb-4">Review material at increasing intervals. Day 1, Day 3, Day 7, Day 14. Fights the Forgetting Curve and locks info into long-term memory.</p>
-          <div class="bg-purple-light rounded-xl p-3 text-xs text-purple-deep font-semibold">Schedule: revise every topic within 3 days of first learning it.</div>
-        </div>
-        <div class="bg-white border border-purple-soft rounded-2xl p-6 resource-card">
-          <div class="w-10 h-10 rounded-xl gradient-brand flex items-center justify-center text-white font-extrabold mb-4">04</div>
-          <h3 class="font-extrabold text-navy-dark mb-2">3-Day Retention</h3>
-          <p class="text-gray-600 text-sm leading-relaxed mb-4">Memory plummets after 3 days if not reviewed. Structure your sessions so nothing falls into the dead window and gets erased.</p>
-          <div class="bg-purple-light rounded-xl p-3 text-xs text-purple-deep font-semibold">Rule: if you learned it today, revisit it within 3 days.</div>
-        </div>
-        <div class="bg-white border border-purple-soft rounded-2xl p-6 resource-card sm:col-span-2">
-          <div class="w-10 h-10 rounded-xl gradient-brand flex items-center justify-center text-white font-extrabold mb-4">05</div>
-          <h3 class="font-extrabold text-navy-dark mb-2">Feynman Technique</h3>
-          <p class="text-gray-600 text-sm leading-relaxed mb-4">If you can explain a concept in simple words to a 12-year-old, you understand it. If you can't, you don't — no matter how many times you've read it. Write your explanation. Find the gaps.</p>
-          <div class="bg-purple-light rounded-xl p-3 text-xs text-purple-deep font-semibold">Exercise: Pick one topic. Explain it in 5 sentences without looking at your notes.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── BLURTING SHEET ──────────────────────────────────── -->
-    <div id="tab-blurting" class="tab-content">
-      <div class="max-w-2xl">
-        <div class="bg-white border border-purple-soft rounded-2xl p-6 mb-5">
-          <h3 class="font-extrabold text-navy-dark text-lg mb-1">The Blurting Sheet</h3>
-          <p class="text-gray-500 text-sm mb-5">The simplest and most powerful active recall tool. Use it after every lecture, reading, or revision session.</p>
-          <div class="flex flex-col sm:flex-row gap-6 items-start">
-            <img src="Core/Blurting%20Sheet/Blurting%20Sheet.png" alt="Blurting Sheet" class="w-40 rounded-xl border border-gray-200 shadow flex-shrink-0" />
-            <div>
-              <h4 class="font-bold text-navy-dark mb-3">How to use it</h4>
-              <ol class="space-y-3 text-sm text-gray-700">
-                <li class="flex gap-3"><span class="w-6 h-6 rounded-full gradient-brand text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">1</span><span>Write the topic at the top. Close all notes.</span></li>
-                <li class="flex gap-3"><span class="w-6 h-6 rounded-full gradient-brand text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">2</span><span>Blurt out <em>everything</em> you remember for 3–5 minutes. No peeking.</span></li>
-                <li class="flex gap-3"><span class="w-6 h-6 rounded-full gradient-brand text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">3</span><span>Open your notes. Check and correct in a different colour.</span></li>
-                <li class="flex gap-3"><span class="w-6 h-6 rounded-full gradient-brand text-white text-xs flex items-center justify-center flex-shrink-0 mt-0.5">4</span><span>Note: what did you forget? What was wrong? That's your revision priority.</span></li>
-              </ol>
-              <a href="Core/Blurting%20Sheet/Blurting%20Sheet.png" download class="inline-block mt-5 gradient-brand text-white font-semibold text-sm px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity">
-                Download PDF →
-              </a>
-            </div>
-          </div>
-        </div>
-        <!-- Interactive blurt -->
-        <div class="bg-white border border-purple-soft rounded-2xl p-6">
-          <h3 class="font-extrabold text-navy-dark mb-1">Quick blurt — right now</h3>
-          <p class="text-gray-500 text-sm mb-4">Pick a topic and blurt what you know. No notes open.</p>
-          <input type="text" placeholder="Topic (e.g. Photosynthesis, World War II, Calculus)" class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" />
-          <textarea rows="5" placeholder="Write everything you can remember... don't stop, don't edit, just blurt." class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT mb-3"></textarea>
-          <div class="flex gap-3">
-            <button class="gradient-brand text-white font-semibold text-sm px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity">Start 5-min timer ⏱</button>
-            <button class="border border-gray-300 text-gray-600 font-semibold text-sm px-5 py-2.5 rounded-xl hover:bg-gray-50 transition-colors">Clear</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── DAILY SYSTEM ─────────────────────────────────────── -->
-    <div id="tab-system" class="tab-content">
-      <div class="max-w-2xl">
-        <div class="bg-white border border-purple-soft rounded-2xl p-6 mb-5">
-          <h3 class="font-extrabold text-navy-dark text-lg mb-4">The Stoday Daily System</h3>
-          <p class="text-gray-500 text-sm mb-6">A repeatable daily structure. 30 minutes minimum. Follow this every day and you will outperform students doing 3-hour sessions.</p>
-          <div class="space-y-4">
-            <div class="flex items-start gap-4 p-4 bg-purple-light rounded-xl">
-              <div class="w-10 h-10 rounded-xl gradient-brand flex items-center justify-center text-white font-extrabold text-sm flex-shrink-0">1</div>
-              <div>
-                <p class="font-bold text-navy-dark">Warm-up — 5 min</p>
-                <p class="text-gray-600 text-sm mt-1">Blurt everything you remember from your last session. No notes. Just memory. This activates recall and shows you what's still in your head.</p>
-              </div>
-            </div>
-            <div class="flex items-start gap-4 p-4 bg-purple-light rounded-xl">
-              <div class="w-10 h-10 rounded-xl gradient-brand flex items-center justify-center text-white font-extrabold text-sm flex-shrink-0">2</div>
-              <div>
-                <p class="font-bold text-navy-dark">Deep Work — 20 min (Pomodoro+)</p>
-                <p class="text-gray-600 text-sm mt-1">One topic only. New material or a deep review. Use the Feynman method: explain it back to yourself as if teaching someone else.</p>
-              </div>
-            </div>
-            <div class="flex items-start gap-4 p-4 bg-purple-light rounded-xl">
-              <div class="w-10 h-10 rounded-xl gradient-brand flex items-center justify-center text-white font-extrabold text-sm flex-shrink-0">3</div>
-              <div>
-                <p class="font-bold text-navy-dark">Review + Space — 5 min</p>
-                <p class="text-gray-600 text-sm mt-1">Quick review of something you studied 3 days ago. This is your spaced repetition slot. Mark it in your notes. Schedule next review.</p>
-              </div>
-            </div>
-          </div>
-          <div class="mt-5 p-4 rounded-xl border border-purple-DEFAULT bg-white">
-            <p class="font-bold text-purple-dark text-sm">Total: 30 minutes. That's it.</p>
-            <p class="text-gray-500 text-xs mt-1">Add more Pomodoro blocks if you have time. But 30 minutes done right is non-negotiable.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── ALL RESOURCES ────────────────────────────────────── -->
-    <div id="tab-resources" class="tab-content">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        <a href="Core/MVP/5%20Novel%20SP%20Techniques/5%20Novel%20Stoday%20Plus%20Technique%20-%20second%20draft.pdf" target="_blank"
-           class="bg-white border border-purple-soft rounded-2xl p-6 resource-card flex flex-col">
-          <img src="Marketing/Store%20Page%20Esstls/1.png" alt="" class="w-12 h-12 rounded-xl mb-4 object-cover" />
-          <h4 class="font-extrabold text-navy-dark mb-1">5 Techniques Guide (PDF)</h4>
-          <p class="text-gray-500 text-xs flex-1 mb-3">The full written guide for all 5 Stoday Plus study techniques.</p>
-          <span class="text-purple-DEFAULT text-xs font-bold">Open PDF →</span>
-        </a>
-        <a href="Core/Blurting%20Sheet/Blurting%20Sheet.png" download
-           class="bg-white border border-purple-soft rounded-2xl p-6 resource-card flex flex-col">
-          <img src="Marketing/Store%20Page%20Esstls/3.png" alt="" class="w-12 h-12 rounded-xl mb-4 object-cover" />
-          <h4 class="font-extrabold text-navy-dark mb-1">Blurting Sheet Template</h4>
-          <p class="text-gray-500 text-xs flex-1 mb-3">Printable active recall worksheet. Use after every session.</p>
-          <span class="text-purple-DEFAULT text-xs font-bold">Download →</span>
-        </a>
-        <a href="Core/Blurting%20Sheet/Blurting%20Guide%20-%20How%20to%20Blurt.pdf" target="_blank"
-           class="bg-white border border-purple-soft rounded-2xl p-6 resource-card flex flex-col">
-          <div class="w-12 h-12 rounded-xl gradient-brand flex items-center justify-center text-white text-xl mb-4">📖</div>
-          <h4 class="font-extrabold text-navy-dark mb-1">How to Blurt Guide</h4>
-          <p class="text-gray-500 text-xs flex-1 mb-3">Step-by-step instructions for using the Blurting Sheet correctly.</p>
-          <span class="text-purple-DEFAULT text-xs font-bold">Open PDF →</span>
-        </a>
-        <a href="Core/Scientific%20Papers/SP%20-%20Final.pdf" target="_blank"
-           class="bg-white border border-purple-soft rounded-2xl p-6 resource-card flex flex-col">
-          <img src="Marketing/Store%20Page%20Esstls/4.png" alt="" class="w-12 h-12 rounded-xl mb-4 object-cover" />
-          <h4 class="font-extrabold text-navy-dark mb-1">Scientific Research Papers</h4>
-          <p class="text-gray-500 text-xs flex-1 mb-3">The neuroscience behind why the Stoday techniques work.</p>
-          <span class="text-purple-DEFAULT text-xs font-bold">Open PDF →</span>
-        </a>
-        <button onclick="showTab('video')"
-           class="bg-white border border-purple-soft rounded-2xl p-6 resource-card flex flex-col text-left">
-          <div class="w-12 h-12 rounded-xl gradient-brand flex items-center justify-center text-white text-xl mb-4">▶</div>
-          <h4 class="font-extrabold text-navy-dark mb-1">11-min Video Walkthrough</h4>
-          <p class="text-gray-500 text-xs flex-1 mb-3">Mikey explains the full system in under 11 minutes.</p>
-          <span class="text-purple-DEFAULT text-xs font-bold">Watch →</span>
-        </button>
-        <a href="Core/About%20Me/About%20Me.pdf" target="_blank"
-           class="bg-white border border-purple-soft rounded-2xl p-6 resource-card flex flex-col">
-          <div class="w-12 h-12 rounded-xl overflow-hidden mb-4 flex-shrink-0">
-            <img src="Marketing/Logo/rendered%20logo.png" class="w-full h-full object-contain bg-purple-light p-1" alt="" />
-          </div>
-          <h4 class="font-extrabold text-navy-dark mb-1">About Mikey (PDF)</h4>
-          <p class="text-gray-500 text-xs flex-1 mb-3">The full story behind Stoday Plus — who Mikey is and why he built it.</p>
-          <span class="text-purple-DEFAULT text-xs font-bold">Open PDF →</span>
-        </a>
-      </div>
-    </div>
-
-    <!-- ── VIDEO ────────────────────────────────────────────── -->
-    <div id="tab-video" class="tab-content">
-      <div class="max-w-2xl">
-        <div class="bg-white border border-purple-soft rounded-2xl p-6">
-          <h3 class="font-extrabold text-navy-dark text-lg mb-1">11-min Video Walkthrough</h3>
-          <p class="text-gray-500 text-sm mb-5">Mikey walks through the complete Stoday Plus system. Watch this first.</p>
-          <div class="relative rounded-xl overflow-hidden shadow-lg cursor-pointer group mb-4"
-               onclick="this.querySelector('img').style.display='none'; this.querySelector('.play-overlay').style.display='none';">
-            <img src="Core/11-min%20Sales%20Call/Thumbnail.png" alt="Video thumbnail" class="w-full" />
-            <div class="play-overlay absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 group-hover:bg-opacity-40 transition-all">
-              <div class="w-16 h-16 rounded-full gradient-brand flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
-                <svg class="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-              </div>
-            </div>
-          </div>
-          <div class="bg-purple-light rounded-xl p-4 text-sm">
-            <p class="font-bold text-navy-dark mb-1">What's covered:</p>
-            <ul class="space-y-1 text-gray-600 text-sm">
-              <li>• Why most students study ineffectively (and don't know it)</li>
-              <li>• The 5 techniques — how each one works in practice</li>
-              <li>• The 30-minute daily system</li>
-              <li>• How to apply this starting today</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── MENTORING ────────────────────────────────────────── -->
-    <div id="tab-mentoring" class="tab-content">
-      <div class="max-w-xl">
-        <div class="rounded-2xl p-6 text-white mb-5" style="background: linear-gradient(135deg, #1e1b4b 0%, #3730a3 100%);">
-          <div class="flex items-start gap-4">
-            <img src="Marketing/Logo/rendered%20logo.png" alt="" class="w-16 h-16 object-contain flex-shrink-0" />
-            <div>
-              <h3 class="font-extrabold text-xl mb-1">1:1 Session with Mikey</h3>
-              <p class="text-gray-300 text-sm leading-relaxed">A personalised strategy call. Mikey reviews your current approach, identifies what's costing you time, and builds a custom system around your subjects and goals.</p>
-            </div>
-          </div>
-        </div>
-        <div class="bg-white border border-purple-soft rounded-2xl p-6">
-          <h4 class="font-extrabold text-navy-dark mb-4">What's included — £55</h4>
-          <ul class="space-y-2 text-sm text-gray-700 mb-6">
-            <li class="flex gap-2"><span class="text-purple-DEFAULT">✓</span> 50-minute 1:1 video call with Mikey</li>
-            <li class="flex gap-2"><span class="text-purple-DEFAULT">✓</span> Review of your current study approach</li>
-            <li class="flex gap-2"><span class="text-purple-DEFAULT">✓</span> Custom system built around your subjects</li>
-            <li class="flex gap-2"><span class="text-purple-DEFAULT">✓</span> Exam schedule and revision plan</li>
-            <li class="flex gap-2"><span class="text-purple-DEFAULT">✓</span> Written follow-up summary</li>
-          </ul>
-          <a href="join.html#mentoring" class="block text-center gradient-brand text-white font-bold px-6 py-3 rounded-xl hover:opacity-90 transition-opacity">Book a session — £55</a>
-        </div>
-      </div>
-    </div>
-
-  </main>
 </div>
 
+<!-- POMODORO MODAL -->
+<div id="pomo-modal">
+  <div class="pomo-card">
+    <h2>Choose your session</h2>
+    <p>How long do you want to focus today?</p>
+    <div class="pomo-opts">
+      <div class="pomo-opt" onclick="selectPomo('normal')">
+        <div class="pomo-dot" style="background:#f87171"></div>
+        <div><div class="pomo-name">Pomodoro</div><div class="pomo-desc">Standard focus session</div></div>
+        <div class="pomo-dur" style="color:#f87171">30 min</div>
+      </div>
+      <div class="pomo-opt" onclick="selectPomo('plus')">
+        <div class="pomo-dot" style="background:#60a5fa"></div>
+        <div><div class="pomo-name">Pomodoro Plus</div><div class="pomo-desc">Deep work session</div></div>
+        <div class="pomo-dur" style="color:#60a5fa">45 min</div>
+      </div>
+      <div class="pomo-opt" onclick="selectPomo('max')">
+        <div class="pomo-dot" style="background:#a855f7"></div>
+        <div><div class="pomo-name">Pomodoro Max</div><div class="pomo-desc">Elite focus — no distractions</div></div>
+        <div class="pomo-dur" style="color:#a855f7">60 min</div>
+      </div>
+      <div class="pomo-opt" onclick="closePomo()" style="border-style:dashed;opacity:.5">
+        <div><div class="pomo-name" style="color:#6b7280">Maybe later</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
+  <!-- Sidebar -->
+  <nav id="sidebar">
+    <div class="sb-logo">
+      <img src="Marketing/Logo/rendered%20logo.png" alt=""/>
+      <span>Stoday <em>Plus</em></span>
+    </div>
+    <div class="sb-nav">
+      <div class="sb-sec">
+        <div class="sb-lbl">Study Tools</div>
+        <div class="nav-item active" onclick="showPanel('mcq',this)">
+          <span>🧠</span> MCQ Maker
+        </div>
+        <div class="nav-item soon"><span>📝</span> Blurting Sheet<span class="soon-pill">Soon</span></div>
+        <div class="nav-item soon"><span>⚡</span> Daily System<span class="soon-pill">Soon</span></div>
+      </div>
+      <div class="sb-sec">
+        <div class="sb-lbl">Resources</div>
+        <div class="nav-item soon"><span>📁</span> All Resources<span class="soon-pill">Soon</span></div>
+        <div class="nav-item soon"><span>🎥</span> Videos<span class="soon-pill">Soon</span></div>
+        <div class="nav-item soon"><span>📅</span> Book Mentoring<span class="soon-pill">Soon</span></div>
+      </div>
+    </div>
+    <div class="sb-user">
+      <div class="sb-email" id="sb-email"></div>
+      <div class="logout-link" onclick="logout()">Log out →</div>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <div id="main">
+    <header id="topbar">
+      <span class="tb-title" id="tb-title">MCQ Maker</span>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div id="pomo-display" onclick="openPomo()" title="Start a focus session">
+          <span>⏱</span>
+          <span id="pomo-time" class="idle">Focus</span>
+        </div>
+        <div class="pomo-ctrl" id="pomo-play" onclick="togglePomo()" title="Play / Pause">▶</div>
+        <div class="pomo-ctrl" id="pomo-reset" onclick="resetPomo()" title="Reset">↺</div>
+      </div>
+      <div id="mode-toggle">
+        <div class="mode-btn m-chill" id="btn-chill" onclick="setMode('chill')">☁ Chill</div>
+        <div class="mode-btn" id="btn-hard" onclick="setMode('hardcore')">⚡ Hardcore</div>
+      </div>
+    </header>
+
+    <div id="content">
+
+      <!-- MCQ Panel -->
+      <div id="panel-mcq" class="panel active anim">
+        <h1 class="mcq-h1">MCQ Maker</h1>
+        <p class="mcq-sub">Build your question bank from your study materials, then quiz yourself.</p>
+
+        <div class="mcq-tabs">
+          <div class="mcq-tab active" id="tab-create" onclick="switchTab('create')">＋ Create</div>
+          <div class="mcq-tab" id="tab-bank" onclick="switchTab('bank')">📋 Bank</div>
+          <div class="mcq-tab" id="tab-quiz" onclick="switchTab('quiz')">▶ Quiz</div>
+        </div>
+
+        <!-- CREATE -->
+        <div id="sub-create">
+          <div class="form-card">
+            <div class="f-grp">
+              <label class="f-lbl">Question stem</label>
+              <textarea id="q-stem" class="f-ta" placeholder="Write the clinical scenario or question here…"></textarea>
+            </div>
+            <div class="f-grp">
+              <label class="f-lbl">Options A–E &nbsp;<span style="color:#374151;font-size:.62rem;text-transform:none;letter-spacing:0;font-weight:600">— tick the correct one</span></label>
+              <div id="opts-grid"></div>
+            </div>
+            <div class="f-grp">
+              <label class="f-lbl">Hint <span style="color:#374151;font-size:.62rem;text-transform:none;letter-spacing:0;font-weight:600">(shown on request during quiz)</span></label>
+              <input type="text" id="q-hint" class="f-input" placeholder="One-line clue…"/>
+            </div>
+            <div class="f-grp">
+              <label class="f-lbl">Difficulty</label>
+              <div class="diff-row">
+                <div class="diff-btn sel" data-d="easy" onclick="setDiff('easy')">Easy</div>
+                <div class="diff-btn" data-d="medium" onclick="setDiff('medium')">Medium</div>
+                <div class="diff-btn" data-d="hard" onclick="setDiff('hard')">Hard</div>
+              </div>
+            </div>
+            <button class="add-btn" id="add-btn" onclick="submitQ()">Add Question to Bank</button>
+            <div class="success-msg" id="q-ok">✓ Question added!</div>
+          </div>
+        </div>
+
+        <!-- BANK -->
+        <div id="sub-bank" style="display:none">
+          <div class="bank-bar">
+            <span class="bank-stat" id="bank-stat">0 questions</span>
+            <div style="display:flex;gap:4px">
+              <button class="filt-btn active" data-f="all" onclick="filterBank('all')">All</button>
+              <button class="filt-btn" data-f="easy" onclick="filterBank('easy')">Easy</button>
+              <button class="filt-btn" data-f="medium" onclick="filterBank('medium')">Medium</button>
+              <button class="filt-btn" data-f="hard" onclick="filterBank('hard')">Hard</button>
+            </div>
+          </div>
+          <div id="bank-list"></div>
+        </div>
+
+        <!-- QUIZ -->
+        <div id="sub-quiz" style="display:none">
+
+          <div id="quiz-setup">
+            <p class="qs-h">Start a quiz session</p>
+            <p class="qs-p">Choose difficulty and how many questions to tackle.</p>
+            <div class="cfg-grid">
+              <div class="cfg-card">
+                <label class="cfg-lbl">Difficulty</label>
+                <select class="cfg-sel" id="qz-diff" onchange="updateAvail()">
+                  <option value="all">All levels</option>
+                  <option value="easy">Easy only</option>
+                  <option value="medium">Medium only</option>
+                  <option value="hard">Hard only</option>
+                </select>
+              </div>
+              <div class="cfg-card">
+                <label class="cfg-lbl">Questions</label>
+                <select class="cfg-sel" id="qz-count">
+                  <option value="all">All available</option>
+                  <option value="5">5 questions</option>
+                  <option value="10">10 questions</option>
+                  <option value="15">15 questions</option>
+                </select>
+              </div>
+            </div>
+            <div class="avail-msg" id="avail-msg"></div>
+            <button class="start-btn" id="start-btn" onclick="startQuiz()">Start Quiz →</button>
+          </div>
+
+          <div id="quiz-run" style="display:none">
+            <div class="q-prog-bar"><div class="q-prog-fill" id="qprog" style="width:0%"></div></div>
+            <div class="q-meta-row">
+              <span class="q-counter" id="qcount">Q 1 / 1</span>
+              <span class="q-score-lbl" id="qscore">✓ 0</span>
+            </div>
+            <div class="quiz-card" id="qcard">
+              <div class="quiz-stem" id="qstem"></div>
+              <div class="quiz-opts" id="qopts"></div>
+              <div class="hint-area">
+                <div class="hint-toggle" id="hint-tog" onclick="toggleHint()">💡 Show hint</div>
+                <div class="hint-txt" id="hint-txt"></div>
+              </div>
+            </div>
+            <button class="next-btn" id="next-btn" onclick="nextQ()">Next →</button>
+          </div>
+
+          <div class="results-wrap" id="quiz-results">
+            <div class="score-circle" id="res-circle">
+              <div class="score-pct" id="res-pct"></div>
+              <div class="score-lbl">score</div>
+            </div>
+            <div class="res-title" id="res-title"></div>
+            <div class="res-sub" id="res-sub"></div>
+            <div class="res-btns">
+              <button class="res-btn pri" onclick="retryQuiz()">Try Again</button>
+              <button class="res-btn sec" onclick="switchTab('bank')">Back to Bank</button>
+            </div>
+          </div>
+
+        </div><!-- /sub-quiz -->
+      </div><!-- /panel-mcq -->
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<div id="mascot"><img src="Marketing/Logo/rendered%20logo.png" alt=""/></div>
+
 <script>
-  const tabs = ['home','techniques','blurting','system','resources','video','mentoring'];
-  const titles = {
-    home:       ['Home',              'Welcome back. Let\'s study smart today.'],
-    techniques: ['5 Techniques',      'The science-backed methods inside Stoday Plus'],
-    blurting:   ['Blurting Sheet',    'Active recall — the most powerful thing you can do right now'],
-    system:     ['Daily System',      '30 minutes, done right, every day'],
-    resources:  ['All Resources',     'Every guide, PDF, and tool in your bundle'],
-    video:      ['Video Walkthrough', 'The 11-minute full system breakdown'],
-    mentoring:  ['Book Mentoring',    '1:1 session with Mikey — personalised to you'],
-  };
-  function showTab(tab) {
-    tabs.forEach(t => {
-      document.getElementById('tab-'+t)?.classList.remove('active');
-      document.getElementById('nav-'+t)?.classList.remove('active');
-      document.getElementById('nav-'+t)?.classList.add('text-gray-400');
-    });
-    document.getElementById('tab-'+tab)?.classList.add('active');
-    document.getElementById('nav-'+tab)?.classList.add('active');
-    document.getElementById('nav-'+tab)?.classList.remove('text-gray-400');
-    const [title, sub] = titles[tab] || ['',''];
-    document.getElementById('page-title').textContent = title;
-    document.getElementById('page-sub').textContent = sub;
+// Session gate
+var user = sessionStorage.getItem('sp_user');
+if (!user) { window.location.href = 'login.html'; }
+
+var LTRS = ['A','B','C','D','E'];
+var STORAGE_KEY = 'sp_questions';
+var bank = [];
+var selDiff = 'easy';
+var bankFilt = 'all';
+var editId = null;
+var qzQs = [], qzIdx = 0, qzScore = 0, qzAnswered = false, lastCfg = null;
+var pomoType = null, pomoLeft = 0, pomoTotal = 0, pomoRunning = false, pomoTimer = null, pomoElapsed = 0;
+var POMO_T = { normal: 1800, plus: 2700, max: 3600 };
+var mode = localStorage.getItem('sp_mode') || 'chill';
+
+window.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('sb-email').textContent = user;
+  document.getElementById('ewelcome').textContent = 'Welcome back, ' + user.split('@')[0] + '.';
+  buildOpts();
+  loadBank();
+  applyMode(mode);
+  spawnStars();
+  setTimeout(function() {
+    var ov = document.getElementById('entry-overlay');
+    ov.style.opacity = '0';
+    ov.style.pointerEvents = 'none';
+    setTimeout(function() { ov.style.display = 'none'; }, 700);
+  }, 2200);
+  scheduleMascot();
+});
+
+function spawnStars() {
+  var ov = document.getElementById('entry-overlay');
+  for (var i = 0; i < 90; i++) {
+    var s = document.createElement('div');
+    s.className = 'star';
+    var sz = Math.random() * 2.5 + 0.4;
+    s.style.cssText = 'width:'+sz+'px;height:'+sz+'px;left:'+(Math.random()*100)+'%;top:'+(Math.random()*100)+'%;opacity:'+(Math.random()*.7+.1)+';animation:starTwinkle '+(Math.random()*2+.8)+'s ease-in-out infinite alternate;animation-delay:'+(Math.random()*2)+'s';
+    ov.insertBefore(s, ov.firstChild);
   }
+}
+
+// Mode
+function setMode(m) { mode = m; localStorage.setItem('sp_mode', m); applyMode(m); }
+function applyMode(m) {
+  if (m === 'hardcore') {
+    document.body.classList.add('hc');
+    document.getElementById('btn-chill').className = 'mode-btn';
+    document.getElementById('btn-hard').className = 'mode-btn m-hard';
+  } else {
+    document.body.classList.remove('hc');
+    document.getElementById('btn-chill').className = 'mode-btn m-chill';
+    document.getElementById('btn-hard').className = 'mode-btn';
+  }
+}
+
+// Pomodoro
+function openPomo() { document.getElementById('pomo-modal').classList.add('open'); }
+function closePomo() { document.getElementById('pomo-modal').classList.remove('open'); }
+
+function selectPomo(t) {
+  closePomo();
+  pomoType = t; pomoTotal = POMO_T[t]; pomoLeft = pomoTotal;
+  pomoElapsed = 0; pomoRunning = false; clearInterval(pomoTimer);
+  document.getElementById('pomo-play').style.display = 'flex';
+  document.getElementById('pomo-reset').style.display = 'flex';
+  document.getElementById('pomo-play').textContent = '▶';
+  updatePomoDisplay();
+}
+
+function togglePomo() {
+  if (!pomoType) return;
+  if (pomoRunning) {
+    pomoRunning = false; clearInterval(pomoTimer);
+    document.getElementById('pomo-play').textContent = '▶';
+  } else {
+    if (pomoLeft <= 0) { resetPomo(); return; }
+    pomoRunning = true;
+    document.getElementById('pomo-play').textContent = '⏸';
+    pomoTimer = setInterval(pomoTick, 1000);
+  }
+}
+
+function pomoTick() {
+  if (pomoLeft > 0) { pomoLeft--; pomoElapsed++; updatePomoDisplay(); }
+  else { clearInterval(pomoTimer); pomoRunning = false; document.getElementById('pomo-play').textContent = '▶'; mascotPeek(); }
+}
+
+function resetPomo() {
+  clearInterval(pomoTimer); pomoRunning = false; pomoElapsed = 0;
+  if (pomoType) pomoLeft = POMO_T[pomoType];
+  document.getElementById('pomo-play').textContent = '▶';
+  updatePomoDisplay();
+}
+
+function updatePomoDisplay() {
+  var el = document.getElementById('pomo-time');
+  if (!pomoType) { el.textContent = 'Focus'; el.className = 'idle'; return; }
+  var m = Math.floor(pomoLeft / 60), s = pomoLeft % 60;
+  el.textContent = pad(m) + ':' + pad(s);
+  el.className = 't-' + pomoType;
+}
+
+function pad(n) { return n < 10 ? '0'+n : ''+n; }
+
+window.addEventListener('beforeunload', function(e) {
+  if (pomoRunning || (pomoElapsed > 0 && pomoElapsed < 1800)) {
+    e.preventDefault();
+    e.returnValue = 'Your study session is still running. Are you sure you want to leave?';
+    return e.returnValue;
+  }
+});
+
+// Question bank
+function loadBank() {
+  try { bank = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { bank = []; }
+}
+function saveBank() { localStorage.setItem(STORAGE_KEY, JSON.stringify(bank)); }
+
+function buildOpts() {
+  var g = document.getElementById('opts-grid'); g.innerHTML = '';
+  LTRS.forEach(function(l, i) {
+    var r = document.createElement('div');
+    r.className = 'opt-row';
+    r.innerHTML = '<div class="opt-ltr">'+l+'</div><input type="text" id="o'+i+'" class="f-input" placeholder="Option '+l+'…"/><input type="radio" name="cans" class="opt-radio" value="'+i+'" id="r'+i+'"/><label for="r'+i+'" class="opt-rlbl">Correct</label>';
+    g.appendChild(r);
+  });
+}
+
+function setDiff(d) {
+  selDiff = d;
+  document.querySelectorAll('.diff-btn').forEach(function(b) { b.classList.toggle('sel', b.dataset.d === d); });
+}
+
+function submitQ() {
+  var stem = document.getElementById('q-stem').value.trim();
+  var opts = LTRS.map(function(l, i) { return document.getElementById('o'+i).value.trim(); });
+  var cr = document.querySelector('input[name="cans"]:checked');
+  var hint = document.getElementById('q-hint').value.trim();
+  if (!stem) { alert('Please enter a question stem.'); return; }
+  if (opts.some(function(o) { return !o; })) { alert('Please fill in all 5 options.'); return; }
+  if (!cr) { alert('Please tick the correct answer.'); return; }
+  var q = { id: editId || Date.now(), stem: stem, options: opts, correct: parseInt(cr.value), hint: hint, difficulty: selDiff };
+  if (editId) {
+    var ix = bank.findIndex(function(x) { return x.id === editId; });
+    if (ix !== -1) bank[ix] = q;
+    editId = null;
+    document.getElementById('add-btn').textContent = 'Add Question to Bank';
+  } else { bank.push(q); }
+  saveBank(); clearForm();
+  var ok = document.getElementById('q-ok');
+  ok.style.display = 'block';
+  setTimeout(function() { ok.style.display = 'none'; }, 2000);
+}
+
+function clearForm() {
+  document.getElementById('q-stem').value = '';
+  LTRS.forEach(function(l, i) { document.getElementById('o'+i).value = ''; });
+  document.querySelectorAll('input[name="cans"]').forEach(function(r) { r.checked = false; });
+  document.getElementById('q-hint').value = '';
+  setDiff('easy'); editId = null;
+}
+
+// Bank
+function filterBank(f) {
+  bankFilt = f;
+  document.querySelectorAll('.filt-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.f === f); });
+  renderBank();
+}
+
+function renderBank() {
+  var list = document.getElementById('bank-list');
+  var filtered = bankFilt === 'all' ? bank : bank.filter(function(q) { return q.difficulty === bankFilt; });
+  document.getElementById('bank-stat').textContent = bank.length + ' question' + (bank.length !== 1 ? 's' : '');
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="bank-empty"><div class="ei">'+(bank.length===0?'📭':'🔍')+'</div><h3>'+(bank.length===0?'No questions yet':'No '+bankFilt+' questions')+'</h3><p>'+(bank.length===0?'Go to the Create tab to add your first question.':'Change the filter or add more questions.')+'</p></div>';
+    return;
+  }
+  list.innerHTML = '';
+  filtered.forEach(function(q, i) {
+    var c = document.createElement('div');
+    c.className = 'q-card';
+    c.innerHTML = '<div class="q-top"><div class="q-num">'+(i+1)+'</div><div class="q-stem-t">'+esc(q.stem)+'</div><div class="q-btns"><button class="q-btn edit" onclick="editQ('+q.id+')">Edit</button><button class="q-btn del" onclick="delQ('+q.id+')">Delete</button></div></div><div class="q-meta"><span class="diff-badge '+q.difficulty+'">'+q.difficulty+'</span>'+(q.hint?'<span style="font-size:.7rem;color:#374151">💡 '+esc(q.hint)+'</span>':'')+'</div>';
+    list.appendChild(c);
+  });
+}
+
+function delQ(id) {
+  if (!confirm('Delete this question?')) return;
+  bank = bank.filter(function(q) { return q.id !== id; });
+  saveBank(); renderBank(); updateAvail();
+}
+
+function editQ(id) {
+  var q = bank.find(function(x) { return x.id === id; });
+  if (!q) return;
+  document.getElementById('q-stem').value = q.stem;
+  q.options.forEach(function(o, i) { document.getElementById('o'+i).value = o; });
+  document.getElementById('r'+q.correct).checked = true;
+  document.getElementById('q-hint').value = q.hint || '';
+  setDiff(q.difficulty);
+  editId = q.id;
+  document.getElementById('add-btn').textContent = 'Update Question';
+  switchTab('create');
+  document.getElementById('content').scrollTop = 0;
+}
+
+// Quiz
+function updateAvail() {
+  var d = document.getElementById('qz-diff').value;
+  var n = d === 'all' ? bank.length : bank.filter(function(q) { return q.difficulty === d; }).length;
+  document.getElementById('avail-msg').textContent = n + ' question' + (n !== 1 ? 's' : '') + ' available' + (d !== 'all' ? ' ('+d+')' : '');
+  document.getElementById('start-btn').disabled = n === 0;
+}
+
+function startQuiz() {
+  var d = document.getElementById('qz-diff').value;
+  var cv = document.getElementById('qz-count').value;
+  var pool = d === 'all' ? bank.slice() : bank.filter(function(q) { return q.difficulty === d; });
+  for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random()*(i+1)); var t=pool[i]; pool[i]=pool[j]; pool[j]=t; }
+  var n = cv === 'all' ? pool.length : Math.min(parseInt(cv), pool.length);
+  qzQs = pool.slice(0, n); qzIdx = 0; qzScore = 0; qzAnswered = false; lastCfg = { d: d, cv: cv };
+  document.getElementById('quiz-setup').style.display = 'none';
+  document.getElementById('quiz-run').style.display = 'block';
+  document.getElementById('quiz-results').style.display = 'none';
+  showQ();
+}
+
+function showQ() {
+  var q = qzQs[qzIdx]; qzAnswered = false;
+  document.getElementById('qprog').style.width = (qzIdx / qzQs.length * 100) + '%';
+  document.getElementById('qcount').textContent = 'Q '+(qzIdx+1)+' / '+qzQs.length;
+  document.getElementById('qscore').textContent = '✓ '+qzScore+' / '+qzIdx;
+  document.getElementById('qcard').className = 'quiz-card anim';
+  document.getElementById('qstem').textContent = q.stem;
+  var opts = document.getElementById('qopts'); opts.innerHTML = '';
+  q.options.forEach(function(o, i) {
+    var d = document.createElement('div');
+    d.className = 'qopt'; d.id = 'qo'+i;
+    d.innerHTML = '<div class="ol">'+LTRS[i]+'</div><div class="ot">'+esc(o)+'</div>';
+    d.addEventListener('click', function() { answerQ(i); });
+    opts.appendChild(d);
+  });
+  document.getElementById('hint-txt').textContent = q.hint || 'No hint available.';
+  document.getElementById('hint-txt').classList.remove('show');
+  document.getElementById('hint-tog').textContent = '💡 Show hint';
+  var nb = document.getElementById('next-btn');
+  nb.className = 'next-btn';
+  nb.textContent = qzIdx < qzQs.length - 1 ? 'Next →' : 'See results →';
+}
+
+function answerQ(idx) {
+  if (qzAnswered) return; qzAnswered = true;
+  var q = qzQs[qzIdx];
+  var ok = idx === q.correct;
+  document.querySelectorAll('.qopt').forEach(function(o) { o.classList.add('locked'); });
+  document.getElementById('qcard').classList.add(ok ? 'c-flash' : 'w-flash');
+  document.getElementById('qo'+q.correct).classList.add('c-opt');
+  if (!ok) document.getElementById('qo'+idx).classList.add('w-opt');
+  if (ok) { qzScore++; if (Math.random() < .3) setTimeout(mascotPeek, 400); }
+  document.getElementById('qscore').textContent = '✓ '+qzScore+' / '+(qzIdx+1);
+  document.getElementById('next-btn').className = 'next-btn show';
+}
+
+function toggleHint() {
+  var t = document.getElementById('hint-txt'), b = document.getElementById('hint-tog');
+  if (t.classList.contains('show')) { t.classList.remove('show'); b.textContent = '💡 Show hint'; }
+  else { t.classList.add('show'); b.textContent = '💡 Hide hint'; }
+}
+
+function nextQ() {
+  qzIdx++;
+  if (qzIdx >= qzQs.length) showResults(); else showQ();
+}
+
+function showResults() {
+  document.getElementById('quiz-run').style.display = 'none';
+  var pct = Math.round(qzScore / qzQs.length * 100);
+  var color, title, sub;
+  if (pct >= 90) { color='#60a5fa'; title='Outstanding! 🎯'; sub='You nailed it. Ready for the real exam.'; }
+  else if (pct >= 75) { color='#a855f7'; title='Strong performance!'; sub='A few gaps to close — review the ones you missed.'; }
+  else if (pct >= 50) { color='#fbbf24'; title='Good effort'; sub='Halfway there. Another pass will lock these in.'; }
+  else { color='#f87171'; title='Keep going'; sub='These need another review before you quiz again.'; }
+  document.getElementById('res-circle').style.borderColor = color;
+  document.getElementById('res-pct').style.color = color;
+  document.getElementById('res-pct').textContent = pct + '%';
+  document.getElementById('res-title').style.color = color;
+  document.getElementById('res-title').textContent = title;
+  document.getElementById('res-sub').textContent = sub + ' ('+qzScore+'/'+qzQs.length+' correct)';
+  var r = document.getElementById('quiz-results');
+  r.style.display = 'block'; r.style.animation = 'fadeIn .4s ease';
+  mascotPeek();
+}
+
+function retryQuiz() {
+  document.getElementById('quiz-results').style.display = 'none';
+  startQuiz();
+}
+
+// Nav
+function showPanel(id, el) {
+  document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+  var p = document.getElementById('panel-'+id);
+  if (p) { p.classList.add('active'); p.classList.add('anim'); }
+  document.querySelectorAll('.nav-item:not(.soon)').forEach(function(n) { n.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  var titles = { mcq: 'MCQ Maker' };
+  document.getElementById('tb-title').textContent = titles[id] || id;
+}
+
+function switchTab(t) {
+  ['create','bank','quiz'].forEach(function(x) {
+    document.getElementById('sub-'+x).style.display = x === t ? 'block' : 'none';
+    document.getElementById('tab-'+x).classList.toggle('active', x === t);
+  });
+  if (t === 'bank') renderBank();
+  if (t === 'quiz') updateAvail();
+}
+
+// Mascot
+function mascotPeek() {
+  var m = document.getElementById('mascot');
+  m.classList.add('up');
+  setTimeout(function() { m.classList.remove('up'); }, 3200);
+}
+function scheduleMascot() {
+  setTimeout(function() { mascotPeek(); scheduleMascot(); }, (Math.random()*4+3)*60000);
+}
+
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function logout() { sessionStorage.removeItem('sp_user'); sessionStorage.removeItem('sp_role'); window.location.href='login.html'; }
 </script>
 </body>
 </html>
