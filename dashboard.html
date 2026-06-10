@@ -12,21 +12,43 @@
     body{margin:0;background:#06061a;color:#e2e8f0;font-family:'Raleway',sans-serif;min-height:100vh;overflow-x:hidden}
 
     /* ── ENTRY OVERLAY ── */
-    #entry-overlay{position:fixed;inset:0;z-index:9999;background:#03030e;display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity .7s ease}
-    .star{position:absolute;border-radius:50%;background:#fff;pointer-events:none}
-    @keyframes starTwinkle{from{opacity:.05}to{opacity:.9}}
-    .ring{position:absolute;border-radius:50%;border:1px solid;animation:ringOut 2s ease-out forwards}
-    .ring:nth-child(1){width:80px;height:80px;border-color:rgba(168,85,247,.9);animation-delay:0s}
-    .ring:nth-child(2){width:80px;height:80px;border-color:rgba(96,165,250,.7);animation-delay:.18s}
-    .ring:nth-child(3){width:80px;height:80px;border-color:rgba(168,85,247,.45);animation-delay:.36s}
-    .ring:nth-child(4){width:80px;height:80px;border-color:rgba(96,165,250,.2);animation-delay:.54s}
-    @keyframes ringOut{0%{transform:scale(1);opacity:1}100%{transform:scale(10);opacity:0}}
-    .entry-center{position:relative;z-index:1;text-align:center}
-    .entry-logo{width:80px;height:80px;margin:0 auto 16px;display:block;filter:drop-shadow(0 0 24px rgba(168,85,247,.9));animation:logoBeat 1.4s ease-in-out infinite alternate}
-    @keyframes logoBeat{from{filter:drop-shadow(0 0 16px rgba(168,85,247,.6))}to{filter:drop-shadow(0 0 40px rgba(96,165,250,.9))}}
-    .entry-welcome{font-size:1.5rem;font-weight:900;background:linear-gradient(135deg,#a855f7,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:fadeUp .45s ease .3s both}
-    .entry-sub{font-size:.82rem;color:#4b5563;margin-top:6px;animation:fadeUp .45s ease .55s both}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    #entry-overlay{position:fixed;inset:0;z-index:9999;background:#03030a;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    #particle-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+    #chaos-vig{position:absolute;inset:0;background:linear-gradient(105deg,rgba(200,20,20,.3) 0%,rgba(170,40,10,.12) 30%,transparent 55%);pointer-events:none;z-index:2;animation:vigFade .7s ease .52s forwards}
+    @keyframes vigFade{to{opacity:0}}
+    #entry-glow-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(80,20,200,.15) 0%,transparent 65%);pointer-events:none;z-index:2;opacity:0;animation:bgIn .7s ease .85s forwards}
+    @keyframes bgIn{to{opacity:1}}
+    /* lightning */
+    #lightning-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0;z-index:3}
+    #lpath{stroke:#fff;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:2000;stroke-dashoffset:2000;filter:drop-shadow(0 0 6px #fff) drop-shadow(0 0 18px #a855f7) drop-shadow(0 0 38px #a855f7)}
+    @keyframes drawL{0%{stroke-dashoffset:2000;opacity:1}65%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:0}}
+    /* flash */
+    #flash-burst{position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.97) 0%,rgba(168,85,247,.75) 22%,rgba(96,165,250,.35) 50%,transparent 72%);opacity:0;pointer-events:none;z-index:4}
+    @keyframes flashBurst{0%{opacity:0}6%{opacity:1}100%{opacity:0}}
+    /* shake */
+    @keyframes shake{0%,100%{transform:translate(0,0)}8%{transform:translate(-10px,6px)}18%{transform:translate(10px,-6px)}28%{transform:translate(-8px,9px)}38%{transform:translate(8px,-7px)}48%{transform:translate(-5px,5px)}58%{transform:translate(5px,-4px)}68%{transform:translate(-3px,5px)}78%{transform:translate(3px,-3px)}88%{transform:translate(-2px,2px)}}
+    .do-shake{animation:shake .42s ease}
+    /* center */
+    .entry-center{position:relative;z-index:5;text-align:center;display:flex;flex-direction:column;align-items:center}
+    /* logo */
+    #entry-logo-wrap{position:relative;width:110px;height:110px;display:flex;align-items:center;justify-content:center;opacity:0;margin-bottom:14px}
+    .lglow{position:absolute;inset:-22px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,.65) 0%,rgba(96,165,250,.25) 45%,transparent 70%);animation:glowP 1.3s ease-in-out infinite alternate}
+    @keyframes glowP{from{transform:scale(.85);opacity:.4}to{transform:scale(1.5);opacity:1}}
+    .lring{position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(168,85,247,.8);animation:lringE 1.6s ease-in-out infinite}
+    .lring2{position:absolute;inset:-6px;border-radius:50%;border:1px solid rgba(96,165,250,.55);animation:lringE 1.6s ease-in-out .55s infinite}
+    @keyframes lringE{0%{transform:scale(1);opacity:.9}100%{transform:scale(2.5);opacity:0}}
+    #entry-logo-img{width:96px;height:96px;position:relative;z-index:1;filter:drop-shadow(0 0 18px rgba(168,85,247,1)) drop-shadow(0 0 40px rgba(96,165,250,.6))}
+    @keyframes logoSlam{0%{opacity:0;transform:scale(4.5) rotate(-10deg)}32%{opacity:1;transform:scale(.85) rotate(4deg)}52%{transform:scale(1.12) rotate(-2deg)}72%{transform:scale(.96) rotate(.8deg)}88%{transform:scale(1.02)}100%{opacity:1;transform:scale(1) rotate(0)}}
+    /* brand */
+    #entry-brand{font-size:2.8rem;font-weight:900;background:linear-gradient(135deg,#fff 0%,#d8b4fe 38%,#60a5fa 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:.04em;opacity:0;line-height:1.05;text-shadow:none}
+    @keyframes brandSlam{0%{opacity:0;transform:translateY(22px) scaleX(.4);letter-spacing:.3em}50%{opacity:1;transform:translateY(-5px) scaleX(1.05);letter-spacing:.02em}75%{transform:translateY(2px) scaleX(.98)}100%{opacity:1;transform:translateY(0) scaleX(1);letter-spacing:.04em}}
+    /* tagline */
+    #entry-tagline{font-size:.68rem;font-weight:800;color:#4b5563;text-transform:uppercase;letter-spacing:.24em;opacity:0;margin-top:7px}
+    @keyframes taglineUp{from{opacity:0;letter-spacing:.38em;transform:translateY(7px)}to{opacity:1;letter-spacing:.24em;transform:translateY(0)}}
+    /* welcome */
+    .entry-welcome{font-size:1rem;font-weight:700;background:linear-gradient(135deg,#e2e8f0,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-top:20px;opacity:0}
+    .entry-sub{font-size:.73rem;color:#374151;margin-top:4px;opacity:0}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
 
     /* ── LAYOUT ── */
     #app{display:flex;height:100vh;overflow:hidden}
@@ -231,13 +253,24 @@
 
 <!-- ENTRY OVERLAY -->
 <div id="entry-overlay">
-  <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
-    <div class="ring"></div><div class="ring"></div><div class="ring"></div><div class="ring"></div>
-  </div>
+  <div id="chaos-vig"></div>
+  <div id="entry-glow-bg"></div>
+  <canvas id="particle-canvas"></canvas>
+  <svg id="lightning-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+    <path id="lpath" d="M50,0 L43,14 L55,16 L38,36 L56,38 L44,58 L58,60 L45,80 L56,83 L50,100"/>
+  </svg>
+  <div id="flash-burst"></div>
   <div class="entry-center">
-    <img src="Marketing/Logo/rendered%20logo.png" class="entry-logo" alt=""/>
+    <div id="entry-logo-wrap">
+      <div class="lglow"></div>
+      <div class="lring"></div>
+      <div class="lring2"></div>
+      <img src="Marketing/Logo/rendered%20logo.png" id="entry-logo-img" alt=""/>
+    </div>
+    <div id="entry-brand">Stoday Plus</div>
+    <div id="entry-tagline">Stop pointless revision. Clear plan every day.</div>
     <div class="entry-welcome" id="ewelcome">Welcome back</div>
-    <div class="entry-sub">Your study space is ready.</div>
+    <div class="entry-sub" id="entry-sub-text">Your study space is ready.</div>
   </div>
 </div>
 
@@ -460,29 +493,161 @@ var mode = localStorage.getItem('sp_mode') || 'chill';
 
 window.addEventListener('DOMContentLoaded', function() {
   document.getElementById('sb-email').textContent = user;
-  document.getElementById('ewelcome').textContent = 'Welcome back, ' + user.split('@')[0] + '.';
+  var uname = user.split('@')[0];
+  document.getElementById('ewelcome').textContent = 'Welcome back, ' + uname + '.';
   buildOpts();
   loadBank();
   applyMode(mode);
-  spawnStars();
-  setTimeout(function() {
-    var ov = document.getElementById('entry-overlay');
-    ov.style.opacity = '0';
-    ov.style.pointerEvents = 'none';
-    setTimeout(function() { ov.style.display = 'none'; }, 700);
-  }, 2200);
+  startMarvelIntro();
   scheduleMascot();
 });
 
-function spawnStars() {
-  var ov = document.getElementById('entry-overlay');
-  for (var i = 0; i < 90; i++) {
-    var s = document.createElement('div');
-    s.className = 'star';
-    var sz = Math.random() * 2.5 + 0.4;
-    s.style.cssText = 'width:'+sz+'px;height:'+sz+'px;left:'+(Math.random()*100)+'%;top:'+(Math.random()*100)+'%;opacity:'+(Math.random()*.7+.1)+';animation:starTwinkle '+(Math.random()*2+.8)+'s ease-in-out infinite alternate;animation-delay:'+(Math.random()*2)+'s';
-    ov.insertBefore(s, ov.firstChild);
+// ── MARVEL ENTRY ANIMATION ──
+var aC, aX, aPs = [], aIn1, aIn2;
+
+function Ptcl(x,y,vx,vy,r,g,b,sz,life,glow){
+  this.x=x;this.y=y;this.vx=vx;this.vy=vy;
+  this.r=r;this.g=g;this.b=b;this.sz=sz;this.life=life;this.ml=life;this.glow=glow;
+}
+Ptcl.prototype.update=function(){
+  this.x+=this.vx;this.y+=this.vy;
+  this.vx*=0.953;this.vy*=0.953;
+  this.life--;this.sz*=0.984;
+};
+Ptcl.prototype.draw=function(ctx){
+  if(this.sz<0.25||this.life<=0)return;
+  var a=Math.pow(this.life/this.ml,0.55);
+  ctx.save();ctx.globalAlpha=a;
+  if(this.glow){
+    var g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.sz*3.2);
+    g.addColorStop(0,'rgba('+this.r+','+this.g+','+this.b+',.85)');
+    g.addColorStop(.45,'rgba('+this.r+','+this.g+','+this.b+',.28)');
+    g.addColorStop(1,'rgba('+this.r+','+this.g+','+this.b+',0)');
+    ctx.fillStyle=g;
+    ctx.beginPath();ctx.arc(this.x,this.y,this.sz*3.2,0,Math.PI*2);ctx.fill();
   }
+  ctx.fillStyle='rgba('+this.r+','+this.g+','+this.b+',1)';
+  ctx.beginPath();ctx.arc(this.x,this.y,this.sz,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+};
+
+function spawnChaos(){
+  var W=aC.width,H=aC.height;
+  var chaos=[[220,25,25],[200,55,18],[240,90,25],[175,15,15],[215,45,45],[230,70,10]];
+  for(var i=0;i<7;i++){
+    var x=Math.random()*W*0.42;
+    var y=Math.random()*H;
+    var spd=Math.random()*15+7;
+    var ang=(Math.random()-0.5)*Math.PI*1.4+0.08;
+    var c=chaos[Math.floor(Math.random()*chaos.length)];
+    aPs.push(new Ptcl(x,y,Math.cos(ang)*spd,Math.sin(ang)*spd,c[0],c[1],c[2],Math.random()*7+2,Math.floor(Math.random()*22+18),true));
+  }
+  // occasional large orb
+  if(Math.random()<0.25){
+    aPs.push(new Ptcl(Math.random()*W*.35,Math.random()*H,Math.random()*8+2,(Math.random()-.5)*10,220,30,30,Math.random()*16+8,30,true));
+  }
+}
+
+function spawnExplosion(){
+  var CX=aC.width/2,CY=aC.height/2;
+  var pal=[[168,85,247],[96,165,250],[255,255,255],[196,148,255],[147,197,253],[100,210,255],[220,160,255],[130,100,255]];
+  for(var i=0;i<14;i++){
+    var ang=Math.random()*Math.PI*2;
+    var spd=Math.random()*20+7;
+    var c=pal[Math.floor(Math.random()*pal.length)];
+    aPs.push(new Ptcl(CX,CY,Math.cos(ang)*spd,Math.sin(ang)*spd,c[0],c[1],c[2],Math.random()*10+2,Math.floor(Math.random()*55+55),true));
+  }
+  // large glowing orbs
+  if(Math.random()<0.4){
+    var ang2=Math.random()*Math.PI*2;
+    var spd2=Math.random()*9+3;
+    var palO=[[168,85,247],[96,165,250],[220,160,255]];
+    var co=palO[Math.floor(Math.random()*palO.length)];
+    aPs.push(new Ptcl(CX,CY,Math.cos(ang2)*spd2,Math.sin(ang2)*spd2,co[0],co[1],co[2],Math.random()*20+10,70,true));
+  }
+}
+
+function animLoop(){
+  var ov=document.getElementById('entry-overlay');
+  if(!ov||ov.style.display==='none')return;
+  aX.clearRect(0,0,aC.width,aC.height);
+  aPs=aPs.filter(function(p){return p.life>0;});
+  aPs.forEach(function(p){p.update();p.draw(aX);});
+  requestAnimationFrame(animLoop);
+}
+
+function triggerLightning(){
+  var svg=document.getElementById('lightning-svg');
+  svg.style.opacity='1';
+  var p=document.getElementById('lpath');
+  p.style.animation='drawL .38s ease forwards';
+  setTimeout(function(){p.style.animation='none';svg.style.opacity='0';p.style.strokeDashoffset='2000';},420);
+}
+
+function triggerFlash(){
+  var f=document.getElementById('flash-burst');
+  f.style.animation='flashBurst .55s ease forwards';
+  setTimeout(function(){f.style.animation='none';f.style.opacity='0';},560);
+}
+
+function startMarvelIntro(){
+  aC=document.getElementById('particle-canvas');
+  aX=aC.getContext('2d');
+  aC.width=window.innerWidth;aC.height=window.innerHeight;
+
+  // Phase 1: red chaos (0-510ms)
+  aIn1=setInterval(spawnChaos,38);
+  setTimeout(function(){clearInterval(aIn1);},510);
+
+  // Phase 2: lightning (530ms)
+  setTimeout(triggerLightning,530);
+
+  // Phase 3: flash + shake (650ms)
+  setTimeout(function(){
+    triggerFlash();
+    var ov=document.getElementById('entry-overlay');
+    ov.classList.add('do-shake');
+    setTimeout(function(){ov.classList.remove('do-shake');},430);
+  },650);
+
+  // Phase 4: logo SLAMS in (730ms) + start explosion
+  setTimeout(function(){
+    var lw=document.getElementById('entry-logo-wrap');
+    lw.style.animation='logoSlam .58s cubic-bezier(.17,.67,.45,1.32) forwards';
+    aIn2=setInterval(spawnExplosion,22);
+    setTimeout(function(){clearInterval(aIn2);},950);
+  },730);
+
+  // Phase 5: brand text (1120ms)
+  setTimeout(function(){
+    document.getElementById('entry-brand').style.animation='brandSlam .52s cubic-bezier(.34,1.56,.64,1) forwards';
+  },1120);
+
+  // Phase 6: tagline (1390ms)
+  setTimeout(function(){
+    document.getElementById('entry-tagline').style.animation='taglineUp .42s ease forwards';
+  },1390);
+
+  // Phase 7: welcome (1660ms)
+  setTimeout(function(){
+    document.getElementById('ewelcome').style.animation='fadeUp .44s ease forwards';
+  },1660);
+
+  // Phase 8: sub text (1870ms)
+  setTimeout(function(){
+    document.getElementById('entry-sub-text').style.animation='fadeUp .44s ease forwards';
+  },1870);
+
+  // Phase 9: fade out overlay (2220ms)
+  setTimeout(function(){
+    var ov=document.getElementById('entry-overlay');
+    ov.style.transition='opacity .82s ease';
+    ov.style.opacity='0';
+    ov.style.pointerEvents='none';
+    setTimeout(function(){ov.style.display='none';},850);
+  },2220);
+
+  requestAnimationFrame(animLoop);
 }
 
 // Mode
