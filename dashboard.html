@@ -31,16 +31,19 @@
     /* center */
     .entry-center{position:relative;z-index:5;text-align:center;display:flex;flex-direction:column;align-items:center}
     /* logo */
-    #entry-logo-wrap{position:relative;width:110px;height:110px;display:flex;align-items:center;justify-content:center;opacity:0;margin-bottom:14px}
-    .lglow{position:absolute;inset:-22px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,.65) 0%,rgba(96,165,250,.25) 45%,transparent 70%);animation:glowP 1.3s ease-in-out infinite alternate}
+    #entry-logo-wrap{position:relative;width:220px;height:220px;display:flex;align-items:center;justify-content:center;opacity:0;margin-bottom:18px}
+    .lglow{position:absolute;inset:-38px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,.65) 0%,rgba(96,165,250,.25) 45%,transparent 70%);animation:glowP 1.3s ease-in-out infinite alternate}
     @keyframes glowP{from{transform:scale(.85);opacity:.4}to{transform:scale(1.5);opacity:1}}
-    .lring{position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(168,85,247,.8);animation:lringE 1.6s ease-in-out infinite}
-    .lring2{position:absolute;inset:-6px;border-radius:50%;border:1px solid rgba(96,165,250,.55);animation:lringE 1.6s ease-in-out .55s infinite}
+    .lring{position:absolute;inset:-8px;border-radius:50%;border:2px solid rgba(168,85,247,.8);animation:lringE 1.6s ease-in-out infinite}
+    .lring2{position:absolute;inset:-8px;border-radius:50%;border:1px solid rgba(96,165,250,.55);animation:lringE 1.6s ease-in-out .55s infinite}
     @keyframes lringE{0%{transform:scale(1);opacity:.9}100%{transform:scale(2.5);opacity:0}}
-    #entry-logo-img{width:96px;height:96px;position:relative;z-index:1;filter:drop-shadow(0 0 18px rgba(168,85,247,1)) drop-shadow(0 0 40px rgba(96,165,250,.6))}
+    #entry-logo-img{width:200px;height:200px;position:relative;z-index:1;filter:drop-shadow(0 0 30px rgba(168,85,247,1)) drop-shadow(0 0 60px rgba(96,165,250,.65))}
     @keyframes logoSlam{0%{opacity:0;transform:scale(4.5) rotate(-10deg)}32%{opacity:1;transform:scale(.85) rotate(4deg)}52%{transform:scale(1.12) rotate(-2deg)}72%{transform:scale(.96) rotate(.8deg)}88%{transform:scale(1.02)}100%{opacity:1;transform:scale(1) rotate(0)}}
     /* brand */
-    #entry-brand{font-size:2.8rem;font-weight:900;background:linear-gradient(135deg,#fff 0%,#d8b4fe 38%,#60a5fa 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:.04em;opacity:0;line-height:1.05;text-shadow:none}
+    #entry-brand{font-size:3.2rem;font-weight:900;background:linear-gradient(135deg,#fff 0%,#d8b4fe 38%,#60a5fa 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:.04em;opacity:0;line-height:1.05;text-shadow:none}
+    /* fade-out for logo/brand/tagline before welcome */
+    @keyframes elemFO{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-10px)}}
+    .fo{animation:elemFO .42s ease forwards!important}
     @keyframes brandSlam{0%{opacity:0;transform:translateY(22px) scaleX(.4);letter-spacing:.3em}50%{opacity:1;transform:translateY(-5px) scaleX(1.05);letter-spacing:.02em}75%{transform:translateY(2px) scaleX(.98)}100%{opacity:1;transform:translateY(0) scaleX(1);letter-spacing:.04em}}
     /* tagline */
     #entry-tagline{font-size:.68rem;font-weight:800;color:#4b5563;text-transform:uppercase;letter-spacing:.24em;opacity:0;margin-top:7px}
@@ -620,17 +623,25 @@ function startMarvelIntro(){
     },820);
     setTimeout(function(){document.getElementById('entry-brand').style.animation='brandSlam .52s cubic-bezier(.34,1.56,.64,1) forwards';},1080);
     setTimeout(function(){document.getElementById('entry-tagline').style.animation='taglineUp .42s ease forwards';},1310);
-    // Welcome name appears early — holds on screen for ~1.5s for premium feel
-    setTimeout(function(){document.getElementById('ewelcome').style.animation='fadeUp .5s ease forwards';},1520);
-    setTimeout(function(){document.getElementById('entry-sub-text').style.animation='fadeUp .44s ease forwards';},1720);
-    // Video cinematic beat ends ~2.2s — overlay stays 1s longer so name breathes
+    // Fade OUT logo + brand + tagline before welcome appears
+    setTimeout(function(){
+      ['entry-logo-wrap','entry-brand','entry-tagline'].forEach(function(id){
+        var el=document.getElementById(id); if(el) el.classList.add('fo');
+      });
+      var tg=document.getElementById('text-grad');
+      if(tg){tg.style.transition='opacity .42s ease';tg.style.opacity='0';}
+    },1820);
+    // Welcome sentence appears ALONE after everything has cleared
+    setTimeout(function(){document.getElementById('ewelcome').style.animation='fadeUp .55s ease forwards';},2280);
+    setTimeout(function(){document.getElementById('entry-sub-text').style.animation='fadeUp .44s ease forwards';},2540);
+    // Overlay fades — welcome has had ~1.3s of solo screen time
     setTimeout(function(){
       var ov=document.getElementById('entry-overlay');
-      ov.style.transition='opacity 1s ease';
+      ov.style.transition='opacity 1.1s ease';
       ov.style.opacity='0';
       ov.style.pointerEvents='none';
-      setTimeout(function(){ov.style.display='none';},1050);
-    },3100);
+      setTimeout(function(){ov.style.display='none';},1150);
+    },3580);
   }
 
   vid.addEventListener('canplaythrough',runTextOver);
