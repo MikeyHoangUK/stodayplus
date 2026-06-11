@@ -1363,7 +1363,6 @@ function confirmAIAdd(){
   aiPendingQs = null;
   saveBank(); renderBank();
   document.getElementById('ai-folder-pick').style.display = 'none';
-  document.getElementById('ai-topic').value = '';
   setAIStatus('✓ ' + added + ' questions added to "' + folder + '".','sok');
 }
 function aiPick(el){
@@ -1507,7 +1506,11 @@ async function generateWithAI(isRetry){
     ? 'Case-based: present a realistic short scenario or situation first, then ask what follows (e.g. "A student notices… which of the following best explains…")'
     : 'Info-based: direct factual or conceptual recall questions (e.g. "Which of the following is true about…")';
   var diffDesc = {easy:'Straightforward recall, single concept, definitional',medium:'Requires understanding relationships or applying a concept',hard:'Multi-step reasoning, analysis, or synthesis'}[diff];
-  var prompt = 'You are an expert educator writing exam questions for university students.\n\nGenerate ' + n + ' multiple choice questions based on the following topic or notes:\n\n' + topic + '\n\nSettings:\n- Question type: ' + typeDesc + '\n- Difficulty: ' + diff + ' — ' + diffDesc + '\n\nRules:\n- Each question must have EXACTLY 5 options (A B C D E)\n- Exactly one option is correct\n- All options must be plausible and specific (no obvious fillers)\n- Label correct option by its 0-based index (0=A, 1=B, 2=C, 3=D, 4=E)\n- ALL questions must be ' + diff + ' difficulty\n- Include a short one-line hint\n\nRespond with ONLY a valid JSON array. No markdown, no code fences, no explanation:\n[\n  {\n    "question": "...",\n    "options": ["A text","B text","C text","D text","E text"],\n    "correct": 0,\n    "difficulty": "' + diff + '",\n    "hint": "..."\n  }\n]';
+  var existingStems = bank.map(function(q){ return (q.stem||q.question||'').trim(); }).filter(Boolean);
+  var existingBlock = existingStems.length
+    ? '\n\nEXISTING QUESTIONS (do NOT repeat or closely paraphrase any of these):\n' + existingStems.map(function(s,i){ return (i+1)+'. '+s; }).join('\n')
+    : '';
+  var prompt = 'You are an expert educator writing exam questions for university students.\n\nGenerate ' + n + ' multiple choice questions based on the following topic or notes:\n\n' + topic + '\n\nSettings:\n- Question type: ' + typeDesc + '\n- Difficulty: ' + diff + ' — ' + diffDesc + '\n\nRules:\n- Each question must have EXACTLY 5 options (A B C D E)\n- Exactly one option is correct\n- All options must be plausible and specific (no obvious fillers)\n- Label correct option by its 0-based index (0=A, 1=B, 2=C, 3=D, 4=E)\n- ALL questions must be ' + diff + ' difficulty\n- Include a short one-line hint\n- Every question in this batch must test a DIFFERENT concept, fact or scenario — no overlapping ideas\n- Do NOT repeat, rephrase or closely paraphrase any question from the existing list below' + existingBlock + '\n\nRespond with ONLY a valid JSON array. No markdown, no code fences, no explanation:\n[\n  {\n    "question": "...",\n    "options": ["A text","B text","C text","D text","E text"],\n    "correct": 0,\n    "difficulty": "' + diff + '",\n    "hint": "..."\n  }\n]';
   try {
     var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
