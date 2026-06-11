@@ -1647,9 +1647,15 @@ document.addEventListener('keydown', function(e) {
   }
 });
 document.addEventListener('fullscreenchange', function() {
+  var btn = document.getElementById('fs-btn');
   if (!document.fullscreenElement) {
-    var btn = document.getElementById('fs-btn');
     if (btn) btn.textContent = '⛶ Fullscreen';
+  }
+  var run = document.getElementById('quiz-run');
+  if (run && run.style.display !== 'none') {
+    setTimeout(function() {
+      run.scrollIntoView({behavior:'smooth', block:'center'});
+    }, 120);
   }
 });
 
