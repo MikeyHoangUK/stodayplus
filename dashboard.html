@@ -493,6 +493,14 @@
 </head>
 <body class="font-sans">
 
+<!-- ELECTRIC PERIPHERALS (hardcore mode only) -->
+<svg id="elec-left" style="position:fixed;top:0;left:0;width:72px;height:100vh;pointer-events:none;z-index:8500;overflow:visible">
+  <path id="elec-lp" d="" stroke="#c084fc" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0" style="filter:drop-shadow(0 0 4px #a855f7) drop-shadow(0 0 12px #6d28d9)"/>
+</svg>
+<svg id="elec-right" style="position:fixed;top:0;right:0;width:72px;height:100vh;pointer-events:none;z-index:8500;overflow:visible">
+  <path id="elec-rp" d="" stroke="#c084fc" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0" style="filter:drop-shadow(0 0 4px #a855f7) drop-shadow(0 0 12px #6d28d9)"/>
+</svg>
+
 <!-- MODE FADE OVERLAY -->
 <div id="mode-fade" style="position:fixed;inset:0;z-index:8888;background:#000;opacity:0;pointer-events:none;transition:opacity .38s ease"></div>
 
@@ -883,6 +891,7 @@ window.addEventListener('DOMContentLoaded', function() {
   initAIKeyUI();
   startMarvelIntro();
   scheduleMascot();
+  scheduleElectric();
 });
 
 // ── MARVEL ENTRY ANIMATION ──
@@ -1613,6 +1622,58 @@ function mascotPeek() {
 }
 function scheduleMascot() {
   setTimeout(function() { mascotPeek(); scheduleMascot(); }, (Math.random()*4+3)*60000);
+}
+
+// ── ELECTRIC PERIPHERALS ──────────────────────────────────────────────────────
+function elecPath(svgW) {
+  var h = window.innerHeight;
+  var x = svgW * 0.5 + (Math.random() - 0.5) * 8;
+  var pts = ['M ' + x.toFixed(1) + ' 0'];
+  var y = 0;
+  while (y < h) {
+    var step = 26 + Math.random() * 78;
+    y = Math.min(y + step, h);
+    x = Math.max(5, Math.min(svgW - 5, x + (Math.random() - 0.5) * svgW * 0.9));
+    pts.push('L ' + x.toFixed(1) + ' ' + y.toFixed(1));
+  }
+  return pts.join(' ');
+}
+function fireBolt(pathEl, svgW) {
+  if (!document.body.classList.contains('hc')) return;
+  pathEl.setAttribute('d', elecPath(svgW));
+  var len; try { len = pathEl.getTotalLength(); } catch(e) { return; }
+  if (!len) return;
+  pathEl.style.strokeDasharray = len;
+  pathEl.style.strokeDashoffset = len;
+  var drawDur = 1600 + Math.random() * 800;
+  var holdDur = 160;
+  var fadeDur = 900;
+  var total = drawDur + holdDur + fadeDur;
+  var t0 = null;
+  (function frame(ts) {
+    if (!t0) t0 = ts;
+    var e = ts - t0;
+    if (e < drawDur) {
+      var p = e / drawDur; p = p < 0.5 ? 2*p*p : -1+(4-2*p)*p;
+      pathEl.style.strokeDashoffset = len * (1 - p);
+      pathEl.style.opacity = 0.82;
+    } else if (e < drawDur + holdDur) {
+      pathEl.style.strokeDashoffset = 0;
+      pathEl.style.opacity = 0.92;
+    } else if (e < total) {
+      pathEl.style.opacity = 0.92 * (1 - (e - drawDur - holdDur) / fadeDur);
+    } else {
+      pathEl.style.opacity = 0; return;
+    }
+    requestAnimationFrame(frame);
+  })(performance.now());
+}
+function scheduleElectric() {
+  var lp = document.getElementById('elec-lp'), rp = document.getElementById('elec-rp'), W = 72;
+  function schedLeft() { setTimeout(function(){ fireBolt(lp,W); schedLeft(); }, 9000 + Math.random()*13000); }
+  function schedRight() { setTimeout(function(){ fireBolt(rp,W); schedRight(); }, 10000 + Math.random()*12000); }
+  schedLeft();
+  setTimeout(schedRight, 5000 + Math.random()*5000);
 }
 
 function esc(s) { s = (s == null) ? '' : String(s); return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
