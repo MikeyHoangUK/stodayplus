@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Study Space — Stoday Plus</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Raleway','system-ui','sans-serif']}}}}</script>
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <style>
@@ -300,6 +302,18 @@
     .ai-divider{display:flex;align-items:center;gap:12px;max-width:680px;margin-bottom:20px}
     .ai-divider::before,.ai-divider::after{content:'';flex:1;height:1px;background:rgba(168,85,247,.1)}
     .ai-divider-txt{font-size:.6rem;font-weight:700;letter-spacing:.12em;color:#374151;text-transform:uppercase}
+    .ai-drop{border:1.5px dashed rgba(168,85,247,.3);border-radius:12px;padding:16px 12px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;background:rgba(168,85,247,.03);margin-bottom:12px;user-select:none}
+    .ai-drop:hover,.ai-drop.over{border-color:rgba(168,85,247,.65);background:rgba(168,85,247,.09)}
+    .ai-drop-icon{display:block;font-size:1.5rem;margin-bottom:5px}
+    .ai-drop-txt{display:block;font-size:.77rem;font-weight:700;color:#9ca3af;margin-bottom:2px}
+    .ai-drop-txt strong{color:#c084fc}
+    .ai-drop-sub{display:block;font-size:.63rem;color:#374151;font-weight:600}
+    .ai-file-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.25);border-radius:8px;padding:6px 13px;font-size:.75rem;font-weight:700;color:#c084fc}
+    .ai-file-x{cursor:pointer;color:#6b7280;font-size:.85rem;line-height:1;transition:color .15s;flex-shrink:0}
+    .ai-file-x:hover{color:#f87171}
+    .ai-drop-loading{font-size:.78rem;color:#a855f7;font-weight:700}
+    @keyframes aispin{to{transform:rotate(360deg)}}
+    .ai-spin{display:inline-block;animation:aispin .7s linear infinite}
 
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
     select option{background:#0d0d2e}
@@ -453,8 +467,30 @@
               <span class="ai-htxt">Generate with AI</span>
               <span class="ai-badge">Gemini Flash</span>
             </div>
+            <!-- File drop zone -->
+            <div class="ai-drop" id="ai-drop"
+                 ondragover="aiDragOver(event)" ondragleave="aiDragLeave(event)" ondrop="aiDrop(event)"
+                 onclick="document.getElementById('ai-file-inp').click()">
+              <input type="file" id="ai-file-inp" accept=".pdf,.pptx" style="display:none" onchange="aiFileSelect(event)"/>
+              <div id="ai-drop-idle">
+                <span class="ai-drop-icon">📂</span>
+                <span class="ai-drop-txt">Drop your <strong>.pdf</strong> or <strong>.pptx</strong> here</span>
+                <span class="ai-drop-sub">or click to browse — text will be extracted automatically</span>
+              </div>
+              <div id="ai-drop-loading" style="display:none" class="ai-drop-loading">
+                <span class="ai-spin">⟳</span> Extracting text…
+              </div>
+              <div id="ai-drop-done" style="display:none">
+                <span class="ai-file-badge">
+                  <span>📎</span>
+                  <span id="ai-file-name"></span>
+                  <span class="ai-file-x" onclick="aiFileClear(event)">✕</span>
+                </span>
+              </div>
+            </div>
+
             <div class="ai-inputs">
-              <textarea id="ai-topic" class="ai-ta" placeholder="Paste your notes, a topic, or a learning objective…"></textarea>
+              <textarea id="ai-topic" class="ai-ta" placeholder="Or paste your notes / type a topic here…"></textarea>
               <div class="ai-right">
                 <select id="ai-count" class="ai-count">
                   <option value="3">3 questions</option>
@@ -1124,6 +1160,89 @@ function initAIKeyUI(){
     document.getElementById('ai-key-row').style.display = 'none';
     document.getElementById('ai-key-set').style.display = 'flex';
   }
+}
+
+// ── FILE DROP ──
+function aiDragOver(e){
+  e.preventDefault(); e.stopPropagation();
+  document.getElementById('ai-drop').classList.add('over');
+}
+function aiDragLeave(e){
+  e.preventDefault();
+  document.getElementById('ai-drop').classList.remove('over');
+}
+function aiDrop(e){
+  e.preventDefault(); e.stopPropagation();
+  document.getElementById('ai-drop').classList.remove('over');
+  var file = e.dataTransfer.files[0];
+  if(file) processAIFile(file);
+}
+function aiFileSelect(e){
+  var file = e.target.files[0];
+  if(file) processAIFile(file);
+  e.target.value = '';
+}
+function aiFileClear(e){
+  e.stopPropagation();
+  document.getElementById('ai-drop-idle').style.display = '';
+  document.getElementById('ai-drop-done').style.display = 'none';
+  document.getElementById('ai-topic').value = '';
+}
+async function processAIFile(file){
+  var ext = file.name.split('.').pop().toLowerCase();
+  if(ext !== 'pdf' && ext !== 'pptx'){
+    setAIStatus('Only .pdf and .pptx files are supported.','serr'); return;
+  }
+  document.getElementById('ai-drop-idle').style.display = 'none';
+  document.getElementById('ai-drop-done').style.display = 'none';
+  document.getElementById('ai-drop-loading').style.display = 'block';
+  setAIStatus('','');
+  try {
+    var text = ext === 'pdf' ? await extractPdf(file) : await extractPptx(file);
+    text = text.replace(/\s+/g,' ').trim();
+    if(!text) throw new Error('No readable text found in this file.');
+    if(text.length > 16000) text = text.slice(0, 16000) + '\n[…truncated]';
+    document.getElementById('ai-topic').value = text;
+    document.getElementById('ai-file-name').textContent = file.name;
+    document.getElementById('ai-drop-loading').style.display = 'none';
+    document.getElementById('ai-drop-done').style.display = 'block';
+    setAIStatus('✓ Text extracted — hit Generate when ready.','sok');
+  } catch(err){
+    document.getElementById('ai-drop-loading').style.display = 'none';
+    document.getElementById('ai-drop-idle').style.display = 'block';
+    setAIStatus('Error: ' + err.message,'serr');
+  }
+}
+async function extractPdf(file){
+  if(typeof pdfjsLib === 'undefined') throw new Error('PDF library not loaded.');
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  var ab = await file.arrayBuffer();
+  var pdf = await pdfjsLib.getDocument({data: ab}).promise;
+  var text = '';
+  for(var i = 1; i <= pdf.numPages; i++){
+    var page = await pdf.getPage(i);
+    var content = await page.getTextContent();
+    text += content.items.map(function(it){ return it.str; }).join(' ') + '\n';
+  }
+  return text;
+}
+async function extractPptx(file){
+  if(typeof JSZip === 'undefined') throw new Error('JSZip library not loaded.');
+  var zip = await JSZip.loadAsync(file);
+  var slideKeys = Object.keys(zip.files).filter(function(f){
+    return /^ppt\/slides\/slide\d+\.xml$/.test(f);
+  }).sort(function(a,b){
+    return parseInt(a.match(/\d+/)[0]) - parseInt(b.match(/\d+/)[0]);
+  });
+  if(!slideKeys.length) throw new Error('No slides found in this file.');
+  var text = '';
+  for(var i = 0; i < slideKeys.length; i++){
+    var xml = await zip.files[slideKeys[i]].async('text');
+    var matches = xml.match(/<a:t[^>]*>([^<]*)<\/a:t>/g) || [];
+    var slideText = matches.map(function(m){ return m.replace(/<[^>]+>/g,''); }).join(' ');
+    if(slideText.trim()) text += 'Slide ' + (i+1) + ': ' + slideText + '\n';
+  }
+  return text;
 }
 async function generateWithAI(){
   var key = getAIKey();
