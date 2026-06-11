@@ -1297,7 +1297,12 @@ async function extractPptx(file){
   }
   return text;
 }
-async function generateWithAI(){
+function aiCountdown(secs, onDone){
+  setAIStatus('Per-minute limit — retrying in ' + secs + 's…', 'sload');
+  if(secs <= 0){ onDone(); return; }
+  setTimeout(function(){ aiCountdown(secs - 1, onDone); }, 1000);
+}
+async function generateWithAI(isRetry){
   var key = getAIKey();
   if(!key){ setAIStatus('Save your Gemini API key first (get one free at aistudio.google.com).','serr'); return; }
   var topic = document.getElementById('ai-topic').value.trim();
@@ -1307,6 +1312,7 @@ async function generateWithAI(){
   var type = aiGetOpt('type')  || 'info';
   var btn = document.getElementById('ai-btn');
   btn.disabled = true;
+  var pendingRetry = false;
   setAIStatus('Generating ' + n + ' questions…','sload');
   var typeDesc = type === 'case'
     ? 'Case-based: present a realistic short scenario or situation first, then ask what follows (e.g. "A student notices… which of the following best explains…")'
@@ -1331,7 +1337,15 @@ async function generateWithAI(){
         var isDaily = detail.toLowerCase().includes('day') || rawMsg.toLowerCase().includes('day');
         throw new Error(isDaily
           ? 'Daily quota exhausted (1 500 req/day). Create a new project at aistudio.google.com to get a fresh key, or wait until midnight UTC.'
-          : 'Per-minute rate limit hit — wait 60 s then try again.');
+          : null);
+        if(!isRetry && !isDaily){
+          pendingRetry = true;
+          aiCountdown(62, function(){ generateWithAI(true); });
+          return;
+        }
+        throw new Error(isDaily
+          ? 'Daily quota exhausted. Create a new project at aistudio.google.com for a fresh key.'
+          : 'Still rate-limited after retry — wait a minute and try again.');
       }
       throw new Error(rawMsg);
     }
@@ -1367,7 +1381,7 @@ async function generateWithAI(){
   } catch(e) {
     setAIStatus('Error: ' + e.message,'serr');
   } finally {
-    btn.disabled = false;
+    if(!pendingRetry) btn.disabled = false;
   }
 }
 </script>
