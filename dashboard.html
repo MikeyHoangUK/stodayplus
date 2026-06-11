@@ -1314,7 +1314,7 @@ async function generateWithAI(){
   var diffDesc = {easy:'Straightforward recall, single concept, definitional',medium:'Requires understanding relationships or applying a concept',hard:'Multi-step reasoning, analysis, or synthesis'}[diff];
   var prompt = 'You are an expert educator writing exam questions for university students.\n\nGenerate ' + n + ' multiple choice questions based on the following topic or notes:\n\n' + topic + '\n\nSettings:\n- Question type: ' + typeDesc + '\n- Difficulty: ' + diff + ' — ' + diffDesc + '\n\nRules:\n- Each question must have EXACTLY 5 options (A B C D E)\n- Exactly one option is correct\n- All options must be plausible and specific (no obvious fillers)\n- Label correct option by its 0-based index (0=A, 1=B, 2=C, 3=D, 4=E)\n- ALL questions must be ' + diff + ' difficulty\n- Include a short one-line hint\n\nRespond with ONLY a valid JSON array. No markdown, no code fences, no explanation:\n[\n  {\n    "question": "...",\n    "options": ["A text","B text","C text","D text","E text"],\n    "correct": 0,\n    "difficulty": "' + diff + '",\n    "hint": "..."\n  }\n]';
   try {
-    var res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + key, {
+    var res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=' + key, {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({
