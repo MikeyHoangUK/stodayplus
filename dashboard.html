@@ -706,11 +706,11 @@
     <div class="sb-nav">
       <div class="sb-sec">
         <div class="sb-lbl">Study Tools</div>
-        <div class="nav-item active" onclick="showPanel('mcq',this)">
-          <span>🧠</span> Poppy
-        </div>
-        <div class="nav-item" onclick="showPanel('planner',this)">
+        <div class="nav-item active" onclick="showPanel('planner',this)">
           <span>📅</span> Revision Planner
+        </div>
+        <div class="nav-item" onclick="showPanel('mcq',this)">
+          <span>🧠</span> Poppy
         </div>
         <div class="nav-item soon"><span>📝</span> Blurting Sheet<span class="soon-pill">Soon</span></div>
         <div class="nav-item soon"><span>⚡</span> Daily System<span class="soon-pill">Soon</span></div>
@@ -745,7 +745,7 @@
   <div id="main">
     <header id="topbar">
       <button id="sb-toggle" onclick="toggleSidebar()" title="Menu">☰</button>
-      <span class="tb-title" id="tb-title" onclick="goHome()">Poppy<span class="tb-sub">MCQ Maker</span></span>
+      <span class="tb-title" id="tb-title" onclick="goHome()">Revision Planner<span class="tb-sub">Spaced Repetition</span></span>
       <div style="display:flex;align-items:center;gap:6px">
         <div id="pomo-display" onclick="openPomo()" title="Start a focus session">
           <span>⏱</span>
@@ -771,7 +771,7 @@
       </svg>
 
       <!-- MCQ Panel -->
-      <div id="panel-mcq" class="panel active anim">
+      <div id="panel-mcq" class="panel anim">
         <h1 class="mcq-h1">Poppy</h1>
         <p class="mcq-sub">Build your question bank from your study materials, then quiz yourself.</p>
 
@@ -995,7 +995,7 @@
       </div><!-- /panel-mcq -->
 
       <!-- PLANNER Panel -->
-      <div id="panel-planner" class="panel anim">
+      <div id="panel-planner" class="panel active anim">
         <h1 class="mcq-h1">Revision Planner</h1>
         <p class="mcq-sub">Spaced repetition on autopilot — the science-backed way to never forget what you learn.</p>
 
@@ -1102,6 +1102,7 @@ window.addEventListener('DOMContentLoaded', function() {
   initLofi();
   initHcm();
   rpLoad();
+  rpRenderToday();
 });
 
 // ── MARVEL ENTRY ANIMATION ──
@@ -1866,8 +1867,7 @@ function showPanel(id, el) {
 }
 
 function goHome() {
-  showPanel('mcq', document.querySelector('.nav-item[onclick*="mcq"]'));
-  switchTab('create');
+  showPanel('planner', document.querySelector('.nav-item[onclick*="planner"]'));
 }
 
 function switchTab(t) {
