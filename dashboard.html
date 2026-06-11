@@ -1325,7 +1325,14 @@ async function generateWithAI(){
     if(!res.ok){
       var errBody = await res.json().catch(function(){return {};});
       var rawMsg = (errBody.error && errBody.error.message) || ('HTTP ' + res.status);
-      if(res.status === 429) throw new Error('Rate limit — wait ~60 s then try again. (429)');
+      if(res.status === 429){
+        var detail = '';
+        try{ detail = errBody.error.details.map(function(d){ return d.description||''; }).join(' '); }catch(e){}
+        var isDaily = detail.toLowerCase().includes('day') || rawMsg.toLowerCase().includes('day');
+        throw new Error(isDaily
+          ? 'Daily quota exhausted (1 500 req/day). Create a new project at aistudio.google.com to get a fresh key, or wait until midnight UTC.'
+          : 'Per-minute rate limit hit — wait 60 s then try again.');
+      }
       throw new Error(rawMsg);
     }
     var data = await res.json();
