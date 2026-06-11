@@ -125,7 +125,7 @@
     #pomo-time{font-weight:900;font-size:.88rem;letter-spacing:.05em}
     #pomo-time.idle{color:#5a4230}
     #pomo-time.t-normal{color:#f87171}
-    #pomo-time.t-plus{color:#60a5fa}
+    #pomo-time.t-plus{color:#1d4ed8}
     #pomo-time.t-max{color:#6d28d9}
     .pomo-ctrl{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:none;align-items:center;justify-content:center;cursor:pointer;font-size:.68rem;transition:background .15s;color:#b09880}
     .pomo-ctrl:hover{background:rgba(255,255,255,.12);color:#1c1208}
@@ -289,26 +289,29 @@
     body.hc #topbar{background:rgba(3,3,12,.92)!important;border-color:rgba(168,85,247,.1)!important}
     body.hc .form-card,body.hc .ai-card,body.hc .q-card,body.hc .quiz-card,body.hc .cfg-card,body.hc .pomo-card,body.hc .folder-card{background:#12102a!important;border-color:rgba(168,85,247,.18)!important}
     body.hc .f-input,body.hc .f-ta,body.hc .cfg-sel,body.hc .ai-ta,body.hc .ai-count,body.hc .ai-key-inp,body.hc .ai-folder-sel,body.hc .ai-folder-new{background:rgba(255,255,255,.04)!important;color:#e8dcc8!important;border-color:rgba(168,85,247,.18)!important}
-    body.hc .nav-item{color:#6e5438!important}
+    body.hc .nav-item{color:#a08878!important}
     body.hc .nav-item:hover:not(.soon){background:rgba(168,85,247,.1)!important;color:#c8b89a!important}
     body.hc .nav-item.active{color:#a855f7!important}
     body.hc .sb-logo span{color:#e8dcc8!important}
-    body.hc .sb-email{color:#5a4230!important}
+    body.hc .sb-email{color:#a08878!important}
+    body.hc .sb-lbl{color:#6b5c4a!important}
     body.hc .mcq-h1{background:linear-gradient(135deg,#c084fc,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-    body.hc .mcq-sub,body.hc .qs-p,body.hc .avail-msg{color:#6e5438!important}
+    body.hc .mcq-sub,body.hc .qs-p,body.hc .avail-msg{color:#a08878!important}
+    body.hc .mcq-tab{color:#a08878!important}
     body.hc .qs-h,body.hc .q-stem-t,body.hc .quiz-stem,body.hc .f-lbl,body.hc .cfg-lbl{color:#e8dcc8!important}
     body.hc .q-card{background:#12102a!important}
     body.hc .bank-stat{color:#a855f7!important}
     body.hc .pomo-name{color:#e8dcc8!important}
-    body.hc .pomo-desc{color:#5a4230!important}
+    body.hc .pomo-desc{color:#a08878!important}
     body.hc .music-player{background:rgba(255,240,200,.03)!important;border-color:rgba(168,85,247,.1)!important}
     body.hc .mp-track{color:#e8dcc8!important}
+    body.hc .mp-sub{color:#a08878!important}
     body.hc .qopt{background:rgba(255,255,255,.025)!important;border-color:rgba(255,255,255,.06)!important}
     body.hc .qopt .ot{color:#c8b89a!important}
     body.hc .hint-txt{background:rgba(168,85,247,.07)!important}
     body.hc .ai-folder-pick{background:rgba(168,85,247,.06)!important}
     body.hc .mcq-tabs{background:rgba(255,255,255,.03)!important;border-color:rgba(168,85,247,.1)!important}
-    body.hc .bank-bar .filt-btn{border-color:rgba(255,255,255,.07)!important;color:#5a4230!important}
+    body.hc .bank-bar .filt-btn{border-color:rgba(255,255,255,.07)!important;color:#a08878!important}
     body.hc .bank-bar .filt-btn.active{background:rgba(168,85,247,.14)!important;color:#c084fc!important}
     /* Restore light purples on dark hc background */
     body.hc #sb-toggle,body.hc .sb-logo em{color:#a855f7!important}
@@ -341,6 +344,50 @@
     body.hc .qopt{background:rgba(255,255,255,.025)!important;border-color:rgba(255,255,255,.06)!important}
     body.hc .qopt:hover:not(.locked){background:rgba(168,85,247,.07)!important;border-color:rgba(168,85,247,.22)!important}
     body.hc .qopt .ot{color:#cbd5e1!important}
+    /* Topbar & mode toggle */
+    body.hc .tb-title{color:#e8dcc8!important}
+    body.hc #pomo-display{background:rgba(255,255,255,.06)!important;border-color:rgba(168,85,247,.18)!important}
+    body.hc #pomo-time.idle{color:#a08878!important}
+    body.hc #pomo-time.t-plus{color:#60a5fa!important}
+    body.hc .pomo-ctrl{background:rgba(255,255,255,.05)!important;border-color:rgba(255,255,255,.1)!important}
+    body.hc .pomo-ctrl:hover{background:rgba(255,255,255,.12)!important;color:#e8dcc8!important}
+    body.hc #mode-toggle{background:rgba(255,255,255,.06)!important;border-color:rgba(168,85,247,.2)!important}
+    body.hc .mode-btn{color:#a08878!important}
+    /* Form/options */
+    body.hc .opt-rlbl{color:#a08878!important}
+    body.hc .diff-btn{color:#a08878!important;background:rgba(255,255,255,.04)!important;border-color:rgba(255,255,255,.1)!important}
+    body.hc .diff-btn:hover:not(.sel){color:#c8b89a!important;border-color:rgba(255,255,255,.18)!important}
+    body.hc .diff-badge.easy{color:#4ade80!important;background:rgba(34,197,94,.1)!important;border-color:rgba(34,197,94,.25)!important}
+    body.hc .diff-badge.medium{color:#fcd34d!important;background:rgba(251,191,36,.1)!important;border-color:rgba(251,191,36,.25)!important}
+    body.hc .diff-badge.hard{color:#f87171!important;background:rgba(239,68,68,.1)!important;border-color:rgba(239,68,68,.25)!important}
+    /* AI section */
+    body.hc .ai-htxt{color:#e8dcc8!important}
+    body.hc .ai-key-lbl{color:#a08878!important}
+    body.hc .ai-key-change{color:#a08878!important}
+    body.hc .ai-opt-lbl{color:#a08878!important}
+    body.hc .ai-pill{color:#a08878!important;background:rgba(255,255,255,.03)!important;border-color:rgba(255,255,255,.08)!important}
+    body.hc .ai-divider-txt{color:#6b5c4a!important}
+    body.hc .ai-drop-txt{color:#c8b89a!important}
+    body.hc .ai-drop-sub{color:#a08878!important}
+    body.hc .ai-file-x{color:#a08878!important}
+    body.hc .ai-folder-lbl{color:#a08878!important}
+    /* Bank & folder */
+    body.hc .q-counter{color:#a08878!important}
+    body.hc .folder-pill{color:#a08878!important;border-color:rgba(255,255,255,.07)!important}
+    body.hc .fc-name{color:#e8dcc8!important}
+    body.hc .fc-count{color:#a08878!important}
+    body.hc .bank-empty{color:#a08878!important}
+    body.hc .bank-empty h3{color:#c8b89a!important}
+    /* Quiz results */
+    body.hc .score-lbl{color:#a08878!important}
+    body.hc .res-sub{color:#a08878!important}
+    body.hc .res-btn.sec{background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.1)!important;color:#c8b89a!important}
+    body.hc .res-btn.sec:hover{color:#e8dcc8!important;border-color:rgba(255,255,255,.2)!important}
+    /* Pomo modal */
+    body.hc .pomo-card h2{color:#e8dcc8!important}
+    body.hc .pomo-card p{color:#a08878!important}
+    body.hc .pomo-opt{background:rgba(255,255,255,.04)!important;border-color:rgba(168,85,247,.14)!important}
+    body.hc .pomo-opt:hover{background:rgba(168,85,247,.1)!important;border-color:rgba(168,85,247,.3)!important}
 
     /* Mascot */
     #mascot{position:fixed;bottom:-80px;right:20px;width:66px;z-index:50;pointer-events:none;transition:bottom .5s cubic-bezier(.34,1.56,.64,1)}
@@ -1476,10 +1523,11 @@ function showResults() {
   document.getElementById('quiz-run').style.display = 'none';
   var pct = Math.round(qzScore / qzQs.length * 100);
   var color, title, sub;
-  if (pct >= 90) { color='#2563eb'; title='Outstanding! 🎯'; sub='You nailed it. Ready for the real exam.'; }
-  else if (pct >= 75) { color='#6d28d9'; title='Strong performance!'; sub='A few gaps to close — review the ones you missed.'; }
-  else if (pct >= 50) { color='#b45309'; title='Good effort'; sub='Halfway there. Another pass will lock these in.'; }
-  else { color='#dc2626'; title='Keep going'; sub='These need another review before you quiz again.'; }
+  var hc = document.body.classList.contains('hc');
+  if (pct >= 90) { color=hc?'#60a5fa':'#2563eb'; title='Outstanding! 🎯'; sub='You nailed it. Ready for the real exam.'; }
+  else if (pct >= 75) { color=hc?'#a855f7':'#6d28d9'; title='Strong performance!'; sub='A few gaps to close — review the ones you missed.'; }
+  else if (pct >= 50) { color=hc?'#fbbf24':'#b45309'; title='Good effort'; sub='Halfway there. Another pass will lock these in.'; }
+  else { color=hc?'#f87171':'#dc2626'; title='Keep going'; sub='These need another review before you quiz again.'; }
   document.getElementById('res-circle').style.borderColor = color;
   document.getElementById('res-pct').style.color = color;
   document.getElementById('res-pct').textContent = pct + '%';
