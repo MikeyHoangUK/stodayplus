@@ -702,6 +702,34 @@
     body.hc .sq-prac-next{background:rgba(168,85,247,.08)!important;border-color:rgba(168,85,247,.2)!important;color:#c084fc!important}
     body.hc .sq-prac-end{background:rgba(255,255,255,.03)!important;border-color:rgba(168,85,247,.1)!important;color:#a08878!important}
     body.hc .sq-prac-counter{color:#a08878!important}
+    .sq-prac-input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(168,85,247,.14);border-radius:12px;padding:14px 16px;color:#1c1208;font-family:'Raleway',sans-serif;font-size:.88rem;min-height:130px;resize:vertical;outline:none;transition:border-color .18s,box-shadow .18s;display:block;box-sizing:border-box;margin-bottom:12px}
+    .sq-prac-input:focus{border-color:rgba(168,85,247,.5);box-shadow:0 0 0 3px rgba(147,51,234,.1)}
+    .sq-prac-submit{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:12px;padding:12px 28px;font-size:.85rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;width:100%;transition:opacity .15s}
+    .sq-prac-submit:hover{opacity:.85}
+    .sq-prac-submit:disabled{opacity:.45;cursor:default}
+    .sq-mark-result{background:rgba(250,243,224,.6);border:1px solid rgba(168,85,247,.15);border-radius:16px;padding:20px 22px;margin-top:4px}
+    .sq-mark-score-row{display:flex;align-items:baseline;gap:10px;margin-bottom:16px}
+    .sq-mark-score{font-size:2rem;font-weight:900;line-height:1}
+    .sq-mark-score-lbl{font-size:.72rem;font-weight:700;color:#6e5438;text-transform:uppercase;letter-spacing:.08em}
+    .sq-mark-pts{list-style:none;margin:0 0 14px 0;padding:0;display:flex;flex-direction:column;gap:7px}
+    .sq-mark-pt{display:flex;align-items:flex-start;gap:8px;font-size:.82rem;font-weight:600;color:#3a2a14;line-height:1.45}
+    .sq-mark-pt-icon{flex-shrink:0;width:16px;margin-top:1px;font-style:normal}
+    .sq-mark-pt.hit .sq-mark-pt-icon::before{content:'✓';color:#16a34a}
+    .sq-mark-pt.miss .sq-mark-pt-icon::before{content:'✗';color:#dc2626}
+    .sq-mark-pt.miss{opacity:.6}
+    .sq-mark-comment{font-size:.8rem;color:#5a4230;font-style:italic;border-top:1px solid rgba(168,85,247,.12);padding-top:12px;margin-top:4px;line-height:1.55}
+    .sq-mark-scheme-toggle{font-size:.68rem;font-weight:800;background:rgba(109,40,217,.07);border:1px solid rgba(109,40,217,.14);color:#6d28d9;border-radius:8px;padding:5px 12px;cursor:pointer;font-family:'Raleway',sans-serif;margin-top:14px;transition:all .15s;display:inline-block}
+    .sq-mark-scheme-toggle:hover{background:rgba(109,40,217,.14)}
+    .sq-mark-scheme-body{display:none;margin-top:10px;padding:10px 12px;background:rgba(255,255,255,.55);border-radius:8px;border-left:3px solid rgba(109,40,217,.25);font-size:.8rem;color:#4a3820;line-height:1.65;font-weight:500}
+    .sq-mark-scheme-body.open{display:block}
+    .sq-prac-next-row{display:flex;justify-content:flex-end;margin-top:16px}
+    body.hc .sq-prac-input{background:rgba(255,255,255,.04)!important;color:#e8dcc8!important;border-color:rgba(168,85,247,.18)!important}
+    body.hc .sq-mark-result{background:rgba(255,255,255,.025)!important;border-color:rgba(168,85,247,.1)!important}
+    body.hc .sq-mark-score-lbl{color:#a08878!important}
+    body.hc .sq-mark-pt{color:#c8b89a!important}
+    body.hc .sq-mark-comment{color:#a08878!important;border-top-color:rgba(168,85,247,.15)!important}
+    body.hc .sq-mark-scheme-toggle{background:rgba(168,85,247,.08)!important;border-color:rgba(168,85,247,.18)!important;color:#c084fc!important}
+    body.hc .sq-mark-scheme-body{background:rgba(255,255,255,.04)!important;color:#c8b89a!important;border-left-color:rgba(168,85,247,.3)!important}
     body.hc .diff-btn[data-d="rote"].sel{color:#93c5fd!important;background:rgba(37,99,235,.1)!important;border-color:rgba(37,99,235,.3)!important}
     body.hc .diff-btn[data-d="deep"].sel{color:#c084fc!important;background:rgba(168,85,247,.1)!important;border-color:rgba(168,85,247,.3)!important}
   </style>
@@ -1286,14 +1314,17 @@
             </div>
             <div class="sq-prac-card">
               <div class="sq-prac-q" id="sq-prac-q"></div>
-              <div class="sq-prac-ans" id="sq-prac-ans">
-                <div class="sq-prac-ans-lbl">Model answer</div>
-                <div class="sq-prac-ans-txt" id="sq-prac-ans-txt"></div>
-              </div>
             </div>
-            <div class="sq-prac-btns">
-              <button class="sq-prac-reveal" id="sq-prac-reveal-btn" onclick="sqPracReveal()">Reveal answer</button>
-              <button class="sq-prac-next" id="sq-prac-next-btn" onclick="sqPracNext()" style="display:none">Next →</button>
+            <div id="sq-prac-answer-area">
+              <textarea id="sq-prac-input" class="sq-prac-input" placeholder="Write your answer here…"></textarea>
+              <button class="sq-prac-submit" id="sq-prac-submit-btn" onclick="sqPracSubmit()">Submit for marking →</button>
+              <div class="ai-status" id="sq-prac-status" style="display:none"></div>
+            </div>
+            <div id="sq-prac-result" style="display:none">
+              <div class="sq-mark-result" id="sq-mark-result-inner"></div>
+              <div class="sq-prac-next-row">
+                <button class="sq-prac-next" onclick="sqPracNext()">Next →</button>
+              </div>
             </div>
           </div>
         </div>
@@ -3152,17 +3183,73 @@ function sqShowPracQ() {
   var q = sqPracQs[sqPracIdx];
   document.getElementById('sq-prac-counter').textContent = (sqPracIdx + 1) + ' / ' + sqPracQs.length;
   document.getElementById('sq-prac-q').textContent = q.question;
-  var ans = document.getElementById('sq-prac-ans');
-  ans.classList.remove('show');
-  document.getElementById('sq-prac-ans-txt').innerHTML = rpEsc(q.modelAnswer).replace(/\n/g, '<br>');
-  document.getElementById('sq-prac-reveal-btn').style.display = '';
-  document.getElementById('sq-prac-next-btn').style.display = 'none';
+  document.getElementById('sq-prac-input').value = '';
+  document.getElementById('sq-prac-submit-btn').disabled = false;
+  var st = document.getElementById('sq-prac-status');
+  st.style.display = 'none'; st.textContent = '';
+  document.getElementById('sq-prac-answer-area').style.display = 'block';
+  document.getElementById('sq-prac-result').style.display = 'none';
 }
 
-function sqPracReveal() {
-  document.getElementById('sq-prac-ans').classList.add('show');
-  document.getElementById('sq-prac-reveal-btn').style.display = 'none';
-  document.getElementById('sq-prac-next-btn').style.display = '';
+async function sqPracSubmit() {
+  var key = getAIKey();
+  var st = document.getElementById('sq-prac-status');
+  if (!key) {
+    st.textContent = 'No API key — save your Groq key in the Generate tab first.';
+    st.className = 'ai-status serr'; st.style.display = 'block'; return;
+  }
+  var answer = (document.getElementById('sq-prac-input').value || '').trim();
+  if (!answer) {
+    st.textContent = 'Write your answer before submitting.';
+    st.className = 'ai-status serr'; st.style.display = 'block'; return;
+  }
+  var q = sqPracQs[sqPracIdx];
+  var btn = document.getElementById('sq-prac-submit-btn');
+  btn.disabled = true;
+  st.textContent = 'Marking your answer…';
+  st.className = 'ai-status sload'; st.style.display = 'block';
+  var prompt = 'You are an exam marker. Mark the student\'s answer strictly against the markscheme.\n\nQuestion: ' + q.question + '\n\nMarkscheme:\n' + q.modelAnswer + '\n\nStudent\'s answer: ' + answer + '\n\nFor each bullet point in the markscheme, decide whether the student earned that mark (true = yes, false = no). Count the total score. Write a one-sentence comment.\n\nRespond with ONLY valid JSON — no markdown fences:\n{\n  "score": 3,\n  "total": 5,\n  "feedback": [\n    {"point": "• The point text", "hit": true},\n    {"point": "• Another point", "hit": false}\n  ],\n  "comment": "Short feedback sentence."\n}';
+  try {
+    var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages: [{ role: 'user', content: prompt }], temperature: 0.2, max_tokens: 1024 })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var data = await res.json();
+    var raw = ((data.choices || [])[0] || {}).message ? data.choices[0].message.content.trim() : '';
+    if (!raw) throw new Error('Empty response.');
+    raw = raw.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '').trim();
+    var result = JSON.parse(raw);
+    st.style.display = 'none';
+    document.getElementById('sq-prac-answer-area').style.display = 'none';
+    sqShowMarkResult(result, q.modelAnswer);
+    document.getElementById('sq-prac-result').style.display = 'block';
+  } catch(e) {
+    st.textContent = 'Marking failed: ' + e.message;
+    st.className = 'ai-status serr';
+    btn.disabled = false;
+  }
+}
+
+function sqShowMarkResult(result, markscheme) {
+  var total = result.total || (result.feedback ? result.feedback.length : 0);
+  var score = typeof result.score === 'number' ? result.score : 0;
+  var scoreColor = score === total ? '#16a34a' : score >= total * 0.6 ? '#b45309' : '#dc2626';
+  var ptsHtml = (result.feedback || []).map(function(pt) {
+    return '<li class="sq-mark-pt ' + (pt.hit ? 'hit' : 'miss') + '">'
+      + '<i class="sq-mark-pt-icon"></i><span>' + rpEsc(pt.point || '') + '</span></li>';
+  }).join('');
+  var commentHtml = result.comment ? '<div class="sq-mark-comment">' + rpEsc(result.comment) + '</div>' : '';
+  var schemeId = 'sqms-' + Date.now();
+  var schemeHtml = markscheme
+    ? '<button class="sq-mark-scheme-toggle" onclick="var b=document.getElementById(\'' + schemeId + '\');b.classList.toggle(\'open\');this.textContent=b.classList.contains(\'open\')?\'Hide markscheme ▲\':\'Full markscheme ▼\'">Full markscheme ▼</button>'
+      + '<div class="sq-mark-scheme-body" id="' + schemeId + '">' + rpEsc(markscheme).replace(/\n/g, '<br>') + '</div>'
+    : '';
+  document.getElementById('sq-mark-result-inner').innerHTML =
+    '<div class="sq-mark-score-row"><span class="sq-mark-score" style="color:' + scoreColor + '">' + score + ' / ' + total + '</span><span class="sq-mark-score-lbl">marks</span></div>'
+    + '<ul class="sq-mark-pts">' + ptsHtml + '</ul>'
+    + commentHtml + schemeHtml;
 }
 
 function sqPracNext() {
