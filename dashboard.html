@@ -117,7 +117,9 @@
 
     /* ── TOP BAR ── */
     #topbar{height:58px;min-height:58px;background:rgba(238,224,192,.96);backdrop-filter:blur(16px);border-bottom:1px solid rgba(168,85,247,.09);display:flex;align-items:center;padding:0 28px;gap:16px}
-    .tb-title{font-weight:900;font-size:.85rem;color:#1c1208;flex:1;letter-spacing:.06em;text-transform:uppercase}
+    .tb-title{font-weight:900;font-size:.85rem;color:#1c1208;flex:1;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;display:flex;flex-direction:column;gap:1px;line-height:1;user-select:none}
+    .tb-title:hover{opacity:.75}
+    .tb-sub{font-size:.52rem;font-weight:600;opacity:.5;letter-spacing:.05em;text-transform:uppercase;line-height:1}
 
     /* Pomodoro */
     #pomo-display{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:5px 12px;cursor:pointer;transition:background .15s;font-size:.78rem;white-space:nowrap}
@@ -590,7 +592,7 @@
       <div class="sb-sec">
         <div class="sb-lbl">Study Tools</div>
         <div class="nav-item active" onclick="showPanel('mcq',this)">
-          <span>🧠</span> MCQ Maker
+          <span>🧠</span> Poppy
         </div>
         <div class="nav-item soon"><span>📝</span> Blurting Sheet<span class="soon-pill">Soon</span></div>
         <div class="nav-item soon"><span>⚡</span> Daily System<span class="soon-pill">Soon</span></div>
@@ -623,7 +625,7 @@
   <div id="main">
     <header id="topbar">
       <button id="sb-toggle" onclick="toggleSidebar()" title="Menu">☰</button>
-      <span class="tb-title" id="tb-title">MCQ Maker</span>
+      <span class="tb-title" id="tb-title" onclick="goHome()">Poppy<span class="tb-sub">MCQ Maker</span></span>
       <div style="display:flex;align-items:center;gap:6px">
         <div id="pomo-display" onclick="openPomo()" title="Start a focus session">
           <span>⏱</span>
@@ -650,7 +652,7 @@
 
       <!-- MCQ Panel -->
       <div id="panel-mcq" class="panel active anim">
-        <h1 class="mcq-h1">MCQ Maker</h1>
+        <h1 class="mcq-h1">Poppy</h1>
         <p class="mcq-sub">Build your question bank from your study materials, then quiz yourself.</p>
 
         <div class="mcq-tabs">
@@ -1614,8 +1616,13 @@ function showPanel(id, el) {
   if (p) { p.classList.add('active'); p.classList.add('anim'); }
   document.querySelectorAll('.nav-item:not(.soon)').forEach(function(n) { n.classList.remove('active'); });
   if (el) el.classList.add('active');
-  var titles = { mcq: 'MCQ Maker' };
-  document.getElementById('tb-title').textContent = titles[id] || id;
+  var el = document.getElementById('tb-title');
+  el.innerHTML = 'Poppy<span class="tb-sub">MCQ Maker</span>';
+}
+
+function goHome() {
+  showPanel('mcq', document.querySelector('.nav-item[onclick*="mcq"]'));
+  switchTab('create');
 }
 
 function switchTab(t) {
