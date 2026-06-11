@@ -271,6 +271,36 @@
     #mascot.up{bottom:0}
     #mascot img{width:66px;filter:drop-shadow(0 -4px 16px rgba(168,85,247,.65))}
 
+    /* ── AI GENERATE ── */
+    .ai-card{background:linear-gradient(135deg,rgba(168,85,247,.07),rgba(96,165,250,.04));border:1px solid rgba(168,85,247,.28);border-radius:16px;padding:22px;max-width:680px;margin-bottom:18px}
+    .ai-header{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+    .ai-htxt{font-weight:900;font-size:.9rem;color:#e2e8f0}
+    .ai-badge{font-size:.58rem;font-weight:800;background:linear-gradient(135deg,#9333ea,#3b82f6);color:#fff;padding:2px 8px;border-radius:8px;letter-spacing:.05em;text-transform:uppercase}
+    .ai-inputs{display:flex;gap:8px;align-items:flex-start;margin-bottom:12px}
+    .ai-ta{flex:1;background:rgba(255,255,255,.03);border:1px solid rgba(168,85,247,.18);border-radius:10px;padding:9px 13px;color:#e2e8f0;font-family:'Raleway',sans-serif;font-size:.82rem;outline:none;resize:vertical;min-height:72px;transition:border-color .15s,box-shadow .15s}
+    .ai-ta:focus{border-color:#9333ea;box-shadow:0 0 0 3px rgba(147,51,234,.14)}
+    .ai-right{display:flex;flex-direction:column;gap:7px;flex-shrink:0}
+    .ai-count{background:rgba(255,255,255,.03);border:1px solid rgba(168,85,247,.18);border-radius:10px;padding:8px 10px;color:#e2e8f0;font-family:'Raleway',sans-serif;font-size:.8rem;outline:none;cursor:pointer;width:130px}
+    .ai-btn{background:linear-gradient(135deg,#9333ea,#3730a3);color:#fff;font-weight:900;font-size:.82rem;padding:10px 16px;border-radius:10px;cursor:pointer;border:none;font-family:'Raleway',sans-serif;transition:opacity .15s;width:130px}
+    .ai-btn:hover:not(:disabled){opacity:.87}
+    .ai-btn:disabled{opacity:.4;cursor:not-allowed}
+    .ai-key-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+    .ai-key-lbl{font-size:.65rem;color:#4b5563;font-weight:700;flex-shrink:0}
+    .ai-key-inp{flex:1;min-width:160px;background:rgba(255,255,255,.03);border:1px solid rgba(168,85,247,.14);border-radius:8px;padding:5px 10px;color:#e2e8f0;font-family:'Raleway',sans-serif;font-size:.74rem;outline:none}
+    .ai-key-inp:focus{border-color:#9333ea}
+    .ai-key-save{background:rgba(168,85,247,.16);border:1px solid rgba(168,85,247,.28);color:#c084fc;font-weight:800;font-size:.7rem;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:'Raleway',sans-serif;transition:background .15s}
+    .ai-key-save:hover{background:rgba(168,85,247,.28)}
+    .ai-key-ok{font-size:.67rem;color:#4ade80;font-weight:700}
+    .ai-key-change{font-size:.67rem;color:#4b5563;cursor:pointer;text-decoration:underline;font-weight:600}
+    .ai-key-change:hover{color:#9ca3af}
+    .ai-status{font-size:.76rem;font-weight:700;margin-top:10px;min-height:1.1em}
+    .ai-status.sok{color:#4ade80}
+    .ai-status.serr{color:#f87171}
+    .ai-status.sload{color:#a855f7}
+    .ai-divider{display:flex;align-items:center;gap:12px;max-width:680px;margin-bottom:20px}
+    .ai-divider::before,.ai-divider::after{content:'';flex:1;height:1px;background:rgba(168,85,247,.1)}
+    .ai-divider-txt{font-size:.6rem;font-weight:700;letter-spacing:.12em;color:#374151;text-transform:uppercase}
+
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
     select option{background:#0d0d2e}
   </style>
@@ -415,6 +445,40 @@
 
         <!-- CREATE -->
         <div id="sub-create">
+
+          <!-- AI Generate -->
+          <div class="ai-card">
+            <div class="ai-header">
+              <span style="font-size:1.1rem">✨</span>
+              <span class="ai-htxt">Generate with AI</span>
+              <span class="ai-badge">Gemini Flash</span>
+            </div>
+            <div class="ai-inputs">
+              <textarea id="ai-topic" class="ai-ta" placeholder="Paste your notes, a topic, or a learning objective…"></textarea>
+              <div class="ai-right">
+                <select id="ai-count" class="ai-count">
+                  <option value="3">3 questions</option>
+                  <option value="5" selected>5 questions</option>
+                  <option value="10">10 questions</option>
+                  <option value="15">15 questions</option>
+                  <option value="20">20 questions</option>
+                </select>
+                <button class="ai-btn" id="ai-btn" onclick="generateWithAI()">Generate →</button>
+              </div>
+            </div>
+            <div class="ai-key-row" id="ai-key-row">
+              <span class="ai-key-lbl">Gemini key:</span>
+              <input type="password" id="ai-key-inp" class="ai-key-inp" placeholder="Paste your API key from Google AI Studio…"/>
+              <button class="ai-key-save" onclick="saveAIKey()">Save key</button>
+            </div>
+            <div class="ai-key-row" id="ai-key-set" style="display:none">
+              <span class="ai-key-ok">✓ API key saved</span>
+              <span class="ai-key-change" onclick="clearAIKey()">change</span>
+            </div>
+            <div class="ai-status" id="ai-status"></div>
+          </div>
+          <div class="ai-divider"><span class="ai-divider-txt">or create manually</span></div>
+
           <div class="form-card">
             <div class="f-grp">
               <label class="f-lbl">Question stem</label>
@@ -548,6 +612,7 @@ window.addEventListener('DOMContentLoaded', function() {
   buildOpts();
   loadBank();
   applyMode(mode);
+  initAIKeyUI();
   startMarvelIntro();
   scheduleMascot();
 });
@@ -1030,6 +1095,87 @@ function skipIntro() {
   ov.style.opacity = '0';
   ov.style.pointerEvents = 'none';
   setTimeout(function(){ ov.style.display = 'none'; }, 340);
+}
+
+// ── AI GENERATE (Gemini Flash) ──
+function getAIKey(){ return localStorage.getItem('sp_gemini_key') || ''; }
+function saveAIKey(){
+  var k = document.getElementById('ai-key-inp').value.trim();
+  if(!k){ setAIStatus('Please paste a key first.','serr'); return; }
+  localStorage.setItem('sp_gemini_key', k);
+  document.getElementById('ai-key-row').style.display = 'none';
+  document.getElementById('ai-key-set').style.display = 'flex';
+  setAIStatus('Key saved.','sok');
+  setTimeout(function(){ setAIStatus('',''); }, 2000);
+}
+function clearAIKey(){
+  localStorage.removeItem('sp_gemini_key');
+  document.getElementById('ai-key-inp').value = '';
+  document.getElementById('ai-key-set').style.display = 'none';
+  document.getElementById('ai-key-row').style.display = 'flex';
+}
+function setAIStatus(msg, cls){
+  var el = document.getElementById('ai-status');
+  el.textContent = msg;
+  el.className = 'ai-status' + (cls ? ' ' + cls : '');
+}
+function initAIKeyUI(){
+  if(getAIKey()){
+    document.getElementById('ai-key-row').style.display = 'none';
+    document.getElementById('ai-key-set').style.display = 'flex';
+  }
+}
+async function generateWithAI(){
+  var key = getAIKey();
+  if(!key){ setAIStatus('Save your Gemini API key first (get one free at aistudio.google.com).','serr'); return; }
+  var topic = document.getElementById('ai-topic').value.trim();
+  if(!topic){ setAIStatus('Enter a topic or paste your notes first.','serr'); return; }
+  var n = document.getElementById('ai-count').value;
+  var btn = document.getElementById('ai-btn');
+  btn.disabled = true;
+  setAIStatus('Generating ' + n + ' questions…','sload');
+  var prompt = 'You are an expert educator writing exam questions for university students.\n\nGenerate ' + n + ' multiple choice questions based on the following topic or notes:\n\n' + topic + '\n\nRules:\n- Each question must have EXACTLY 5 options (A B C D E)\n- Exactly one option is correct\n- All options must be plausible and specific (no obvious fillers)\n- Label correct option by its 0-based index (0=A, 1=B, 2=C, 3=D, 4=E)\n- Assign difficulty: easy, medium, or hard\n- Keep each question concise and unambiguous\n- Include a short one-line hint\n\nRespond with ONLY a valid JSON array. No markdown, no code fences, no explanation:\n[\n  {\n    "question": "...",\n    "options": ["A text","B text","C text","D text","E text"],\n    "correct": 0,\n    "difficulty": "medium",\n    "hint": "..."\n  }\n]';
+  try {
+    var res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + key, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        contents:[{parts:[{text:prompt}]}],
+        generationConfig:{temperature:0.75,maxOutputTokens:4096}
+      })
+    });
+    if(!res.ok){
+      var err = await res.json().catch(function(){return {};});
+      throw new Error((err.error && err.error.message) || 'API error ' + res.status);
+    }
+    var data = await res.json();
+    var raw = data.candidates[0].content.parts[0].text.trim();
+    raw = raw.replace(/^```(?:json)?\n?/,'').replace(/\n?```$/,'').trim();
+    var qs = JSON.parse(raw);
+    if(!Array.isArray(qs) || !qs.length) throw new Error('No questions returned.');
+    var added = 0;
+    qs.forEach(function(q){
+      if(!q.question || !Array.isArray(q.options) || q.options.length < 2) return;
+      var opts = q.options.slice(0,5);
+      while(opts.length < 5) opts.push('—');
+      bank.push({
+        id: Date.now() + Math.random(),
+        stem: q.question,
+        options: opts,
+        correct: typeof q.correct === 'number' ? Math.min(q.correct, opts.length-1) : 0,
+        hint: q.hint || '',
+        difficulty: ['easy','medium','hard'].includes(q.difficulty) ? q.difficulty : 'medium'
+      });
+      added++;
+    });
+    saveBank(); renderBank();
+    setAIStatus('✓ ' + added + ' questions added to your bank.','sok');
+    document.getElementById('ai-topic').value = '';
+  } catch(e) {
+    setAIStatus('Error: ' + e.message,'serr');
+  } finally {
+    btn.disabled = false;
+  }
 }
 </script>
 </body>
