@@ -268,9 +268,21 @@
     .res-btn.sec:hover{color:#1c1208;border-color:rgba(255,255,255,.18)}
 
     /* Fullscreen quiz */
+    #content:fullscreen,#content:-webkit-full-screen{background:#f0e4c6}
+    body.hc #content:fullscreen,body.hc #content:-webkit-full-screen{background:#06060f}
     :fullscreen #quiz-run,.fullscreen-quiz #quiz-run{max-width:720px;padding:48px 0}
     :fullscreen #sub-quiz,.fullscreen-quiz #sub-quiz{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:100vh;padding:48px}
     :fullscreen #quiz-setup,.fullscreen-quiz #quiz-setup{max-width:640px}
+    /* In-quiz pomo clock (fullscreen only) */
+    #quiz-pomo{display:none;text-align:center;margin-bottom:24px}
+    :fullscreen #quiz-pomo.active{display:block}
+    #quiz-pomo-time{font-size:3rem;font-weight:900;letter-spacing:.05em;line-height:1}
+    #quiz-pomo-time.t-normal{color:#f87171}
+    #quiz-pomo-time.t-plus{color:#1d4ed8}
+    #quiz-pomo-time.t-max{color:#6d28d9}
+    body.hc #quiz-pomo-time.t-plus{color:#60a5fa!important}
+    body.hc #quiz-pomo-time.t-max{color:#a855f7!important}
+    .quiz-pomo-lbl{font-size:.58rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.45;margin-top:5px}
 
     /* Pomo modal */
     #pomo-modal{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center}
@@ -793,6 +805,10 @@
           </div>
 
           <div id="quiz-run" style="display:none">
+            <div id="quiz-pomo">
+              <div id="quiz-pomo-time"></div>
+              <div class="quiz-pomo-lbl">Focus session</div>
+            </div>
             <div class="quiz-topbar">
               <button class="fs-btn" onclick="returnToSetup()">← Return</button>
               <div class="quiz-topbar-mid">
@@ -1233,10 +1249,18 @@ function resetPomo() {
 
 function updatePomoDisplay() {
   var el = document.getElementById('pomo-time');
-  if (!pomoType) { el.textContent = 'Focus'; el.className = 'idle'; return; }
+  var qp = document.getElementById('quiz-pomo');
+  var qpt = document.getElementById('quiz-pomo-time');
+  if (!pomoType) {
+    el.textContent = 'Focus'; el.className = 'idle';
+    if (qp) qp.classList.remove('active');
+    return;
+  }
   var m = Math.floor(pomoLeft / 60), s = pomoLeft % 60;
-  el.textContent = pad(m) + ':' + pad(s);
-  el.className = 't-' + pomoType;
+  var t = pad(m) + ':' + pad(s);
+  el.textContent = t; el.className = 't-' + pomoType;
+  if (qpt) { qpt.textContent = t; qpt.className = 't-' + pomoType; }
+  if (qp) qp.classList.add('active');
 }
 
 function pad(n) { return n < 10 ? '0'+n : ''+n; }
