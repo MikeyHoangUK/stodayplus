@@ -321,8 +321,11 @@
     .fc-icon{font-size:2rem;line-height:1}
     .fc-name{font-size:.82rem;font-weight:800;color:#e2e8f0;word-break:break-word}
     .fc-count{font-size:.65rem;font-weight:700;color:#6b7280}
-    .fc-quiz{margin-top:4px;padding:4px 12px;border-radius:7px;font-size:.65rem;font-weight:800;cursor:pointer;border:1px solid rgba(168,85,247,.35);color:#a855f7;background:rgba(168,85,247,.1);transition:all .15s}
+    .fc-actions{display:flex;gap:5px;margin-top:4px}
+    .fc-quiz{padding:4px 12px;border-radius:7px;font-size:.65rem;font-weight:800;cursor:pointer;border:1px solid rgba(168,85,247,.35);color:#a855f7;background:rgba(168,85,247,.1);transition:all .15s}
     .fc-quiz:hover{background:rgba(168,85,247,.22);border-color:#a855f7}
+    .fc-del{padding:4px 8px;border-radius:7px;font-size:.65rem;cursor:pointer;border:1px solid rgba(248,113,113,.25);color:#f87171;background:rgba(248,113,113,.07);transition:all .15s}
+    .fc-del:hover{background:rgba(248,113,113,.18);border-color:#f87171}
     /* ai folder picker */
     .ai-folder-pick{margin-top:12px;padding:12px 14px;background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.2);border-radius:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
     .ai-folder-lbl{font-size:.68rem;font-weight:800;color:#6b7280;flex-shrink:0}
@@ -1087,8 +1090,8 @@ function renderBank() {
       var count = bank.filter(function(q){ return (q.folder||'General') === f; }).length;
       var card  = document.createElement('div');
       card.className = 'folder-card';
-      (function(folder){ card.onclick = function(e){ if(!e.target.classList.contains('fc-quiz')) filterFolder(folder); }; })(f);
-      card.innerHTML = '<div class="fc-icon">📁</div><div class="fc-name">'+esc(f)+'</div><div class="fc-count">'+count+' question'+(count!==1?'s':'')+'</div><button class="fc-quiz" onclick="quizFolder(\''+esc(f)+'\')">▶ Quiz</button>';
+      (function(folder){ card.onclick = function(e){ if(!e.target.classList.contains('fc-quiz')&&!e.target.classList.contains('fc-del')) filterFolder(folder); }; })(f);
+      card.innerHTML = '<div class="fc-icon">📁</div><div class="fc-name">'+esc(f)+'</div><div class="fc-count">'+count+' question'+(count!==1?'s':'')+'</div><div class="fc-actions"><button class="fc-quiz" onclick="quizFolder(\''+esc(f)+'\')">▶ Quiz</button><button class="fc-del" onclick="deleteFolder(\''+esc(f)+'\')">🗑</button></div>';
       grid.appendChild(card);
     });
     list.innerHTML = '';
@@ -1146,6 +1149,13 @@ function editQ(id) {
 }
 
 // Quiz
+function deleteFolder(folder) {
+  var count = bank.filter(function(q){ return (q.folder||'General') === folder; }).length;
+  if (!confirm('Delete folder "' + folder + '"?\n\nThis will permanently delete all ' + count + ' question' + (count!==1?'s':'') + ' inside it.')) return;
+  bank = bank.filter(function(q){ return (q.folder||'General') !== folder; });
+  saveBank(); renderBank(); updateAvail();
+}
+
 function quizFolder(folder) {
   switchTab('quiz');
   populateFolderSelect(folder);
