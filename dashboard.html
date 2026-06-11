@@ -493,14 +493,6 @@
 </head>
 <body class="font-sans">
 
-<!-- ELECTRIC PERIPHERALS (hardcore mode only) -->
-<svg id="elec-left" style="position:fixed;top:0;left:0;width:72px;height:100vh;pointer-events:none;z-index:8500;overflow:visible">
-  <path id="elec-lp" d="" stroke="#c084fc" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0" style="filter:drop-shadow(0 0 4px #a855f7) drop-shadow(0 0 12px #6d28d9)"/>
-</svg>
-<svg id="elec-right" style="position:fixed;top:0;right:0;width:72px;height:100vh;pointer-events:none;z-index:8500;overflow:visible">
-  <path id="elec-rp" d="" stroke="#c084fc" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0" style="filter:drop-shadow(0 0 4px #a855f7) drop-shadow(0 0 12px #6d28d9)"/>
-</svg>
-
 <!-- MODE FADE OVERLAY -->
 <div id="mode-fade" style="position:fixed;inset:0;z-index:8888;background:#000;opacity:0;pointer-events:none;transition:opacity .38s ease"></div>
 
@@ -639,6 +631,14 @@
     </header>
 
     <div id="content">
+
+      <!-- ELECTRIC PERIPHERALS (fullscreen quiz only) -->
+      <svg id="elec-left" style="position:fixed;top:0;left:0;width:72px;height:100%;pointer-events:none;z-index:8500;overflow:visible">
+        <path id="elec-lp" d="" stroke="#c084fc" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0" style="filter:drop-shadow(0 0 4px #a855f7) drop-shadow(0 0 12px #6d28d9)"/>
+      </svg>
+      <svg id="elec-right" style="position:fixed;top:0;right:0;width:72px;height:100%;pointer-events:none;z-index:8500;overflow:visible">
+        <path id="elec-rp" d="" stroke="#c084fc" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0" style="filter:drop-shadow(0 0 4px #a855f7) drop-shadow(0 0 12px #6d28d9)"/>
+      </svg>
 
       <!-- MCQ Panel -->
       <div id="panel-mcq" class="panel active anim">
