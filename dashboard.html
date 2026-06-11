@@ -40,13 +40,13 @@
     #entry-logo-img{width:200px;height:200px;position:relative;z-index:1;filter:drop-shadow(0 0 30px rgba(168,85,247,1)) drop-shadow(0 0 60px rgba(96,165,250,.65))}
     @keyframes logoSlam{0%{opacity:0;transform:scale(4.5) rotate(-10deg)}32%{opacity:1;transform:scale(.85) rotate(4deg)}52%{transform:scale(1.12) rotate(-2deg)}72%{transform:scale(.96) rotate(.8deg)}88%{transform:scale(1.02)}100%{opacity:1;transform:scale(1) rotate(0)}}
     /* brand */
-    #entry-brand{font-size:3.2rem;font-weight:900;background:linear-gradient(135deg,#fff 0%,#d8b4fe 38%,#60a5fa 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:.04em;opacity:0;line-height:1.05;text-shadow:none}
+    #entry-brand{font-size:3.2rem;font-weight:900;background:linear-gradient(135deg,#fff 0%,#d8b4fe 38%,#60a5fa 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:.04em;opacity:0;line-height:1.05;text-shadow:none;filter:drop-shadow(0 0 18px rgba(168,85,247,.95)) drop-shadow(0 2px 32px rgba(96,165,250,.55))}
     /* fade-out for logo/brand/tagline before welcome */
     @keyframes elemFO{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-10px)}}
     .fo{animation:elemFO .42s ease forwards!important}
     @keyframes brandSlam{0%{opacity:0;transform:translateY(22px) scaleX(.4);letter-spacing:.3em}50%{opacity:1;transform:translateY(-5px) scaleX(1.05);letter-spacing:.02em}75%{transform:translateY(2px) scaleX(.98)}100%{opacity:1;transform:translateY(0) scaleX(1);letter-spacing:.04em}}
     /* tagline */
-    #entry-tagline{font-size:.68rem;font-weight:800;color:#4b5563;text-transform:uppercase;letter-spacing:.24em;opacity:0;margin-top:7px}
+    #entry-tagline{font-size:.68rem;font-weight:800;color:rgba(192,132,252,.78);text-transform:uppercase;letter-spacing:.24em;opacity:0;margin-top:7px;text-shadow:0 0 12px rgba(168,85,247,.6)}
     @keyframes taglineUp{from{opacity:0;letter-spacing:.38em;transform:translateY(7px)}to{opacity:1;letter-spacing:.24em;transform:translateY(0)}}
     /* welcome */
     .entry-welcome{font-size:1rem;font-weight:700;background:linear-gradient(135deg,#e2e8f0,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-top:20px;opacity:0}
@@ -56,6 +56,8 @@
     #intro-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;transition:filter .9s ease,opacity .9s ease}
     #intro-video.vid-blur{filter:blur(28px) brightness(.28) saturate(.7)}
     #text-grad{position:absolute;bottom:0;left:0;right:0;height:65%;background:linear-gradient(to top,rgba(3,3,12,.82) 0%,rgba(3,3,12,.4) 40%,transparent 100%);z-index:4;pointer-events:none}
+    /* dark stage behind logo+brand so video doesn't bleed through */
+    #entry-scrim{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:720px;height:520px;max-width:98vw;background:radial-gradient(ellipse at center,rgba(3,3,22,.9) 0%,rgba(6,6,30,.7) 38%,transparent 72%);pointer-events:none;z-index:3}
     /* welcome solo — absolutely centred, fully independent */
     #welcome-solo{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:7;width:92%;max-width:620px;pointer-events:none}
     #welcome-inner{opacity:0}
@@ -287,6 +289,8 @@
   </svg>
   <!-- Readability gradient behind text -->
   <div id="text-grad"></div>
+  <!-- Dark stage scrim behind logo+brand -->
+  <div id="entry-scrim"></div>
   <!-- Flash effect for logo entrance -->
   <div id="flash-burst"></div>
   <!-- Brand visuals (fade out before welcome) -->
