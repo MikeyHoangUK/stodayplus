@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Study Space — Stoday Plus</title>
+  <title>Study Space — Stoday Plus v2</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -312,6 +312,15 @@
     .folder-pill:hover:not(.active){background:rgba(168,85,247,.08);color:#9ca3af;border-color:rgba(168,85,247,.2)}
     .folder-pill.active{background:rgba(168,85,247,.18);border-color:rgba(168,85,247,.4);color:#a855f7}
     .folder-badge{font-size:.58rem;font-weight:800;padding:2px 7px;border-radius:6px;background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.2);color:#9d6cf3;letter-spacing:.03em}
+    .q-move-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:0;max-height:0;overflow:hidden;transition:max-height .2s ease,margin-top .2s ease}
+    .q-move-row:not(:empty){max-height:60px;margin-top:8px}
+    /* folder grid */
+    .folder-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;padding:2px 0}
+    .folder-card{background:#0d0d2e;border:1px solid rgba(168,85,247,.15);border-radius:14px;padding:20px 16px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;transition:border-color .18s,background .18s;text-align:center}
+    .folder-card:hover{border-color:rgba(168,85,247,.45);background:rgba(168,85,247,.06)}
+    .fc-icon{font-size:2rem;line-height:1}
+    .fc-name{font-size:.82rem;font-weight:800;color:#e2e8f0;word-break:break-word}
+    .fc-count{font-size:.65rem;font-weight:700;color:#6b7280}
     /* ai folder picker */
     .ai-folder-pick{margin-top:12px;padding:12px 14px;background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.2);border-radius:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
     .ai-folder-lbl{font-size:.68rem;font-weight:800;color:#6b7280;flex-shrink:0}
@@ -594,7 +603,7 @@
           <div class="folder-bar" id="bank-folder-bar"></div>
           <div class="bank-bar">
             <span class="bank-stat" id="bank-stat">0 questions</span>
-            <div style="display:flex;gap:4px">
+            <div id="bank-diff-bar" style="display:flex;gap:4px">
               <button class="filt-btn active" data-f="all" onclick="filterBank('all')">All</button>
               <button class="filt-btn" data-f="easy" onclick="filterBank('easy')">Easy</button>
               <button class="filt-btn" data-f="medium" onclick="filterBank('medium')">Medium</button>
@@ -1009,12 +1018,32 @@ function clearForm() {
 function getFolders(){
   var seen = {}, folders = [];
   bank.forEach(function(q){ var f = q.folder||'General'; if(!seen[f]){ seen[f]=1; folders.push(f); } });
-  if(!folders.length) folders.push('General');
   return folders;
 }
 function filterFolder(f){
   bankFolder = f;
+  if (f !== 'all') {
+    bankFilt = 'all';
+    document.querySelectorAll('.filt-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.f==='all'); });
+  }
   renderBank();
+}
+function moveFolder(id){
+  var q = bank.find(function(x){ return x.id===id; });
+  if(!q) return;
+  var row = document.getElementById('mf-'+id);
+  if(!row){ return; }
+  var folders = getFolders();
+  var opts = folders.map(function(f){ return '<option value="'+esc(f)+'"'+(f===(q.folder||'General')?' selected':'')+'>'+esc(f)+'</option>'; }).join('');
+  row.innerHTML = '<select class="ai-folder-sel" style="font-size:.7rem;padding:3px 7px" onchange="applyMoveFolder('+id+',this.value)">'+opts+'</select>'
+    +'<input class="ai-folder-new" style="font-size:.7rem;padding:3px 8px;width:110px" placeholder="new folder…" onkeydown="if(event.key===\'Enter\')applyMoveFolder('+id+',this.value)"/>'
+    +'<button class="q-btn edit" onclick="applyMoveFolder('+id+',this.previousElementSibling.value||this.previousElementSibling.previousElementSibling.value)">✓</button>'
+    +'<button class="q-btn del" style="padding:3px 7px" onclick="renderBank()">✕</button>';
+}
+function applyMoveFolder(id, folder){
+  folder = (folder||'').trim() || 'General';
+  var q = bank.find(function(x){ return x.id===id; });
+  if(q){ q.folder = folder; saveBank(); renderBank(); }
 }
 function filterBank(f) {
   bankFilt = f;
@@ -1028,32 +1057,65 @@ function refreshFolderDatalist(){
 }
 
 function renderBank() {
-  // Folder pills
-  var fbar = document.getElementById('bank-folder-bar');
-  var folders = getFolders();
-  fbar.innerHTML = '<span class="folder-pill'+(bankFolder==='all'?' active':'')+'" onclick="filterFolder(\'all\')">All folders</span>'
-    + folders.map(function(f){ return '<span class="folder-pill'+(bankFolder===f?' active':'')+'" onclick="filterFolder(\''+esc(f)+'\')">'+esc(f)+'</span>'; }).join('');
+  console.log('[renderBank] bankFolder=', bankFolder, 'bank.length=', bank.length);
+  var fbar    = document.getElementById('bank-folder-bar');
+  var list    = document.getElementById('bank-list');
+  var diffBar = document.getElementById('bank-diff-bar');
 
-  var list = document.getElementById('bank-list');
-  var filtered = bank.filter(function(q){
-    var folderMatch = bankFolder==='all' || (q.folder||'General')===bankFolder;
-    var diffMatch   = bankFilt==='all' || q.difficulty===bankFilt;
-    return folderMatch && diffMatch;
-  });
-  document.getElementById('bank-stat').textContent = bank.length + ' question' + (bank.length !== 1 ? 's' : '');
-  if (filtered.length === 0) {
-    list.innerHTML = '<div class="bank-empty"><div class="ei">'+(bank.length===0?'📭':'🔍')+'</div><h3>'+(bank.length===0?'No questions yet':'No matching questions')+'</h3><p>'+(bank.length===0?'Go to the Create tab to add your first question.':'Try a different folder or difficulty filter.')+'</p></div>';
-    return;
+  if (bankFolder === 'all') {
+    console.log('[renderBank] → folder grid view');
+    // ── Folder overview ──────────────────────────────────────────
+    fbar.style.display = 'none';
+    fbar.innerHTML = '';
+    diffBar.style.display = 'none';
+    document.getElementById('bank-stat').textContent = bank.length + ' question' + (bank.length !== 1 ? 's' : '') + ' across all folders';
+
+    var folders = getFolders();
+    if (folders.length === 0) {
+      list.innerHTML = '<div class="bank-empty"><div class="ei">📭</div><h3>No questions yet</h3><p>Go to the Create tab to add your first question.</p></div>';
+      return;
+    }
+    var grid = document.createElement('div');
+    grid.className = 'folder-grid';
+    folders.forEach(function(f) {
+      var count = bank.filter(function(q){ return (q.folder||'General') === f; }).length;
+      var card  = document.createElement('div');
+      card.className = 'folder-card';
+      card.onclick = function(){ filterFolder(f); };
+      card.innerHTML = '<div class="fc-icon">📁</div><div class="fc-name">'+esc(f)+'</div><div class="fc-count">'+count+' question'+(count!==1?'s':'')+'</div>';
+      grid.appendChild(card);
+    });
+    list.innerHTML = '';
+    list.appendChild(grid);
+
+  } else {
+    // ── Inside a folder ──────────────────────────────────────────
+    fbar.style.display = 'flex';
+    fbar.innerHTML = '<span class="folder-pill" onclick="filterFolder(\'all\')" style="font-size:.68rem">← All folders</span>'
+      + '<span style="color:#4b5563;font-size:.78rem;padding:0 4px">›</span>'
+      + '<span class="folder-pill active" style="font-size:.68rem">'+esc(bankFolder)+'</span>';
+    diffBar.style.display = 'flex';
+
+    var folderTotal = bank.filter(function(q){ return (q.folder||'General') === bankFolder; }).length;
+    document.getElementById('bank-stat').textContent = folderTotal + ' question' + (folderTotal !== 1 ? 's' : '') + ' in "' + bankFolder + '"';
+
+    var filtered = bank.filter(function(q){
+      return (q.folder||'General') === bankFolder && (bankFilt==='all' || q.difficulty===bankFilt);
+    });
+    if (filtered.length === 0) {
+      list.innerHTML = '<div class="bank-empty"><div class="ei">🔍</div><h3>No matching questions</h3><p>Try a different difficulty filter.</p></div>';
+      return;
+    }
+    list.innerHTML = '';
+    filtered.forEach(function(q, i) {
+      var folder = q.folder || 'General';
+      var c = document.createElement('div');
+      c.className = 'q-card';
+      c.innerHTML = '<div class="q-top"><div class="q-num">'+(i+1)+'</div><div class="q-stem-t">'+esc(q.stem||q.question||'')+'</div><div class="q-btns"><button class="q-btn edit" onclick="editQ('+q.id+')">Edit</button><button class="q-btn del" onclick="delQ('+q.id+')">Delete</button></div></div><div class="q-meta"><span class="diff-badge '+q.difficulty+'">'+q.difficulty+'</span>'+(q.hint?'<span style="font-size:.7rem;color:#4b5563">💡 '+esc(q.hint)+'</span>':'')+'<button class="q-btn edit" style="margin-left:auto;padding:3px 9px;font-size:.68rem" onclick="moveFolder('+q.id+')">📁 Move</button></div><div class="q-move-row" id="mf-'+q.id+'"></div>';
+      list.appendChild(c);
+    });
+    refreshFolderDatalist();
   }
-  list.innerHTML = '';
-  filtered.forEach(function(q, i) {
-    var folder = q.folder || 'General';
-    var c = document.createElement('div');
-    c.className = 'q-card';
-    c.innerHTML = '<div class="q-top"><div class="q-num">'+(i+1)+'</div><div class="q-stem-t">'+esc(q.stem)+'</div><div class="q-btns"><button class="q-btn edit" onclick="editQ('+q.id+')">Edit</button><button class="q-btn del" onclick="delQ('+q.id+')">Delete</button></div></div><div class="q-meta"><span class="diff-badge '+q.difficulty+'">'+q.difficulty+'</span><span class="folder-badge">'+esc(folder)+'</span>'+(q.hint?'<span style="font-size:.7rem;color:#374151">💡 '+esc(q.hint)+'</span>':'')+'</div>';
-    list.appendChild(c);
-  });
-  refreshFolderDatalist();
 }
 
 function delQ(id) {
@@ -1181,6 +1243,8 @@ function showPanel(id, el) {
 }
 
 function switchTab(t) {
+  console.log('[switchTab]', t);
+  if (t === 'bank') alert('switchTab bank fired');
   ['create','bank','quiz'].forEach(function(x) {
     document.getElementById('sub-'+x).style.display = x === t ? 'block' : 'none';
     document.getElementById('tab-'+x).classList.toggle('active', x === t);
@@ -1199,7 +1263,7 @@ function scheduleMascot() {
   setTimeout(function() { mascotPeek(); scheduleMascot(); }, (Math.random()*4+3)*60000);
 }
 
-function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(s) { s = (s == null) ? '' : String(s); return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function logout() { sessionStorage.removeItem('sp_user'); sessionStorage.removeItem('sp_role'); window.location.href='login.html'; }
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('open');
