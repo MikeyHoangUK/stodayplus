@@ -306,6 +306,21 @@
     .ai-pill{padding:5px 12px;border-radius:7px;font-size:.72rem;font-weight:800;cursor:pointer;border:1px solid rgba(255,255,255,.07);color:#4b5563;background:rgba(255,255,255,.02);transition:all .15s;user-select:none}
     .ai-pill:hover:not(.sel){border-color:rgba(168,85,247,.3);color:#9ca3af}
     .ai-pill.sel{background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.45);color:#c084fc}
+    /* folder system */
+    .folder-bar{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+    .folder-pill{padding:4px 13px;border-radius:16px;font-size:.71rem;font-weight:800;cursor:pointer;border:1px solid rgba(255,255,255,.07);color:#4b5563;background:transparent;transition:all .15s;user-select:none}
+    .folder-pill:hover:not(.active){background:rgba(168,85,247,.08);color:#9ca3af;border-color:rgba(168,85,247,.2)}
+    .folder-pill.active{background:rgba(168,85,247,.18);border-color:rgba(168,85,247,.4);color:#a855f7}
+    .folder-badge{font-size:.58rem;font-weight:800;padding:2px 7px;border-radius:6px;background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.2);color:#9d6cf3;letter-spacing:.03em}
+    /* ai folder picker */
+    .ai-folder-pick{margin-top:12px;padding:12px 14px;background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.2);border-radius:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .ai-folder-lbl{font-size:.68rem;font-weight:800;color:#6b7280;flex-shrink:0}
+    .ai-folder-sel{background:rgba(255,255,255,.04);border:1px solid rgba(168,85,247,.2);border-radius:8px;padding:5px 10px;color:#e2e8f0;font-family:'Raleway',sans-serif;font-size:.76rem;outline:none;cursor:pointer;max-width:160px}
+    .ai-folder-new{flex:1;min-width:110px;background:rgba(255,255,255,.03);border:1px solid rgba(168,85,247,.12);border-radius:8px;padding:5px 10px;color:#e2e8f0;font-family:'Raleway',sans-serif;font-size:.76rem;outline:none}
+    .ai-folder-new:focus{border-color:#9333ea}
+    .ai-folder-new::placeholder{color:#374151}
+    .ai-folder-confirm{background:linear-gradient(135deg,#9333ea,#3730a3);color:#fff;font-weight:900;font-size:.76rem;padding:6px 16px;border-radius:8px;cursor:pointer;border:none;font-family:'Raleway',sans-serif;transition:opacity .15s;white-space:nowrap}
+    .ai-folder-confirm:hover{opacity:.87}
     .ai-divider{display:flex;align-items:center;gap:12px;max-width:680px;margin-bottom:20px}
     .ai-divider::before,.ai-divider::after{content:'';flex:1;height:1px;background:rgba(168,85,247,.1)}
     .ai-divider-txt{font-size:.6rem;font-weight:700;letter-spacing:.12em;color:#374151;text-transform:uppercase}
@@ -534,6 +549,12 @@
               <span class="ai-key-change" onclick="clearAIKey()">change</span>
             </div>
             <div class="ai-status" id="ai-status"></div>
+            <div class="ai-folder-pick" id="ai-folder-pick" style="display:none">
+              <span class="ai-folder-lbl">Add to folder:</span>
+              <select id="ai-folder-sel" class="ai-folder-sel"></select>
+              <input id="ai-folder-new" class="ai-folder-new" placeholder="or type new folder…"/>
+              <button class="ai-folder-confirm" onclick="confirmAIAdd()">Add to Bank →</button>
+            </div>
           </div>
           <div class="ai-divider"><span class="ai-divider-txt">or create manually</span></div>
 
@@ -551,6 +572,11 @@
               <input type="text" id="q-hint" class="f-input" placeholder="One-line clue…"/>
             </div>
             <div class="f-grp">
+              <label class="f-lbl">Folder</label>
+              <input type="text" id="q-folder" class="f-input" placeholder="e.g. Week 1, Cardiology, Revision…" list="folder-datalist" autocomplete="off"/>
+              <datalist id="folder-datalist"></datalist>
+            </div>
+            <div class="f-grp">
               <label class="f-lbl">Difficulty</label>
               <div class="diff-row">
                 <div class="diff-btn sel" data-d="easy" onclick="setDiff('easy')">Easy</div>
@@ -565,6 +591,7 @@
 
         <!-- BANK -->
         <div id="sub-bank" style="display:none">
+          <div class="folder-bar" id="bank-folder-bar"></div>
           <div class="bank-bar">
             <span class="bank-stat" id="bank-stat">0 questions</span>
             <div style="display:flex;gap:4px">
@@ -656,7 +683,9 @@ var STORAGE_KEY = 'sp_questions';
 var bank = [];
 var selDiff = 'easy';
 var bankFilt = 'all';
+var bankFolder = 'all';
 var editId = null;
+var aiPendingQs = null;
 var qzQs = [], qzIdx = 0, qzScore = 0, qzAnswered = false, lastCfg = null;
 var pomoType = null, pomoLeft = 0, pomoTotal = 0, pomoRunning = false, pomoTimer = null, pomoElapsed = 0;
 var POMO_T = { normal: 1800, plus: 2700, max: 3600 };
@@ -953,7 +982,8 @@ function submitQ() {
   if (!stem) { alert('Please enter a question stem.'); return; }
   if (opts.some(function(o) { return !o; })) { alert('Please fill in all 5 options.'); return; }
   if (!cr) { alert('Please tick the correct answer.'); return; }
-  var q = { id: editId || Date.now(), stem: stem, options: opts, correct: parseInt(cr.value), hint: hint, difficulty: selDiff };
+  var folderVal = (document.getElementById('q-folder').value.trim() || 'General');
+  var q = { id: editId || Date.now(), stem: stem, options: opts, correct: parseInt(cr.value), hint: hint, difficulty: selDiff, folder: folderVal };
   if (editId) {
     var ix = bank.findIndex(function(x) { return x.id === editId; });
     if (ix !== -1) bank[ix] = q;
@@ -971,31 +1001,59 @@ function clearForm() {
   LTRS.forEach(function(l, i) { document.getElementById('o'+i).value = ''; });
   document.querySelectorAll('input[name="cans"]').forEach(function(r) { r.checked = false; });
   document.getElementById('q-hint').value = '';
+  document.getElementById('q-folder').value = '';
   setDiff('easy'); editId = null;
 }
 
-// Bank
+// Bank — folders
+function getFolders(){
+  var seen = {}, folders = [];
+  bank.forEach(function(q){ var f = q.folder||'General'; if(!seen[f]){ seen[f]=1; folders.push(f); } });
+  if(!folders.length) folders.push('General');
+  return folders;
+}
+function filterFolder(f){
+  bankFolder = f;
+  renderBank();
+}
 function filterBank(f) {
   bankFilt = f;
   document.querySelectorAll('.filt-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.f === f); });
   renderBank();
 }
+function refreshFolderDatalist(){
+  var dl = document.getElementById('folder-datalist');
+  if(!dl) return;
+  dl.innerHTML = getFolders().map(function(f){ return '<option value="'+esc(f)+'">'; }).join('');
+}
 
 function renderBank() {
+  // Folder pills
+  var fbar = document.getElementById('bank-folder-bar');
+  var folders = getFolders();
+  fbar.innerHTML = '<span class="folder-pill'+(bankFolder==='all'?' active':'')+'" onclick="filterFolder(\'all\')">All folders</span>'
+    + folders.map(function(f){ return '<span class="folder-pill'+(bankFolder===f?' active':'')+'" onclick="filterFolder(\''+esc(f)+'\')">'+esc(f)+'</span>'; }).join('');
+
   var list = document.getElementById('bank-list');
-  var filtered = bankFilt === 'all' ? bank : bank.filter(function(q) { return q.difficulty === bankFilt; });
+  var filtered = bank.filter(function(q){
+    var folderMatch = bankFolder==='all' || (q.folder||'General')===bankFolder;
+    var diffMatch   = bankFilt==='all' || q.difficulty===bankFilt;
+    return folderMatch && diffMatch;
+  });
   document.getElementById('bank-stat').textContent = bank.length + ' question' + (bank.length !== 1 ? 's' : '');
   if (filtered.length === 0) {
-    list.innerHTML = '<div class="bank-empty"><div class="ei">'+(bank.length===0?'📭':'🔍')+'</div><h3>'+(bank.length===0?'No questions yet':'No '+bankFilt+' questions')+'</h3><p>'+(bank.length===0?'Go to the Create tab to add your first question.':'Change the filter or add more questions.')+'</p></div>';
+    list.innerHTML = '<div class="bank-empty"><div class="ei">'+(bank.length===0?'📭':'🔍')+'</div><h3>'+(bank.length===0?'No questions yet':'No matching questions')+'</h3><p>'+(bank.length===0?'Go to the Create tab to add your first question.':'Try a different folder or difficulty filter.')+'</p></div>';
     return;
   }
   list.innerHTML = '';
   filtered.forEach(function(q, i) {
+    var folder = q.folder || 'General';
     var c = document.createElement('div');
     c.className = 'q-card';
-    c.innerHTML = '<div class="q-top"><div class="q-num">'+(i+1)+'</div><div class="q-stem-t">'+esc(q.stem)+'</div><div class="q-btns"><button class="q-btn edit" onclick="editQ('+q.id+')">Edit</button><button class="q-btn del" onclick="delQ('+q.id+')">Delete</button></div></div><div class="q-meta"><span class="diff-badge '+q.difficulty+'">'+q.difficulty+'</span>'+(q.hint?'<span style="font-size:.7rem;color:#374151">💡 '+esc(q.hint)+'</span>':'')+'</div>';
+    c.innerHTML = '<div class="q-top"><div class="q-num">'+(i+1)+'</div><div class="q-stem-t">'+esc(q.stem)+'</div><div class="q-btns"><button class="q-btn edit" onclick="editQ('+q.id+')">Edit</button><button class="q-btn del" onclick="delQ('+q.id+')">Delete</button></div></div><div class="q-meta"><span class="diff-badge '+q.difficulty+'">'+q.difficulty+'</span><span class="folder-badge">'+esc(folder)+'</span>'+(q.hint?'<span style="font-size:.7rem;color:#374151">💡 '+esc(q.hint)+'</span>':'')+'</div>';
     list.appendChild(c);
   });
+  refreshFolderDatalist();
 }
 
 function delQ(id) {
@@ -1011,6 +1069,7 @@ function editQ(id) {
   q.options.forEach(function(o, i) { document.getElementById('o'+i).value = o; });
   document.getElementById('r'+q.correct).checked = true;
   document.getElementById('q-hint').value = q.hint || '';
+  document.getElementById('q-folder').value = q.folder || 'General';
   setDiff(q.difficulty);
   editId = q.id;
   document.getElementById('add-btn').textContent = 'Update Question';
@@ -1176,6 +1235,32 @@ function setAIStatus(msg, cls){
   var el = document.getElementById('ai-status');
   el.textContent = msg;
   el.className = 'ai-status' + (cls ? ' ' + cls : '');
+}
+function confirmAIAdd(){
+  if(!aiPendingQs || !aiPendingQs.length) return;
+  var newName = document.getElementById('ai-folder-new').value.trim();
+  var folder  = newName || document.getElementById('ai-folder-sel').value || 'General';
+  var added = 0;
+  aiPendingQs.forEach(function(q){
+    if(!q.question || !Array.isArray(q.options) || q.options.length < 2) return;
+    var opts = q.options.slice(0,5);
+    while(opts.length < 5) opts.push('—');
+    bank.push({
+      id: Date.now() + Math.random(),
+      stem: q.question,
+      options: opts,
+      correct: typeof q.correct === 'number' ? Math.min(q.correct, opts.length-1) : 0,
+      hint: q.hint || '',
+      difficulty: ['easy','medium','hard'].includes(q.difficulty) ? q.difficulty : 'medium',
+      folder: folder
+    });
+    added++;
+  });
+  aiPendingQs = null;
+  saveBank(); renderBank();
+  document.getElementById('ai-folder-pick').style.display = 'none';
+  document.getElementById('ai-topic').value = '';
+  setAIStatus('✓ ' + added + ' questions added to "' + folder + '".','sok');
 }
 function aiPick(el){
   var g = el.dataset.g;
@@ -1349,24 +1434,13 @@ async function generateWithAI(isRetry){
     raw = raw.replace(/^```(?:json)?\n?/,'').replace(/\n?```$/,'').trim();
     var qs = JSON.parse(raw);
     if(!Array.isArray(qs) || !qs.length) throw new Error('No questions returned.');
-    var added = 0;
-    qs.forEach(function(q){
-      if(!q.question || !Array.isArray(q.options) || q.options.length < 2) return;
-      var opts = q.options.slice(0,5);
-      while(opts.length < 5) opts.push('—');
-      bank.push({
-        id: Date.now() + Math.random(),
-        stem: q.question,
-        options: opts,
-        correct: typeof q.correct === 'number' ? Math.min(q.correct, opts.length-1) : 0,
-        hint: q.hint || '',
-        difficulty: ['easy','medium','hard'].includes(q.difficulty) ? q.difficulty : 'medium'
-      });
-      added++;
-    });
-    saveBank(); renderBank();
-    setAIStatus('✓ ' + added + ' questions added to your bank.','sok');
-    document.getElementById('ai-topic').value = '';
+    aiPendingQs = qs;
+    // populate folder picker
+    var sel = document.getElementById('ai-folder-sel');
+    sel.innerHTML = getFolders().map(function(f){ return '<option value="'+esc(f)+'">'+esc(f)+'</option>'; }).join('');
+    document.getElementById('ai-folder-new').value = '';
+    document.getElementById('ai-folder-pick').style.display = 'flex';
+    setAIStatus('✓ ' + qs.length + ' questions ready — choose a folder below.','sok');
   } catch(e) {
     setAIStatus('Error: ' + e.message,'serr');
   } finally {
