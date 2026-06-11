@@ -908,6 +908,7 @@ window.addEventListener('DOMContentLoaded', function() {
   scheduleMascot();
   scheduleElectric();
   initLofi();
+  initHcm();
 });
 
 // ── MARVEL ENTRY ANIMATION ──
@@ -1094,32 +1095,55 @@ function setMode(m) {
   var fade = document.getElementById('mode-fade');
   fade.style.pointerEvents = 'all';
   fade.style.opacity = '0.72';
+  // Fade out old mode's audio during screen blackout
+  var outState = mode === 'hardcore' ? hcm : lofi;
+  var wasPlaying = outState.playing;
+  if (outState.audio && outState.playing) {
+    audioFadeOut(outState.audio, 350, null);
+    outState.playing = false;
+    _setPlayerUI('▶', false);
+  }
   setTimeout(function() {
     mode = m;
     localStorage.setItem('sp_mode', m);
-    applyMode(m);
+    applyMode(m, wasPlaying);
     setTimeout(function() {
       fade.style.opacity = '0';
       setTimeout(function() { fade.style.pointerEvents = 'none'; }, 420);
     }, 60);
   }, 400);
 }
-function applyMode(m) {
+function applyMode(m, autoPlay) {
   if (m === 'hardcore') {
     document.body.classList.add('hc');
     document.getElementById('btn-chill').className = 'mode-btn';
     document.getElementById('btn-hard').className = 'mode-btn m-hard';
-    document.getElementById('music-player').style.display = 'none';
-    stopLofi();
   } else {
     document.body.classList.remove('hc');
     document.getElementById('btn-chill').className = 'mode-btn m-chill';
     document.getElementById('btn-hard').className = 'mode-btn';
-    document.getElementById('music-player').style.display = 'flex';
+  }
+  document.getElementById('music-player').style.display = 'flex';
+  var inPlaylist = m === 'hardcore' ? hcPlaylist : lofiPlaylist;
+  var inState    = m === 'hardcore' ? hcm : lofi;
+  var track = inPlaylist[inState.idx];
+  _updateTrackDisplay(track.title, track.artist);
+  if (autoPlay) {
+    if (!inState.audio) {
+      inState.audio = new Audio(track.file);
+      inState.audio.volume = 0;
+      inState.audio.addEventListener('ended', function() {
+        if (m === 'hardcore') hcmSetTrack((hcm.idx + 1) % hcPlaylist.length, true);
+        else lofiSetTrack((lofi.idx + 1) % lofiPlaylist.length, true);
+      });
+    }
+    audioFadeIn(inState.audio, inState.vol, 600);
+    inState.playing = true;
+    _setPlayerUI('⏸', true);
   }
 }
 
-// ── Lofi Music Engine (HTML5 Audio playlist) ──────────────────────────
+// ── Music Engine (chill + hardcore playlists) ────────────────────────
 var lofiPlaylist = [
   { file: 'lofi%20hip-hop/Ariel%20Shalom%20-%20Dream%20Loop.mp3',                     title: 'Dream Loop',              artist: 'Ariel Shalom' },
   { file: 'lofi%20hip-hop/Aves%20-%20Sunshine%20-%20Instrumental%20version.mp3',      title: 'Sunshine',                artist: 'Aves' },
@@ -1130,7 +1154,50 @@ var lofiPlaylist = [
   { file: 'lofi%20hip-hop/Tomer%20Baruch%20-%20Some%20Notes.mp3',                     title: 'Some Notes',              artist: 'Tomer Baruch' },
   { file: 'lofi%20hip-hop/Yestalgia%20-%20Morning%20Reset.mp3',                       title: 'Morning Reset',           artist: 'Yestalgia' }
 ];
+var hcPlaylist = [
+  { file: 'mozart%20music/Bishara%20Haroni%20-%20Turkish%20March%20Rondo%20Alla%20Turca.mp3',                                            title: 'Turkish March',              artist: 'Bishara Haroni' },
+  { file: 'mozart%20music/Brooklyn%20Classical%20-%20Queen%20of%20the%20Night%20Mozart.mp3',                                             title: 'Queen of the Night',         artist: 'Brooklyn Classical' },
+  { file: 'mozart%20music/Budapest%20Art%20Orchestra%20-%20Symphony%20No40%20in%20G%20Minor.mp3',                                        title: 'Symphony No. 40 in G Minor', artist: 'Budapest Art Orchestra' },
+  { file: 'mozart%20music/Carmel%20Quartet%20-%20Eine%20Kleine%20Nachtmusik.mp3',                                                        title: 'Eine Kleine Nachtmusik',     artist: 'Carmel Quartet' },
+  { file: 'mozart%20music/Carmel%20Quartet%20-%20String%20Quartet%20in%20B-flat%20Major%20K%20458%20%E2%80%9CHunt%E2%80%9D%20%20Allegro%20vivace%20assai.mp3', title: 'The Hunt Quartet',           artist: 'Carmel Quartet' },
+  { file: 'mozart%20music/Will%20Van%20De%20Crommert%20-%20Modern%20Mozart.mp3',                                                         title: 'Modern Mozart',              artist: 'Will Van De Crommert' }
+];
 var lofi = { idx: 0, playing: false, audio: null, vol: 0.6 };
+var hcm  = { idx: 0, playing: false, audio: null, vol: 0.7 };
+
+function _updateTrackDisplay(title, artist) {
+  var tEl = document.getElementById('mp-track');
+  var sEl = document.getElementById('mp-sub');
+  if (tEl) tEl.textContent = title;
+  if (sEl) sEl.textContent = artist;
+}
+function _setPlayerUI(icon, spin) {
+  var btn = document.getElementById('mp-play');
+  var vinyl = document.getElementById('mp-vinyl');
+  if (btn) btn.textContent = icon;
+  if (vinyl) { if (spin) vinyl.classList.add('spin'); else vinyl.classList.remove('spin'); }
+}
+
+function audioFadeOut(audioEl, duration, cb) {
+  if (!audioEl || audioEl.paused) { if (cb) cb(); return; }
+  var startVol = audioEl.volume; var steps = 20; var step = 0;
+  var t = setInterval(function() {
+    step++;
+    audioEl.volume = Math.max(0, startVol * (1 - step / steps));
+    if (step >= steps) { clearInterval(t); audioEl.pause(); audioEl.volume = startVol; if (cb) cb(); }
+  }, duration / steps);
+}
+function audioFadeIn(audioEl, targetVol, duration) {
+  if (!audioEl) return;
+  audioEl.volume = 0;
+  audioEl.play().catch(function() {});
+  var steps = 20; var step = 0;
+  var t = setInterval(function() {
+    step++;
+    audioEl.volume = Math.min(targetVol, targetVol * step / steps);
+    if (step >= steps) { clearInterval(t); audioEl.volume = targetVol; }
+  }, duration / steps);
+}
 
 function lofiSetTrack(idx, andPlay) {
   lofi.idx = ((idx % lofiPlaylist.length) + lofiPlaylist.length) % lofiPlaylist.length;
@@ -1138,63 +1205,67 @@ function lofiSetTrack(idx, andPlay) {
   if (lofi.audio) { lofi.audio.pause(); lofi.audio.src = ''; }
   lofi.audio = new Audio(track.file);
   lofi.audio.volume = lofi.vol;
-  lofi.audio.addEventListener('ended', function() { lofiNext(true); });
-  var tEl = document.getElementById('mp-track');
-  var sEl = document.getElementById('mp-sub');
-  if (tEl) tEl.textContent = track.title;
-  if (sEl) sEl.textContent = track.artist;
+  lofi.audio.addEventListener('ended', function() { lofiSetTrack((lofi.idx + 1) % lofiPlaylist.length, true); });
+  if (mode !== 'hardcore') _updateTrackDisplay(track.title, track.artist);
   if (andPlay) {
     lofi.audio.play().catch(function() {});
     lofi.playing = true;
-    var btn = document.getElementById('mp-play');
-    var vinyl = document.getElementById('mp-vinyl');
-    if (btn) btn.textContent = '⏸';
-    if (vinyl) vinyl.classList.add('spin');
+    if (mode !== 'hardcore') _setPlayerUI('⏸', true);
   }
 }
 
-function initLofi() {
-  lofiSetTrack(0, false);
+function hcmSetTrack(idx, andPlay) {
+  hcm.idx = ((idx % hcPlaylist.length) + hcPlaylist.length) % hcPlaylist.length;
+  var track = hcPlaylist[hcm.idx];
+  if (hcm.audio) { hcm.audio.pause(); hcm.audio.src = ''; }
+  hcm.audio = new Audio(track.file);
+  hcm.audio.volume = hcm.vol;
+  hcm.audio.addEventListener('ended', function() { hcmSetTrack((hcm.idx + 1) % hcPlaylist.length, true); });
+  if (mode === 'hardcore') _updateTrackDisplay(track.title, track.artist);
+  if (andPlay) {
+    hcm.audio.play().catch(function() {});
+    hcm.playing = true;
+    if (mode === 'hardcore') _setPlayerUI('⏸', true);
+  }
 }
 
+function initLofi() { lofiSetTrack(0, false); }
+function initHcm()  { hcmSetTrack(0, false); }
+
 function toggleLofi() {
-  var btn = document.getElementById('mp-play');
-  var vinyl = document.getElementById('mp-vinyl');
-  if (lofi.playing) {
-    if (lofi.audio) lofi.audio.pause();
-    lofi.playing = false;
-    if (btn) btn.textContent = '▶';
-    if (vinyl) vinyl.classList.remove('spin');
+  var isHc = mode === 'hardcore';
+  var st = isHc ? hcm : lofi;
+  if (st.playing) {
+    if (st.audio) st.audio.pause();
+    st.playing = false;
+    _setPlayerUI('▶', false);
   } else {
-    if (!lofi.audio) lofiSetTrack(0, false);
-    lofi.audio.play().catch(function() {});
-    lofi.playing = true;
-    if (btn) btn.textContent = '⏸';
-    if (vinyl) vinyl.classList.add('spin');
+    if (!st.audio) { if (isHc) hcmSetTrack(0, false); else lofiSetTrack(0, false); }
+    st.audio.play().catch(function() {});
+    st.playing = true;
+    _setPlayerUI('⏸', true);
   }
 }
 
 function lofiPrev() {
-  lofiSetTrack(lofi.idx - 1, lofi.playing);
+  if (mode === 'hardcore') hcmSetTrack(hcm.idx - 1, hcm.playing);
+  else lofiSetTrack(lofi.idx - 1, lofi.playing);
 }
 
 function lofiNext(fromEnd) {
-  var nextIdx = fromEnd ? (lofi.idx + 1) % lofiPlaylist.length : lofi.idx + 1;
-  lofiSetTrack(nextIdx, lofi.playing || fromEnd);
+  if (mode === 'hardcore') hcmSetTrack(hcm.idx + 1, hcm.playing || fromEnd);
+  else lofiSetTrack(lofi.idx + 1, lofi.playing || fromEnd);
 }
 
 function stopLofi() {
-  if (lofi.audio) { lofi.audio.pause(); }
-  lofi.playing = false;
-  var btn = document.getElementById('mp-play');
-  var vinyl = document.getElementById('mp-vinyl');
-  if (btn) btn.textContent = '▶';
-  if (vinyl) vinyl.classList.remove('spin');
+  if (lofi.audio) { lofi.audio.pause(); lofi.playing = false; }
+  if (hcm.audio) { hcm.audio.pause(); hcm.playing = false; }
+  _setPlayerUI('▶', false);
 }
 
 function setLofiVolume(v) {
-  lofi.vol = v;
-  if (lofi.audio) lofi.audio.volume = v;
+  if (mode === 'hardcore') { hcm.vol = v; if (hcm.audio) hcm.audio.volume = v; }
+  else { lofi.vol = v; if (lofi.audio) lofi.audio.volume = v; }
 }
 
 // Pomodoro
