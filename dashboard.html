@@ -1229,7 +1229,7 @@ async function processAIFile(file){
     var text = ext === 'pdf' ? await extractPdf(file) : await extractPptx(file);
     text = text.replace(/\s+/g,' ').trim();
     if(!text) throw new Error('No readable text found in this file.');
-    if(text.length > 16000) text = text.slice(0, 16000) + '\n[…truncated]';
+    if(text.length > 80000) text = text.slice(0, 80000) + '\n[…truncated]';
     document.getElementById('ai-topic').value = text;
     document.getElementById('ai-file-name').textContent = file.name;
     document.getElementById('ai-drop-loading').style.display = 'none';
