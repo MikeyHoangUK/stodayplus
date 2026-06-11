@@ -226,6 +226,9 @@
     .q-score-lbl{font-size:.72rem;font-weight:900;color:#6d28d9;letter-spacing:.04em}
     .fs-btn{padding:4px 10px;border-radius:7px;font-size:.62rem;font-weight:800;cursor:pointer;border:1px solid rgba(109,40,217,.2);color:#6e5438;background:transparent;transition:all .15s;font-family:'Raleway',sans-serif}
     .fs-btn:hover{border-color:rgba(109,40,217,.45);color:#6d28d9}
+    @keyframes fsBtnShake{0%,100%{transform:translate(0,0) rotate(0)}20%{transform:translate(-3px,-1px) rotate(-3deg)}40%{transform:translate(3px,1px) rotate(3deg)}60%{transform:translate(-2px,0) rotate(-2deg)}80%{transform:translate(1px,-1px) rotate(1deg)}}
+    .fs-btn.shake{animation:fsBtnShake .48s ease}
+    .quiz-topbar-mid{display:flex;align-items:center;gap:14px}
     .quiz-card{background:rgba(250,243,224,.8);border:1px solid rgba(168,85,247,.14);border-radius:22px;padding:36px;margin-bottom:20px;transition:border-color .3s,box-shadow .3s}
     .quiz-card.c-flash{border-color:rgba(99,102,241,.6);box-shadow:0 0 36px rgba(99,102,241,.16)}
     .quiz-card.w-flash{border-color:rgba(248,113,113,.5);box-shadow:0 0 36px rgba(248,113,113,.14)}
@@ -791,8 +794,11 @@
 
           <div id="quiz-run" style="display:none">
             <div class="quiz-topbar">
-              <span class="q-counter" id="qcount">Q 1 / 1</span>
-              <span class="q-score-lbl" id="qscore">✓ 0</span>
+              <button class="fs-btn" onclick="returnToSetup()">← Return</button>
+              <div class="quiz-topbar-mid">
+                <span class="q-counter" id="qcount">Q 1 / 1</span>
+                <span class="q-score-lbl" id="qscore">✓ 0</span>
+              </div>
               <button class="fs-btn" onclick="toggleQuizFS()" id="fs-btn">⛶ Fullscreen</button>
             </div>
             <div class="q-prog-bar"><div class="q-prog-fill" id="qprog" style="width:0%"></div></div>
@@ -1470,6 +1476,14 @@ function startQuiz() {
   document.getElementById('quiz-run').style.display = 'block';
   document.getElementById('quiz-results').style.display = 'none';
   showQ();
+  setTimeout(function() {
+    document.getElementById('quiz-run').scrollIntoView({behavior:'smooth', block:'center'});
+  }, 60);
+  setTimeout(function() {
+    var btn = document.getElementById('fs-btn');
+    btn.classList.add('shake');
+    setTimeout(function(){ btn.classList.remove('shake'); }, 520);
+  }, 700);
 }
 
 function showQ() {
@@ -1575,6 +1589,13 @@ function scheduleMascot() {
 }
 
 function esc(s) { s = (s == null) ? '' : String(s); return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function returnToSetup() {
+  if (document.fullscreenElement) document.exitFullscreen();
+  document.getElementById('quiz-run').style.display = 'none';
+  document.getElementById('quiz-results').style.display = 'none';
+  document.getElementById('quiz-setup').style.display = 'block';
+}
 
 function toggleQuizFS() {
   var el = document.getElementById('content');
