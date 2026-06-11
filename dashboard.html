@@ -548,6 +548,41 @@
     .rp-empty-icon{font-size:2.4rem;margin-bottom:12px}
     .rp-empty-title{font-size:1.1rem;font-weight:900;color:#1c1208;margin-bottom:6px}
     .rp-empty-sub{font-size:.8rem;color:#6e5438;font-weight:500}
+    /* Calendar */
+    .rp-cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .rp-cal-month{font-size:1rem;font-weight:900;color:#1c1208}
+    .rp-cal-arrow{width:28px;height:28px;border-radius:8px;border:1px solid rgba(168,85,247,.18);background:rgba(255,255,255,.5);cursor:pointer;color:#6d28d9;font-size:.9rem;font-weight:700;transition:background .15s;display:flex;align-items:center;justify-content:center}
+    .rp-cal-arrow:hover{background:rgba(168,85,247,.12)}
+    .rp-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:14px}
+    .rp-cal-dow{text-align:center;font-size:.58rem;font-weight:800;color:#6e5438;letter-spacing:.06em;text-transform:uppercase;padding:5px 0}
+    .rp-cal-cell{min-height:58px;border-radius:9px;padding:6px 5px;background:rgba(255,255,255,.3);border:1px solid transparent;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+    .rp-cal-cell:hover:not(.rp-empty-cell){background:rgba(168,85,247,.08);border-color:rgba(168,85,247,.18)}
+    .rp-cal-cell.today{background:rgba(109,40,217,.07);border-color:rgba(109,40,217,.22)}
+    .rp-cal-cell.selected{background:rgba(109,40,217,.13);border-color:rgba(109,40,217,.4)!important}
+    .rp-cal-cell.rp-empty-cell{background:transparent;border-color:transparent;cursor:default;pointer-events:none}
+    .rp-cal-date{font-size:.7rem;font-weight:800;color:#4a3820;line-height:1;margin-bottom:4px}
+    .rp-cal-cell.today .rp-cal-date{color:#6d28d9}
+    .rp-cal-pill{font-size:.56rem;font-weight:700;background:rgba(109,40,217,.1);color:#6d28d9;border-radius:4px;padding:1px 4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;line-height:1.5}
+    .rp-cal-more{font-size:.54rem;font-weight:700;color:#6e5438;opacity:.65;line-height:1}
+    .rp-cal-detail{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.14);border-radius:14px;padding:16px 20px}
+    .rp-cal-detail-hd{font-size:.78rem;font-weight:800;color:#6d28d9;margin-bottom:10px}
+    .rp-cal-detail-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(168,85,247,.07)}
+    .rp-cal-detail-row:last-child{border-bottom:none}
+    .rp-cal-detail-topic{font-size:.82rem;font-weight:700;color:#1c1208;flex:1}
+    .rp-cal-detail-tag{font-size:.58rem;font-weight:800;background:rgba(109,40,217,.08);color:#6d28d9;border-radius:12px;padding:2px 7px;flex-shrink:0}
+    /* HC overrides — calendar */
+    body.hc .rp-cal-month{color:#e8dcc8!important}
+    body.hc .rp-cal-dow{color:#a08878!important}
+    body.hc .rp-cal-cell{background:rgba(255,255,255,.02)!important}
+    body.hc .rp-cal-cell:hover:not(.rp-empty-cell){background:rgba(168,85,247,.07)!important}
+    body.hc .rp-cal-cell.today{background:rgba(109,40,217,.1)!important}
+    body.hc .rp-cal-cell.selected{background:rgba(109,40,217,.16)!important}
+    body.hc .rp-cal-date{color:#c8b89a!important}
+    body.hc .rp-cal-cell.today .rp-cal-date{color:#c084fc!important}
+    body.hc .rp-cal-detail{background:rgba(255,255,255,.025)!important;border-color:rgba(168,85,247,.12)!important}
+    body.hc .rp-cal-detail-hd{color:#c084fc!important}
+    body.hc .rp-cal-detail-topic{color:#e8dcc8!important}
+    body.hc .rp-cal-more{color:#a08878!important}
     /* HC overrides */
     body.hc .rp-topic-card{background:rgba(255,255,255,.025)!important;border-color:rgba(168,85,247,.12)!important}
     body.hc .rp-topic-name{color:#e8dcc8!important}
@@ -941,6 +976,7 @@
           <div class="mcq-tab active" id="rp-tab-today" onclick="rpTab('today')">📅 Today</div>
           <div class="mcq-tab" id="rp-tab-add"   onclick="rpTab('add')">＋ Add Topic</div>
           <div class="mcq-tab" id="rp-tab-all"   onclick="rpTab('all')">📋 All Topics</div>
+          <div class="mcq-tab" id="rp-tab-cal"   onclick="rpTab('cal')">🗓 Calendar</div>
         </div>
 
         <!-- TODAY -->
@@ -985,6 +1021,11 @@
         <!-- ALL TOPICS -->
         <div id="rp-all" style="display:none">
           <div id="rp-all-content"></div>
+        </div>
+
+        <!-- CALENDAR -->
+        <div id="rp-cal" style="display:none">
+          <div id="rp-cal-content"></div>
         </div>
       </div><!-- /panel-planner -->
 
@@ -2303,12 +2344,105 @@ function rpRenderAll() {
 }
 
 function rpTab(t) {
-  ['today','add','all'].forEach(function(x) {
+  ['today','add','all','cal'].forEach(function(x) {
     document.getElementById('rp-' + x).style.display = x === t ? 'block' : 'none';
     document.getElementById('rp-tab-' + x).classList.toggle('active', x === t);
   });
   if (t === 'today') rpRenderToday();
   if (t === 'all')   rpRenderAll();
+  if (t === 'cal')   rpRenderCal();
+}
+
+// ── Revision Planner — Calendar ──────────────────────────────────────
+var rpCalYear  = new Date().getFullYear();
+var rpCalMonth = new Date().getMonth();
+var rpCalSel   = null; // 'YYYY-M-D' key
+
+function rpBuildMap() {
+  var map = {};
+  rpData.forEach(function(item) {
+    var d = new Date(item.nextReview);
+    var key = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
+    if (!map[key]) map[key] = [];
+    map[key].push(item);
+  });
+  return map;
+}
+
+function rpRenderCal() {
+  var el = document.getElementById('rp-cal-content');
+  if (!el) return;
+  var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var DOWS   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var today  = new Date();
+  var map    = rpBuildMap();
+
+  var firstDay  = new Date(rpCalYear, rpCalMonth, 1);
+  var daysInMon = new Date(rpCalYear, rpCalMonth + 1, 0).getDate();
+  var startDow  = (firstDay.getDay() + 6) % 7; // Mon=0 … Sun=6
+
+  var html = '<div class="rp-cal-nav">'
+    + '<button class="rp-cal-arrow" onclick="rpCalNav(-1)">‹</button>'
+    + '<div class="rp-cal-month">' + MONTHS[rpCalMonth] + ' ' + rpCalYear + '</div>'
+    + '<button class="rp-cal-arrow" onclick="rpCalNav(1)">›</button>'
+    + '</div><div class="rp-cal-grid">';
+
+  DOWS.forEach(function(d) { html += '<div class="rp-cal-dow">' + d + '</div>'; });
+
+  for (var i = 0; i < startDow; i++) html += '<div class="rp-cal-cell rp-empty-cell"></div>';
+
+  for (var d = 1; d <= daysInMon; d++) {
+    var isToday = d === today.getDate() && rpCalMonth === today.getMonth() && rpCalYear === today.getFullYear();
+    var key     = rpCalYear + '-' + rpCalMonth + '-' + d;
+    var isSel   = rpCalSel === key;
+    var topics  = map[key] || [];
+    var cls     = 'rp-cal-cell' + (isToday ? ' today' : '') + (isSel ? ' selected' : '');
+
+    html += '<div class="' + cls + '" onclick="rpCalSelect(' + d + ')">';
+    html += '<div class="rp-cal-date">' + d + '</div>';
+    topics.slice(0, 2).forEach(function(t) {
+      html += '<div class="rp-cal-pill">' + rpEsc(t.topic) + '</div>';
+    });
+    if (topics.length > 2) html += '<div class="rp-cal-more">+' + (topics.length - 2) + ' more</div>';
+    html += '</div>';
+  }
+
+  var total = startDow + daysInMon;
+  var tail  = (7 - (total % 7)) % 7;
+  for (var i = 0; i < tail; i++) html += '<div class="rp-cal-cell rp-empty-cell"></div>';
+  html += '</div>';
+
+  if (rpCalSel) {
+    var selTopics = map[rpCalSel] || [];
+    if (selTopics.length > 0) {
+      var parts = rpCalSel.split('-');
+      var dLabel = parts[2] + ' ' + MONTHS[parseInt(parts[1])];
+      html += '<div class="rp-cal-detail"><div class="rp-cal-detail-hd">' + dLabel + '</div>';
+      selTopics.forEach(function(item) {
+        html += '<div class="rp-cal-detail-row">'
+          + '<div class="rp-cal-detail-topic">' + rpEsc(item.topic) + '</div>'
+          + (item.subject ? '<span class="rp-cal-detail-tag">' + rpEsc(item.subject) + '</span>' : '')
+          + '</div>';
+      });
+      html += '</div>';
+    }
+  }
+
+  el.innerHTML = html;
+}
+
+function rpCalNav(dir) {
+  rpCalMonth += dir;
+  if (rpCalMonth > 11) { rpCalMonth = 0; rpCalYear++; }
+  if (rpCalMonth < 0)  { rpCalMonth = 11; rpCalYear--; }
+  rpCalSel = null;
+  rpRenderCal();
+}
+
+function rpCalSelect(d) {
+  var key = rpCalYear + '-' + rpCalMonth + '-' + d;
+  rpCalSel = rpCalSel === key ? null : key;
+  rpRenderCal();
 }
 </script>
 </body>
