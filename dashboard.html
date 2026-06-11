@@ -570,6 +570,25 @@
     .rp-cal-detail-row:last-child{border-bottom:none}
     .rp-cal-detail-topic{font-size:.82rem;font-weight:700;color:#1c1208;flex:1}
     .rp-cal-detail-tag{font-size:.58rem;font-weight:800;background:rgba(109,40,217,.08);color:#6d28d9;border-radius:12px;padding:2px 7px;flex-shrink:0}
+    /* Quiz → Planner link */
+    .rp-quiz-link{margin-top:16px;padding:11px 16px;background:rgba(109,40,217,.05);border:1px dashed rgba(109,40,217,.2);border-radius:10px;display:flex;align-items:center;gap:10px}
+    .rp-ql-lbl{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.76rem;font-weight:700;color:#6e5438;user-select:none;flex:1}
+    .rp-ql-check{width:14px;height:14px;cursor:pointer;accent-color:#6d28d9;flex-shrink:0}
+    .rp-ql-note{font-size:.6rem;color:#6e5438;opacity:.55;white-space:nowrap}
+    /* Results planner banner */
+    .res-rp-banner{margin:14px auto 0;max-width:380px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);border-radius:10px;padding:10px 16px;font-size:.76rem;font-weight:700;color:#16a34a;text-align:center}
+    .res-rp-banner.already{background:rgba(109,40,217,.07)!important;border-color:rgba(109,40,217,.2)!important;color:#6d28d9!important}
+    /* Import from Poppy */
+    .rp-from-poppy{margin-top:22px}
+    .rp-fp-divider{font-size:.6rem;font-weight:800;color:#6e5438;text-transform:uppercase;letter-spacing:.1em;text-align:center;position:relative;margin-bottom:14px}
+    .rp-fp-divider::before,.rp-fp-divider::after{content:'';position:absolute;top:50%;width:36%;height:1px;background:rgba(168,85,247,.15)}
+    .rp-fp-divider::before{left:0}.rp-fp-divider::after{right:0}
+    .rp-fp-row{display:flex;gap:8px;align-items:stretch}
+    .rp-fp-btn{background:rgba(109,40,217,.1);border:1px solid rgba(109,40,217,.2);color:#6d28d9;font-weight:800;font-size:.76rem;padding:10px 16px;border-radius:10px;cursor:pointer;font-family:'Raleway',sans-serif;white-space:nowrap;transition:all .15s;flex-shrink:0}
+    .rp-fp-btn:hover{background:rgba(109,40,217,.18)}
+    body.hc .rp-quiz-link{background:rgba(168,85,247,.04)!important;border-color:rgba(168,85,247,.15)!important}
+    body.hc .rp-ql-lbl{color:#a08878!important}
+    body.hc .rp-fp-btn{background:rgba(168,85,247,.08)!important;border-color:rgba(168,85,247,.18)!important;color:#c084fc!important}
     /* HC overrides — calendar */
     body.hc .rp-cal-month{color:#e8dcc8!important}
     body.hc .rp-cal-dow{color:#a08878!important}
@@ -896,7 +915,7 @@
             <div class="cfg-grid">
               <div class="cfg-card">
                 <label class="cfg-lbl">Folder</label>
-                <select class="cfg-sel" id="qz-folder" onchange="updateAvail()">
+                <select class="cfg-sel" id="qz-folder" onchange="updateAvail();rpUpdateTrackNote()">
                   <option value="all">All folders</option>
                 </select>
               </div>
@@ -921,6 +940,13 @@
             </div>
             <div class="avail-msg" id="avail-msg"></div>
             <button class="start-btn" id="start-btn" onclick="startQuiz()">Start Quiz →</button>
+            <div class="rp-quiz-link">
+              <label class="rp-ql-lbl">
+                <input type="checkbox" id="qz-track-rp" class="rp-ql-check"/>
+                <span>📅 Add to Revision Planner on completion</span>
+              </label>
+              <span class="rp-ql-note" id="rp-ql-note">Pick a specific folder to enable</span>
+            </div>
           </div>
 
           <div id="quiz-run" style="display:none">
@@ -958,6 +984,7 @@
             </div>
             <div class="res-title" id="res-title"></div>
             <div class="res-sub" id="res-sub"></div>
+            <div id="res-rp-banner" class="res-rp-banner" style="display:none"></div>
             <div class="res-btns">
               <button class="res-btn pri" onclick="retryQuiz()">Try Again</button>
               <button class="res-btn sec" onclick="switchTab('bank')">Back to Bank</button>
@@ -1015,6 +1042,13 @@
             </div>
             <button class="add-btn" onclick="rpAdd()">Add to plan →</button>
             <div id="rp-add-msg" style="display:none;text-align:center;margin-top:14px;font-size:.78rem;color:#16a34a;font-weight:800"></div>
+            <div class="rp-from-poppy">
+              <div class="rp-fp-divider">or import from Poppy</div>
+              <div class="rp-fp-row">
+                <select id="rp-poppy-sel" class="f-input" style="margin-bottom:0;flex:1"></select>
+                <button class="rp-fp-btn" onclick="rpImportFromPoppy()">Add to plan →</button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1686,6 +1720,7 @@ function populateFolderSelect(preselect) {
   var folders = getFolders();
   sel.innerHTML = '<option value="all">All folders</option>'
     + folders.map(function(f){ return '<option value="'+esc(f)+'"'+(f===preselect?' selected':'')+'>'+esc(f)+'</option>'; }).join('');
+  rpUpdateTrackNote();
 }
 
 function updateAvail() {
@@ -1799,9 +1834,15 @@ function showResults() {
   document.getElementById('res-title').style.color = color;
   document.getElementById('res-title').textContent = title;
   document.getElementById('res-sub').textContent = sub + ' ('+qzScore+'/'+qzQs.length+' correct)';
+  document.getElementById('res-rp-banner').style.display = 'none';
   var r = document.getElementById('quiz-results');
   r.style.display = 'block'; r.style.animation = 'fadeIn .4s ease';
   mascotPeek();
+  var trackEl = document.getElementById('qz-track-rp');
+  if (trackEl && trackEl.checked) {
+    var f = document.getElementById('qz-folder').value;
+    if (f && f !== 'all') rpAddFromQuiz(f);
+  }
 }
 
 function retryQuiz() {
@@ -2351,6 +2392,86 @@ function rpTab(t) {
   if (t === 'today') rpRenderToday();
   if (t === 'all')   rpRenderAll();
   if (t === 'cal')   rpRenderCal();
+  if (t === 'add')   rpPopulatePoppySel();
+}
+
+// ── Revision Planner — Poppy integration ────────────────────────────
+function rpAddFromQuiz(folderName) {
+  var banner = document.getElementById('res-rp-banner');
+  if (!banner) return;
+  var exists = rpData.some(function(x) { return x.topic.toLowerCase() === folderName.toLowerCase(); });
+  if (exists) {
+    banner.textContent = '📅 Already tracking "' + folderName + '" in Revision Planner';
+    banner.className = 'res-rp-banner already';
+    banner.style.display = 'block';
+    return;
+  }
+  var now = Date.now();
+  rpData.unshift({
+    id: now + '-' + Math.random().toString(36).slice(2, 7),
+    topic: folderName,
+    subject: '',
+    addedDate: now,
+    level: 0,
+    nextReview: now + rpIntervalDays(0) * 86400000,
+    doneReviews: []
+  });
+  rpSave();
+  banner.textContent = '📅 "' + folderName + '" added to Revision Planner — first review tomorrow';
+  banner.className = 'res-rp-banner';
+  banner.style.display = 'block';
+}
+
+function rpPopulatePoppySel() {
+  var sel = document.getElementById('rp-poppy-sel');
+  if (!sel) return;
+  var folders = [];
+  bank.forEach(function(q) {
+    var f = q.folder || 'General';
+    if (folders.indexOf(f) === -1) folders.push(f);
+  });
+  folders.sort();
+  var already = {};
+  rpData.forEach(function(x) { already[x.topic.toLowerCase()] = true; });
+  sel.innerHTML = '<option value="">Select a Poppy folder…</option>'
+    + folders.map(function(f) {
+        var tracked = already[f.toLowerCase()] ? ' ✓' : '';
+        return '<option value="' + rpEsc(f) + '">' + rpEsc(f) + tracked + '</option>';
+      }).join('');
+}
+
+function rpImportFromPoppy() {
+  var sel = document.getElementById('rp-poppy-sel');
+  if (!sel || !sel.value) return;
+  var folder = sel.value;
+  var exists = rpData.some(function(x) { return x.topic.toLowerCase() === folder.toLowerCase(); });
+  var msg = document.getElementById('rp-add-msg');
+  if (exists) {
+    msg.textContent = '"' + folder + '" is already in your Revision Planner ✓';
+    msg.style.color = '#6d28d9';
+    msg.style.display = 'block';
+    setTimeout(function() { msg.style.display = 'none'; msg.style.color = '#16a34a'; }, 2800);
+    return;
+  }
+  document.getElementById('rp-topic-inp').value = folder;
+  document.getElementById('rp-subject-inp').value = '';
+  sel.value = '';
+  rpAdd();
+  rpPopulatePoppySel();
+}
+
+function rpUpdateTrackNote() {
+  var f = document.getElementById('qz-folder');
+  var note = document.getElementById('rp-ql-note');
+  var check = document.getElementById('qz-track-rp');
+  if (!f || !note) return;
+  if (f.value === 'all') {
+    note.textContent = 'Pick a specific folder to enable';
+    if (check) check.disabled = true;
+  } else {
+    note.textContent = 'Will track "' + f.options[f.selectedIndex].text + '"';
+    if (check) check.disabled = false;
+  }
 }
 
 // ── Revision Planner — Calendar ──────────────────────────────────────
