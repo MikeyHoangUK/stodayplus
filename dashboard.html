@@ -109,7 +109,9 @@
     .mp-sub{font-size:.58rem;color:#5a4230;margin-top:1px}
     .mp-play{width:28px;height:28px;min-width:28px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#4338ca);border:none;color:#fff;font-size:.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .15s;flex-shrink:0}
     .mp-play:hover{opacity:.82}
-    .mp-vol{-webkit-appearance:none;appearance:none;width:48px;height:3px;border-radius:2px;background:rgba(168,85,247,.25);outline:none;cursor:pointer;flex-shrink:0}
+    .mp-prev,.mp-next{width:20px;height:20px;min-width:20px;border-radius:50%;background:rgba(109,40,217,.1);border:1px solid rgba(109,40,217,.22);color:#6d28d9;font-size:.55rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;padding:0}
+    .mp-prev:hover,.mp-next:hover{background:rgba(109,40,217,.2)}
+    .mp-vol{-webkit-appearance:none;appearance:none;width:44px;height:3px;border-radius:2px;background:rgba(168,85,247,.25);outline:none;cursor:pointer;flex-shrink:0}
     .mp-vol::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:#6d28d9;cursor:pointer}
 
     /* ── MAIN ── */
@@ -323,6 +325,7 @@
     body.hc .music-player{background:rgba(255,240,200,.03)!important;border-color:rgba(168,85,247,.1)!important}
     body.hc .mp-track{color:#e8dcc8!important}
     body.hc .mp-sub{color:#a08878!important}
+    body.hc .mp-prev,body.hc .mp-next{background:rgba(168,85,247,.08)!important;border-color:rgba(168,85,247,.18)!important;color:#c084fc!important}
     body.hc .qopt{background:rgba(255,255,255,.025)!important;border-color:rgba(255,255,255,.06)!important}
     body.hc .qopt .ot{color:#c8b89a!important}
     body.hc .hint-txt{background:rgba(168,85,247,.07)!important}
@@ -608,11 +611,13 @@
     <div id="music-player" class="music-player" style="display:none">
       <div class="mp-vinyl" id="mp-vinyl">♪</div>
       <div class="mp-info">
-        <div class="mp-track">Lofi Chill</div>
-        <div class="mp-sub">Background · Royalty-free</div>
+        <div class="mp-track" id="mp-track">Loading…</div>
+        <div class="mp-sub" id="mp-sub">Lofi Hip-Hop</div>
       </div>
+      <button class="mp-prev" onclick="lofiPrev()" title="Previous">⏮</button>
       <button class="mp-play" id="mp-play" onclick="toggleLofi()">▶</button>
-      <input type="range" class="mp-vol" id="mp-vol" min="-28" max="0" value="-10" oninput="setLofiVolume(+this.value)" title="Volume"/>
+      <button class="mp-next" onclick="lofiNext(false)" title="Next">⏭</button>
+      <input type="range" class="mp-vol" id="mp-vol" min="0" max="1" step="0.01" value="0.6" oninput="setLofiVolume(+this.value)" title="Volume"/>
     </div>
 
     <div class="sb-user">
@@ -902,6 +907,7 @@ window.addEventListener('DOMContentLoaded', function() {
   startMarvelIntro();
   scheduleMascot();
   scheduleElectric();
+  initLofi();
 });
 
 // ── MARVEL ENTRY ANIMATION ──
@@ -1113,118 +1119,82 @@ function applyMode(m) {
   }
 }
 
-// ── Lofi Music Engine (Tone.js procedural) ──────────────────────────
-var lofiState = { playing: false, engine: null, volDb: -10 };
+// ── Lofi Music Engine (HTML5 Audio playlist) ──────────────────────────
+var lofiPlaylist = [
+  { file: 'lofi%20hip-hop/Ariel%20Shalom%20-%20Dream%20Loop.mp3',                     title: 'Dream Loop',              artist: 'Ariel Shalom' },
+  { file: 'lofi%20hip-hop/Aves%20-%20Sunshine%20-%20Instrumental%20version.mp3',      title: 'Sunshine',                artist: 'Aves' },
+  { file: 'lofi%20hip-hop/Aves%20-%20Velvet.mp3',                                     title: 'Velvet',                  artist: 'Aves' },
+  { file: 'lofi%20hip-hop/Damon%20Power%20-%20Canon%20in%20D%20Lo-Fi%20Remix.mp3',    title: 'Canon in D Lo-Fi Remix',  artist: 'Damon Power' },
+  { file: 'lofi%20hip-hop/Heron%20Vale%20-%20Mistletoe%20Glow.mp3',                   title: 'Mistletoe Glow',          artist: 'Heron Vale' },
+  { file: 'lofi%20hip-hop/Lalinea%20-%20Will%20You%20Play%20with%20Me.mp3',            title: 'Will You Play with Me',   artist: 'Lalinea' },
+  { file: 'lofi%20hip-hop/Tomer%20Baruch%20-%20Some%20Notes.mp3',                     title: 'Some Notes',              artist: 'Tomer Baruch' },
+  { file: 'lofi%20hip-hop/Yestalgia%20-%20Morning%20Reset.mp3',                       title: 'Morning Reset',           artist: 'Yestalgia' }
+];
+var lofi = { idx: 0, playing: false, audio: null, vol: 0.6 };
 
-async function loadTone() {
-  if (window.Tone) return;
-  return new Promise(function(res, rej) {
-    var s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.js';
-    s.onload = res; s.onerror = rej;
-    document.head.appendChild(s);
-  });
-}
-
-async function buildLofi() {
-  await loadTone();
-  await Tone.start();
-  Tone.Transport.bpm.value = 78;
-
-  var dest = Tone.getDestination();
-  var vol   = new Tone.Volume(lofiState.volDb);
-  var reverb = new Tone.Reverb({ decay: 2.8, wet: 0.2 });
-  var lpf    = new Tone.Filter({ frequency: 3200, type: 'lowpass', rolloff: -24 });
-  var dist   = new Tone.Distortion({ distortion: 0.04, wet: 0.25 });
-  vol.chain(dist, lpf, reverb, dest);
-
-  // Piano pad
-  var pad = new Tone.PolySynth(Tone.Synth, {
-    oscillator: { type: 'triangle8' },
-    envelope: { attack: 0.1, decay: 0.5, sustain: 0.25, release: 3 },
-    volume: -18
-  }).connect(vol);
-
-  // Bass
-  var bass = new Tone.MonoSynth({
-    oscillator: { type: 'sine' },
-    envelope: { attack: 0.02, decay: 0.25, sustain: 0.4, release: 1 },
-    volume: -14
-  }).connect(vol);
-
-  // Kick
-  var kick = new Tone.MembraneSynth({ pitchDecay: 0.06, octaves: 8, volume: -9 }).connect(vol);
-  // Snare
-  var snare = new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.001, decay: 0.13, sustain: 0, release: 0.03 }, volume: -22 }).connect(vol);
-  // Hi-hat
-  var hat = new Tone.MetalSynth({ frequency: 420, envelope: { attack: 0.001, decay: 0.09, release: 0.01 }, harmonicity: 5.1, modulationIndex: 16, resonance: 3500, octaves: 1.5, volume: -32 }).connect(vol);
-
-  // Jazz chord progression: Am7 → Dm7 → Fmaj7 → Em7
-  var chords = [
-    ['A3','C4','E4','G4'],
-    ['D3','F3','A3','C4'],
-    ['F3','A3','C4','E4'],
-    ['E3','G3','B3','D4']
-  ];
-  var bassRoots = ['A2','D2','F2','E2'];
-  var bar = 0;
-
-  new Tone.Sequence(function(time) {
-    var i = Math.floor(bar / 2) % 4;
-    pad.triggerAttackRelease(chords[i], '1m', time, 0.28);
-    bass.triggerAttackRelease(bassRoots[i], '8n', time, 0.55);
-    bass.triggerAttackRelease(bassRoots[(i+1)%4], '8n', Tone.Time(time) + Tone.Time('4n'), 0.35);
-    bar++;
-  }, [0], '1m').start(0);
-
-  // Drum pattern (16th note grid)
-  var drumPat = ['k','h',null,['s','h'],'h',null,['k','h'],'h',null,['s','h'],'h','h','k','h',null,'h'];
-  new Tone.Sequence(function(time, hit) {
-    if (!hit) return;
-    (Array.isArray(hit) ? hit : [hit]).forEach(function(h) {
-      if (h==='k') kick.triggerAttackRelease('C1','16n',time,0.85);
-      if (h==='s') snare.triggerAttackRelease('16n',time,0.6);
-      if (h==='h') hat.triggerAttackRelease('32n',time,0.38);
-    });
-  }, drumPat, '16n').start(0);
-
-  lofiState.engine = vol;
-}
-
-async function toggleLofi() {
-  var btn = document.getElementById('mp-play');
-  var vinyl = document.getElementById('mp-vinyl');
-  try {
-    if (lofiState.playing) {
-      Tone.Transport.pause();
-      lofiState.playing = false;
-      if (btn) btn.textContent = '▶';
-      if (vinyl) vinyl.classList.remove('spin');
-    } else {
-      if (btn) btn.textContent = '…';
-      if (!lofiState.engine) await buildLofi();
-      Tone.Transport.start();
-      lofiState.playing = true;
-      if (btn) btn.textContent = '⏸';
-      if (vinyl) vinyl.classList.add('spin');
-    }
-  } catch(e) {
-    if (btn) btn.textContent = '▶';
-    console.error('Lofi:', e);
+function lofiSetTrack(idx, andPlay) {
+  lofi.idx = ((idx % lofiPlaylist.length) + lofiPlaylist.length) % lofiPlaylist.length;
+  var track = lofiPlaylist[lofi.idx];
+  if (lofi.audio) { lofi.audio.pause(); lofi.audio.src = ''; }
+  lofi.audio = new Audio(track.file);
+  lofi.audio.volume = lofi.vol;
+  lofi.audio.addEventListener('ended', function() { lofiNext(true); });
+  var tEl = document.getElementById('mp-track');
+  var sEl = document.getElementById('mp-sub');
+  if (tEl) tEl.textContent = track.title;
+  if (sEl) sEl.textContent = track.artist;
+  if (andPlay) {
+    lofi.audio.play().catch(function() {});
+    lofi.playing = true;
+    var btn = document.getElementById('mp-play');
+    var vinyl = document.getElementById('mp-vinyl');
+    if (btn) btn.textContent = '⏸';
+    if (vinyl) vinyl.classList.add('spin');
   }
 }
 
+function initLofi() {
+  lofiSetTrack(0, false);
+}
+
+function toggleLofi() {
+  var btn = document.getElementById('mp-play');
+  var vinyl = document.getElementById('mp-vinyl');
+  if (lofi.playing) {
+    if (lofi.audio) lofi.audio.pause();
+    lofi.playing = false;
+    if (btn) btn.textContent = '▶';
+    if (vinyl) vinyl.classList.remove('spin');
+  } else {
+    if (!lofi.audio) lofiSetTrack(0, false);
+    lofi.audio.play().catch(function() {});
+    lofi.playing = true;
+    if (btn) btn.textContent = '⏸';
+    if (vinyl) vinyl.classList.add('spin');
+  }
+}
+
+function lofiPrev() {
+  lofiSetTrack(lofi.idx - 1, lofi.playing);
+}
+
+function lofiNext(fromEnd) {
+  var nextIdx = fromEnd ? (lofi.idx + 1) % lofiPlaylist.length : lofi.idx + 1;
+  lofiSetTrack(nextIdx, lofi.playing || fromEnd);
+}
+
 function stopLofi() {
-  if (window.Tone && lofiState.playing) { Tone.Transport.pause(); lofiState.playing = false; }
+  if (lofi.audio) { lofi.audio.pause(); }
+  lofi.playing = false;
   var btn = document.getElementById('mp-play');
   var vinyl = document.getElementById('mp-vinyl');
   if (btn) btn.textContent = '▶';
   if (vinyl) vinyl.classList.remove('spin');
 }
 
-function setLofiVolume(db) {
-  lofiState.volDb = db;
-  if (lofiState.engine) lofiState.engine.volume.value = db;
+function setLofiVolume(v) {
+  lofi.vol = v;
+  if (lofi.audio) lofi.audio.volume = v;
 }
 
 // Pomodoro
