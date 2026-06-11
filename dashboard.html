@@ -1520,6 +1520,11 @@ function startQuiz() {
     btn.classList.add('shake');
     setTimeout(function(){ btn.classList.remove('shake'); }, 520);
   }, 700);
+  // Fire opening bolts once fullscreen is ready
+  setTimeout(function() {
+    fireBolt(document.getElementById('elec-lp'), 72);
+    setTimeout(function() { fireBolt(document.getElementById('elec-rp'), 72); }, 700);
+  }, 1100);
 }
 
 function showQ() {
@@ -1640,6 +1645,7 @@ function elecPath(svgW) {
 }
 function fireBolt(pathEl, svgW) {
   if (!document.body.classList.contains('hc')) return;
+  if (!document.fullscreenElement) return;
   pathEl.setAttribute('d', elecPath(svgW));
   var len; try { len = pathEl.getTotalLength(); } catch(e) { return; }
   if (!len) return;
