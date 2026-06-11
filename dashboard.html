@@ -1335,17 +1335,15 @@ async function generateWithAI(isRetry){
         var detail = '';
         try{ detail = errBody.error.details.map(function(d){ return d.description||''; }).join(' '); }catch(e){}
         var isDaily = detail.toLowerCase().includes('day') || rawMsg.toLowerCase().includes('day');
-        throw new Error(isDaily
-          ? 'Daily quota exhausted (1 500 req/day). Create a new project at aistudio.google.com to get a fresh key, or wait until midnight UTC.'
-          : null);
-        if(!isRetry && !isDaily){
+        if(isDaily){
+          throw new Error('Daily quota exhausted. Go to aistudio.google.com, create a new project and generate a fresh API key.');
+        }
+        if(!isRetry){
           pendingRetry = true;
           aiCountdown(62, function(){ generateWithAI(true); });
           return;
         }
-        throw new Error(isDaily
-          ? 'Daily quota exhausted. Create a new project at aistudio.google.com for a fresh key.'
-          : 'Still rate-limited after retry — wait a minute and try again.');
+        throw new Error('Still rate-limited after waiting. Try again in a minute.');
       }
       throw new Error(rawMsg);
     }
