@@ -3125,25 +3125,48 @@ function renderSqBank() {
   var el = document.getElementById('sq-bank-content');
   if (!el) return;
   if (!sqBank.length) {
-    el.innerHTML = '<div class="rp-empty"><div class="rp-empty-icon">✍️</div><div class="rp-empty-title">No SAQs yet</div><div class="rp-empty-sub">Generate or add some questions to get started.</div></div>';
+    el.innerHTML = '<div class="bank-empty"><div class="ei">✍️</div><h3>No SAQs yet</h3><p>Go to Generate to create your first questions.</p></div>';
     return;
   }
   var folders = sqGetFolders();
-  var html = '';
-  folders.forEach(function(folder) {
-    var qs = sqBank.filter(function(q) { return (q.folder || 'General') === folder; });
-    html += '<div class="rp-subject-group"><div class="rp-subject-lbl">' + rpEsc(folder) + ' <span style="opacity:.5;font-weight:600">(' + qs.length + ')</span></div>';
-    qs.forEach(function(q) {
-      html += '<div class="sq-card" id="sqc-' + q.id + '">'
-        + '<div class="sq-card-top"><div class="sq-q">' + rpEsc(q.question) + '</div>'
-        + '<button class="sq-del-btn" onclick="sqDelete(\'' + q.id + '\')" title="Delete">✕</button></div>'
-        + '<button class="sq-reveal-btn" onclick="sqToggleAns(\'' + q.id + '\')">Show markscheme ▼</button>'
-        + '<div class="sq-ans" id="sqa-' + q.id + '">' + rpEsc(q.modelAnswer).replace(/\n/g, '<br>') + '</div>'
-        + '</div>';
-    });
-    html += '</div>';
+  var grid = document.createElement('div');
+  grid.className = 'folder-grid';
+  folders.forEach(function(f) {
+    var count = sqBank.filter(function(q) { return (q.folder || 'General') === f; }).length;
+    var card = document.createElement('div');
+    card.className = 'folder-card';
+    card.innerHTML = '<div class="fc-icon">✍️</div>'
+      + '<div class="fc-name">' + rpEsc(f) + '</div>'
+      + '<div class="fc-count">' + count + ' SAQ' + (count !== 1 ? 's' : '') + '</div>'
+      + '<div class="fc-actions">'
+      + '<button class="fc-quiz" onclick="sqPracFolder(\'' + rpEsc(f) + '\')">▶ Practice</button>'
+      + '<button class="fc-del" onclick="sqDeleteFolder(\'' + rpEsc(f) + '\')">🗑</button>'
+      + '</div>';
+    grid.appendChild(card);
   });
-  el.innerHTML = html;
+  el.innerHTML = '';
+  el.appendChild(grid);
+}
+
+function sqDeleteFolder(folder) {
+  if (!confirm('Delete all SAQs in "' + folder + '"?')) return;
+  sqBank = sqBank.filter(function(q) { return (q.folder || 'General') !== folder; });
+  sqSave();
+  renderSqBank();
+}
+
+function sqPracFolder(folder) {
+  sqPracQs = sqBank.filter(function(q) { return (q.folder || 'General') === folder; });
+  if (!sqPracQs.length) return;
+  for (var i = sqPracQs.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = sqPracQs[i]; sqPracQs[i] = sqPracQs[j]; sqPracQs[j] = tmp;
+  }
+  sqPracIdx = 0;
+  sqTab('prac');
+  document.getElementById('sq-prac-setup').style.display = 'none';
+  document.getElementById('sq-prac-run').style.display = 'block';
+  sqShowPracQ();
 }
 
 function sqTab(t) {
