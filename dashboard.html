@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Study Space — Stoday Plus v2</title>
+  <title>Study Space — Stoday Plus</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -1057,13 +1057,11 @@ function refreshFolderDatalist(){
 }
 
 function renderBank() {
-  console.log('[renderBank] bankFolder=', bankFolder, 'bank.length=', bank.length);
   var fbar    = document.getElementById('bank-folder-bar');
   var list    = document.getElementById('bank-list');
   var diffBar = document.getElementById('bank-diff-bar');
 
   if (bankFolder === 'all') {
-    console.log('[renderBank] → folder grid view');
     // ── Folder overview ──────────────────────────────────────────
     fbar.style.display = 'none';
     fbar.innerHTML = '';
@@ -1243,8 +1241,6 @@ function showPanel(id, el) {
 }
 
 function switchTab(t) {
-  console.log('[switchTab]', t);
-  if (t === 'bank') alert('switchTab bank fired');
   ['create','bank','quiz'].forEach(function(x) {
     document.getElementById('sub-'+x).style.display = x === t ? 'block' : 'none';
     document.getElementById('tab-'+x).classList.toggle('active', x === t);
