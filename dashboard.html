@@ -176,6 +176,8 @@
     .diff-btn[data-d="easy"].sel{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.4);color:#16a34a}
     .diff-btn[data-d="medium"].sel{background:rgba(180,83,9,.1);border-color:rgba(180,83,9,.4);color:#b45309}
     .diff-btn[data-d="hard"].sel{background:rgba(220,38,38,.1);border-color:rgba(220,38,38,.4);color:#dc2626}
+    .diff-btn[data-d="rote"].sel{background:rgba(37,99,235,.1);border-color:rgba(37,99,235,.4);color:#2563eb}
+    .diff-btn[data-d="deep"].sel{background:rgba(109,40,217,.1);border-color:rgba(109,40,217,.4);color:#6d28d9}
     .add-btn{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;font-weight:900;font-size:.85rem;padding:14px 28px;border-radius:12px;cursor:pointer;border:none;width:100%;margin-top:8px;transition:all .2s;font-family:'Raleway',sans-serif;letter-spacing:.03em}
     .add-btn:hover{opacity:.88;transform:translateY(-1px)}
     .success-msg{text-align:center;color:#4ade80;font-size:.78rem;font-weight:800;margin-top:12px;display:none;animation:fadeUp .3s ease}
@@ -651,6 +653,57 @@
     body.hc .rp-schedule-preview{background:rgba(168,85,247,.04)!important;border-color:rgba(168,85,247,.1)!important}
     body.hc .rp-sched-lbl{color:#a08878!important}
     body.hc .rp-sched-day{color:#a08878!important}
+    /* SAQs ─────────────────────────────────────────── */
+    .sq-type-note{font-size:.7rem;color:#6e5438;font-weight:600;margin-bottom:14px}
+    .sq-pill{padding:5px 14px;border-radius:20px;font-size:.72rem;font-weight:800;cursor:pointer;border:1px solid rgba(168,85,247,.15);background:rgba(255,255,255,.5);color:#6e5438;transition:all .18s;user-select:none;font-family:'Raleway',sans-serif}
+    .sq-pill.sel{background:rgba(109,40,217,.14);color:#6d28d9;border-color:rgba(109,40,217,.3)}
+    .sq-pill:hover:not(.sel){background:rgba(168,85,247,.08)}
+    .sq-rote-badge{display:inline-block;font-size:.58rem;font-weight:800;background:rgba(37,99,235,.1);color:#2563eb;border:1px solid rgba(37,99,235,.2);border-radius:20px;padding:2px 8px;text-transform:uppercase;letter-spacing:.05em;margin-right:6px;vertical-align:middle}
+    .sq-deep-badge{display:inline-block;font-size:.58rem;font-weight:800;background:rgba(109,40,217,.1);color:#6d28d9;border:1px solid rgba(109,40,217,.2);border-radius:20px;padding:2px 8px;text-transform:uppercase;letter-spacing:.05em;margin-right:6px;vertical-align:middle}
+    .sq-card{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.12);border-radius:14px;padding:16px 18px;margin-bottom:10px;transition:box-shadow .2s}
+    .sq-card:hover{box-shadow:0 2px 12px rgba(109,40,217,.07)}
+    .sq-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+    .sq-q{font-size:.88rem;font-weight:700;color:#1c1208;line-height:1.5;flex:1}
+    .sq-del-btn{background:none;border:none;color:#ef4444;opacity:.25;cursor:pointer;font-size:.7rem;flex-shrink:0;padding:2px 4px;transition:opacity .15s}
+    .sq-del-btn:hover{opacity:.75}
+    .sq-reveal-btn{font-size:.68rem;font-weight:700;background:rgba(109,40,217,.08);border:1px solid rgba(109,40,217,.15);color:#6d28d9;border-radius:8px;padding:5px 12px;cursor:pointer;font-family:'Raleway',sans-serif;transition:all .15s}
+    .sq-reveal-btn:hover{background:rgba(109,40,217,.15)}
+    .sq-ans{display:none;margin-top:10px;padding:10px 12px;background:rgba(255,255,255,.6);border-radius:8px;border-left:3px solid rgba(109,40,217,.3);font-size:.82rem;color:#4a3820;line-height:1.6;font-weight:500}
+    .sq-ans.show{display:block}
+    .sq-prac-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    .sq-prac-counter{font-size:.75rem;font-weight:700;color:#6e5438}
+    .sq-prac-card{background:rgba(250,243,224,.8);border:1px solid rgba(168,85,247,.18);border-radius:20px;padding:36px 32px;min-height:160px;display:flex;flex-direction:column;justify-content:center;margin-bottom:20px}
+    .sq-prac-q{font-size:1rem;font-weight:800;color:#1c1208;line-height:1.5}
+    .sq-prac-ans{display:none;padding-top:16px;margin-top:16px;border-top:1px solid rgba(168,85,247,.15)}
+    .sq-prac-ans.show{display:block}
+    .sq-prac-ans-lbl{font-size:.6rem;font-weight:800;color:#6d28d9;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+    .sq-prac-ans-txt{font-size:.88rem;color:#4a3820;line-height:1.6;font-weight:500}
+    .sq-prac-btns{display:flex;gap:10px;justify-content:center}
+    .sq-prac-reveal{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:12px;padding:11px 28px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:opacity .15s}
+    .sq-prac-reveal:hover{opacity:.85}
+    .sq-prac-next{background:rgba(109,40,217,.1);border:1px solid rgba(109,40,217,.2);color:#6d28d9;border-radius:12px;padding:11px 22px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:all .15s}
+    .sq-prac-next:hover{background:rgba(109,40,217,.18)}
+    .sq-prac-end{background:rgba(255,255,255,.5);border:1px solid rgba(168,85,247,.15);color:#6e5438;border-radius:10px;padding:7px 14px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:'Raleway',sans-serif}
+    .sq-prac-end:hover{background:rgba(168,85,247,.08)}
+    body.hc .sq-type-note{color:#a08878!important}
+    body.hc .sq-pill{background:rgba(255,255,255,.03)!important;color:#a08878!important;border-color:rgba(168,85,247,.12)!important}
+    body.hc .sq-pill.sel{background:rgba(168,85,247,.15)!important;color:#c084fc!important;border-color:rgba(168,85,247,.35)!important}
+    body.hc .sq-rote-badge{background:rgba(37,99,235,.12)!important;color:#93c5fd!important;border-color:rgba(37,99,235,.3)!important}
+    body.hc .sq-deep-badge{background:rgba(168,85,247,.12)!important;color:#c084fc!important;border-color:rgba(168,85,247,.3)!important}
+    body.hc .sq-card{background:rgba(255,255,255,.025)!important;border-color:rgba(168,85,247,.1)!important}
+    body.hc .sq-q{color:#e8dcc8!important}
+    body.hc .sq-ans{background:rgba(255,255,255,.04)!important;color:#c8b89a!important;border-left-color:rgba(168,85,247,.35)!important}
+    body.hc .sq-reveal-btn{background:rgba(168,85,247,.08)!important;border-color:rgba(168,85,247,.18)!important;color:#c084fc!important}
+    body.hc .sq-prac-card{background:rgba(255,255,255,.03)!important;border-color:rgba(168,85,247,.18)!important}
+    body.hc .sq-prac-q{color:#e8dcc8!important}
+    body.hc .sq-prac-ans{border-top-color:rgba(168,85,247,.18)!important}
+    body.hc .sq-prac-ans-txt{color:#c8b89a!important}
+    body.hc .sq-prac-ans-lbl{color:#c084fc!important}
+    body.hc .sq-prac-next{background:rgba(168,85,247,.08)!important;border-color:rgba(168,85,247,.2)!important;color:#c084fc!important}
+    body.hc .sq-prac-end{background:rgba(255,255,255,.03)!important;border-color:rgba(168,85,247,.1)!important;color:#a08878!important}
+    body.hc .sq-prac-counter{color:#a08878!important}
+    body.hc .diff-btn[data-d="rote"].sel{color:#93c5fd!important;background:rgba(37,99,235,.1)!important;border-color:rgba(37,99,235,.3)!important}
+    body.hc .diff-btn[data-d="deep"].sel{color:#c084fc!important;background:rgba(168,85,247,.1)!important;border-color:rgba(168,85,247,.3)!important}
   </style>
 </head>
 <body class="font-sans">
@@ -748,6 +801,9 @@
         </div>
         <div class="nav-item" onclick="showPanel('mcq',this)">
           <span>🧠</span> Poppy
+        </div>
+        <div class="nav-item" onclick="showPanel('saqs',this)">
+          <span>✍️</span> SAQs
         </div>
         <div class="nav-item soon"><span>📝</span> Blurting Sheet<span class="soon-pill">Soon</span></div>
         <div class="nav-item soon"><span>⚡</span> Daily System<span class="soon-pill">Soon</span></div>
@@ -1119,6 +1175,146 @@
         </div>
       </div><!-- /panel-planner -->
 
+      <!-- SAQs Panel -->
+      <div id="panel-saqs" class="panel anim">
+        <h1 class="mcq-h1">SAQs</h1>
+        <p class="mcq-sub">Generate short answer questions — split between rote recall and deep understanding.</p>
+
+        <div class="mcq-tabs">
+          <div class="mcq-tab active" id="sq-tab-gen"  onclick="sqTab('gen')">✨ Generate</div>
+          <div class="mcq-tab" id="sq-tab-bank" onclick="sqTab('bank')">📋 Bank</div>
+          <div class="mcq-tab" id="sq-tab-prac" onclick="sqTab('prac')">▶ Practice</div>
+        </div>
+
+        <!-- Generate -->
+        <div id="sq-gen">
+          <div class="ai-card">
+            <div class="ai-header">
+              <span style="font-size:1.1rem">✨</span>
+              <span class="ai-htxt">Generate with AI</span>
+              <span class="ai-badge">Groq · Llama 3.3</span>
+            </div>
+            <div class="ai-drop" id="sq-drop"
+                 ondragover="sqDragOver(event)" ondragleave="sqDragLeave(event)" ondrop="sqDrop(event)"
+                 onclick="document.getElementById('sq-file-inp').click()">
+              <input type="file" id="sq-file-inp" accept=".pdf,.pptx" style="display:none" onchange="sqFileSelect(event)"/>
+              <div id="sq-drop-idle">
+                <span class="ai-drop-icon">📂</span>
+                <span class="ai-drop-txt">Drop your <strong>.pdf</strong> or <strong>.pptx</strong> here</span>
+                <span class="ai-drop-sub">or click to browse — text will be extracted automatically</span>
+              </div>
+              <div id="sq-drop-loading" style="display:none" class="ai-drop-loading">
+                <span class="ai-spin">⟳</span> Extracting text…
+              </div>
+              <div id="sq-drop-done" style="display:none">
+                <span class="ai-file-badge">
+                  <span>📎</span>
+                  <span id="sq-file-name"></span>
+                  <span class="ai-file-x" onclick="sqFileClear(event)">✕</span>
+                </span>
+              </div>
+            </div>
+            <textarea id="sq-topic" class="ai-ta" placeholder="Or paste your notes / type a topic here…" style="width:100%;margin-bottom:14px"></textarea>
+            <div class="ai-opts" style="margin-bottom:10px">
+              <div class="ai-opt-group">
+                <span class="ai-opt-lbl">SAQs</span>
+                <div class="ai-opt-pills">
+                  <div class="sq-pill" data-g="count" data-v="3" onclick="sqPick(this)">3</div>
+                  <div class="sq-pill sel" data-g="count" data-v="5" onclick="sqPick(this)">5</div>
+                  <div class="sq-pill" data-g="count" data-v="10" onclick="sqPick(this)">10</div>
+                </div>
+              </div>
+            </div>
+            <div class="sq-type-note">Split evenly between <span style="color:#2563eb;font-weight:800">Rote</span> recall &amp; <span style="color:#6d28d9;font-weight:800">Deep</span> understanding</div>
+            <button class="ai-btn" id="sq-btn" onclick="sqGenerateWithAI(false)" style="width:100%">Generate SAQs →</button>
+            <div class="ai-key-row" id="sq-key-row">
+              <span class="ai-key-lbl">Groq key:</span>
+              <input type="password" id="sq-key-inp" class="ai-key-inp" placeholder="Paste your free key from console.groq.com…"/>
+              <button class="ai-key-save" onclick="sqSaveAIKey()">Save key</button>
+            </div>
+            <div class="ai-key-row" id="sq-key-set" style="display:none">
+              <span class="ai-key-ok">✓ API key saved</span>
+              <span class="ai-key-change" onclick="sqClearAIKey()">change</span>
+            </div>
+            <div class="ai-status" id="sq-status"></div>
+            <div class="ai-folder-pick" id="sq-folder-pick" style="display:none">
+              <span class="ai-folder-lbl">Add to folder:</span>
+              <select id="sq-folder-sel" class="ai-folder-sel"></select>
+              <input id="sq-folder-new" class="ai-folder-new" placeholder="or type new folder…"/>
+              <button class="ai-folder-confirm" onclick="sqConfirmAdd()">Add to Bank →</button>
+            </div>
+          </div>
+          <div class="ai-divider"><span class="ai-divider-txt">or create manually</span></div>
+          <div class="form-card">
+            <div class="f-grp">
+              <label class="f-lbl">Question</label>
+              <textarea id="sq-q-inp" class="f-ta" placeholder="Write your short answer question here…" style="min-height:70px"></textarea>
+            </div>
+            <div class="f-grp">
+              <label class="f-lbl">Model answer</label>
+              <textarea id="sq-a-inp" class="f-ta" placeholder="Concise model answer (2–4 sentences)…" style="min-height:80px"></textarea>
+            </div>
+            <div class="f-grp">
+              <label class="f-lbl">Type</label>
+              <div class="diff-row">
+                <div class="diff-btn sel" data-d="rote" onclick="sqSetType('rote')">Rote</div>
+                <div class="diff-btn" data-d="deep" onclick="sqSetType('deep')">Deep</div>
+              </div>
+            </div>
+            <div class="f-grp">
+              <label class="f-lbl">Folder</label>
+              <input type="text" id="sq-m-folder" class="f-input" placeholder="e.g. Week 1, Cardiology…"/>
+            </div>
+            <button class="add-btn" onclick="sqSubmitManual()">Add to Bank</button>
+            <div class="success-msg" id="sq-ok" style="display:none">✓ SAQ added!</div>
+          </div>
+        </div>
+
+        <!-- Bank -->
+        <div id="sq-bank" style="display:none">
+          <div id="sq-bank-content"></div>
+        </div>
+
+        <!-- Practice -->
+        <div id="sq-prac" style="display:none">
+          <div id="sq-prac-setup">
+            <div class="form-card" style="max-width:420px">
+              <div class="f-grp">
+                <label class="f-lbl">Folder</label>
+                <select id="sq-prac-folder" class="cfg-sel"></select>
+              </div>
+              <div class="f-grp">
+                <label class="f-lbl">Type</label>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <div class="sq-pill sel" data-g="prac-type" data-v="all" onclick="sqPick(this)">All</div>
+                  <div class="sq-pill" data-g="prac-type" data-v="rote" onclick="sqPick(this)">Rote only</div>
+                  <div class="sq-pill" data-g="prac-type" data-v="deep" onclick="sqPick(this)">Deep only</div>
+                </div>
+              </div>
+              <button class="add-btn" onclick="sqStartPrac()">Start Practice →</button>
+            </div>
+          </div>
+          <div id="sq-prac-run" style="display:none">
+            <div class="sq-prac-hd">
+              <span class="sq-prac-counter" id="sq-prac-counter">1 / 5</span>
+              <button class="sq-prac-end" onclick="sqPracEnd()">End session</button>
+            </div>
+            <div class="sq-prac-card">
+              <div class="sq-prac-q" id="sq-prac-q"></div>
+              <div class="sq-prac-ans" id="sq-prac-ans">
+                <div class="sq-prac-ans-lbl">Model answer</div>
+                <div class="sq-prac-ans-txt" id="sq-prac-ans-txt"></div>
+              </div>
+            </div>
+            <div class="sq-prac-btns">
+              <button class="sq-prac-reveal" id="sq-prac-reveal-btn" onclick="sqPracReveal()">Reveal answer</button>
+              <button class="sq-prac-next" id="sq-prac-next-btn" onclick="sqPracNext()" style="display:none">Next →</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /panel-saqs -->
+
     </div><!-- /content -->
   </div><!-- /main -->
 </div><!-- /app -->
@@ -1160,6 +1356,7 @@ window.addEventListener('DOMContentLoaded', function() {
   rpLoad();
   rpRenderToday();
   rpExamLoad();
+  sqLoad();
 });
 
 // ── MARVEL ENTRY ANIMATION ──
@@ -1911,7 +2108,8 @@ function retryQuiz() {
 // Nav
 var PANEL_TITLES = {
   'mcq':     'Poppy<span class="tb-sub">MCQ Maker</span>',
-  'planner': 'Revision Planner<span class="tb-sub">Spaced Repetition</span>'
+  'planner': 'Revision Planner<span class="tb-sub">Spaced Repetition</span>',
+  'saqs':    'SAQs<span class="tb-sub">Short Answer Maker</span>'
 };
 function showPanel(id, el) {
   document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
@@ -1921,6 +2119,7 @@ function showPanel(id, el) {
   if (el) el.classList.add('active');
   document.getElementById('tb-title').innerHTML = PANEL_TITLES[id] || 'Stoday Plus<span class="tb-sub">Dashboard</span>';
   if (id === 'planner') rpRenderToday();
+  if (id === 'saqs') sqInitAIKeyUI();
 }
 
 function goHome() {
@@ -2703,6 +2902,301 @@ function rpRenderExams() {
       + '</div>';
   });
   el.innerHTML = html;
+}
+
+// ── SAQs MAKER ────────────────────────────────────────────────────────────────
+var sqBank = [];
+var sqPendingQs = null;
+var sqSelectedType = 'rote';
+var sqPracQs = [];
+var sqPracIdx = 0;
+
+function sqLoad() { try { sqBank = JSON.parse(localStorage.getItem('sp_saqs') || '[]'); } catch(e) { sqBank = []; } }
+function sqSave() { localStorage.setItem('sp_saqs', JSON.stringify(sqBank)); }
+
+function sqGetOpt(g) {
+  var el = document.querySelector('.sq-pill.sel[data-g="' + g + '"]');
+  return el ? el.dataset.v : null;
+}
+function sqPick(el) {
+  var g = el.dataset.g;
+  document.querySelectorAll('.sq-pill[data-g="' + g + '"]').forEach(function(p) { p.classList.remove('sel'); });
+  el.classList.add('sel');
+}
+
+function sqSetStatus(msg, cls) {
+  var el = document.getElementById('sq-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'ai-status' + (cls ? ' ' + cls : '');
+  el.style.display = msg ? 'block' : 'none';
+}
+
+function sqInitAIKeyUI() {
+  if (getAIKey()) {
+    document.getElementById('sq-key-row').style.display = 'none';
+    document.getElementById('sq-key-set').style.display = 'flex';
+  } else {
+    document.getElementById('sq-key-row').style.display = 'flex';
+    document.getElementById('sq-key-set').style.display = 'none';
+  }
+}
+function sqSaveAIKey() {
+  var k = (document.getElementById('sq-key-inp').value || '').trim();
+  if (!k) { sqSetStatus('Please paste a key first.', 'serr'); return; }
+  localStorage.setItem('sp_groq_key', k);
+  document.getElementById('sq-key-row').style.display = 'none';
+  document.getElementById('sq-key-set').style.display = 'flex';
+  initAIKeyUI();
+  sqSetStatus('Key saved.', 'sok');
+  setTimeout(function() { sqSetStatus('', ''); }, 2000);
+}
+function sqClearAIKey() {
+  localStorage.removeItem('sp_groq_key');
+  document.getElementById('sq-key-inp').value = '';
+  document.getElementById('sq-key-set').style.display = 'none';
+  document.getElementById('sq-key-row').style.display = 'flex';
+}
+
+function sqDragOver(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('sq-drop').classList.add('over'); }
+function sqDragLeave(e) { e.preventDefault(); document.getElementById('sq-drop').classList.remove('over'); }
+function sqDrop(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('sq-drop').classList.remove('over'); var f = e.dataTransfer.files[0]; if (f) sqProcessFile(f); }
+function sqFileSelect(e) { var f = e.target.files[0]; if (f) sqProcessFile(f); e.target.value = ''; }
+function sqFileClear(e) { e.stopPropagation(); document.getElementById('sq-drop-idle').style.display = ''; document.getElementById('sq-drop-done').style.display = 'none'; document.getElementById('sq-topic').value = ''; sqSetStatus('', ''); }
+
+async function sqProcessFile(file) {
+  var ext = file.name.split('.').pop().toLowerCase();
+  if (ext !== 'pdf' && ext !== 'pptx') { sqSetStatus('Only .pdf and .pptx files are supported.', 'serr'); return; }
+  document.getElementById('sq-drop-idle').style.display = 'none';
+  document.getElementById('sq-drop-done').style.display = 'none';
+  document.getElementById('sq-drop-loading').style.display = 'block';
+  sqSetStatus('', '');
+  try {
+    var text = ext === 'pdf' ? await extractPdf(file) : await extractPptx(file);
+    text = text.replace(/\s+/g, ' ').trim();
+    if (!text) throw new Error('No readable text found.');
+    if (text.length > 80000) text = text.slice(0, 80000) + '\n[…truncated]';
+    document.getElementById('sq-topic').value = text;
+    document.getElementById('sq-file-name').textContent = file.name;
+    document.getElementById('sq-drop-loading').style.display = 'none';
+    document.getElementById('sq-drop-done').style.display = 'block';
+    sqSetStatus('✓ Text extracted — hit Generate when ready.', 'sok');
+  } catch(err) {
+    document.getElementById('sq-drop-loading').style.display = 'none';
+    document.getElementById('sq-drop-idle').style.display = 'block';
+    sqSetStatus('Error: ' + err.message, 'serr');
+  }
+}
+
+function sqCountdown(secs, cb) {
+  var remaining = secs;
+  var btn = document.getElementById('sq-btn');
+  btn.disabled = true;
+  var t = setInterval(function() {
+    remaining--;
+    sqSetStatus('Rate limited — retrying in ' + remaining + 's…', 'sload');
+    if (remaining <= 0) { clearInterval(t); cb(); }
+  }, 1000);
+}
+
+async function sqGenerateWithAI(isRetry) {
+  var key = getAIKey();
+  if (!key) { sqSetStatus('Save your Groq API key first — free at console.groq.com.', 'serr'); return; }
+  var topic = (document.getElementById('sq-topic').value || '').trim();
+  if (!topic) { sqSetStatus('Enter a topic or paste your notes first.', 'serr'); return; }
+  var n = parseInt(sqGetOpt('count') || '5');
+  var btn = document.getElementById('sq-btn');
+  btn.disabled = true;
+  var pendingRetry = false;
+  sqSetStatus('Generating ' + n + ' SAQs…', 'sload');
+  document.getElementById('sq-folder-pick').style.display = 'none';
+  var rote = Math.ceil(n / 2);
+  var deep = n - rote;
+  var prompt = 'You are an expert educator creating short answer questions for university students.\n\nGenerate exactly ' + n + ' short answer questions from the following content.\nSplit them:\n- ' + rote + ' ROTE questions: factual recall, definitions, naming. (e.g. "What is…", "State…", "Define…")\n- ' + deep + ' DEEP questions: application, analysis, explanation. (e.g. "Explain why…", "How does…", "Compare…", "Evaluate…")\n\nFor each question, write a concise model answer of 2–4 sentences.\n\nRespond with ONLY a valid JSON array — no markdown fences, no extra text:\n[\n  {"type":"rote","question":"...","modelAnswer":"..."},\n  {"type":"deep","question":"...","modelAnswer":"..."}\n]\n\nContent:\n' + topic;
+  try {
+    var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages: [{ role: 'user', content: prompt }], temperature: 0.7, max_tokens: 4096 })
+    });
+    if (!res.ok) {
+      var errBody = await res.json().catch(function() { return {}; });
+      var rawMsg = (errBody.error && errBody.error.message) || ('HTTP ' + res.status);
+      if (res.status === 429) {
+        if (!isRetry) { pendingRetry = true; sqCountdown(62, function() { sqGenerateWithAI(true); }); return; }
+        throw new Error('Still rate-limited. Try again in a minute.');
+      }
+      throw new Error(rawMsg);
+    }
+    var data = await res.json();
+    var raw = ((data.choices || [])[0] || {}).message ? data.choices[0].message.content.trim() : '';
+    if (!raw) throw new Error('Empty response from model.');
+    raw = raw.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '').trim();
+    var qs = JSON.parse(raw);
+    if (!Array.isArray(qs) || !qs.length) throw new Error('No SAQs returned.');
+    sqPendingQs = qs;
+    var sel = document.getElementById('sq-folder-sel');
+    var folders = sqGetFolders();
+    sel.innerHTML = folders.length
+      ? folders.map(function(f) { return '<option value="' + rpEsc(f) + '">' + rpEsc(f) + '</option>'; }).join('')
+      : '<option value="General">General</option>';
+    document.getElementById('sq-folder-new').value = '';
+    document.getElementById('sq-folder-pick').style.display = 'flex';
+    sqSetStatus('✓ ' + qs.length + ' SAQs ready — choose a folder below.', 'sok');
+  } catch(e) {
+    sqSetStatus('Error: ' + e.message, 'serr');
+  } finally {
+    if (!pendingRetry) btn.disabled = false;
+  }
+}
+
+function sqConfirmAdd() {
+  if (!sqPendingQs || !sqPendingQs.length) return;
+  var newName = (document.getElementById('sq-folder-new').value || '').trim();
+  var folder = newName || document.getElementById('sq-folder-sel').value || 'General';
+  var added = 0;
+  sqPendingQs.forEach(function(q) {
+    if (!q.question || !q.modelAnswer) return;
+    sqBank.push({ id: Date.now() + '_' + (Math.random() * 1e6 | 0), question: q.question, modelAnswer: q.modelAnswer, type: q.type === 'deep' ? 'deep' : 'rote', folder: folder, createdAt: Date.now() });
+    added++;
+  });
+  sqSave();
+  sqPendingQs = null;
+  document.getElementById('sq-folder-pick').style.display = 'none';
+  sqSetStatus('✓ ' + added + ' SAQs added to "' + folder + '".', 'sok');
+  setTimeout(function() { sqSetStatus('', ''); }, 2500);
+}
+
+function sqGetFolders() {
+  var f = [];
+  sqBank.forEach(function(q) { var n = q.folder || 'General'; if (f.indexOf(n) === -1) f.push(n); });
+  return f.sort();
+}
+
+function sqSetType(d) {
+  sqSelectedType = d;
+  document.querySelectorAll('#sq-gen .diff-btn').forEach(function(b) { b.classList.toggle('sel', b.dataset.d === d); });
+}
+
+function sqSubmitManual() {
+  var q = (document.getElementById('sq-q-inp').value || '').trim();
+  var a = (document.getElementById('sq-a-inp').value || '').trim();
+  var folder = (document.getElementById('sq-m-folder').value || '').trim() || 'General';
+  if (!q || !a) return;
+  sqBank.push({ id: Date.now() + '_' + (Math.random() * 1e6 | 0), question: q, modelAnswer: a, type: sqSelectedType, folder: folder, createdAt: Date.now() });
+  sqSave();
+  document.getElementById('sq-q-inp').value = '';
+  document.getElementById('sq-a-inp').value = '';
+  var ok = document.getElementById('sq-ok');
+  ok.style.display = 'block';
+  setTimeout(function() { ok.style.display = 'none'; }, 2200);
+}
+
+function sqDelete(id) {
+  sqBank = sqBank.filter(function(q) { return String(q.id) !== String(id); });
+  sqSave();
+  renderSqBank();
+}
+
+function sqToggleAns(id) {
+  var ans = document.getElementById('sqa-' + id);
+  if (!ans) return;
+  var card = document.getElementById('sqc-' + id);
+  var btn = card ? card.querySelector('.sq-reveal-btn') : null;
+  var showing = ans.classList.toggle('show');
+  if (btn) btn.textContent = showing ? 'Hide answer ▲' : 'Show answer ▼';
+}
+
+function renderSqBank() {
+  var el = document.getElementById('sq-bank-content');
+  if (!el) return;
+  if (!sqBank.length) {
+    el.innerHTML = '<div class="rp-empty"><div class="rp-empty-icon">✍️</div><div class="rp-empty-title">No SAQs yet</div><div class="rp-empty-sub">Generate or add some questions to get started.</div></div>';
+    return;
+  }
+  var folders = sqGetFolders();
+  var html = '';
+  folders.forEach(function(folder) {
+    var qs = sqBank.filter(function(q) { return (q.folder || 'General') === folder; });
+    qs.sort(function(a) { return a.type === 'rote' ? -1 : 1; });
+    html += '<div class="rp-subject-group"><div class="rp-subject-lbl">' + rpEsc(folder) + ' <span style="opacity:.5;font-weight:600">(' + qs.length + ')</span></div>';
+    qs.forEach(function(q) {
+      var badge = q.type === 'rote' ? '<span class="sq-rote-badge">Rote</span>' : '<span class="sq-deep-badge">Deep</span>';
+      html += '<div class="sq-card" id="sqc-' + q.id + '">'
+        + '<div class="sq-card-top"><div class="sq-q">' + badge + rpEsc(q.question) + '</div>'
+        + '<button class="sq-del-btn" onclick="sqDelete(\'' + q.id + '\')" title="Delete">✕</button></div>'
+        + '<button class="sq-reveal-btn" onclick="sqToggleAns(\'' + q.id + '\')">Show answer ▼</button>'
+        + '<div class="sq-ans" id="sqa-' + q.id + '">' + rpEsc(q.modelAnswer) + '</div>'
+        + '</div>';
+    });
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function sqTab(t) {
+  ['gen', 'bank', 'prac'].forEach(function(x) {
+    document.getElementById('sq-' + x).style.display = x === t ? 'block' : 'none';
+    document.getElementById('sq-tab-' + x).classList.toggle('active', x === t);
+  });
+  if (t === 'bank') renderSqBank();
+  if (t === 'prac') { sqPopulatePracFolder(); document.getElementById('sq-prac-setup').style.display = 'block'; document.getElementById('sq-prac-run').style.display = 'none'; }
+}
+
+function sqPopulatePracFolder() {
+  var sel = document.getElementById('sq-prac-folder');
+  if (!sel) return;
+  var folders = sqGetFolders();
+  sel.innerHTML = '<option value="all">All folders</option>'
+    + folders.map(function(f) { return '<option value="' + rpEsc(f) + '">' + rpEsc(f) + '</option>'; }).join('');
+}
+
+function sqStartPrac() {
+  var folder = document.getElementById('sq-prac-folder').value;
+  var type = sqGetOpt('prac-type') || 'all';
+  sqPracQs = sqBank.filter(function(q) {
+    var fMatch = folder === 'all' || (q.folder || 'General') === folder;
+    var tMatch = type === 'all' || q.type === type;
+    return fMatch && tMatch;
+  });
+  if (!sqPracQs.length) { alert('No SAQs match that filter — add some first!'); return; }
+  for (var i = sqPracQs.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = sqPracQs[i]; sqPracQs[i] = sqPracQs[j]; sqPracQs[j] = tmp;
+  }
+  sqPracIdx = 0;
+  document.getElementById('sq-prac-setup').style.display = 'none';
+  document.getElementById('sq-prac-run').style.display = 'block';
+  sqShowPracQ();
+}
+
+function sqShowPracQ() {
+  var q = sqPracQs[sqPracIdx];
+  document.getElementById('sq-prac-counter').textContent = (sqPracIdx + 1) + ' / ' + sqPracQs.length;
+  document.getElementById('sq-prac-q').textContent = q.question;
+  var ans = document.getElementById('sq-prac-ans');
+  ans.classList.remove('show');
+  document.getElementById('sq-prac-ans-txt').textContent = q.modelAnswer;
+  document.getElementById('sq-prac-reveal-btn').style.display = '';
+  document.getElementById('sq-prac-next-btn').style.display = 'none';
+}
+
+function sqPracReveal() {
+  document.getElementById('sq-prac-ans').classList.add('show');
+  document.getElementById('sq-prac-reveal-btn').style.display = 'none';
+  document.getElementById('sq-prac-next-btn').style.display = '';
+}
+
+function sqPracNext() {
+  sqPracIdx++;
+  if (sqPracIdx >= sqPracQs.length) { sqPracEnd(); return; }
+  sqShowPracQ();
+}
+
+function sqPracEnd() {
+  document.getElementById('sq-prac-run').style.display = 'none';
+  document.getElementById('sq-prac-setup').style.display = 'block';
+  sqPopulatePracFolder();
 }
 </script>
 </body>
