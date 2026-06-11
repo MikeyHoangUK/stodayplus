@@ -502,6 +502,64 @@
 
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
     select option{background:#faf3e0}
+
+    /* ── REVISION PLANNER ── */
+    .rp-due-header{display:flex;align-items:baseline;gap:6px;margin-bottom:24px}
+    .rp-due-count{font-size:2.6rem;font-weight:900;background:linear-gradient(135deg,#6d28d9,#4338ca);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+    .rp-due-lbl{font-size:.88rem;font-weight:700;color:#6e5438}
+    .rp-topic-card{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.14);border-radius:16px;padding:20px 22px;margin-bottom:12px;transition:box-shadow .2s}
+    .rp-topic-card:hover{box-shadow:0 2px 16px rgba(109,40,217,.08)}
+    .rp-card-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+    .rp-card-left{flex:1;min-width:0}
+    .rp-card-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+    .rp-topic-name{font-size:.95rem;font-weight:800;color:#1c1208;margin-bottom:5px;line-height:1.3}
+    .rp-tag{display:inline-block;font-size:.6rem;font-weight:800;background:rgba(109,40,217,.1);color:#6d28d9;border:1px solid rgba(109,40,217,.2);border-radius:20px;padding:2px 8px;letter-spacing:.05em;text-transform:uppercase}
+    .rp-overdue{font-size:.68rem;font-weight:800;color:#ef4444;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:20px;padding:2px 8px;white-space:nowrap}
+    .rp-due-now{font-size:.68rem;font-weight:800;color:#7c3aed;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:20px;padding:2px 8px;white-space:nowrap}
+    .rp-next-date{font-size:.68rem;font-weight:700;color:#6e5438;white-space:nowrap}
+    .rp-done-btn{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:10px;padding:6px 14px;font-size:.72rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:opacity .15s;white-space:nowrap}
+    .rp-done-btn:hover{opacity:.85}
+    .rp-del-btn{width:24px;height:24px;border-radius:50%;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.15);color:#ef4444;font-size:.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+    .rp-del-btn:hover{background:rgba(239,68,68,.15)}
+    /* Review chain */
+    .rp-chain{display:flex;align-items:center;gap:0}
+    .rp-chain-item{display:flex;flex-direction:column;align-items:center;gap:4px}
+    .rp-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(109,40,217,.25);background:transparent;transition:all .2s;flex-shrink:0}
+    .rp-dot.done{background:#6d28d9;border-color:#6d28d9;box-shadow:0 0 6px rgba(109,40,217,.35)}
+    .rp-dot.next{border-color:#7c3aed;background:rgba(124,58,237,.12);box-shadow:0 0 0 3px rgba(124,58,237,.12);animation:rpPulse 1.8s ease-in-out infinite}
+    @keyframes rpPulse{0%,100%{box-shadow:0 0 0 3px rgba(124,58,237,.12)}50%{box-shadow:0 0 0 5px rgba(124,58,237,.22)}}
+    .rp-chain-lbl{font-size:.52rem;font-weight:700;color:#6e5438;letter-spacing:.02em;white-space:nowrap}
+    .rp-chain-line{flex:1;height:2px;background:rgba(109,40,217,.12);min-width:10px;max-width:38px;margin-bottom:14px}
+    .rp-chain-line.done{background:#6d28d9}
+    /* Subject grouping */
+    .rp-subject-group{margin-bottom:28px}
+    .rp-subject-lbl{font-size:.65rem;font-weight:800;letter-spacing:.1em;color:#4a3820;text-transform:uppercase;margin-bottom:10px;padding:0 4px;border-left:3px solid rgba(109,40,217,.4);padding-left:10px}
+    /* Schedule preview in Add form */
+    .rp-schedule-preview{background:rgba(109,40,217,.04);border:1px solid rgba(109,40,217,.1);border-radius:12px;padding:16px 18px;margin-bottom:22px}
+    .rp-sched-lbl{font-size:.62rem;font-weight:800;color:#6e5438;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
+    .rp-sched-chain{display:flex;align-items:center;gap:0}
+    .rp-sched-item{display:flex;flex-direction:column;align-items:center;gap:4px}
+    .rp-sched-dot{width:12px;height:12px;border-radius:50%;border:2px solid rgba(109,40,217,.25);background:transparent;flex-shrink:0}
+    .rp-sched-dot.next{background:rgba(124,58,237,.18);border-color:#7c3aed}
+    .rp-sched-day{font-size:.52rem;font-weight:700;color:#6e5438;white-space:nowrap}
+    .rp-sched-line{flex:1;height:2px;background:rgba(109,40,217,.1);min-width:8px;max-width:32px;margin-bottom:14px}
+    /* Empty state */
+    .rp-empty{text-align:center;padding:56px 24px}
+    .rp-empty-icon{font-size:2.4rem;margin-bottom:12px}
+    .rp-empty-title{font-size:1.1rem;font-weight:900;color:#1c1208;margin-bottom:6px}
+    .rp-empty-sub{font-size:.8rem;color:#6e5438;font-weight:500}
+    /* HC overrides */
+    body.hc .rp-topic-card{background:rgba(255,255,255,.025)!important;border-color:rgba(168,85,247,.12)!important}
+    body.hc .rp-topic-name{color:#e8dcc8!important}
+    body.hc .rp-due-lbl{color:#a08878!important}
+    body.hc .rp-chain-lbl{color:#a08878!important}
+    body.hc .rp-next-date{color:#a08878!important}
+    body.hc .rp-subject-lbl{color:#c8b89a!important}
+    body.hc .rp-empty-title{color:#e8dcc8!important}
+    body.hc .rp-empty-sub{color:#a08878!important}
+    body.hc .rp-schedule-preview{background:rgba(168,85,247,.04)!important;border-color:rgba(168,85,247,.1)!important}
+    body.hc .rp-sched-lbl{color:#a08878!important}
+    body.hc .rp-sched-day{color:#a08878!important}
   </style>
 </head>
 <body class="font-sans">
@@ -596,6 +654,9 @@
         <div class="sb-lbl">Study Tools</div>
         <div class="nav-item active" onclick="showPanel('mcq',this)">
           <span>🧠</span> Poppy
+        </div>
+        <div class="nav-item" onclick="showPanel('planner',this)">
+          <span>📅</span> Revision Planner
         </div>
         <div class="nav-item soon"><span>📝</span> Blurting Sheet<span class="soon-pill">Soon</span></div>
         <div class="nav-item soon"><span>⚡</span> Daily System<span class="soon-pill">Soon</span></div>
@@ -871,6 +932,62 @@
         </div><!-- /sub-quiz -->
       </div><!-- /panel-mcq -->
 
+      <!-- PLANNER Panel -->
+      <div id="panel-planner" class="panel anim">
+        <h1 class="mcq-h1">Revision Planner</h1>
+        <p class="mcq-sub">Spaced repetition on autopilot — the science-backed way to never forget what you learn.</p>
+
+        <div class="mcq-tabs">
+          <div class="mcq-tab active" id="rp-tab-today" onclick="rpTab('today')">📅 Today</div>
+          <div class="mcq-tab" id="rp-tab-add"   onclick="rpTab('add')">＋ Add Topic</div>
+          <div class="mcq-tab" id="rp-tab-all"   onclick="rpTab('all')">📋 All Topics</div>
+        </div>
+
+        <!-- TODAY -->
+        <div id="rp-today">
+          <div id="rp-today-content"></div>
+        </div>
+
+        <!-- ADD -->
+        <div id="rp-add" style="display:none">
+          <div class="form-card">
+            <div class="f-grp">
+              <label class="f-lbl">Topic name</label>
+              <input id="rp-topic-inp" class="f-input" placeholder="e.g. Mitosis and Meiosis" type="text" onkeydown="if(event.key==='Enter')rpAdd()"/>
+            </div>
+            <div class="f-grp">
+              <label class="f-lbl">Subject <span style="opacity:.45;font-weight:500;text-transform:none;letter-spacing:0">optional</span></label>
+              <input id="rp-subject-inp" class="f-input" placeholder="e.g. Biology" type="text" onkeydown="if(event.key==='Enter')rpAdd()"/>
+            </div>
+            <div class="rp-schedule-preview">
+              <div class="rp-sched-lbl">Your review schedule</div>
+              <div class="rp-sched-chain">
+                <div class="rp-sched-item"><div class="rp-sched-dot next"></div><div class="rp-sched-day">Day 1</div></div>
+                <div class="rp-sched-line"></div>
+                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">Day 3</div></div>
+                <div class="rp-sched-line"></div>
+                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">Day 7</div></div>
+                <div class="rp-sched-line"></div>
+                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">Day 14</div></div>
+                <div class="rp-sched-line"></div>
+                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">Day 28</div></div>
+                <div class="rp-sched-line"></div>
+                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">Day 56</div></div>
+                <div class="rp-sched-line"></div>
+                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">Monthly</div></div>
+              </div>
+            </div>
+            <button class="add-btn" onclick="rpAdd()">Add to plan →</button>
+            <div id="rp-add-msg" style="display:none;text-align:center;margin-top:14px;font-size:.78rem;color:#16a34a;font-weight:800"></div>
+          </div>
+        </div>
+
+        <!-- ALL TOPICS -->
+        <div id="rp-all" style="display:none">
+          <div id="rp-all-content"></div>
+        </div>
+      </div><!-- /panel-planner -->
+
     </div><!-- /content -->
   </div><!-- /main -->
 </div><!-- /app -->
@@ -909,6 +1026,7 @@ window.addEventListener('DOMContentLoaded', function() {
   scheduleElectric();
   initLofi();
   initHcm();
+  rpLoad();
 });
 
 // ── MARVEL ENTRY ANIMATION ──
@@ -1651,14 +1769,18 @@ function retryQuiz() {
 }
 
 // Nav
+var PANEL_TITLES = {
+  'mcq':     'Poppy<span class="tb-sub">MCQ Maker</span>',
+  'planner': 'Revision Planner<span class="tb-sub">Spaced Repetition</span>'
+};
 function showPanel(id, el) {
   document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
   var p = document.getElementById('panel-'+id);
   if (p) { p.classList.add('active'); p.classList.add('anim'); }
   document.querySelectorAll('.nav-item:not(.soon)').forEach(function(n) { n.classList.remove('active'); });
   if (el) el.classList.add('active');
-  var el = document.getElementById('tb-title');
-  el.innerHTML = 'Poppy<span class="tb-sub">MCQ Maker</span>';
+  document.getElementById('tb-title').innerHTML = PANEL_TITLES[id] || 'Stoday Plus<span class="tb-sub">Dashboard</span>';
+  if (id === 'planner') rpRenderToday();
 }
 
 function goHome() {
@@ -2031,6 +2153,162 @@ async function generateWithAI(isRetry){
   } finally {
     if(!pendingRetry) btn.disabled = false;
   }
+}
+
+// ── Revision Planner ─────────────────────────────────────────────────
+var RP_BASE = [1, 3, 7, 14, 28, 56]; // days from addedDate for levels 0-5
+var rpData = [];
+
+function rpIntervalDays(level) {
+  if (level < RP_BASE.length) return RP_BASE[level];
+  return 56 + (level - 5) * 30; // monthly after level 5
+}
+
+function rpLoad() {
+  try { rpData = JSON.parse(localStorage.getItem('sp_revplan') || '[]'); } catch(e) { rpData = []; }
+}
+function rpSave() { localStorage.setItem('sp_revplan', JSON.stringify(rpData)); }
+
+function rpAdd() {
+  var topic = (document.getElementById('rp-topic-inp').value || '').trim();
+  var subject = (document.getElementById('rp-subject-inp').value || '').trim();
+  if (!topic) { document.getElementById('rp-topic-inp').focus(); return; }
+  var now = Date.now();
+  rpData.unshift({
+    id: now + '-' + Math.random().toString(36).slice(2, 7),
+    topic: topic,
+    subject: subject,
+    addedDate: now,
+    level: 0,
+    nextReview: now + rpIntervalDays(0) * 86400000,
+    doneReviews: []
+  });
+  rpSave();
+  document.getElementById('rp-topic-inp').value = '';
+  document.getElementById('rp-subject-inp').value = '';
+  var msg = document.getElementById('rp-add-msg');
+  msg.textContent = '✓ "' + topic + '" added — first review tomorrow';
+  msg.style.display = 'block';
+  setTimeout(function() { msg.style.display = 'none'; }, 3000);
+}
+
+function rpMarkDone(id) {
+  var item = rpData.find(function(x) { return x.id === id; });
+  if (!item) return;
+  item.doneReviews = item.doneReviews || [];
+  item.doneReviews.push({ level: item.level, doneDate: Date.now() });
+  item.level++;
+  item.nextReview = item.addedDate + rpIntervalDays(item.level) * 86400000;
+  rpSave();
+  rpRenderToday();
+}
+
+function rpDelete(id) {
+  if (!confirm('Remove this topic from your revision plan?')) return;
+  rpData = rpData.filter(function(x) { return x.id !== id; });
+  rpSave();
+  rpRenderAll();
+}
+
+function rpGetDue() {
+  var eod = new Date(); eod.setHours(23, 59, 59, 999);
+  return rpData.filter(function(x) { return x.nextReview <= eod.getTime(); });
+}
+
+function rpFmtDate(ms) {
+  var d = new Date(ms);
+  return d.getDate() + ' ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];
+}
+
+function rpChainHTML(item) {
+  var labels = ['D1','D3','D7','D14','D28','D56','∞'];
+  var html = '<div class="rp-chain">';
+  for (var i = 0; i <= 6; i++) {
+    var cls = 'rp-dot';
+    if (i < item.level) cls += ' done';
+    else if (i === item.level) cls += ' next';
+    html += '<div class="rp-chain-item"><div class="' + cls + '"></div><div class="rp-chain-lbl">' + labels[i] + '</div></div>';
+    if (i < 6) html += '<div class="rp-chain-line' + (i < item.level ? ' done' : '') + '"></div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function rpEsc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function rpRenderToday() {
+  var el = document.getElementById('rp-today-content');
+  if (!el) return;
+  var due = rpGetDue();
+  if (due.length === 0) {
+    el.innerHTML = '<div class="rp-empty"><div class="rp-empty-icon">🎉</div><div class="rp-empty-title">All caught up!</div><div class="rp-empty-sub">No reviews due today. Come back tomorrow.</div></div>';
+    return;
+  }
+  var html = '<div class="rp-due-header"><span class="rp-due-count">' + due.length + '</span><span class="rp-due-lbl"> topic' + (due.length !== 1 ? 's' : '') + ' due for review</span></div>';
+  due.forEach(function(item) {
+    var overdueDays = Math.max(0, Math.floor((Date.now() - item.nextReview) / 86400000));
+    var badge = overdueDays > 0
+      ? '<span class="rp-overdue">' + overdueDays + 'd overdue</span>'
+      : '<span class="rp-due-now">Due today</span>';
+    html += '<div class="rp-topic-card">'
+      + '<div class="rp-card-top"><div class="rp-card-left">'
+      + '<div class="rp-topic-name">' + rpEsc(item.topic) + '</div>'
+      + (item.subject ? '<span class="rp-tag">' + rpEsc(item.subject) + '</span>' : '')
+      + '</div><div class="rp-card-right">' + badge
+      + '<button class="rp-done-btn" onclick="rpMarkDone(\'' + item.id + '\')">✓ Done</button>'
+      + '</div></div>'
+      + rpChainHTML(item)
+      + '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function rpRenderAll() {
+  var el = document.getElementById('rp-all-content');
+  if (!el) return;
+  if (rpData.length === 0) {
+    el.innerHTML = '<div class="rp-empty"><div class="rp-empty-icon">📚</div><div class="rp-empty-title">No topics yet</div><div class="rp-empty-sub">Head to Add Topic to get started.</div></div>';
+    return;
+  }
+  var groups = {};
+  rpData.forEach(function(item) {
+    var s = item.subject || 'General';
+    if (!groups[s]) groups[s] = [];
+    groups[s].push(item);
+  });
+  var eod = new Date(); eod.setHours(23, 59, 59, 999);
+  var html = '';
+  Object.keys(groups).sort().forEach(function(subj) {
+    html += '<div class="rp-subject-group"><div class="rp-subject-lbl">' + rpEsc(subj) + '</div>';
+    groups[subj].forEach(function(item) {
+      var isDue = item.nextReview <= eod.getTime();
+      var daysUntil = Math.ceil((item.nextReview - Date.now()) / 86400000);
+      var nextBadge = isDue
+        ? '<span class="rp-due-now">Due</span>'
+        : '<span class="rp-next-date">Next: ' + rpFmtDate(item.nextReview) + ' (' + daysUntil + 'd)</span>';
+      html += '<div class="rp-topic-card">'
+        + '<div class="rp-card-top"><div class="rp-card-left">'
+        + '<div class="rp-topic-name">' + rpEsc(item.topic) + '</div>'
+        + '</div><div class="rp-card-right">' + nextBadge
+        + '<button class="rp-del-btn" onclick="rpDelete(\'' + item.id + '\')" title="Remove">✕</button>'
+        + '</div></div>'
+        + rpChainHTML(item)
+        + '</div>';
+    });
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function rpTab(t) {
+  ['today','add','all'].forEach(function(x) {
+    document.getElementById('rp-' + x).style.display = x === t ? 'block' : 'none';
+    document.getElementById('rp-tab-' + x).classList.toggle('active', x === t);
+  });
+  if (t === 'today') rpRenderToday();
+  if (t === 'all')   rpRenderAll();
 }
 </script>
 </body>
