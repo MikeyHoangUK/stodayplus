@@ -299,6 +299,13 @@
     .ai-status.sok{color:#4ade80}
     .ai-status.serr{color:#f87171}
     .ai-status.sload{color:#a855f7}
+    .ai-opts{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+    .ai-opt-group{display:flex;flex-direction:column;gap:5px}
+    .ai-opt-lbl{font-size:.58rem;font-weight:800;color:#374151;letter-spacing:.1em;text-transform:uppercase}
+    .ai-opt-pills{display:flex;gap:4px}
+    .ai-pill{padding:5px 12px;border-radius:7px;font-size:.72rem;font-weight:800;cursor:pointer;border:1px solid rgba(255,255,255,.07);color:#4b5563;background:rgba(255,255,255,.02);transition:all .15s;user-select:none}
+    .ai-pill:hover:not(.sel){border-color:rgba(168,85,247,.3);color:#9ca3af}
+    .ai-pill.sel{background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.45);color:#c084fc}
     .ai-divider{display:flex;align-items:center;gap:12px;max-width:680px;margin-bottom:20px}
     .ai-divider::before,.ai-divider::after{content:'';flex:1;height:1px;background:rgba(168,85,247,.1)}
     .ai-divider-txt{font-size:.6rem;font-weight:700;letter-spacing:.12em;color:#374151;text-transform:uppercase}
@@ -489,19 +496,34 @@
               </div>
             </div>
 
-            <div class="ai-inputs">
-              <textarea id="ai-topic" class="ai-ta" placeholder="Or paste your notes / type a topic here…"></textarea>
-              <div class="ai-right">
-                <select id="ai-count" class="ai-count">
-                  <option value="3">3 questions</option>
-                  <option value="5" selected>5 questions</option>
-                  <option value="10">10 questions</option>
-                  <option value="15">15 questions</option>
-                  <option value="20">20 questions</option>
-                </select>
-                <button class="ai-btn" id="ai-btn" onclick="generateWithAI()">Generate →</button>
+            <textarea id="ai-topic" class="ai-ta" placeholder="Or paste your notes / type a topic here…" style="width:100%;margin-bottom:14px"></textarea>
+
+            <div class="ai-opts">
+              <div class="ai-opt-group">
+                <span class="ai-opt-lbl">Questions</span>
+                <div class="ai-opt-pills">
+                  <div class="ai-pill" data-g="count" data-v="3" onclick="aiPick(this)">3</div>
+                  <div class="ai-pill sel" data-g="count" data-v="5" onclick="aiPick(this)">5</div>
+                  <div class="ai-pill" data-g="count" data-v="10" onclick="aiPick(this)">10</div>
+                </div>
+              </div>
+              <div class="ai-opt-group">
+                <span class="ai-opt-lbl">Difficulty</span>
+                <div class="ai-opt-pills">
+                  <div class="ai-pill" data-g="diff" data-v="easy" onclick="aiPick(this)">Easy</div>
+                  <div class="ai-pill sel" data-g="diff" data-v="medium" onclick="aiPick(this)">Medium</div>
+                  <div class="ai-pill" data-g="diff" data-v="hard" onclick="aiPick(this)">Hard</div>
+                </div>
+              </div>
+              <div class="ai-opt-group">
+                <span class="ai-opt-lbl">Type</span>
+                <div class="ai-opt-pills">
+                  <div class="ai-pill sel" data-g="type" data-v="info" onclick="aiPick(this)">Info-based</div>
+                  <div class="ai-pill" data-g="type" data-v="case" onclick="aiPick(this)">Case-based</div>
+                </div>
               </div>
             </div>
+            <button class="ai-btn" id="ai-btn" onclick="generateWithAI()" style="width:100%">Generate →</button>
             <div class="ai-key-row" id="ai-key-row">
               <span class="ai-key-lbl">Gemini key:</span>
               <input type="password" id="ai-key-inp" class="ai-key-inp" placeholder="Paste your API key from Google AI Studio…"/>
@@ -1155,6 +1177,12 @@ function setAIStatus(msg, cls){
   el.textContent = msg;
   el.className = 'ai-status' + (cls ? ' ' + cls : '');
 }
+function aiPick(el){
+  var g = el.dataset.g;
+  document.querySelectorAll('.ai-pill[data-g="'+g+'"]').forEach(function(p){ p.classList.remove('sel'); });
+  el.classList.add('sel');
+}
+function aiGetOpt(g){ var s = document.querySelector('.ai-pill.sel[data-g="'+g+'"]'); return s ? s.dataset.v : null; }
 function initAIKeyUI(){
   if(getAIKey()){
     document.getElementById('ai-key-row').style.display = 'none';
@@ -1249,11 +1277,17 @@ async function generateWithAI(){
   if(!key){ setAIStatus('Save your Gemini API key first (get one free at aistudio.google.com).','serr'); return; }
   var topic = document.getElementById('ai-topic').value.trim();
   if(!topic){ setAIStatus('Enter a topic or paste your notes first.','serr'); return; }
-  var n = document.getElementById('ai-count').value;
+  var n    = aiGetOpt('count') || '5';
+  var diff = aiGetOpt('diff')  || 'medium';
+  var type = aiGetOpt('type')  || 'info';
   var btn = document.getElementById('ai-btn');
   btn.disabled = true;
   setAIStatus('Generating ' + n + ' questions…','sload');
-  var prompt = 'You are an expert educator writing exam questions for university students.\n\nGenerate ' + n + ' multiple choice questions based on the following topic or notes:\n\n' + topic + '\n\nRules:\n- Each question must have EXACTLY 5 options (A B C D E)\n- Exactly one option is correct\n- All options must be plausible and specific (no obvious fillers)\n- Label correct option by its 0-based index (0=A, 1=B, 2=C, 3=D, 4=E)\n- Assign difficulty: easy, medium, or hard\n- Keep each question concise and unambiguous\n- Include a short one-line hint\n\nRespond with ONLY a valid JSON array. No markdown, no code fences, no explanation:\n[\n  {\n    "question": "...",\n    "options": ["A text","B text","C text","D text","E text"],\n    "correct": 0,\n    "difficulty": "medium",\n    "hint": "..."\n  }\n]';
+  var typeDesc = type === 'case'
+    ? 'Case-based: present a realistic short scenario or situation first, then ask what follows (e.g. "A student notices… which of the following best explains…")'
+    : 'Info-based: direct factual or conceptual recall questions (e.g. "Which of the following is true about…")';
+  var diffDesc = {easy:'Straightforward recall, single concept, definitional',medium:'Requires understanding relationships or applying a concept',hard:'Multi-step reasoning, analysis, or synthesis'}[diff];
+  var prompt = 'You are an expert educator writing exam questions for university students.\n\nGenerate ' + n + ' multiple choice questions based on the following topic or notes:\n\n' + topic + '\n\nSettings:\n- Question type: ' + typeDesc + '\n- Difficulty: ' + diff + ' — ' + diffDesc + '\n\nRules:\n- Each question must have EXACTLY 5 options (A B C D E)\n- Exactly one option is correct\n- All options must be plausible and specific (no obvious fillers)\n- Label correct option by its 0-based index (0=A, 1=B, 2=C, 3=D, 4=E)\n- ALL questions must be ' + diff + ' difficulty\n- Include a short one-line hint\n\nRespond with ONLY a valid JSON array. No markdown, no code fences, no explanation:\n[\n  {\n    "question": "...",\n    "options": ["A text","B text","C text","D text","E text"],\n    "correct": 0,\n    "difficulty": "' + diff + '",\n    "hint": "..."\n  }\n]';
   try {
     var res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + key, {
       method: 'POST',
