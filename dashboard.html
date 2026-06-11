@@ -1476,6 +1476,9 @@ function startQuiz() {
   document.getElementById('quiz-run').style.display = 'block';
   document.getElementById('quiz-results').style.display = 'none';
   showQ();
+  var el = document.getElementById('content');
+  if (el.requestFullscreen) el.requestFullscreen();
+  document.getElementById('fs-btn').textContent = '✕ Exit Fullscreen';
   setTimeout(function() {
     document.getElementById('quiz-run').scrollIntoView({behavior:'smooth', block:'center'});
   }, 60);
