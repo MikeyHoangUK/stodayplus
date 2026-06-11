@@ -589,6 +589,38 @@
     body.hc .rp-quiz-link{background:rgba(168,85,247,.04)!important;border-color:rgba(168,85,247,.15)!important}
     body.hc .rp-ql-lbl{color:#a08878!important}
     body.hc .rp-fp-btn{background:rgba(168,85,247,.08)!important;border-color:rgba(168,85,247,.18)!important;color:#c084fc!important}
+    /* Exam tracker */
+    .rp-cal-layout{display:flex;gap:20px;align-items:flex-start}
+    .rp-exam-panel{width:212px;min-width:212px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.14);border-radius:16px;padding:16px 15px;position:sticky;top:0}
+    .rp-exam-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .rp-exam-hd-txt{font-size:.78rem;font-weight:900;color:#1c1208;letter-spacing:.02em}
+    .rp-exam-toggle{width:22px;height:22px;border-radius:6px;background:rgba(109,40,217,.1);border:1px solid rgba(109,40,217,.2);color:#6d28d9;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;transition:background .15s;flex-shrink:0}
+    .rp-exam-toggle:hover{background:rgba(109,40,217,.2)}
+    .rp-exam-form{margin-bottom:12px;display:flex;flex-direction:column;gap:6px}
+    .rp-exam-form .f-input{font-size:.74rem;padding:7px 10px;margin-bottom:0}
+    .rp-exam-submit{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:8px;padding:8px;font-size:.72rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:opacity .15s}
+    .rp-exam-submit:hover{opacity:.85}
+    .rp-exam-divider{height:1px;background:rgba(168,85,247,.1);margin:0 0 10px}
+    .rp-exam-item{padding:9px 0;border-bottom:1px solid rgba(168,85,247,.07);position:relative}
+    .rp-exam-item:last-child{border-bottom:none}
+    .rp-exam-item-name{font-size:.74rem;font-weight:800;color:#1c1208;padding-right:18px;line-height:1.3;margin-bottom:3px}
+    .rp-exam-countdown{font-size:1.55rem;font-weight:900;line-height:1;margin-bottom:2px}
+    .cnt-red{color:#ef4444}
+    .cnt-amber{color:#f59e0b}
+    .cnt-purple{color:#6d28d9}
+    .cnt-green{color:#16a34a}
+    .cnt-past{color:#9ca3af}
+    .rp-exam-date-txt{font-size:.58rem;font-weight:600;color:#6e5438;opacity:.75}
+    .rp-exam-del{position:absolute;top:9px;right:0;background:none;border:none;color:#ef4444;opacity:.3;cursor:pointer;font-size:.65rem;line-height:1;padding:2px;transition:opacity .15s}
+    .rp-exam-del:hover{opacity:.8}
+    .rp-exam-empty{font-size:.72rem;color:#6e5438;opacity:.55;text-align:center;padding:18px 0;line-height:1.5}
+    /* HC overrides — exam tracker */
+    body.hc .rp-exam-panel{background:rgba(255,255,255,.025)!important;border-color:rgba(168,85,247,.12)!important}
+    body.hc .rp-exam-hd-txt{color:#e8dcc8!important}
+    body.hc .rp-exam-item-name{color:#e8dcc8!important}
+    body.hc .rp-exam-date-txt{color:#a08878!important}
+    body.hc .rp-exam-divider{background:rgba(168,85,247,.1)!important}
+    body.hc .rp-exam-empty{color:#a08878!important}
     /* HC overrides — calendar */
     body.hc .rp-cal-month{color:#e8dcc8!important}
     body.hc .rp-cal-dow{color:#a08878!important}
@@ -1059,7 +1091,26 @@
 
         <!-- CALENDAR -->
         <div id="rp-cal" style="display:none">
-          <div id="rp-cal-content"></div>
+          <div class="rp-cal-layout">
+            <div id="rp-cal-content" style="flex:1;min-width:0"></div>
+
+            <!-- Exam tracker -->
+            <div class="rp-exam-panel">
+              <div class="rp-exam-hd">
+                <span class="rp-exam-hd-txt">📌 Exams</span>
+                <button class="rp-exam-toggle" id="rp-exam-toggle" onclick="rpExamToggleForm()" title="Add exam">＋</button>
+              </div>
+              <div id="rp-exam-form" class="rp-exam-form" style="display:none">
+                <input id="rp-exam-name" class="f-input" type="text" placeholder="Exam name"
+                       onkeydown="if(event.key==='Enter')document.getElementById('rp-exam-date').focus()"/>
+                <input id="rp-exam-date" class="f-input" type="date"
+                       onkeydown="if(event.key==='Enter')rpExamAdd()"/>
+                <button class="rp-exam-submit" onclick="rpExamAdd()">Add exam →</button>
+              </div>
+              <div class="rp-exam-divider" id="rp-exam-divider" style="display:none"></div>
+              <div id="rp-exam-list"></div>
+            </div>
+          </div>
         </div>
       </div><!-- /panel-planner -->
 
@@ -1103,6 +1154,7 @@ window.addEventListener('DOMContentLoaded', function() {
   initHcm();
   rpLoad();
   rpRenderToday();
+  rpExamLoad();
 });
 
 // ── MARVEL ENTRY ANIMATION ──
@@ -2391,7 +2443,7 @@ function rpTab(t) {
   });
   if (t === 'today') rpRenderToday();
   if (t === 'all')   rpRenderAll();
-  if (t === 'cal')   rpRenderCal();
+  if (t === 'cal')   { rpRenderCal(); rpRenderExams(); }
   if (t === 'add')   rpPopulatePoppySel();
 }
 
@@ -2564,6 +2616,88 @@ function rpCalSelect(d) {
   var key = rpCalYear + '-' + rpCalMonth + '-' + d;
   rpCalSel = rpCalSel === key ? null : key;
   rpRenderCal();
+}
+
+// ── Exam Tracker ──────────────────────────────────────────────────────
+var exams = [];
+
+function rpExamLoad() {
+  try { exams = JSON.parse(localStorage.getItem('sp_exams') || '[]'); } catch(e) { exams = []; }
+}
+function rpExamSave() { localStorage.setItem('sp_exams', JSON.stringify(exams)); }
+
+function rpExamToggleForm() {
+  var form = document.getElementById('rp-exam-form');
+  var div  = document.getElementById('rp-exam-divider');
+  var btn  = document.getElementById('rp-exam-toggle');
+  if (!form) return;
+  var open = form.style.display === 'none' || form.style.display === '';
+  form.style.display = open ? 'flex' : 'none';
+  if (div) div.style.display = open ? 'block' : 'none';
+  if (btn) btn.textContent = open ? '✕' : '＋';
+  if (open) document.getElementById('rp-exam-name').focus();
+}
+
+function rpExamAdd() {
+  var name = (document.getElementById('rp-exam-name').value || '').trim();
+  var date = document.getElementById('rp-exam-date').value;
+  if (!name || !date) return;
+  exams.push({
+    id: Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+    name: name,
+    date: date
+  });
+  exams.sort(function(a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+  rpExamSave();
+  document.getElementById('rp-exam-name').value = '';
+  document.getElementById('rp-exam-date').value = '';
+  rpExamToggleForm();
+  rpRenderExams();
+}
+
+function rpExamDelete(id) {
+  exams = exams.filter(function(x) { return x.id !== id; });
+  rpExamSave();
+  rpRenderExams();
+}
+
+function rpExamDaysLeft(dateStr) {
+  var today = new Date(); today.setHours(0, 0, 0, 0);
+  var d = new Date(dateStr + 'T00:00:00');
+  return Math.round((d - today) / 86400000);
+}
+
+function rpExamFmtDate(dateStr) {
+  var d = new Date(dateStr + 'T00:00:00');
+  var M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return d.getDate() + ' ' + M[d.getMonth()] + ' ' + d.getFullYear();
+}
+
+function rpRenderExams() {
+  var el = document.getElementById('rp-exam-list');
+  if (!el) return;
+  if (exams.length === 0) {
+    el.innerHTML = '<div class="rp-exam-empty">No exams yet.<br/>Hit ＋ to add one.</div>';
+    return;
+  }
+  var html = '';
+  exams.forEach(function(exam) {
+    var days = rpExamDaysLeft(exam.date);
+    var cls, label;
+    if (days < 0)       { cls = 'cnt-past';   label = 'Done'; }
+    else if (days === 0){ cls = 'cnt-red';    label = 'Today!'; }
+    else if (days <= 7) { cls = 'cnt-red';    label = days + 'd left'; }
+    else if (days <= 30){ cls = 'cnt-amber';  label = days + ' days'; }
+    else if (days <= 90){ cls = 'cnt-purple'; label = days + ' days'; }
+    else                { cls = 'cnt-green';  label = days + ' days'; }
+    html += '<div class="rp-exam-item">'
+      + '<button class="rp-exam-del" onclick="rpExamDelete(\'' + rpEsc(exam.id) + '\')" title="Remove">✕</button>'
+      + '<div class="rp-exam-item-name">' + rpEsc(exam.name) + '</div>'
+      + '<div class="rp-exam-countdown ' + cls + '">' + label + '</div>'
+      + '<div class="rp-exam-date-txt">' + rpExamFmtDate(exam.date) + '</div>'
+      + '</div>';
+  });
+  el.innerHTML = html;
 }
 </script>
 </body>
