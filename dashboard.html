@@ -1294,12 +1294,17 @@ async function generateWithAI(){
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({
         contents:[{parts:[{text:prompt}]}],
-        generationConfig:{temperature:0.75,maxOutputTokens:4096}
+        generationConfig:{temperature:0.75,maxOutputTokens:8192}
       })
     });
     if(!res.ok){
       var err = await res.json().catch(function(){return {};});
-      throw new Error((err.error && err.error.message) || 'API error ' + res.status);
+      var status = res.status;
+      var msg = (err.error && err.error.message) || '';
+      if(status === 429 || msg.toLowerCase().includes('quota') || msg.toLowerCase().includes('rate')){
+        throw new Error('Rate limit reached on the free tier. Wait ~60 seconds and try again. Tip: if you dropped a large file, the extracted text uses extra tokens — try a shorter topic instead.');
+      }
+      throw new Error(msg || 'API error ' + status);
     }
     var data = await res.json();
     var raw = data.candidates[0].content.parts[0].text.trim();
