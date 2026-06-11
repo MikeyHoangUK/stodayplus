@@ -1257,18 +1257,43 @@ async function extractPdf(file){
 async function extractPptx(file){
   if(typeof JSZip === 'undefined') throw new Error('JSZip library not loaded.');
   var zip = await JSZip.loadAsync(file);
+
+  function getXmlText(xml){
+    var m = xml.match(/<a:t[^>]*>([^<]*)<\/a:t>/g) || [];
+    return m.map(function(t){ return t.replace(/<[^>]+>/g,''); }).join(' ').trim();
+  }
+
   var slideKeys = Object.keys(zip.files).filter(function(f){
     return /^ppt\/slides\/slide\d+\.xml$/.test(f);
   }).sort(function(a,b){
     return parseInt(a.match(/\d+/)[0]) - parseInt(b.match(/\d+/)[0]);
   });
   if(!slideKeys.length) throw new Error('No slides found in this file.');
+
+  // Build notes lookup: notesSlide number → text
+  var notesMap = {};
+  var notesKeys = Object.keys(zip.files).filter(function(f){
+    return /^ppt\/notesSlides\/notesSlide\d+\.xml$/.test(f);
+  });
+  for(var n = 0; n < notesKeys.length; n++){
+    var nXml = await zip.files[notesKeys[n]].async('text');
+    var nIdx  = parseInt(notesKeys[n].match(/\d+/)[0]);
+    // Strip the auto-generated slide-number text node (first <a:t> is usually just the slide number)
+    var nMatches = nXml.match(/<a:t[^>]*>([^<]*)<\/a:t>/g) || [];
+    var nTexts = nMatches.map(function(t){ return t.replace(/<[^>]+>/g,''); })
+                         .filter(function(t){ return t.trim() && !/^\d+$/.test(t.trim()); });
+    if(nTexts.length) notesMap[nIdx] = nTexts.join(' ').trim();
+  }
+
   var text = '';
   for(var i = 0; i < slideKeys.length; i++){
-    var xml = await zip.files[slideKeys[i]].async('text');
-    var matches = xml.match(/<a:t[^>]*>([^<]*)<\/a:t>/g) || [];
-    var slideText = matches.map(function(m){ return m.replace(/<[^>]+>/g,''); }).join(' ');
-    if(slideText.trim()) text += 'Slide ' + (i+1) + ': ' + slideText + '\n';
+    var sXml  = await zip.files[slideKeys[i]].async('text');
+    var sText = getXmlText(sXml);
+    var sNum  = i + 1;
+    var line  = 'Slide ' + sNum + ': ' + (sText || '[visual only]');
+    var notes = notesMap[sNum];
+    if(notes) line += '\n  Notes: ' + notes;
+    text += line + '\n';
   }
   return text;
 }
