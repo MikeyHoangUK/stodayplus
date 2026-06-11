@@ -321,6 +321,8 @@
     .fc-icon{font-size:2rem;line-height:1}
     .fc-name{font-size:.82rem;font-weight:800;color:#e2e8f0;word-break:break-word}
     .fc-count{font-size:.65rem;font-weight:700;color:#6b7280}
+    .fc-quiz{margin-top:4px;padding:4px 12px;border-radius:7px;font-size:.65rem;font-weight:800;cursor:pointer;border:1px solid rgba(168,85,247,.35);color:#a855f7;background:rgba(168,85,247,.1);transition:all .15s}
+    .fc-quiz:hover{background:rgba(168,85,247,.22);border-color:#a855f7}
     /* ai folder picker */
     .ai-folder-pick{margin-top:12px;padding:12px 14px;background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.2);border-radius:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
     .ai-folder-lbl{font-size:.68rem;font-weight:800;color:#6b7280;flex-shrink:0}
@@ -618,8 +620,14 @@
 
           <div id="quiz-setup">
             <p class="qs-h">Start a quiz session</p>
-            <p class="qs-p">Choose difficulty and how many questions to tackle.</p>
+            <p class="qs-p">Choose a folder, difficulty and how many questions to tackle.</p>
             <div class="cfg-grid">
+              <div class="cfg-card">
+                <label class="cfg-lbl">Folder</label>
+                <select class="cfg-sel" id="qz-folder" onchange="updateAvail()">
+                  <option value="all">All folders</option>
+                </select>
+              </div>
               <div class="cfg-card">
                 <label class="cfg-lbl">Difficulty</label>
                 <select class="cfg-sel" id="qz-diff" onchange="updateAvail()">
@@ -1079,8 +1087,8 @@ function renderBank() {
       var count = bank.filter(function(q){ return (q.folder||'General') === f; }).length;
       var card  = document.createElement('div');
       card.className = 'folder-card';
-      card.onclick = function(){ filterFolder(f); };
-      card.innerHTML = '<div class="fc-icon">📁</div><div class="fc-name">'+esc(f)+'</div><div class="fc-count">'+count+' question'+(count!==1?'s':'')+'</div>';
+      (function(folder){ card.onclick = function(e){ if(!e.target.classList.contains('fc-quiz')) filterFolder(folder); }; })(f);
+      card.innerHTML = '<div class="fc-icon">📁</div><div class="fc-name">'+esc(f)+'</div><div class="fc-count">'+count+' question'+(count!==1?'s':'')+'</div><button class="fc-quiz" onclick="quizFolder(\''+esc(f)+'\')">▶ Quiz</button>';
       grid.appendChild(card);
     });
     list.innerHTML = '';
@@ -1138,17 +1146,43 @@ function editQ(id) {
 }
 
 // Quiz
+function quizFolder(folder) {
+  switchTab('quiz');
+  populateFolderSelect(folder);
+  updateAvail();
+}
+
+function populateFolderSelect(preselect) {
+  var sel = document.getElementById('qz-folder');
+  var folders = getFolders();
+  sel.innerHTML = '<option value="all">All folders</option>'
+    + folders.map(function(f){ return '<option value="'+esc(f)+'"'+(f===preselect?' selected':'')+'>'+esc(f)+'</option>'; }).join('');
+}
+
 function updateAvail() {
   var d = document.getElementById('qz-diff').value;
-  var n = d === 'all' ? bank.length : bank.filter(function(q) { return q.difficulty === d; }).length;
-  document.getElementById('avail-msg').textContent = n + ' question' + (n !== 1 ? 's' : '') + ' available' + (d !== 'all' ? ' ('+d+')' : '');
+  var f = document.getElementById('qz-folder').value;
+  var pool = bank.filter(function(q){
+    var fMatch = f === 'all' || (q.folder||'General') === f;
+    var dMatch = d === 'all' || q.difficulty === d;
+    return fMatch && dMatch;
+  });
+  var n = pool.length;
+  document.getElementById('avail-msg').textContent = n + ' question' + (n !== 1 ? 's' : '') + ' available'
+    + (f !== 'all' ? ' in "'+f+'"' : '')
+    + (d !== 'all' ? ' · '+d : '');
   document.getElementById('start-btn').disabled = n === 0;
 }
 
 function startQuiz() {
   var d = document.getElementById('qz-diff').value;
+  var f = document.getElementById('qz-folder').value;
   var cv = document.getElementById('qz-count').value;
-  var pool = d === 'all' ? bank.slice() : bank.filter(function(q) { return q.difficulty === d; });
+  var pool = bank.filter(function(q){
+    var fMatch = f === 'all' || (q.folder||'General') === f;
+    var dMatch = d === 'all' || q.difficulty === d;
+    return fMatch && dMatch;
+  });
   for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random()*(i+1)); var t=pool[i]; pool[i]=pool[j]; pool[j]=t; }
   var n = cv === 'all' ? pool.length : Math.min(parseInt(cv), pool.length);
   qzQs = pool.slice(0, n); qzIdx = 0; qzScore = 0; qzAnswered = false; lastCfg = { d: d, cv: cv };
@@ -1246,7 +1280,7 @@ function switchTab(t) {
     document.getElementById('tab-'+x).classList.toggle('active', x === t);
   });
   if (t === 'bank') renderBank();
-  if (t === 'quiz') updateAvail();
+  if (t === 'quiz') { populateFolderSelect(); updateAvail(); }
 }
 
 // Mascot
