@@ -472,7 +472,7 @@
             <div class="ai-header">
               <span style="font-size:1.1rem">✨</span>
               <span class="ai-htxt">Generate with AI</span>
-              <span class="ai-badge">Gemini Flash</span>
+              <span class="ai-badge">Groq · Llama 3.3</span>
             </div>
             <!-- File drop zone -->
             <div class="ai-drop" id="ai-drop"
@@ -525,8 +525,8 @@
             </div>
             <button class="ai-btn" id="ai-btn" onclick="generateWithAI()" style="width:100%">Generate →</button>
             <div class="ai-key-row" id="ai-key-row">
-              <span class="ai-key-lbl">Gemini key:</span>
-              <input type="password" id="ai-key-inp" class="ai-key-inp" placeholder="Paste your API key from Google AI Studio…"/>
+              <span class="ai-key-lbl">Groq key:</span>
+              <input type="password" id="ai-key-inp" class="ai-key-inp" placeholder="Paste your free key from console.groq.com…"/>
               <button class="ai-key-save" onclick="saveAIKey()">Save key</button>
             </div>
             <div class="ai-key-row" id="ai-key-set" style="display:none">
@@ -1155,19 +1155,19 @@ function skipIntro() {
   setTimeout(function(){ ov.style.display = 'none'; }, 340);
 }
 
-// ── AI GENERATE (Gemini Flash) ──
-function getAIKey(){ return localStorage.getItem('sp_gemini_key') || ''; }
+// ── AI GENERATE (Groq) ──
+function getAIKey(){ return localStorage.getItem('sp_groq_key') || ''; }
 function saveAIKey(){
   var k = document.getElementById('ai-key-inp').value.trim();
   if(!k){ setAIStatus('Please paste a key first.','serr'); return; }
-  localStorage.setItem('sp_gemini_key', k);
+  localStorage.setItem('sp_groq_key', k);
   document.getElementById('ai-key-row').style.display = 'none';
   document.getElementById('ai-key-set').style.display = 'flex';
   setAIStatus('Key saved.','sok');
   setTimeout(function(){ setAIStatus('',''); }, 2000);
 }
 function clearAIKey(){
-  localStorage.removeItem('sp_gemini_key');
+  localStorage.removeItem('sp_groq_key');
   document.getElementById('ai-key-inp').value = '';
   document.getElementById('ai-key-set').style.display = 'none';
   document.getElementById('ai-key-row').style.display = 'flex';
@@ -1304,7 +1304,7 @@ function aiCountdown(secs, onDone){
 }
 async function generateWithAI(isRetry){
   var key = getAIKey();
-  if(!key){ setAIStatus('Save your Gemini API key first (get one free at aistudio.google.com).','serr'); return; }
+  if(!key){ setAIStatus('Save your Groq API key first — free at console.groq.com (no card needed).','serr'); return; }
   var topic = document.getElementById('ai-topic').value.trim();
   if(!topic){ setAIStatus('Enter a topic or paste your notes first.','serr'); return; }
   var n    = aiGetOpt('count') || '5';
@@ -1320,24 +1320,20 @@ async function generateWithAI(isRetry){
   var diffDesc = {easy:'Straightforward recall, single concept, definitional',medium:'Requires understanding relationships or applying a concept',hard:'Multi-step reasoning, analysis, or synthesis'}[diff];
   var prompt = 'You are an expert educator writing exam questions for university students.\n\nGenerate ' + n + ' multiple choice questions based on the following topic or notes:\n\n' + topic + '\n\nSettings:\n- Question type: ' + typeDesc + '\n- Difficulty: ' + diff + ' — ' + diffDesc + '\n\nRules:\n- Each question must have EXACTLY 5 options (A B C D E)\n- Exactly one option is correct\n- All options must be plausible and specific (no obvious fillers)\n- Label correct option by its 0-based index (0=A, 1=B, 2=C, 3=D, 4=E)\n- ALL questions must be ' + diff + ' difficulty\n- Include a short one-line hint\n\nRespond with ONLY a valid JSON array. No markdown, no code fences, no explanation:\n[\n  {\n    "question": "...",\n    "options": ["A text","B text","C text","D text","E text"],\n    "correct": 0,\n    "difficulty": "' + diff + '",\n    "hint": "..."\n  }\n]';
   try {
-    var res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=' + key, {
+    var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
-      headers: {'Content-Type':'application/json'},
+      headers: {'Content-Type':'application/json', 'Authorization':'Bearer ' + key},
       body: JSON.stringify({
-        contents:[{parts:[{text:prompt}]}],
-        generationConfig:{temperature:0.75,maxOutputTokens:8192}
+        model: 'llama-3.3-70b-versatile',
+        messages: [{role:'user', content: prompt}],
+        temperature: 0.75,
+        max_tokens: 8192
       })
     });
     if(!res.ok){
       var errBody = await res.json().catch(function(){return {};});
       var rawMsg = (errBody.error && errBody.error.message) || ('HTTP ' + res.status);
       if(res.status === 429){
-        var detail = '';
-        try{ detail = errBody.error.details.map(function(d){ return d.description||''; }).join(' '); }catch(e){}
-        var isDaily = detail.toLowerCase().includes('day') || rawMsg.toLowerCase().includes('day');
-        if(isDaily){
-          throw new Error('Daily quota exhausted. Go to aistudio.google.com, create a new project and generate a fresh API key.');
-        }
         if(!isRetry){
           pendingRetry = true;
           aiCountdown(62, function(){ generateWithAI(true); });
@@ -1348,13 +1344,8 @@ async function generateWithAI(isRetry){
       throw new Error(rawMsg);
     }
     var data = await res.json();
-    if(!data.candidates || !data.candidates.length){
-      var blockReason = data.promptFeedback && data.promptFeedback.blockReason;
-      throw new Error(blockReason ? 'Blocked by safety filter: ' + blockReason : 'Model returned no candidates — try a different topic.');
-    }
-    var part = data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0];
-    if(!part || !part.text) throw new Error('Empty response from model. Finish reason: ' + (data.candidates[0].finishReason || 'unknown'));
-    var raw = part.text.trim();
+    var raw = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || '').trim();
+    if(!raw) throw new Error('Empty response from model.');
     raw = raw.replace(/^```(?:json)?\n?/,'').replace(/\n?```$/,'').trim();
     var qs = JSON.parse(raw);
     if(!Array.isArray(qs) || !qs.length) throw new Error('No questions returned.');
