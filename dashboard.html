@@ -289,6 +289,17 @@
     body.hc #quiz-pomo-time.t-plus{color:#60a5fa!important}
     body.hc #quiz-pomo-time.t-max{color:#a855f7!important}
     .quiz-pomo-lbl{font-size:.58rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.45;margin-top:5px}
+    /* SAQ practice fullscreen */
+    :fullscreen #sq-prac-run{max-width:720px;margin:0 auto;padding:48px 0}
+    :fullscreen #sq-prac-fs-wrap{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:100vh;padding:48px}
+    #sq-pomo{display:none;text-align:center;margin-bottom:24px}
+    :fullscreen #sq-pomo.active{display:block}
+    #sq-pomo-time{font-size:3rem;font-weight:900;letter-spacing:.05em;line-height:1}
+    #sq-pomo-time.t-normal{color:#f87171}
+    #sq-pomo-time.t-plus{color:#1d4ed8}
+    #sq-pomo-time.t-max{color:#6d28d9}
+    body.hc #sq-pomo-time.t-plus{color:#60a5fa!important}
+    body.hc #sq-pomo-time.t-max{color:#a855f7!important}
 
     /* Pomo modal */
     #pomo-modal{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center}
@@ -1308,22 +1319,31 @@
             </div>
           </div>
           <div id="sq-prac-run" style="display:none">
-            <div class="sq-prac-hd">
-              <span class="sq-prac-counter" id="sq-prac-counter">1 / 5</span>
-              <button class="sq-prac-end" onclick="sqPracEnd()">End session</button>
-            </div>
-            <div class="sq-prac-card">
-              <div class="sq-prac-q" id="sq-prac-q"></div>
-            </div>
-            <div id="sq-prac-answer-area">
-              <textarea id="sq-prac-input" class="sq-prac-input" placeholder="Write your answer here…"></textarea>
-              <button class="sq-prac-submit" id="sq-prac-submit-btn" onclick="sqPracSubmit()">Submit for marking →</button>
-              <div class="ai-status" id="sq-prac-status" style="display:none"></div>
-            </div>
-            <div id="sq-prac-result" style="display:none">
-              <div class="sq-mark-result" id="sq-mark-result-inner"></div>
-              <div class="sq-prac-next-row">
-                <button class="sq-prac-next" onclick="sqPracNext()">Next →</button>
+            <div id="sq-prac-fs-wrap">
+              <div id="sq-pomo">
+                <div id="sq-pomo-time"></div>
+                <div class="quiz-pomo-lbl">Focus session</div>
+              </div>
+              <div class="quiz-topbar">
+                <button class="fs-btn" onclick="sqPracEnd()">← End</button>
+                <div class="quiz-topbar-mid">
+                  <span class="sq-prac-counter" id="sq-prac-counter">1 / 5</span>
+                </div>
+                <button class="fs-btn" onclick="sqToggleFS()" id="sq-fs-btn">⛶ Fullscreen</button>
+              </div>
+              <div class="sq-prac-card">
+                <div class="sq-prac-q" id="sq-prac-q"></div>
+              </div>
+              <div id="sq-prac-answer-area">
+                <textarea id="sq-prac-input" class="sq-prac-input" placeholder="Write your answer here…"></textarea>
+                <button class="sq-prac-submit" id="sq-prac-submit-btn" onclick="sqPracSubmit()">Submit for marking →</button>
+                <div class="ai-status" id="sq-prac-status" style="display:none"></div>
+              </div>
+              <div id="sq-prac-result" style="display:none">
+                <div class="sq-mark-result" id="sq-mark-result-inner"></div>
+                <div class="sq-prac-next-row">
+                  <button class="sq-prac-next" onclick="sqPracNext()">Next →</button>
+                </div>
               </div>
             </div>
           </div>
@@ -1775,9 +1795,12 @@ function updatePomoDisplay() {
   var el = document.getElementById('pomo-time');
   var qp = document.getElementById('quiz-pomo');
   var qpt = document.getElementById('quiz-pomo-time');
+  var sp = document.getElementById('sq-pomo');
+  var spt = document.getElementById('sq-pomo-time');
   if (!pomoType) {
     el.textContent = 'Focus'; el.className = 'idle';
     if (qp) qp.classList.remove('active');
+    if (sp) sp.classList.remove('active');
     return;
   }
   var m = Math.floor(pomoLeft / 60), s = pomoLeft % 60;
@@ -1785,6 +1808,8 @@ function updatePomoDisplay() {
   el.textContent = t; el.className = 't-' + pomoType;
   if (qpt) { qpt.textContent = t; qpt.className = 't-' + pomoType; }
   if (qp) qp.classList.add('active');
+  if (spt) { spt.textContent = t; spt.className = 't-' + pomoType; }
+  if (sp) sp.classList.add('active');
 }
 
 function pad(n) { return n < 10 ? '0'+n : ''+n; }
@@ -2247,14 +2272,18 @@ document.addEventListener('keydown', function(e) {
 });
 document.addEventListener('fullscreenchange', function() {
   var btn = document.getElementById('fs-btn');
+  var sqBtn = document.getElementById('sq-fs-btn');
   if (!document.fullscreenElement) {
     if (btn) btn.textContent = '⛶ Fullscreen';
+    if (sqBtn) sqBtn.textContent = '⛶ Fullscreen';
   }
   var run = document.getElementById('quiz-run');
   if (run && run.style.display !== 'none') {
-    setTimeout(function() {
-      run.scrollIntoView({behavior:'smooth', block:'center'});
-    }, 120);
+    setTimeout(function() { run.scrollIntoView({behavior:'smooth', block:'center'}); }, 120);
+  }
+  var sqRun = document.getElementById('sq-prac-run');
+  if (sqRun && sqRun.style.display !== 'none') {
+    setTimeout(function() { sqRun.scrollIntoView({behavior:'smooth', block:'center'}); }, 120);
   }
 });
 
@@ -3167,6 +3196,7 @@ function sqPracFolder(folder) {
   document.getElementById('sq-prac-setup').style.display = 'none';
   document.getElementById('sq-prac-run').style.display = 'block';
   sqShowPracQ();
+  sqEnterFS();
 }
 
 function sqTab(t) {
@@ -3200,6 +3230,7 @@ function sqStartPrac() {
   document.getElementById('sq-prac-setup').style.display = 'none';
   document.getElementById('sq-prac-run').style.display = 'block';
   sqShowPracQ();
+  sqEnterFS();
 }
 
 function sqShowPracQ() {
@@ -3282,9 +3313,28 @@ function sqPracNext() {
 }
 
 function sqPracEnd() {
+  if (document.fullscreenElement) document.exitFullscreen();
   document.getElementById('sq-prac-run').style.display = 'none';
   document.getElementById('sq-prac-setup').style.display = 'block';
   sqPopulatePracFolder();
+}
+
+function sqToggleFS() {
+  var el = document.getElementById('content');
+  if (!document.fullscreenElement) {
+    el.requestFullscreen && el.requestFullscreen();
+    document.getElementById('sq-fs-btn').textContent = '✕ Exit Fullscreen';
+  } else {
+    document.exitFullscreen && document.exitFullscreen();
+    document.getElementById('sq-fs-btn').textContent = '⛶ Fullscreen';
+  }
+}
+
+function sqEnterFS() {
+  var el = document.getElementById('content');
+  if (el.requestFullscreen) el.requestFullscreen();
+  var btn = document.getElementById('sq-fs-btn');
+  if (btn) btn.textContent = '✕ Exit Fullscreen';
 }
 </script>
 </body>
