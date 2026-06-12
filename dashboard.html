@@ -2891,11 +2891,45 @@ function aiCountdown(secs, onDone){
   if(secs <= 0){ onDone(); return; }
   setTimeout(function(){ aiCountdown(secs - 1, onDone); }, 1000);
 }
+// ── Shared condenser (keeps generation requests within Groq free TPM limits) ──
+var CONDENSE_THRESHOLD = 20000; // chars — above this we condense first
+async function condenseForAI(text, key, onProgress) {
+  var input = text.length > 26000 ? text.slice(0, 26000) + '\n[…remaining truncated]' : text;
+  if (onProgress) onProgress('Notes are long — extracting key facts first…');
+  var r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+    body: JSON.stringify({
+      model: 'llama-3.3-70b-versatile',
+      messages: [{ role: 'user', content:
+        'You are a study notes compressor for university exam preparation.\n\n'
+        + 'Extract EVERY distinct examinable fact from the notes below as a numbered list.\n'
+        + 'Include: definitions, key concepts, mechanisms, processes, names, dates, causes, effects, examples, relationships, and specific numbers.\n'
+        + 'Rules:\n- One fact per line\n- Max 20 words per line\n- Preserve specific terms, figures, and technical vocabulary exactly\n- Do NOT omit any distinct, testable point\n- Max 120 items total\n\nNotes:\n' + input
+      }],
+      temperature: 0.1, max_tokens: 1500
+    })
+  });
+  if (!r.ok) {
+    var eb = await r.json().catch(function(){ return {}; });
+    throw new Error((eb.error && eb.error.message) || 'Condense failed: HTTP ' + r.status);
+  }
+  var d = await r.json();
+  var condensed = ((d.choices || [])[0] || {}).message ? d.choices[0].message.content.trim() : '';
+  if (!condensed) throw new Error('Condense returned empty.');
+  if (onProgress) onProgress('Key facts extracted — generating now…');
+  return condensed;
+}
+
 async function generateWithAI(isRetry){
   var key = getAIKey();
   if(!key){ setAIStatus('Save your Groq API key first — free at console.groq.com (no card needed).','serr'); return; }
   var topic = document.getElementById('ai-topic').value.trim();
   if(!topic){ setAIStatus('Enter a topic or paste your notes first.','serr'); return; }
+  if(topic.length > CONDENSE_THRESHOLD){
+    try{ topic = await condenseForAI(topic, key, function(msg){ setAIStatus(msg,'sload'); }); }
+    catch(e){ topic = topic.slice(0, 20000); setAIStatus('Generating…','sload'); }
+  }
   var n    = aiGetOpt('count') || '5';
   var diff = aiGetOpt('diff')  || 'medium';
   var type = aiGetOpt('type')  || 'info';
@@ -2920,7 +2954,7 @@ async function generateWithAI(isRetry){
         model: 'llama-3.3-70b-versatile',
         messages: [{role:'user', content: prompt}],
         temperature: 0.75,
-        max_tokens: 8192
+        max_tokens: 4096
       })
     });
     if(!res.ok){
@@ -3515,6 +3549,10 @@ async function sqGenerateWithAI(isRetry) {
   btn.disabled = true;
   var pendingRetry = false;
   sqSetStatus('Generating ' + n + ' SAQs…', 'sload');
+  if (topic.length > CONDENSE_THRESHOLD) {
+    try { topic = await condenseForAI(topic, key, function(msg){ sqSetStatus(msg, 'sload'); }); }
+    catch(e) { topic = topic.slice(0, 20000); sqSetStatus('Generating…', 'sload'); }
+  }
   document.getElementById('sq-folder-pick').style.display = 'none';
   var prompt = 'You are an expert educator writing exam short answer questions for university students.\n\nGenerate exactly ' + n + ' deep understanding questions from the content below. Questions must require application, analysis, evaluation, or explanation — not simple recall. Use stems like "Explain why…", "How does…", "Compare and contrast…", "Evaluate the role of…", "To what extent…"\n\nFor each question write a markscheme-style model answer as bullet points. Each bullet is a distinct examinable point worth credit. Aim for 3–6 bullets. Use "•" as the bullet character and put each point on its own line.\n\nRespond with ONLY a valid JSON array — no markdown fences, no extra text:\n[\n  {"question":"...","modelAnswer":"• Point one\\n• Point two\\n• Point three"}\n]\n\nContent:\n' + topic;
   try {
