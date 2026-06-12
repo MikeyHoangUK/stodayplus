@@ -100,18 +100,20 @@
     .logout-link{color:#ef4444;cursor:pointer;font-weight:700;margin-top:4px;display:inline-block}
     .logout-link:hover{text-decoration:underline}
     /* Music player */
-    .music-player{padding:12px 14px;border-top:1px solid rgba(200,160,100,.1);display:flex;align-items:center;gap:9px;background:rgba(255,240,200,.03)}
-    .mp-vinyl{width:34px;height:34px;min-width:34px;border-radius:50%;background:rgba(168,85,247,.14);border:1px solid rgba(168,85,247,.2);display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:transform 2s linear}
+    .music-player{padding:12px 14px 10px;border-top:1px solid rgba(200,160,100,.1);display:flex;flex-direction:column;gap:8px;background:rgba(255,240,200,.03)}
+    .mp-top{display:flex;align-items:center;gap:9px}
+    .mp-vinyl{width:34px;height:34px;min-width:34px;border-radius:50%;background:rgba(168,85,247,.14);border:1px solid rgba(168,85,247,.2);display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:transform 2s linear;flex-shrink:0}
     .mp-vinyl.spin{animation:vinylSpin 3s linear infinite}
     @keyframes vinylSpin{to{transform:rotate(360deg)}}
     .mp-info{flex:1;min-width:0}
-    .mp-track{font-size:.72rem;font-weight:800;color:#1c1208;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .mp-sub{font-size:.58rem;color:#5a4230;margin-top:1px}
+    .mp-track{font-size:.76rem;font-weight:800;color:#1c1208;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+    .mp-sub{font-size:.64rem;color:#5a4230;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .mp-controls{display:flex;align-items:center;gap:7px}
     .mp-play{width:28px;height:28px;min-width:28px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#4338ca);border:none;color:#fff;font-size:.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .15s;flex-shrink:0}
     .mp-play:hover{opacity:.82}
-    .mp-prev,.mp-next{width:20px;height:20px;min-width:20px;border-radius:50%;background:rgba(109,40,217,.1);border:1px solid rgba(109,40,217,.22);color:#6d28d9;font-size:.55rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;padding:0}
+    .mp-prev,.mp-next{width:22px;height:22px;min-width:22px;border-radius:50%;background:rgba(109,40,217,.1);border:1px solid rgba(109,40,217,.22);color:#6d28d9;font-size:.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;padding:0}
     .mp-prev:hover,.mp-next:hover{background:rgba(109,40,217,.2)}
-    .mp-vol{-webkit-appearance:none;appearance:none;width:44px;height:3px;border-radius:2px;background:rgba(168,85,247,.25);outline:none;cursor:pointer;flex-shrink:0}
+    .mp-vol{-webkit-appearance:none;appearance:none;flex:1;min-width:0;height:3px;border-radius:2px;background:rgba(168,85,247,.25);outline:none;cursor:pointer}
     .mp-vol::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:#6d28d9;cursor:pointer}
 
     /* ── MAIN ── */
@@ -1050,15 +1052,19 @@
     </div>
     <!-- Music player (chill mode only) -->
     <div id="music-player" class="music-player" style="display:none">
-      <div class="mp-vinyl" id="mp-vinyl">♪</div>
-      <div class="mp-info">
-        <div class="mp-track" id="mp-track">Loading…</div>
-        <div class="mp-sub" id="mp-sub">Lofi Hip-Hop</div>
+      <div class="mp-top">
+        <div class="mp-vinyl" id="mp-vinyl">♪</div>
+        <div class="mp-info">
+          <div class="mp-track" id="mp-track">Loading…</div>
+          <div class="mp-sub" id="mp-sub">Lofi Hip-Hop</div>
+        </div>
       </div>
-      <button class="mp-prev" onclick="lofiPrev()" title="Previous">⏮</button>
-      <button class="mp-play" id="mp-play" onclick="toggleLofi()">▶</button>
-      <button class="mp-next" onclick="lofiNext(false)" title="Next">⏭</button>
-      <input type="range" class="mp-vol" id="mp-vol" min="0" max="1" step="0.01" value="0.6" oninput="setLofiVolume(+this.value)" title="Volume"/>
+      <div class="mp-controls">
+        <button class="mp-prev" onclick="lofiPrev()" title="Previous">⏮</button>
+        <button class="mp-play" id="mp-play" onclick="toggleLofi()">▶</button>
+        <button class="mp-next" onclick="lofiNext(false)" title="Next">⏭</button>
+        <input type="range" class="mp-vol" id="mp-vol" min="0" max="1" step="0.01" value="0.6" oninput="setLofiVolume(+this.value)" title="Volume"/>
+      </div>
     </div>
 
     <div class="sb-user">
