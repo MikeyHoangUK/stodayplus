@@ -2742,10 +2742,12 @@ async function processAIFile(file){
   document.getElementById('ai-drop-loading').style.display = 'block';
   setAIStatus('','');
   try {
-    var text = ext === 'pdf' ? await extractPdf(file) : await extractPptx(file);
-    text = text.replace(/\s+/g,' ').trim();
-    if(!text) throw new Error('No readable text found in this file.');
+    var aiKey = getAIKey();
+    var aiLoadEl = document.getElementById('ai-drop-loading');
+    function aiProg(msg){ if(aiLoadEl) setAIStatus(msg,'sload'); }
+    var text = ext === 'pdf' ? await extractPdf(file, aiKey, aiProg) : await extractPptx(file, aiKey, aiProg);
     if(text.length > 80000) text = text.slice(0, 80000) + '\n[…truncated]';
+    if(!text.replace(/\s+/g,'').trim()) throw new Error('No readable text found in this file.');
     document.getElementById('ai-topic').value = text;
     document.getElementById('ai-file-name').textContent = file.name;
     document.getElementById('ai-drop-loading').style.display = 'none';
@@ -2757,20 +2759,84 @@ async function processAIFile(file){
     setAIStatus('Error: ' + err.message,'serr');
   }
 }
-async function extractPdf(file){
+// ── SMART EXTRACTION HELPERS ─────────────────────────────────────
+var VISION_THRESHOLD = 80; // chars/slide below this triggers vision
+
+function ab2b64(ab) {
+  var bytes = new Uint8Array(ab), out = '', chunk = 8192;
+  for (var i = 0; i < bytes.length; i += chunk)
+    out += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+  return btoa(out);
+}
+
+async function groqVisionSlide(dataUrl, key) {
+  var r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+    body: JSON.stringify({
+      model: 'llama-3.2-90b-vision-preview',
+      messages: [{ role: 'user', content: [
+        { type: 'image_url', image_url: { url: dataUrl } },
+        { type: 'text', text: 'Extract all visible text, headings, and bullet points from this slide. Return only the content, no commentary.' }
+      ]}],
+      temperature: 0.1, max_tokens: 800
+    })
+  });
+  if (!r.ok) throw new Error('Vision API ' + r.status);
+  var d = await r.json();
+  return (d.choices && d.choices[0] && d.choices[0].message.content) || '';
+}
+
+async function getPptxSlideImage(zip, slideNum) {
+  var relPath = 'ppt/slides/_rels/slide' + slideNum + '.xml.rels';
+  if (!zip.files[relPath]) return null;
+  var relXml = await zip.files[relPath].async('text');
+  var targets = (relXml.match(/Target="\.\.\/media\/([^"]+)"/g) || [])
+    .map(function(m) { return 'ppt/media/' + m.match(/media\/([^"]+)/)[1]; })
+    .filter(function(f) { return /\.(png|jpg|jpeg|gif|bmp|webp)$/i.test(f) && zip.files[f]; });
+  if (!targets.length) return null;
+  var best = null, bestSize = 0;
+  for (var i = 0; i < targets.length; i++) {
+    var ab = await zip.files[targets[i]].async('arraybuffer');
+    if (ab.byteLength > bestSize) { bestSize = ab.byteLength; best = { path: targets[i], ab: ab }; }
+  }
+  if (!best) return null;
+  var ext = best.path.split('.').pop().toLowerCase();
+  var mime = (ext === 'jpg' || ext === 'jpeg') ? 'image/jpeg' : ext === 'png' ? 'image/png' : 'image/' + ext;
+  return 'data:' + mime + ';base64,' + ab2b64(best.ab);
+}
+
+async function extractPdf(file, key, onProgress) {
   if(typeof pdfjsLib === 'undefined') throw new Error('PDF library not loaded.');
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
   var ab = await file.arrayBuffer();
   var pdf = await pdfjsLib.getDocument({data: ab}).promise;
-  var text = '';
-  for(var i = 1; i <= pdf.numPages; i++){
+  var total = pdf.numPages, parts = [], vCount = 0;
+  for(var i = 1; i <= total; i++){
+    if(onProgress) onProgress('Reading page ' + i + ' of ' + total + '…');
     var page = await pdf.getPage(i);
     var content = await page.getTextContent();
-    text += content.items.map(function(it){ return it.str; }).join(' ') + '\n';
+    var text = content.items.map(function(it){ return it.str; }).join(' ').replace(/\s+/g,' ').trim();
+    if(text.length < VISION_THRESHOLD && key){
+      if(onProgress) onProgress('Page ' + i + ': image-based — reading with AI…');
+      try{
+        var vp = page.getViewport({scale:1});
+        var scale = Math.min(1024/vp.width, 1024/vp.height, 2);
+        var svp = page.getViewport({scale:scale});
+        var canvas = document.createElement('canvas');
+        canvas.width = Math.round(svp.width); canvas.height = Math.round(svp.height);
+        await page.render({canvasContext:canvas.getContext('2d'),viewport:svp}).promise;
+        text = await groqVisionSlide(canvas.toDataURL('image/jpeg',0.8), key);
+        vCount++;
+      } catch(e){ text = '[image slide — could not read]'; }
+    }
+    if(text.trim()) parts.push('Page ' + i + ':\n' + text);
   }
-  return text;
+  if(onProgress) onProgress(vCount ? 'Done! (' + vCount + ' image page' + (vCount!==1?'s':'') + ' read by AI)' : 'Extracted!');
+  return parts.join('\n\n');
 }
-async function extractPptx(file){
+
+async function extractPptx(file, key, onProgress){
   if(typeof JSZip === 'undefined') throw new Error('JSZip library not loaded.');
   var zip = await JSZip.loadAsync(file);
 
@@ -2786,7 +2852,6 @@ async function extractPptx(file){
   });
   if(!slideKeys.length) throw new Error('No slides found in this file.');
 
-  // Build notes lookup: notesSlide number → text
   var notesMap = {};
   var notesKeys = Object.keys(zip.files).filter(function(f){
     return /^ppt\/notesSlides\/notesSlide\d+\.xml$/.test(f);
@@ -2794,23 +2859,31 @@ async function extractPptx(file){
   for(var n = 0; n < notesKeys.length; n++){
     var nXml = await zip.files[notesKeys[n]].async('text');
     var nIdx  = parseInt(notesKeys[n].match(/\d+/)[0]);
-    // Strip the auto-generated slide-number text node (first <a:t> is usually just the slide number)
     var nMatches = nXml.match(/<a:t[^>]*>([^<]*)<\/a:t>/g) || [];
     var nTexts = nMatches.map(function(t){ return t.replace(/<[^>]+>/g,''); })
                          .filter(function(t){ return t.trim() && !/^\d+$/.test(t.trim()); });
     if(nTexts.length) notesMap[nIdx] = nTexts.join(' ').trim();
   }
 
-  var text = '';
+  var total = slideKeys.length, text = '', vCount = 0;
   for(var i = 0; i < slideKeys.length; i++){
+    var sNum = i + 1;
+    if(onProgress) onProgress('Reading slide ' + sNum + ' of ' + total + '…');
     var sXml  = await zip.files[slideKeys[i]].async('text');
     var sText = getXmlText(sXml);
-    var sNum  = i + 1;
-    var line  = 'Slide ' + sNum + ': ' + (sText || '[visual only]');
+    if(sText.length < VISION_THRESHOLD && key){
+      if(onProgress) onProgress('Slide ' + sNum + ': image-based — reading with AI…');
+      try{
+        var imgUrl = await getPptxSlideImage(zip, sNum);
+        if(imgUrl){ sText = await groqVisionSlide(imgUrl, key); vCount++; }
+      } catch(e){ /* keep text as-is */ }
+    }
+    var line = 'Slide ' + sNum + ': ' + (sText || '[visual only]');
     var notes = notesMap[sNum];
     if(notes) line += '\n  Notes: ' + notes;
     text += line + '\n';
   }
+  if(onProgress) onProgress(vCount ? 'Done! (' + vCount + ' image slide' + (vCount!==1?'s':'') + ' read by AI)' : 'Extracted!');
   return text;
 }
 function aiCountdown(secs, onDone){
@@ -3405,10 +3478,10 @@ async function sqProcessFile(file) {
   document.getElementById('sq-drop-loading').style.display = 'block';
   sqSetStatus('', '');
   try {
-    var text = ext === 'pdf' ? await extractPdf(file) : await extractPptx(file);
-    text = text.replace(/\s+/g, ' ').trim();
-    if (!text) throw new Error('No readable text found.');
+    var sqKey = getAIKey();
+    var text = ext === 'pdf' ? await extractPdf(file, sqKey, function(msg){ sqSetStatus(msg,'sload'); }) : await extractPptx(file, sqKey, function(msg){ sqSetStatus(msg,'sload'); });
     if (text.length > 80000) text = text.slice(0, 80000) + '\n[…truncated]';
+    if (!text.replace(/\s+/g,'').trim()) throw new Error('No readable text found.');
     document.getElementById('sq-topic').value = text;
     document.getElementById('sq-file-name').textContent = file.name;
     document.getElementById('sq-drop-loading').style.display = 'none';
@@ -3832,18 +3905,19 @@ function blurtoFileChange(e) {
   if (file) blurtoExtractFile(file);
 }
 
-function blurtoExtractFile(file) {
+async function blurtoExtractFile(file) {
   var st = document.getElementById('blurto-extract-status');
   st.textContent = 'Extracting…';
   var name = file.name.toLowerCase();
-  var p;
-  if (name.endsWith('.pdf')) p = extractPdf(file);
-  else if (name.endsWith('.pptx')) p = extractPptx(file);
-  else { st.textContent = 'Only PDF or PPTX supported.'; return; }
-  p.then(function(text) {
+  var ext = name.split('.').pop();
+  if (ext !== 'pdf' && ext !== 'pptx') { st.textContent = 'Only PDF or PPTX supported.'; return; }
+  var key = getAIKey();
+  function bProg(msg){ st.textContent = msg; }
+  try {
+    var text = ext === 'pdf' ? await extractPdf(file, key, bProg) : await extractPptx(file, key, bProg);
+    if (text.length > 80000) text = text.slice(0, 80000) + '\n[…truncated]';
     document.getElementById('blurto-notes-area').innerText = text;
-    st.textContent = 'Extracted! You can edit the text before blurting.';
-  }).catch(function() { st.textContent = 'Could not extract. Paste notes manually.'; });
+  } catch(e) { st.textContent = 'Could not extract. Paste notes manually.'; }
 }
 
 // ── AI Simplify (one-shot only) ──
