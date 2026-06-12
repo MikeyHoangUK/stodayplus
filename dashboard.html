@@ -3766,14 +3766,29 @@ async function sqPracSubmit() {
   btn.disabled = true;
   st.textContent = 'Marking your answer…';
   st.className = 'ai-status sload'; st.style.display = 'block';
-  var prompt = 'You are an exam marker. Mark the student\'s answer strictly against the markscheme.\n\nQuestion: ' + q.question + '\n\nMarkscheme:\n' + q.modelAnswer + '\n\nStudent\'s answer: ' + answer + '\n\nFor each bullet point in the markscheme, decide whether the student earned that mark (true = yes, false = no). Count the total score. Write a one-sentence comment.\n\nRespond with ONLY valid JSON — no markdown fences:\n{\n  "score": 3,\n  "total": 5,\n  "feedback": [\n    {"point": "• The point text", "hit": true},\n    {"point": "• Another point", "hit": false}\n  ],\n  "comment": "Short feedback sentence."\n}';
+  // Cap answer length to keep marking call under TPM limit
+  var answerInput = answer.length > 2000 ? answer.slice(0, 2000) + '…' : answer;
+  var prompt = 'You are an exam marker. Mark the student\'s answer strictly against the markscheme.\n\nQuestion: ' + q.question + '\n\nMarkscheme:\n' + q.modelAnswer + '\n\nStudent\'s answer: ' + answerInput + '\n\nFor each bullet point in the markscheme, decide whether the student earned that mark (true = yes, false = no). Count the total score. Write a one-sentence comment.\n\nRespond with ONLY valid JSON — no markdown fences:\n{\n  "score": 3,\n  "total": 5,\n  "feedback": [\n    {"point": "• The point text", "hit": true},\n    {"point": "• Another point", "hit": false}\n  ],\n  "comment": "Short feedback sentence."\n}';
   try {
     var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-      body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages: [{ role: 'user', content: prompt }], temperature: 0.2, max_tokens: 1024 })
+      body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages: [{ role: 'user', content: prompt }], temperature: 0.2, max_tokens: 800 })
     });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    if (!res.ok) {
+      var errBody = await res.json().catch(function(){ return {}; });
+      if (res.status === 429) {
+        var secs = 30;
+        st.textContent = 'Rate limited — retrying in ' + secs + 's…';
+        var ivl = setInterval(function(){
+          secs--;
+          st.textContent = 'Rate limited — retrying in ' + secs + 's…';
+          if (secs <= 0) { clearInterval(ivl); sqPracSubmit(); }
+        }, 1000);
+        return;
+      }
+      throw new Error((errBody.error && errBody.error.message) || 'HTTP ' + res.status);
+    }
     var data = await res.json();
     var raw = ((data.choices || [])[0] || {}).message ? data.choices[0].message.content.trim() : '';
     if (!raw) throw new Error('Empty response.');
