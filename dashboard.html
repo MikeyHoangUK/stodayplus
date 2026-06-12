@@ -673,6 +673,119 @@
     body.hc .rp-schedule-preview{background:rgba(168,85,247,.04)!important;border-color:rgba(168,85,247,.1)!important}
     body.hc .rp-sched-lbl{color:#a08878!important}
     body.hc .rp-sched-day{color:#a08878!important}
+    /* ── BLURTO ─────────────────────────────────────── */
+    .blurto-layout{display:grid;grid-template-columns:1fr 270px;gap:20px;align-items:start}
+    .blurto-notes-col,.blurto-config-col{display:flex;flex-direction:column;gap:10px}
+    .blurto-col-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:2px}
+    .blurto-col-title{font-size:.72rem;font-weight:800;color:#5a4230;text-transform:uppercase;letter-spacing:.1em}
+    .blurto-ai-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .blurto-drop-mini{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.6);border:1.5px dashed rgba(168,85,247,.3);border-radius:8px;padding:5px 10px;font-size:.68rem;font-weight:700;color:#6d28d9;cursor:pointer;transition:all .15s}
+    .blurto-drop-mini:hover,.blurto-drop-mini.over{background:rgba(168,85,247,.08);border-color:rgba(168,85,247,.5)}
+    .blurto-ai-btn{font-size:.68rem;font-weight:800;background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:8px;padding:5px 12px;cursor:pointer;font-family:'Raleway',sans-serif;transition:opacity .15s}
+    .blurto-ai-btn:hover{opacity:.85}
+    .blurto-ai-btn:disabled{opacity:.45;cursor:default}
+    .blurto-toolbar{display:flex;align-items:center;gap:4px;flex-wrap:wrap;background:rgba(255,255,255,.55);border:1px solid rgba(168,85,247,.1);border-radius:10px;padding:5px 8px}
+    .blurto-tb-group{display:flex;align-items:center;gap:2px}
+    .blurto-tb-sep{width:1px;height:18px;background:rgba(168,85,247,.15);margin:0 3px;flex-shrink:0}
+    .blurto-tb-btn{background:none;border:none;border-radius:6px;padding:4px 8px;font-size:.75rem;font-weight:700;cursor:pointer;color:#5a4230;font-family:'Raleway',sans-serif;transition:all .15s;line-height:1;white-space:nowrap}
+    .blurto-tb-btn:hover{background:rgba(168,85,247,.1);color:#6d28d9}
+    .blurto-hl-btn{width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.9);cursor:pointer;transition:transform .15s;flex-shrink:0;display:inline-block}
+    .blurto-hl-btn:hover{transform:scale(1.25)}
+    .blurto-hl-clear{background:rgba(255,255,255,.5)!important;font-size:.6rem;line-height:16px;text-align:center;color:#6e5438;border-color:rgba(168,85,247,.2)!important;border-radius:50%}
+    .blurto-size-sel{background:rgba(255,255,255,.6);border:1px solid rgba(168,85,247,.14);border-radius:6px;padding:3px 5px;font-size:.68rem;font-weight:700;color:#5a4230;font-family:'Raleway',sans-serif;cursor:pointer;outline:none}
+    .blurto-clear-btn{font-size:.62rem!important}
+    .blurto-status{font-size:.7rem;font-weight:700;color:#6d28d9;min-height:1.1em}
+    .blurto-area{background:rgba(255,255,255,.65);border:1px solid rgba(168,85,247,.14);border-radius:14px;padding:16px 18px;min-height:340px;font-size:.88rem;line-height:1.75;color:#1c1208;font-family:'Raleway',sans-serif;outline:none;overflow-y:auto;transition:border-color .18s,box-shadow .18s}
+    .blurto-area:focus{border-color:rgba(168,85,247,.4);box-shadow:0 0 0 3px rgba(147,51,234,.07)}
+    .blurto-area[contenteditable][data-placeholder]:empty::before{content:attr(data-placeholder);color:#b09880;pointer-events:none;font-style:italic;font-weight:400}
+    .blurto-area ul,.blurto-area ol{padding-left:20px}
+    .blurto-cfg-card{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.12);border-radius:14px;padding:18px}
+    .blurto-range{width:100%;-webkit-appearance:none;height:4px;border-radius:4px;background:rgba(168,85,247,.18);outline:none;cursor:pointer;margin-top:6px;display:block}
+    .blurto-range::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#7c3aed;cursor:pointer}
+    /* Countdown */
+    .blurto-cd-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:420px;gap:12px}
+    .blurto-cd-num{font-size:8rem;font-weight:900;color:#7c3aed;line-height:1;animation:blurtoPulse .85s ease-in-out infinite}
+    .blurto-cd-lbl{font-size:.82rem;font-weight:700;color:#6e5438;letter-spacing:.14em;text-transform:uppercase}
+    @keyframes blurtoPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.1);opacity:.8}}
+    /* Timer */
+    .blurto-timer-wrap{display:flex;align-items:center;gap:14px;background:rgba(250,243,224,.8);border:1px solid rgba(168,85,247,.15);border-radius:14px;padding:11px 18px;margin-bottom:14px}
+    .blurto-timer-disp{font-size:1.5rem;font-weight:900;color:#1c1208;letter-spacing:.06em;font-variant-numeric:tabular-nums;flex-shrink:0;min-width:72px;transition:color .3s}
+    .blurto-timer-bar-outer{flex:1;height:6px;background:rgba(168,85,247,.15);border-radius:6px;overflow:hidden}
+    .blurto-timer-bar-fill{height:100%;background:linear-gradient(90deg,#7c3aed,#4338ca);border-radius:6px;transition:width .9s linear,background .3s}
+    .blurto-end-btn{flex-shrink:0;background:rgba(109,40,217,.1);border:1px solid rgba(109,40,217,.2);color:#6d28d9;border-radius:10px;padding:7px 14px;font-size:.72rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:all .15s}
+    .blurto-end-btn:hover{background:rgba(109,40,217,.18)}
+    /* Active blurting layout */
+    .blurto-active-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .blurto-active-hd{display:flex;align-items:center;justify-content:space-between;font-size:.68rem;font-weight:800;color:#5a4230;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+    .blurto-fade-col,.blurto-write-col{display:flex;flex-direction:column}
+    .blurto-fade-wrap{position:relative;flex:1}
+    .blurto-notes-ro{min-height:360px;pointer-events:none;user-select:none}
+    .blurto-fade-overlay{position:absolute;inset:0;background:#f0e4c6;border-radius:14px;pointer-events:none;opacity:0}
+    body.hc .blurto-fade-overlay{background:#04040f}
+    .blurto-peek-btn{align-self:center;margin-top:10px;background:rgba(255,255,255,.55);border:1px solid rgba(168,85,247,.2);color:#6d28d9;border-radius:10px;padding:7px 18px;font-size:.72rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:all .15s}
+    .blurto-peek-btn:hover{background:rgba(168,85,247,.1)}
+    .blurto-peek-btn:disabled{opacity:.35;cursor:default}
+    .blurto-wc{font-size:.65rem;font-weight:700;color:#b09880;font-variant-numeric:tabular-nums}
+    .blurto-voice-btn.vactive{background:rgba(239,68,68,.1)!important;color:#dc2626!important;animation:blurtoVoicePulse 1.2s ease-in-out infinite}
+    @keyframes blurtoVoicePulse{0%,100%{opacity:1}50%{opacity:.55}}
+    .blurto-write-col .blurto-area{flex:1;min-height:360px}
+    /* Review */
+    .blurto-review-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+    .blurto-rev-title{font-size:1.05rem;font-weight:900;color:#1c1208;margin-bottom:3px}
+    .blurto-rev-meta{font-size:.68rem;font-weight:700;color:#6e5438;opacity:.65}
+    .blurto-rev-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .blurto-grade-btn{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:.72rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:opacity .15s}
+    .blurto-grade-btn:hover{opacity:.85}
+    .blurto-grade-btn:disabled{opacity:.45;cursor:default}
+    .blurto-save-btn{background:rgba(109,40,217,.1);border:1px solid rgba(109,40,217,.2);color:#6d28d9;border-radius:10px;padding:8px 14px;font-size:.72rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:all .15s}
+    .blurto-save-btn:hover{background:rgba(109,40,217,.18)}
+    .blurto-review-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .blurto-rev-col{display:flex;flex-direction:column;gap:10px}
+    .blurto-rev-col-hd{font-size:.68rem;font-weight:800;color:#5a4230;text-transform:uppercase;letter-spacing:.1em}
+    .blurto-rev-area{min-height:320px}
+    .blurto-self-rate{background:rgba(250,243,224,.6);border:1px solid rgba(168,85,247,.12);border-radius:12px;padding:14px 16px}
+    .blurto-sr-lbl{font-size:.62rem;font-weight:800;color:#6e5438;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+    .blurto-sr-btns{display:flex;gap:8px}
+    .blurto-sr-btn{flex:1;padding:10px 6px;border-radius:10px;font-size:.72rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;border:1px solid;transition:all .2s}
+    .blurto-sr-btn.got{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.3);color:#16a34a}
+    .blurto-sr-btn.got:hover,.blurto-sr-btn.got.sel{background:rgba(34,197,94,.18);border-color:rgba(34,197,94,.5)}
+    .blurto-sr-btn.partial{background:rgba(180,83,9,.07);border-color:rgba(180,83,9,.3);color:#b45309}
+    .blurto-sr-btn.partial:hover,.blurto-sr-btn.partial.sel{background:rgba(180,83,9,.15);border-color:rgba(180,83,9,.5)}
+    .blurto-sr-btn.missed{background:rgba(220,38,38,.07);border-color:rgba(220,38,38,.3);color:#dc2626}
+    .blurto-sr-btn.missed:hover,.blurto-sr-btn.missed.sel{background:rgba(220,38,38,.15);border-color:rgba(220,38,38,.5)}
+    .blurto-sr-btn.sel{font-weight:900}
+    .blurto-ai-result{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.15);border-radius:14px;padding:18px 22px;margin-bottom:14px}
+    .blurto-ai-score{font-size:2.4rem;font-weight:900;line-height:1}
+    .blurto-ai-score-lbl{font-size:.6rem;font-weight:700;color:#6e5438;text-transform:uppercase;letter-spacing:.1em;margin-left:8px}
+    .blurto-ai-pts{font-size:.8rem;font-weight:600;color:#1c1208;line-height:1.7;margin-top:10px}
+    .blurto-ai-pts strong{display:block;font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;margin-top:10px;margin-bottom:3px}
+    .blurto-ai-comment{font-size:.8rem;color:#5a4230;font-style:italic;margin-top:10px;border-top:1px solid rgba(168,85,247,.12);padding-top:10px;line-height:1.6}
+    /* HC overrides */
+    body.hc .blurto-area{background:rgba(255,255,255,.02)!important;color:#e8dcc8!important;border-color:rgba(168,85,247,.12)!important}
+    body.hc .blurto-area:focus{border-color:rgba(168,85,247,.35)!important}
+    body.hc .blurto-toolbar{background:rgba(255,255,255,.03)!important;border-color:rgba(168,85,247,.08)!important}
+    body.hc .blurto-tb-btn{color:#c8b89a!important}
+    body.hc .blurto-tb-btn:hover{background:rgba(168,85,247,.1)!important;color:#c084fc!important}
+    body.hc .blurto-tb-sep{background:rgba(168,85,247,.1)!important}
+    body.hc .blurto-col-title{color:#a08878!important}
+    body.hc .blurto-cfg-card{background:rgba(255,255,255,.025)!important;border-color:rgba(168,85,247,.1)!important}
+    body.hc .blurto-drop-mini{background:rgba(255,255,255,.02)!important;border-color:rgba(168,85,247,.25)!important;color:#c084fc!important}
+    body.hc .blurto-size-sel{background:rgba(255,255,255,.03)!important;color:#c8b89a!important;border-color:rgba(168,85,247,.15)!important}
+    body.hc .blurto-timer-wrap{background:rgba(255,255,255,.02)!important;border-color:rgba(168,85,247,.1)!important}
+    body.hc .blurto-timer-disp{color:#e8dcc8!important}
+    body.hc .blurto-end-btn{background:rgba(168,85,247,.08)!important;border-color:rgba(168,85,247,.18)!important;color:#c084fc!important}
+    body.hc .blurto-active-hd{color:#a08878!important}
+    body.hc .blurto-peek-btn{background:rgba(255,255,255,.03)!important;border-color:rgba(168,85,247,.15)!important;color:#c084fc!important}
+    body.hc .blurto-wc{color:#6e5438!important}
+    body.hc .blurto-cd-num{color:#a855f7!important}
+    body.hc .blurto-cd-lbl{color:#a08878!important}
+    body.hc .blurto-rev-title{color:#e8dcc8!important}
+    body.hc .blurto-rev-meta,.blurto-rev-col-hd{color:#a08878!important}
+    body.hc .blurto-self-rate{background:rgba(255,255,255,.02)!important;border-color:rgba(168,85,247,.1)!important}
+    body.hc .blurto-sr-lbl{color:#a08878!important}
+    body.hc .blurto-ai-result{background:rgba(255,255,255,.02)!important;border-color:rgba(168,85,247,.1)!important}
+    body.hc .blurto-ai-pts{color:#c8b89a!important}
+    body.hc .blurto-ai-comment{color:#a08878!important;border-top-color:rgba(168,85,247,.12)!important}
     /* Planner clock */
     .rp-clock-wrap{text-align:right;flex-shrink:0;padding-left:20px}
     .rp-clock-time{font-size:1.85rem;font-weight:900;color:#1c1208;letter-spacing:.02em;font-variant-numeric:tabular-nums;line-height:1}
@@ -860,7 +973,7 @@
         <div class="nav-item" onclick="showPanel('saqs',this)">
           <span>✍️</span> Sage
         </div>
-        <div class="nav-item soon"><span>📝</span> Blurting Sheet<span class="soon-pill">Soon</span></div>
+        <div class="nav-item" onclick="showPanel('blurto',this)"><span>📝</span> Blurto</div>
         <div class="nav-item soon"><span>⚡</span> Daily System<span class="soon-pill">Soon</span></div>
       </div>
       <div class="sb-sec">
@@ -1375,6 +1488,176 @@
 
       </div><!-- /panel-saqs -->
 
+      <!-- Blurto Panel -->
+      <div id="panel-blurto" class="panel anim">
+        <h1 class="mcq-h1">Blurto <span style="font-size:.55em;font-weight:700;opacity:.55;letter-spacing:.01em">Blurting Machine</span></h1>
+        <p class="mcq-sub">Fade your notes, write from memory, see what you missed.</p>
+
+        <!-- SETUP PHASE -->
+        <div id="blurto-setup">
+          <div class="blurto-layout">
+
+            <!-- Notes column -->
+            <div class="blurto-notes-col">
+              <div class="blurto-col-hd">
+                <span class="blurto-col-title">Your Notes</span>
+                <div class="blurto-ai-row">
+                  <label class="blurto-drop-mini" id="blurto-drop-zone" ondragover="blurtoDragOver(event)" ondragleave="blurtoDragLeave(event)" ondrop="blurtoDrop(event)" title="Drop a PDF or PPTX here">
+                    <span>📎</span> Drop PDF/PPTX
+                    <input type="file" accept=".pdf,.pptx" style="display:none" id="blurto-file-input" onchange="blurtoFileChange(event)">
+                  </label>
+                  <button class="blurto-ai-btn" id="blurto-simplify-btn" onclick="blurtoSimplify()" title="AI strips notes to key points">✨ Simplify</button>
+                </div>
+              </div>
+              <div class="blurto-status" id="blurto-extract-status"></div>
+              <div class="blurto-toolbar" id="blurto-notes-toolbar">
+                <div class="blurto-tb-group">
+                  <button class="blurto-tb-btn" onclick="blurtoFmt('bold')" title="Bold"><b>B</b></button>
+                  <button class="blurto-tb-btn" onclick="blurtoFmt('italic')" title="Italic"><i>I</i></button>
+                  <button class="blurto-tb-btn" onclick="blurtoFmt('underline')" title="Underline"><u>U</u></button>
+                </div>
+                <div class="blurto-tb-sep"></div>
+                <div class="blurto-tb-group">
+                  <button class="blurto-tb-btn" onclick="blurtoFmt('insertUnorderedList')" title="Bullets">• List</button>
+                  <button class="blurto-tb-btn" onclick="blurtoFmt('insertOrderedList')" title="Numbered">1. List</button>
+                </div>
+                <div class="blurto-tb-sep"></div>
+                <div class="blurto-tb-group">
+                  <span class="blurto-hl-btn" style="background:#fde68a" onclick="blurtoHL('#fde68a')" title="Yellow highlight"></span>
+                  <span class="blurto-hl-btn" style="background:#fbcfe8" onclick="blurtoHL('#fbcfe8')" title="Pink highlight"></span>
+                  <span class="blurto-hl-btn" style="background:#bbf7d0" onclick="blurtoHL('#bbf7d0')" title="Green highlight"></span>
+                  <span class="blurto-hl-btn" style="background:#bae6fd" onclick="blurtoHL('#bae6fd')" title="Blue highlight"></span>
+                  <span class="blurto-hl-btn blurto-hl-clear" onclick="blurtoHL('transparent')" title="Remove highlight">✕</span>
+                </div>
+                <div class="blurto-tb-sep"></div>
+                <select class="blurto-size-sel" onchange="blurtoFontSize(this.value)" title="Font size">
+                  <option value="">Size</option>
+                  <option value="1">Small</option>
+                  <option value="3" selected>Normal</option>
+                  <option value="5">Large</option>
+                  <option value="7">Heading</option>
+                </select>
+                <div class="blurto-tb-sep"></div>
+                <button class="blurto-tb-btn" onclick="blurtoDivider()" title="Section divider">— Divider</button>
+                <div class="blurto-tb-sep"></div>
+                <button class="blurto-tb-btn blurto-clear-btn" onclick="blurtoClearFmt()" title="Remove all formatting">Clear fmt</button>
+              </div>
+              <div class="blurto-area" id="blurto-notes-area" contenteditable="true" data-placeholder="Paste your notes here, drop a PDF, or let AI simplify them…" spellcheck="true"></div>
+            </div>
+
+            <!-- Config column -->
+            <div class="blurto-config-col">
+              <div class="blurto-col-hd">
+                <span class="blurto-col-title">Session Setup</span>
+              </div>
+              <div class="blurto-cfg-card">
+                <div style="font-size:.68rem;font-weight:800;color:#6e5438;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Topic name</div>
+                <input type="text" id="blurto-topic" class="sq-topic-inp" placeholder="e.g. Cell Division" style="width:100%;box-sizing:border-box;margin-bottom:16px">
+                <div style="font-size:.68rem;font-weight:800;color:#6e5438;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Timer</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                  <span class="sq-pill active" id="blurto-mode-count" onclick="blurtoPickMode('count',this)">Countdown</span>
+                  <span class="sq-pill" id="blurto-mode-up" onclick="blurtoPickMode('up',this)">Count up</span>
+                </div>
+                <div id="blurto-cd-row" style="margin-top:10px">
+                  <div style="font-size:.62rem;font-weight:700;color:#6e5438;margin-bottom:2px">Minutes: <span id="blurto-mins-val">10</span></div>
+                  <input type="range" class="blurto-range" id="blurto-mins-range" min="2" max="60" value="10" oninput="blurtoRangeUpdate('mins')">
+                </div>
+                <div style="margin-top:16px">
+                  <div style="font-size:.62rem;font-weight:700;color:#6e5438;margin-bottom:2px">Note fade: <span id="blurto-fade-val">12</span>s</div>
+                  <input type="range" class="blurto-range" id="blurto-fade-range" min="5" max="30" value="12" oninput="blurtoRangeUpdate('fade')">
+                </div>
+              </div>
+              <button class="sq-gen-btn" id="blurto-ready-btn" onclick="blurtoReady()" style="width:100%;margin-top:8px">Ready to blurt? →</button>
+            </div>
+
+          </div>
+        </div><!-- /setup -->
+
+        <!-- COUNTDOWN PHASE -->
+        <div id="blurto-countdown" style="display:none">
+          <div class="blurto-cd-wrap">
+            <div class="blurto-cd-num" id="blurto-cd-num">3</div>
+            <div class="blurto-cd-lbl">Get ready…</div>
+          </div>
+        </div>
+
+        <!-- BLURTING PHASE -->
+        <div id="blurto-active" style="display:none">
+          <div class="blurto-timer-wrap">
+            <div class="blurto-timer-disp" id="blurto-timer-disp">00:00</div>
+            <div class="blurto-timer-bar-outer"><div class="blurto-timer-bar-fill" id="blurto-timer-bar" style="width:100%"></div></div>
+            <button class="blurto-end-btn" onclick="blurtoEnd()">Done →</button>
+          </div>
+          <div class="blurto-active-layout">
+            <div class="blurto-fade-col">
+              <div class="blurto-active-hd">
+                <span>Your Notes</span>
+                <span id="blurto-peek-info" style="font-size:.6rem;opacity:.55">Peeks: 0</span>
+              </div>
+              <div class="blurto-fade-wrap">
+                <div class="blurto-area blurto-notes-ro" id="blurto-notes-snapshot"></div>
+                <div class="blurto-fade-overlay" id="blurto-fade-overlay"></div>
+              </div>
+              <button class="blurto-peek-btn" id="blurto-peek-btn" onclick="blurtoPeek()">👁 Peek (3s)</button>
+            </div>
+            <div class="blurto-write-col">
+              <div class="blurto-active-hd">
+                <span>Blurt it out</span>
+                <span class="blurto-wc" id="blurto-wc">0 words</span>
+              </div>
+              <div class="blurto-toolbar" style="margin-bottom:8px">
+                <div class="blurto-tb-group">
+                  <button class="blurto-tb-btn" onclick="blurtoFmtRight('bold')"><b>B</b></button>
+                  <button class="blurto-tb-btn" onclick="blurtoFmtRight('italic')"><i>I</i></button>
+                  <button class="blurto-tb-btn" onclick="blurtoFmtRight('underline')"><u>U</u></button>
+                </div>
+                <div class="blurto-tb-sep"></div>
+                <button class="blurto-tb-btn" onclick="blurtoFmtRight('insertUnorderedList')">• List</button>
+                <div class="blurto-tb-sep"></div>
+                <button class="blurto-tb-btn blurto-tb-btn blurto-voice-btn" id="blurto-voice-btn" onclick="blurtoVoiceToggle()" title="Voice to text">🎤 Voice</button>
+              </div>
+              <div class="blurto-area" id="blurto-write-area" contenteditable="true" data-placeholder="Write everything you remember…" oninput="blurtoWCUpdate()" spellcheck="true" style="min-height:360px"></div>
+            </div>
+          </div>
+        </div><!-- /active -->
+
+        <!-- REVIEW PHASE -->
+        <div id="blurto-review" style="display:none">
+          <div class="blurto-review-hd">
+            <div>
+              <div class="blurto-rev-title">Review Session</div>
+              <div class="blurto-rev-meta" id="blurto-rev-meta"></div>
+            </div>
+            <div class="blurto-rev-actions">
+              <div class="ai-status" id="blurto-grade-status" style="font-size:.7rem"></div>
+              <button class="blurto-grade-btn" id="blurto-grade-btn" onclick="blurtoGrade()">✨ AI Grade</button>
+              <button class="blurto-save-btn" id="blurto-save-btn" onclick="blurtoSaveSession()">💾 Save to Planner</button>
+              <button class="blurto-save-btn" onclick="blurtoReset()">↩ New Session</button>
+            </div>
+          </div>
+          <div id="blurto-ai-result" style="display:none" class="blurto-ai-result"></div>
+          <div class="blurto-review-grid">
+            <div class="blurto-rev-col">
+              <div class="blurto-rev-col-hd">Original Notes</div>
+              <div class="blurto-area blurto-rev-area" id="blurto-rev-notes" style="pointer-events:none;user-select:none"></div>
+            </div>
+            <div class="blurto-rev-col">
+              <div class="blurto-rev-col-hd">Your Blurt</div>
+              <div class="blurto-area blurto-rev-area" id="blurto-rev-blurt" style="pointer-events:none;user-select:none"></div>
+              <div class="blurto-self-rate">
+                <div class="blurto-sr-lbl">Self-rate this session</div>
+                <div class="blurto-sr-btns">
+                  <button class="blurto-sr-btn got" onclick="blurtoRate('got',this)">Got it ✓</button>
+                  <button class="blurto-sr-btn partial" onclick="blurtoRate('partial',this)">Partial ~</button>
+                  <button class="blurto-sr-btn missed" onclick="blurtoRate('missed',this)">Missed ✗</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div><!-- /review -->
+
+      </div><!-- /panel-blurto -->
+
     </div><!-- /content -->
   </div><!-- /main -->
 </div><!-- /app -->
@@ -1418,6 +1701,7 @@ window.addEventListener('DOMContentLoaded', function() {
   rpExamLoad();
   rpStartClock();
   sqLoad();
+  blurtoLoad();
 });
 
 // ── MARVEL ENTRY ANIMATION ──
@@ -2175,7 +2459,8 @@ function retryQuiz() {
 var PANEL_TITLES = {
   'mcq':     'Poppy<span class="tb-sub">MCQ Maker</span>',
   'planner': 'Revision Planner<span class="tb-sub">Spaced Repetition</span>',
-  'saqs':    'Sage<span class="tb-sub">SAQs Maker</span>'
+  'saqs':    'Sage<span class="tb-sub">SAQs Maker</span>',
+  'blurto':  'Blurto<span class="tb-sub">Blurting Machine</span>'
 };
 function showPanel(id, el) {
   document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
@@ -2186,6 +2471,7 @@ function showPanel(id, el) {
   document.getElementById('tb-title').innerHTML = PANEL_TITLES[id] || 'Stoday Plus<span class="tb-sub">Dashboard</span>';
   if (id === 'planner') rpRenderToday();
   if (id === 'saqs') sqInitAIKeyUI();
+  if (id === 'blurto') blurtoInit();
 }
 
 function goHome() {
@@ -3378,6 +3664,435 @@ function sqEnterFS() {
   if (el.requestFullscreen) el.requestFullscreen();
   var btn = document.getElementById('sq-fs-btn');
   if (btn) btn.textContent = '✕ Exit Fullscreen';
+}
+
+// ── BLURTO ──────────────────────────────────────────
+var blurtoPhase = 'setup';
+var blurtoTimerMode = 'count';
+var blurtoMins = 10;
+var blurtoFadeSecs = 12;
+var blurtoTotalSecs = 0;
+var blurtoElapsed = 0;
+var blurtoTimerInterval = null;
+var blurtoPeeks = 0;
+var blurtoPeeking = false;
+var blurtoPeekTimeout = null;
+var blurtoVoiceActive = false;
+var blurtoRecognition = null;
+var blurtoSelfRating = null;
+var blurtoSessions = [];
+var blurtoCurrentTopic = '';
+var blurtoSessionPeeks = 0;
+
+function blurtoLoad() {
+  try { blurtoSessions = JSON.parse(localStorage.getItem('sp_blurto') || '[]'); } catch(e) { blurtoSessions = []; }
+}
+
+function blurtoSave() {
+  localStorage.setItem('sp_blurto', JSON.stringify(blurtoSessions));
+}
+
+function blurtoInit() {
+  // Called each time panel is opened; only do setup init
+  if (blurtoPhase !== 'setup') return;
+  blurtoRangeUpdate('mins');
+  blurtoRangeUpdate('fade');
+}
+
+function blurtoRangeUpdate(which) {
+  if (which === 'mins') {
+    var v = document.getElementById('blurto-mins-range').value;
+    blurtoMins = parseInt(v);
+    document.getElementById('blurto-mins-val').textContent = v;
+  } else {
+    var v2 = document.getElementById('blurto-fade-range').value;
+    blurtoFadeSecs = parseInt(v2);
+    document.getElementById('blurto-fade-val').textContent = v2;
+  }
+}
+
+function blurtoPickMode(m, el) {
+  blurtoTimerMode = m;
+  document.querySelectorAll('#blurto-setup .sq-pill').forEach(function(p) { p.classList.remove('active'); });
+  el.classList.add('active');
+  document.getElementById('blurto-cd-row').style.display = m === 'count' ? '' : 'none';
+}
+
+// ── Formatting helpers ──
+function blurtoFmt(cmd) {
+  document.getElementById('blurto-notes-area').focus();
+  document.execCommand(cmd, false, null);
+}
+
+function blurtoFmtRight(cmd) {
+  document.getElementById('blurto-write-area').focus();
+  document.execCommand(cmd, false, null);
+}
+
+function blurtoHL(color) {
+  document.getElementById('blurto-notes-area').focus();
+  document.execCommand('backColor', false, color);
+}
+
+function blurtoFontSize(val) {
+  if (!val) return;
+  document.getElementById('blurto-notes-area').focus();
+  document.execCommand('fontSize', false, val);
+}
+
+function blurtoDivider() {
+  document.getElementById('blurto-notes-area').focus();
+  document.execCommand('insertHTML', false, '<hr style="border:none;border-top:2px solid rgba(168,85,247,.25);margin:10px 0">');
+}
+
+function blurtoClearFmt() {
+  document.getElementById('blurto-notes-area').focus();
+  document.execCommand('removeFormat', false, null);
+}
+
+// ── File drop / extract ──
+function blurtoDragOver(e) {
+  e.preventDefault();
+  document.getElementById('blurto-drop-zone').classList.add('over');
+}
+function blurtoDragLeave(e) {
+  document.getElementById('blurto-drop-zone').classList.remove('over');
+}
+function blurtoDrop(e) {
+  e.preventDefault();
+  document.getElementById('blurto-drop-zone').classList.remove('over');
+  var file = e.dataTransfer.files[0];
+  if (file) blurtoExtractFile(file);
+}
+function blurtoFileChange(e) {
+  var file = e.target.files[0];
+  if (file) blurtoExtractFile(file);
+}
+
+function blurtoExtractFile(file) {
+  var st = document.getElementById('blurto-extract-status');
+  st.textContent = 'Extracting…';
+  var name = file.name.toLowerCase();
+  var p;
+  if (name.endsWith('.pdf')) p = extractPdf(file);
+  else if (name.endsWith('.pptx')) p = extractPptx(file);
+  else { st.textContent = 'Only PDF or PPTX supported.'; return; }
+  p.then(function(text) {
+    document.getElementById('blurto-notes-area').innerText = text;
+    st.textContent = 'Extracted! You can edit the text before blurting.';
+  }).catch(function() { st.textContent = 'Could not extract. Paste notes manually.'; });
+}
+
+// ── AI Simplify ──
+function blurtoSimplify() {
+  var notes = document.getElementById('blurto-notes-area').innerText.trim();
+  if (!notes) { document.getElementById('blurto-extract-status').textContent = 'Add notes first.'; return; }
+  var key = getAIKey();
+  if (!key) { document.getElementById('blurto-extract-status').textContent = 'Set your AI key first.'; return; }
+  var btn = document.getElementById('blurto-simplify-btn');
+  btn.disabled = true; btn.textContent = 'Simplifying…';
+  var st = document.getElementById('blurto-extract-status');
+  st.textContent = 'AI is simplifying your notes…';
+  fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+    body: JSON.stringify({
+      model: 'llama-3.3-70b-versatile',
+      messages: [{
+        role: 'user',
+        content: 'You are a study coach. Strip the following notes down to the essential key points only — concise, clear, exam-ready bullet points. Remove padding and filler. Use "•" bullets.\n\nNotes:\n' + notes
+      }],
+      temperature: 0.4, max_tokens: 1500
+    })
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    var out = d.choices && d.choices[0] && d.choices[0].message.content;
+    if (!out) throw new Error('No response');
+    document.getElementById('blurto-notes-area').innerText = out;
+    st.textContent = 'Simplified! Review and edit as needed.';
+    btn.disabled = false; btn.textContent = '✨ Simplify';
+  }).catch(function() {
+    st.textContent = 'AI error — check your key or try again.';
+    btn.disabled = false; btn.textContent = '✨ Simplify';
+  });
+}
+
+// ── Session start ──
+function blurtoReady() {
+  blurtoCurrentTopic = (document.getElementById('blurto-topic').value.trim() || 'Blurto Session');
+  var notes = document.getElementById('blurto-notes-area').innerHTML;
+  if (!notes || document.getElementById('blurto-notes-area').innerText.trim() === '') {
+    document.getElementById('blurto-extract-status').textContent = 'Add some notes first!';
+    return;
+  }
+  blurtoRangeUpdate('mins');
+  blurtoRangeUpdate('fade');
+  blurtoPhase = 'countdown';
+  blurtoShowPhase('blurto-countdown');
+  var n = 3;
+  var numEl = document.getElementById('blurto-cd-num');
+  numEl.textContent = n;
+  var ivl = setInterval(function() {
+    n--;
+    if (n <= 0) {
+      clearInterval(ivl);
+      blurtoStart();
+    } else {
+      numEl.textContent = n;
+    }
+  }, 850);
+}
+
+function blurtoStart() {
+  blurtoPhase = 'blurting';
+  blurtoElapsed = 0;
+  blurtoTotalSecs = blurtoMins * 60;
+  blurtoPeeks = 0;
+  blurtoSessionPeeks = 0;
+  blurtoSelfRating = null;
+  // Copy notes as snapshot
+  var snap = document.getElementById('blurto-notes-snapshot');
+  snap.innerHTML = document.getElementById('blurto-notes-area').innerHTML;
+  // Clear write area
+  document.getElementById('blurto-write-area').innerHTML = '';
+  document.getElementById('blurto-wc').textContent = '0 words';
+  document.getElementById('blurto-peek-info').textContent = 'Peeks: 0';
+  document.getElementById('blurto-peek-btn').disabled = false;
+  document.getElementById('blurto-timer-disp').style.color = '';
+  // Reset fade overlay
+  var ov = document.getElementById('blurto-fade-overlay');
+  ov.style.transition = 'none';
+  ov.style.opacity = '0';
+  blurtoShowPhase('blurto-active');
+  // Start fade after 1s
+  setTimeout(function() {
+    ov.style.transition = 'opacity ' + blurtoFadeSecs + 's linear';
+    requestAnimationFrame(function() { requestAnimationFrame(function() { ov.style.opacity = '1'; }); });
+  }, 1000);
+  // Start timer
+  blurtoTimerTick();
+  blurtoTimerInterval = setInterval(blurtoTimerTick, 1000);
+}
+
+function blurtoTimerTick() {
+  blurtoElapsed++;
+  var disp = document.getElementById('blurto-timer-disp');
+  var bar  = document.getElementById('blurto-timer-bar');
+  if (blurtoTimerMode === 'count') {
+    var rem = blurtoTotalSecs - blurtoElapsed;
+    if (rem < 0) rem = 0;
+    disp.textContent = pad(Math.floor(rem / 60)) + ':' + pad(rem % 60);
+    bar.style.width = (rem / blurtoTotalSecs * 100) + '%';
+    if (rem <= 30) { disp.style.color = '#dc2626'; bar.style.background = '#ef4444'; }
+    else if (rem <= 120) { disp.style.color = '#b45309'; bar.style.background = '#f59e0b'; }
+    if (rem <= 0) blurtoEnd();
+  } else {
+    disp.textContent = pad(Math.floor(blurtoElapsed / 60)) + ':' + pad(blurtoElapsed % 60);
+    bar.style.width = '100%';
+  }
+}
+
+// ── Peek ──
+function blurtoPeek() {
+  if (blurtoPeeking) return;
+  blurtoPeeking = true;
+  blurtoSessionPeeks++;
+  document.getElementById('blurto-peek-btn').disabled = true;
+  document.getElementById('blurto-peek-info').textContent = 'Peeks: ' + blurtoSessionPeeks;
+  var ov = document.getElementById('blurto-fade-overlay');
+  ov.style.transition = 'opacity 0.4s ease';
+  ov.style.opacity = '0';
+  blurtoPeekTimeout = setTimeout(function() {
+    ov.style.transition = 'opacity 0.8s ease';
+    ov.style.opacity = '1';
+    setTimeout(function() {
+      blurtoPeeking = false;
+      document.getElementById('blurto-peek-btn').disabled = false;
+    }, 900);
+  }, 3000);
+}
+
+// ── Word count ──
+function blurtoWCUpdate() {
+  var txt = document.getElementById('blurto-write-area').innerText.trim();
+  var words = txt ? txt.split(/\s+/).length : 0;
+  document.getElementById('blurto-wc').textContent = words + (words === 1 ? ' word' : ' words');
+}
+
+// ── Voice ──
+function blurtoVoiceToggle() {
+  var btn = document.getElementById('blurto-voice-btn');
+  if (blurtoVoiceActive) {
+    if (blurtoRecognition) blurtoRecognition.stop();
+    blurtoVoiceActive = false;
+    btn.classList.remove('vactive');
+    btn.textContent = '🎤 Voice';
+    return;
+  }
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { btn.textContent = 'Not supported'; return; }
+  blurtoRecognition = new SR();
+  blurtoRecognition.continuous = true;
+  blurtoRecognition.interimResults = false;
+  blurtoRecognition.lang = 'en-GB';
+  blurtoRecognition.onresult = function(e) {
+    var transcript = e.results[e.results.length - 1][0].transcript;
+    var area = document.getElementById('blurto-write-area');
+    area.focus();
+    document.execCommand('insertText', false, transcript + ' ');
+    blurtoWCUpdate();
+  };
+  blurtoRecognition.onerror = function() {
+    blurtoVoiceActive = false;
+    btn.classList.remove('vactive');
+    btn.textContent = '🎤 Voice';
+  };
+  blurtoRecognition.onend = function() {
+    if (blurtoVoiceActive) blurtoRecognition.start();
+  };
+  blurtoRecognition.start();
+  blurtoVoiceActive = true;
+  btn.classList.add('vactive');
+  btn.textContent = '🔴 Listening';
+}
+
+// ── End session, go to review ──
+function blurtoEnd() {
+  if (blurtoTimerInterval) { clearInterval(blurtoTimerInterval); blurtoTimerInterval = null; }
+  if (blurtoPeekTimeout) { clearTimeout(blurtoPeekTimeout); blurtoPeekTimeout = null; }
+  if (blurtoVoiceActive && blurtoRecognition) { blurtoRecognition.stop(); blurtoVoiceActive = false; }
+  blurtoPhase = 'review';
+  var elapsed = blurtoElapsed;
+  var m = Math.floor(elapsed / 60), s = elapsed % 60;
+  document.getElementById('blurto-rev-meta').textContent =
+    blurtoCurrentTopic + ' · ' + pad(m) + ':' + pad(s) + ' · ' + blurtoSessionPeeks + ' peek' + (blurtoSessionPeeks === 1 ? '' : 's');
+  document.getElementById('blurto-rev-notes').innerHTML = document.getElementById('blurto-notes-area').innerHTML;
+  document.getElementById('blurto-rev-blurt').innerHTML = document.getElementById('blurto-write-area').innerHTML;
+  document.getElementById('blurto-ai-result').style.display = 'none';
+  document.getElementById('blurto-grade-btn').disabled = false;
+  document.getElementById('blurto-grade-btn').textContent = '✨ AI Grade';
+  document.getElementById('blurto-grade-status').textContent = '';
+  document.getElementById('blurto-save-btn').textContent = '💾 Save to Planner';
+  document.getElementById('blurto-save-btn').disabled = false;
+  document.querySelectorAll('.blurto-sr-btn').forEach(function(b) { b.classList.remove('sel'); });
+  blurtoSelfRating = null;
+  blurtoShowPhase('blurto-review');
+}
+
+// ── Self-rate ──
+function blurtoRate(rating, el) {
+  blurtoSelfRating = rating;
+  document.querySelectorAll('.blurto-sr-btn').forEach(function(b) { b.classList.remove('sel'); });
+  el.classList.add('sel');
+}
+
+// ── AI Grade ──
+function blurtoGrade() {
+  var notes = document.getElementById('blurto-notes-area').innerText.trim();
+  var blurt = document.getElementById('blurto-write-area').innerText.trim();
+  if (!notes || !blurt) { document.getElementById('blurto-grade-status').textContent = 'Need notes and a blurt first.'; return; }
+  var key = getAIKey();
+  if (!key) { document.getElementById('blurto-grade-status').textContent = 'Set your AI key first.'; return; }
+  var btn = document.getElementById('blurto-grade-btn');
+  btn.disabled = true; btn.textContent = 'Grading…';
+  document.getElementById('blurto-grade-status').textContent = 'AI is comparing your blurt…';
+  var prompt = 'You are a study coach grading a "blurting" exercise.\n\nOriginal notes:\n' + notes + '\n\nStudent\'s blurt (written from memory):\n' + blurt + '\n\nCompare the blurt to the notes. Identify key points in the notes. For each, decide if the student covered it (covered), partially covered it (partial), or missed it (missed).\n\nRespond ONLY with valid JSON, no markdown:\n{\n  "score": 72,\n  "covered": ["key point text"],\n  "partial": ["key point text"],\n  "missed": ["key point text"],\n  "comment": "One encouraging sentence of feedback."\n}';
+  fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+    body: JSON.stringify({
+      model: 'llama-3.3-70b-versatile',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.3, max_tokens: 1200
+    })
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    var raw = d.choices && d.choices[0] && d.choices[0].message.content;
+    if (!raw) throw new Error('No content');
+    var j = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    blurtoShowGrade(j);
+    btn.disabled = false; btn.textContent = '✨ AI Grade';
+    document.getElementById('blurto-grade-status').textContent = '';
+  }).catch(function() {
+    document.getElementById('blurto-grade-status').textContent = 'AI error — try again.';
+    btn.disabled = false; btn.textContent = '✨ AI Grade';
+  });
+}
+
+function blurtoShowGrade(j) {
+  var score = j.score || 0;
+  var color = score >= 75 ? '#16a34a' : score >= 50 ? '#b45309' : '#dc2626';
+  var html = '<div style="display:flex;align-items:baseline;gap:6px">'
+    + '<span class="blurto-ai-score" style="color:' + color + '">' + score + '%</span>'
+    + '<span class="blurto-ai-score-lbl">coverage</span></div>';
+  function listSection(title, arr, col) {
+    if (!arr || !arr.length) return '';
+    return '<strong style="color:' + col + '">' + title + '</strong>'
+      + arr.map(function(p) { return '• ' + p; }).join('<br>');
+  }
+  html += '<div class="blurto-ai-pts">'
+    + listSection('Covered ✓', j.covered, '#16a34a')
+    + listSection('Partial ~', j.partial, '#b45309')
+    + listSection('Missed ✗', j.missed, '#dc2626')
+    + '</div>';
+  if (j.comment) html += '<div class="blurto-ai-comment">' + rpEsc(j.comment) + '</div>';
+  var el = document.getElementById('blurto-ai-result');
+  el.innerHTML = html;
+  el.style.display = '';
+}
+
+// ── Save session to planner ──
+function blurtoSaveSession() {
+  var btn = document.getElementById('blurto-save-btn');
+  var topic = blurtoCurrentTopic || 'Blurto Session';
+  var rating = blurtoSelfRating || 'got';
+  var now = Date.now();
+  // Push to revision planner using same pattern as rpAddFromQuiz
+  var exists = rpData.some(function(r) { return r.topic === topic; });
+  if (!exists) {
+    rpData.unshift({
+      id: now + '-' + Math.random().toString(36).slice(2, 7),
+      topic: topic,
+      subject: 'Blurto',
+      addedDate: now,
+      level: rating === 'got' ? 1 : 0,
+      nextReview: now + rpIntervalDays(rating === 'got' ? 1 : 0) * 86400000,
+      doneReviews: []
+    });
+    rpSave();
+  }
+  // Save to blurto sessions log
+  blurtoSessions.unshift({
+    id: now,
+    topic: topic,
+    rating: rating,
+    peeks: blurtoSessionPeeks,
+    elapsed: blurtoElapsed,
+    date: new Date(now).toLocaleDateString()
+  });
+  blurtoSave();
+  btn.textContent = '✓ Saved!';
+  btn.disabled = true;
+  // Show banner
+  var banner = document.createElement('div');
+  banner.className = 'ai-status';
+  banner.textContent = 'Session saved to Revision Planner! (Topic: ' + topic + ')';
+  banner.style.cssText = 'margin-top:10px;text-align:center';
+  document.getElementById('blurto-review').insertBefore(banner, document.getElementById('blurto-review').firstChild.nextSibling);
+  setTimeout(function() { banner.remove(); }, 4000);
+}
+
+// ── Reset ──
+function blurtoReset() {
+  if (blurtoTimerInterval) { clearInterval(blurtoTimerInterval); blurtoTimerInterval = null; }
+  if (blurtoVoiceActive && blurtoRecognition) { blurtoRecognition.stop(); blurtoVoiceActive = false; }
+  blurtoPhase = 'setup';
+  blurtoShowPhase('blurto-setup');
+}
+
+function blurtoShowPhase(id) {
+  ['blurto-setup','blurto-countdown','blurto-active','blurto-review'].forEach(function(p) {
+    var el = document.getElementById(p);
+    if (el) el.style.display = (p === id) ? '' : 'none';
+  });
 }
 </script>
 </body>
