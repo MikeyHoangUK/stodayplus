@@ -570,6 +570,16 @@
     .rp-empty-icon{font-size:2.4rem;margin-bottom:12px}
     .rp-empty-title{font-size:1.1rem;font-weight:900;color:#1c1208;margin-bottom:6px}
     .rp-empty-sub{font-size:.8rem;color:#6e5438;font-weight:500}
+    .rp-shortcuts{display:flex;gap:10px;margin-top:28px;flex-wrap:wrap}
+    .rp-shortcut-btn{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.65);border:1px solid rgba(168,85,247,.15);border-radius:12px;padding:12px 18px;cursor:pointer;font-family:'Raleway',sans-serif;font-weight:800;font-size:.78rem;color:#5a4230;transition:all .18s;flex:1;min-width:120px;justify-content:center}
+    .rp-shortcut-btn:hover{background:rgba(168,85,247,.09);border-color:rgba(168,85,247,.35);color:#6d28d9;transform:translateY(-1px)}
+    .rp-shortcut-btn .rp-sc-emoji{font-size:1.2rem;line-height:1}
+    .rp-shortcut-btn .rp-sc-text{display:flex;flex-direction:column;gap:1px;text-align:left}
+    .rp-shortcut-btn .rp-sc-name{font-size:.78rem;font-weight:900;line-height:1.2}
+    .rp-shortcut-btn .rp-sc-sub{font-size:.6rem;font-weight:600;opacity:.55;line-height:1.2}
+    .rp-shortcuts-lbl{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#b09880;margin-top:28px;margin-bottom:10px}
+    body.hc .rp-shortcut-btn{background:rgba(255,255,255,.02)!important;border-color:rgba(168,85,247,.12)!important;color:#a08878!important}
+    body.hc .rp-shortcut-btn:hover{background:rgba(168,85,247,.08)!important;border-color:rgba(168,85,247,.3)!important;color:#c084fc!important}
     /* Calendar */
     .rp-cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
     .rp-cal-month{font-size:1rem;font-weight:900;color:#1c1208}
@@ -2930,12 +2940,36 @@ function rpEsc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+function rpShortcutsHTML() {
+  return '<div class="rp-shortcuts-lbl">Jump to a study tool</div>'
+    + '<div class="rp-shortcuts">'
+    + '<button class="rp-shortcut-btn" onclick="rpGoTo(\'mcq\')">'
+    + '<span class="rp-sc-emoji">🧠</span>'
+    + '<span class="rp-sc-text"><span class="rp-sc-name">Poppy</span><span class="rp-sc-sub">MCQ Maker</span></span>'
+    + '</button>'
+    + '<button class="rp-shortcut-btn" onclick="rpGoTo(\'saqs\')">'
+    + '<span class="rp-sc-emoji">✍️</span>'
+    + '<span class="rp-sc-text"><span class="rp-sc-name">Sage</span><span class="rp-sc-sub">SAQs Maker</span></span>'
+    + '</button>'
+    + '<button class="rp-shortcut-btn" onclick="rpGoTo(\'blurto\')">'
+    + '<span class="rp-sc-emoji">📝</span>'
+    + '<span class="rp-sc-text"><span class="rp-sc-name">Blurto</span><span class="rp-sc-sub">Blurting Machine</span></span>'
+    + '</button>'
+    + '</div>';
+}
+
+function rpGoTo(id) {
+  var navEl = document.querySelector('.nav-item[onclick*="\'' + id + '\'"]');
+  showPanel(id, navEl);
+}
+
 function rpRenderToday() {
   var el = document.getElementById('rp-today-content');
   if (!el) return;
   var due = rpGetDue();
   if (due.length === 0) {
-    el.innerHTML = '<div class="rp-empty"><div class="rp-empty-icon">🎉</div><div class="rp-empty-title">All caught up!</div><div class="rp-empty-sub">No reviews due today. Come back tomorrow.</div></div>';
+    el.innerHTML = '<div class="rp-empty"><div class="rp-empty-icon">🎉</div><div class="rp-empty-title">All caught up!</div><div class="rp-empty-sub">No reviews due today. Come back tomorrow.</div></div>'
+      + rpShortcutsHTML();
     return;
   }
   var html = '<div class="rp-due-header"><span class="rp-due-count">' + due.length + '</span><span class="rp-due-lbl"> topic' + (due.length !== 1 ? 's' : '') + ' due for review</span></div>';
@@ -2954,6 +2988,7 @@ function rpRenderToday() {
       + rpChainHTML(item)
       + '</div>';
   });
+  html += rpShortcutsHTML();
   el.innerHTML = html;
 }
 
