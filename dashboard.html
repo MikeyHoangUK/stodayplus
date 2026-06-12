@@ -1867,17 +1867,18 @@ function startMarvelIntro(){
     },3620);
   }
 
+  vid.addEventListener('loadeddata',runTextOver);
   vid.addEventListener('canplaythrough',runTextOver);
   vid.addEventListener('playing',runTextOver);
 
-  // Fallback: video error
+  // Fallback: video error only
   vid.addEventListener('error',function(){
     if(!fbUsed){fbUsed=true;textStarted=true;vid.style.display='none';startCanvasFallback();}
   });
-  // Fallback: video too slow to load (1s timeout)
+  // Fallback: only if video genuinely fails to load after 6s
   setTimeout(function(){
     if(!textStarted&&!fbUsed){fbUsed=true;textStarted=true;vid.style.display='none';startCanvasFallback();}
-  },1000);
+  },6000);
 }
 
 function startCanvasFallback(){
