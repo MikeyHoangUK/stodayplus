@@ -673,6 +673,13 @@
     body.hc .rp-schedule-preview{background:rgba(168,85,247,.04)!important;border-color:rgba(168,85,247,.1)!important}
     body.hc .rp-sched-lbl{color:#a08878!important}
     body.hc .rp-sched-day{color:#a08878!important}
+    /* Planner clock */
+    .rp-clock-wrap{text-align:right;flex-shrink:0;padding-left:20px}
+    .rp-clock-time{font-size:1.85rem;font-weight:900;color:#1c1208;letter-spacing:.02em;font-variant-numeric:tabular-nums;line-height:1}
+    .rp-clock-sec{font-size:.8rem;font-weight:700;opacity:.32;letter-spacing:.01em}
+    .rp-clock-date{font-size:.6rem;font-weight:800;color:#6e5438;opacity:.58;margin-top:6px;letter-spacing:.06em;text-transform:uppercase}
+    body.hc .rp-clock-time{color:#e8dcc8!important}
+    body.hc .rp-clock-date{color:#a08878!important}
     /* SAQs ─────────────────────────────────────────── */
     .sq-type-note{font-size:.7rem;color:#6e5438;font-weight:600;margin-bottom:14px}
     .sq-pill{padding:5px 14px;border-radius:20px;font-size:.72rem;font-weight:800;cursor:pointer;border:1px solid rgba(168,85,247,.15);background:rgba(255,255,255,.5);color:#6e5438;transition:all .18s;user-select:none;font-family:'Raleway',sans-serif}
@@ -1137,8 +1144,16 @@
 
       <!-- PLANNER Panel -->
       <div id="panel-planner" class="panel active anim">
-        <h1 class="mcq-h1">Revision Planner</h1>
-        <p class="mcq-sub">Spaced repetition on autopilot — the science-backed way to never forget what you learn.</p>
+        <div style="display:flex;align-items:flex-start;justify-content:space-between">
+          <div style="flex:1">
+            <h1 class="mcq-h1">Revision Planner</h1>
+            <p class="mcq-sub">Spaced repetition on autopilot — the science-backed way to never forget what you learn.</p>
+          </div>
+          <div class="rp-clock-wrap">
+            <div class="rp-clock-time"><span id="rp-clock-hm">--:--</span><span class="rp-clock-sec" id="rp-clock-sec"></span></div>
+            <div class="rp-clock-date" id="rp-clock-date"></div>
+          </div>
+        </div>
 
         <div class="mcq-tabs">
           <div class="mcq-tab active" id="rp-tab-today" onclick="rpTab('today')">📅 Today</div>
@@ -1401,6 +1416,7 @@ window.addEventListener('DOMContentLoaded', function() {
   rpLoad();
   rpRenderToday();
   rpExamLoad();
+  rpStartClock();
   sqLoad();
 });
 
@@ -2956,6 +2972,24 @@ function rpRenderExams() {
       + '</div>';
   });
   el.innerHTML = html;
+}
+
+// ── PLANNER CLOCK ─────────────────────────────────────────────────────────────
+function rpStartClock() {
+  function tick() {
+    var now = new Date();
+    var hm  = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    var sec = ':' + String(now.getSeconds()).padStart(2, '0');
+    var day = now.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+    var hmEl  = document.getElementById('rp-clock-hm');
+    var secEl = document.getElementById('rp-clock-sec');
+    var dayEl = document.getElementById('rp-clock-date');
+    if (hmEl)  hmEl.textContent  = hm;
+    if (secEl) secEl.textContent = sec;
+    if (dayEl) dayEl.textContent = day;
+  }
+  tick();
+  setInterval(tick, 1000);
 }
 
 // ── SAQs MAKER ────────────────────────────────────────────────────────────────
