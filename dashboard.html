@@ -2746,13 +2746,17 @@ async function processAIFile(file){
     var aiLoadEl = document.getElementById('ai-drop-loading');
     function aiProg(msg){ if(aiLoadEl) setAIStatus(msg,'sload'); }
     var text = ext === 'pdf' ? await extractPdf(file, aiKey, aiProg) : await extractPptx(file, aiKey, aiProg);
-    if(text.length > 80000) text = text.slice(0, 80000) + '\n[…truncated]';
     if(!text.replace(/\s+/g,'').trim()) throw new Error('No readable text found in this file.');
+    var condensed = false;
+    if(text.length > CONDENSE_CHARS && aiKey){
+      try{ text = await condenseForAI(text, aiKey, aiProg); condensed = true; }
+      catch(e){ text = text.slice(0, 8000); }
+    } else if(text.length > 8000){ text = text.slice(0, 8000); }
     document.getElementById('ai-topic').value = text;
     document.getElementById('ai-file-name').textContent = file.name;
     document.getElementById('ai-drop-loading').style.display = 'none';
     document.getElementById('ai-drop-done').style.display = 'block';
-    setAIStatus('✓ Text extracted — hit Generate when ready.','sok');
+    setAIStatus(condensed ? '✓ Key facts extracted — review, then hit Generate.' : '✓ Text extracted — hit Generate when ready.','sok');
   } catch(err){
     document.getElementById('ai-drop-loading').style.display = 'none';
     document.getElementById('ai-drop-idle').style.display = 'block';
@@ -2891,11 +2895,14 @@ function aiCountdown(secs, onDone){
   if(secs <= 0){ onDone(); return; }
   setTimeout(function(){ aiCountdown(secs - 1, onDone); }, 1000);
 }
-// ── Shared condenser (keeps generation requests within Groq free TPM limits) ──
-var CONDENSE_THRESHOLD = 20000; // chars — above this we condense first
+// ── Shared condenser ─────────────────────────────────────────────
+// Budget: 4,000 tokens input + 800 tokens output = 4,800 tokens per call.
+// Generation call uses condensed output (~800 tokens) + 3,000 max = 4,300 tokens.
+// Worst-case same minute: 9,100 tokens — safely under Groq free 12,000 TPM.
+var CONDENSE_CHARS = 10000; // auto-condense during extraction above this
 async function condenseForAI(text, key, onProgress) {
-  var input = text.length > 26000 ? text.slice(0, 26000) + '\n[…remaining truncated]' : text;
-  if (onProgress) onProgress('Notes are long — extracting key facts first…');
+  var input = text.length > 16000 ? text.slice(0, 16000) : text;
+  if (onProgress) onProgress('Extracting key facts…');
   var r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
@@ -2905,9 +2912,9 @@ async function condenseForAI(text, key, onProgress) {
         'You are a study notes compressor for university exam preparation.\n\n'
         + 'Extract EVERY distinct examinable fact from the notes below as a numbered list.\n'
         + 'Include: definitions, key concepts, mechanisms, processes, names, dates, causes, effects, examples, relationships, and specific numbers.\n'
-        + 'Rules:\n- One fact per line\n- Max 20 words per line\n- Preserve specific terms, figures, and technical vocabulary exactly\n- Do NOT omit any distinct, testable point\n- Max 120 items total\n\nNotes:\n' + input
+        + 'Rules:\n- One fact per line\n- Max 15 words per line\n- Preserve specific terms, figures, and technical vocabulary exactly\n- Do NOT omit any distinct, testable point\n- Max 80 items total\n\nNotes:\n' + input
       }],
-      temperature: 0.1, max_tokens: 1500
+      temperature: 0.1, max_tokens: 800
     })
   });
   if (!r.ok) {
@@ -2917,7 +2924,6 @@ async function condenseForAI(text, key, onProgress) {
   var d = await r.json();
   var condensed = ((d.choices || [])[0] || {}).message ? d.choices[0].message.content.trim() : '';
   if (!condensed) throw new Error('Condense returned empty.');
-  if (onProgress) onProgress('Key facts extracted — generating now…');
   return condensed;
 }
 
@@ -2926,10 +2932,7 @@ async function generateWithAI(isRetry){
   if(!key){ setAIStatus('Save your Groq API key first — free at console.groq.com (no card needed).','serr'); return; }
   var topic = document.getElementById('ai-topic').value.trim();
   if(!topic){ setAIStatus('Enter a topic or paste your notes first.','serr'); return; }
-  if(topic.length > CONDENSE_THRESHOLD){
-    try{ topic = await condenseForAI(topic, key, function(msg){ setAIStatus(msg,'sload'); }); }
-    catch(e){ topic = topic.slice(0, 20000); setAIStatus('Generating…','sload'); }
-  }
+  if(topic.length > 8000) topic = topic.slice(0, 8000); // safety — file uploads are already condensed
   var n    = aiGetOpt('count') || '5';
   var diff = aiGetOpt('diff')  || 'medium';
   var type = aiGetOpt('type')  || 'info';
@@ -2954,7 +2957,7 @@ async function generateWithAI(isRetry){
         model: 'llama-3.3-70b-versatile',
         messages: [{role:'user', content: prompt}],
         temperature: 0.75,
-        max_tokens: 4096
+        max_tokens: 3000
       })
     });
     if(!res.ok){
@@ -3513,14 +3516,19 @@ async function sqProcessFile(file) {
   sqSetStatus('', '');
   try {
     var sqKey = getAIKey();
-    var text = ext === 'pdf' ? await extractPdf(file, sqKey, function(msg){ sqSetStatus(msg,'sload'); }) : await extractPptx(file, sqKey, function(msg){ sqSetStatus(msg,'sload'); });
-    if (text.length > 80000) text = text.slice(0, 80000) + '\n[…truncated]';
+    function sqProg(msg){ sqSetStatus(msg,'sload'); }
+    var text = ext === 'pdf' ? await extractPdf(file, sqKey, sqProg) : await extractPptx(file, sqKey, sqProg);
     if (!text.replace(/\s+/g,'').trim()) throw new Error('No readable text found.');
+    var sqCondensed = false;
+    if(text.length > CONDENSE_CHARS && sqKey){
+      try{ text = await condenseForAI(text, sqKey, sqProg); sqCondensed = true; }
+      catch(e){ text = text.slice(0, 8000); }
+    } else if(text.length > 8000){ text = text.slice(0, 8000); }
     document.getElementById('sq-topic').value = text;
     document.getElementById('sq-file-name').textContent = file.name;
     document.getElementById('sq-drop-loading').style.display = 'none';
     document.getElementById('sq-drop-done').style.display = 'block';
-    sqSetStatus('✓ Text extracted — hit Generate when ready.', 'sok');
+    sqSetStatus(sqCondensed ? '✓ Key facts extracted — review, then hit Generate.' : '✓ Text extracted — hit Generate when ready.', 'sok');
   } catch(err) {
     document.getElementById('sq-drop-loading').style.display = 'none';
     document.getElementById('sq-drop-idle').style.display = 'block';
@@ -3549,10 +3557,7 @@ async function sqGenerateWithAI(isRetry) {
   btn.disabled = true;
   var pendingRetry = false;
   sqSetStatus('Generating ' + n + ' SAQs…', 'sload');
-  if (topic.length > CONDENSE_THRESHOLD) {
-    try { topic = await condenseForAI(topic, key, function(msg){ sqSetStatus(msg, 'sload'); }); }
-    catch(e) { topic = topic.slice(0, 20000); sqSetStatus('Generating…', 'sload'); }
-  }
+  if (topic.length > 8000) topic = topic.slice(0, 8000); // safety — file uploads are already condensed
   document.getElementById('sq-folder-pick').style.display = 'none';
   var prompt = 'You are an expert educator writing exam short answer questions for university students.\n\nGenerate exactly ' + n + ' deep understanding questions from the content below. Questions must require application, analysis, evaluation, or explanation — not simple recall. Use stems like "Explain why…", "How does…", "Compare and contrast…", "Evaluate the role of…", "To what extent…"\n\nFor each question write a markscheme-style model answer as bullet points. Each bullet is a distinct examinable point worth credit. Aim for 3–6 bullets. Use "•" as the bullet character and put each point on its own line.\n\nRespond with ONLY a valid JSON array — no markdown fences, no extra text:\n[\n  {"question":"...","modelAnswer":"• Point one\\n• Point two\\n• Point three"}\n]\n\nContent:\n' + topic;
   try {
@@ -3983,7 +3988,7 @@ async function blurtoSimplify() {
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
         messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: input }],
-        temperature: 0.3, max_tokens: 2000
+        temperature: 0.3, max_tokens: 1500
       })
     });
     var d = await r.json();
