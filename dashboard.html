@@ -40,7 +40,7 @@
     .lring{position:absolute;inset:-8px;border-radius:50%;border:2px solid rgba(168,85,247,.8);animation:lringE 1.6s ease-in-out infinite}
     .lring2{position:absolute;inset:-8px;border-radius:50%;border:1px solid rgba(96,165,250,.55);animation:lringE 1.6s ease-in-out .55s infinite}
     @keyframes lringE{0%{transform:scale(1);opacity:.9}100%{transform:scale(2.5);opacity:0}}
-    #entry-logo-img{width:200px;height:200px;position:relative;z-index:1;filter:drop-shadow(0 0 30px rgba(168,85,247,1)) drop-shadow(0 0 60px rgba(96,165,250,.65))}
+    #entry-logo-img{width:200px;height:200px;object-fit:contain;position:relative;z-index:1;filter:drop-shadow(0 4px 18px rgba(168,85,247,.7)) drop-shadow(0 0 40px rgba(130,100,220,.4))}
     @keyframes logoSlam{0%{opacity:0;transform:scale(4.5) rotate(-10deg)}32%{opacity:1;transform:scale(.85) rotate(4deg)}52%{transform:scale(1.12) rotate(-2deg)}72%{transform:scale(.96) rotate(.8deg)}88%{transform:scale(1.02)}100%{opacity:1;transform:scale(1) rotate(0)}}
     /* brand */
     #entry-brand{font-size:3.5rem;font-weight:900;background:linear-gradient(160deg,#ffffff 0%,#f5f0ff 50%,#ddd6fe 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:.08em;opacity:0;line-height:1.05;text-shadow:none;filter:drop-shadow(0 2px 5px rgba(0,0,0,.98)) drop-shadow(0 0 22px rgba(168,85,247,.65)) drop-shadow(0 0 52px rgba(130,100,220,.3))}
@@ -84,9 +84,9 @@
     .sb-overlay.show{opacity:1;pointer-events:auto}
     #sb-toggle{width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid rgba(168,85,247,.2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s;color:#6d28d9;font-size:1.1rem;flex-shrink:0;line-height:1}
     #sb-toggle:hover{background:rgba(168,85,247,.15)}
-    .sb-logo{padding:18px 14px;border-bottom:1px solid rgba(168,85,247,.1);display:flex;align-items:center;gap:8px}
-    .sb-logo img{width:30px;height:30px;object-fit:contain}
-    .sb-logo span{font-weight:900;font-size:.82rem;color:#1c1208}
+    .sb-logo{padding:16px 14px;border-bottom:1px solid rgba(168,85,247,.1);display:flex;align-items:center;gap:10px}
+    .sb-logo img{width:36px;height:36px;object-fit:contain;flex-shrink:0}
+    .sb-logo span{font-weight:900;font-size:.86rem;color:#1c1208;letter-spacing:.01em}
     .sb-logo em{color:#6d28d9;font-style:normal}
     .sb-nav{padding:10px 8px;flex:1}
     .sb-sec{margin-bottom:14px}
