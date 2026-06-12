@@ -582,12 +582,12 @@
     /* Schedule preview in Add form */
     .rp-schedule-preview{background:rgba(109,40,217,.04);border:1px solid rgba(109,40,217,.1);border-radius:12px;padding:16px 18px;margin-bottom:22px}
     .rp-sched-lbl{font-size:.62rem;font-weight:800;color:#6e5438;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
-    .rp-sched-chain{display:flex;align-items:center;gap:0}
-    .rp-sched-item{display:flex;flex-direction:column;align-items:center;gap:4px}
+    .rp-sched-chain{display:flex;align-items:flex-start;gap:0}
+    .rp-sched-item{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
     .rp-sched-dot{width:12px;height:12px;border-radius:50%;border:2px solid rgba(109,40,217,.25);background:transparent;flex-shrink:0}
     .rp-sched-dot.next{background:rgba(124,58,237,.18);border-color:#7c3aed}
-    .rp-sched-day{font-size:.52rem;font-weight:700;color:#6e5438;white-space:nowrap}
-    .rp-sched-line{flex:1;height:2px;background:rgba(109,40,217,.1);min-width:8px;max-width:32px;margin-bottom:14px}
+    .rp-sched-day{font-size:.52rem;font-weight:700;color:#6e5438;white-space:nowrap;text-align:center;line-height:1.35}
+    .rp-sched-line{flex:1;height:2px;background:rgba(109,40,217,.1);min-width:8px;max-width:32px;margin-top:5px}
     /* Empty state */
     .rp-empty{text-align:center;padding:56px 24px}
     .rp-empty-icon{font-size:2.4rem;margin-bottom:12px}
@@ -1361,19 +1361,19 @@
             <div class="rp-schedule-preview">
               <div class="rp-sched-lbl">Your review schedule</div>
               <div class="rp-sched-chain">
-                <div class="rp-sched-item"><div class="rp-sched-dot next"></div><div class="rp-sched-day">D1<br><span style="color:#7c3aed;font-size:.58rem;font-weight:800">🧠 MCQ</span></div></div>
+                <div class="rp-sched-item"><div class="rp-sched-dot next"></div><div class="rp-sched-day">D1<br><span style="color:#7c3aed;font-size:.56rem;font-weight:800">🧠 MCQ</span></div></div>
                 <div class="rp-sched-line"></div>
-                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">D3<br><span style="color:#7c3aed;font-size:.58rem;font-weight:800">✍️ SAQ</span></div></div>
+                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">D3<br><span style="color:#7c3aed;font-size:.56rem;font-weight:800">✍️ SAQ</span></div></div>
                 <div class="rp-sched-line"></div>
-                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">D7<br><span style="color:#7c3aed;font-size:.58rem;font-weight:800">📝 Blurt</span></div></div>
+                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">D7<br><span style="color:#7c3aed;font-size:.56rem;font-weight:800">📝 Blurt</span></div></div>
                 <div class="rp-sched-line"></div>
-                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">D14<br><span style="color:#9ca3af;font-size:.58rem;font-weight:700">optional</span></div></div>
+                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">D14<br><span style="color:#9ca3af;font-size:.56rem;font-weight:700">optional</span></div></div>
                 <div class="rp-sched-line"></div>
-                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">D28<br><span style="color:#9ca3af;font-size:.58rem;font-weight:700">optional</span></div></div>
+                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">D28<br><span style="color:#9ca3af;font-size:.56rem;font-weight:700">optional</span></div></div>
                 <div class="rp-sched-line"></div>
-                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">D56<br><span style="color:#9ca3af;font-size:.58rem;font-weight:700">optional</span></div></div>
+                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">D56<br><span style="color:#9ca3af;font-size:.56rem;font-weight:700">optional</span></div></div>
                 <div class="rp-sched-line"></div>
-                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">∞<br><span style="color:#9ca3af;font-size:.58rem;font-weight:700">mastered</span></div></div>
+                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">Monthly<br><span style="color:#9ca3af;font-size:.56rem;font-weight:700">until exam</span></div></div>
               </div>
             </div>
             <button class="add-btn" onclick="rpAdd()">Add to plan →</button>
@@ -3124,7 +3124,7 @@ function rpFmtDate(ms) {
 }
 
 function rpChainHTML(item) {
-  var labels = ['D1','D3','D7','D14','D28','D56','∞'];
+  var labels = ['D1','D3','D7','D14','D28','D56','Monthly'];
   var html = '<div class="rp-chain">';
   for (var i = 0; i <= 6; i++) {
     var cls = 'rp-dot';
