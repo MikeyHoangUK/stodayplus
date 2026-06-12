@@ -178,7 +178,7 @@
     .diff-btn[data-d="hard"].sel{background:rgba(220,38,38,.1);border-color:rgba(220,38,38,.4);color:#dc2626}
     .diff-btn[data-d="rote"].sel{background:rgba(37,99,235,.1);border-color:rgba(37,99,235,.4);color:#2563eb}
     .diff-btn[data-d="deep"].sel{background:rgba(109,40,217,.1);border-color:rgba(109,40,217,.4);color:#6d28d9}
-    .add-btn{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;font-weight:900;font-size:.85rem;padding:14px 28px;border-radius:12px;cursor:pointer;border:none;width:100%;margin-top:8px;transition:all .2s;font-family:'Raleway',sans-serif;letter-spacing:.03em}
+    .add-btn{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;font-weight:900;font-size:.82rem;padding:11px 24px;border-radius:11px;cursor:pointer;border:none;width:100%;margin-top:8px;transition:all .2s;font-family:'Raleway',sans-serif;letter-spacing:.03em}
     .add-btn:hover{opacity:.88;transform:translateY(-1px)}
     .success-msg{text-align:center;color:#4ade80;font-size:.78rem;font-weight:800;margin-top:12px;display:none;animation:fadeUp .3s ease}
 
@@ -606,7 +606,7 @@
     .rp-fp-divider::before,.rp-fp-divider::after{content:'';position:absolute;top:50%;width:36%;height:1px;background:rgba(168,85,247,.15)}
     .rp-fp-divider::before{left:0}.rp-fp-divider::after{right:0}
     .rp-fp-row{display:flex;gap:8px;align-items:stretch}
-    .rp-fp-btn{background:rgba(109,40,217,.1);border:1px solid rgba(109,40,217,.2);color:#6d28d9;font-weight:800;font-size:.76rem;padding:10px 16px;border-radius:10px;cursor:pointer;font-family:'Raleway',sans-serif;white-space:nowrap;transition:all .15s;flex-shrink:0}
+    .rp-fp-btn{background:rgba(109,40,217,.1);border:1px solid rgba(109,40,217,.2);color:#6d28d9;font-weight:800;font-size:.75rem;padding:9px 14px;border-radius:9px;cursor:pointer;font-family:'Raleway',sans-serif;white-space:nowrap;transition:all .15s;flex-shrink:0}
     .rp-fp-btn:hover{background:rgba(109,40,217,.18)}
     body.hc .rp-quiz-link{background:rgba(168,85,247,.04)!important;border-color:rgba(168,85,247,.15)!important}
     body.hc .rp-ql-lbl{color:#a08878!important}
@@ -1260,22 +1260,17 @@
 
       <!-- PLANNER Panel -->
       <div id="panel-planner" class="panel active anim">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between">
-          <div style="flex:1">
-            <h1 class="mcq-h1">Revision Planner</h1>
-            <p class="mcq-sub">Spaced repetition on autopilot — the science-backed way to never forget what you learn.</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+          <div class="mcq-tabs" style="margin-bottom:0">
+            <div class="mcq-tab active" id="rp-tab-today" onclick="rpTab('today')">📅 Today</div>
+            <div class="mcq-tab" id="rp-tab-add"   onclick="rpTab('add')">＋ Add Topic</div>
+            <div class="mcq-tab" id="rp-tab-all"   onclick="rpTab('all')">📋 All Topics</div>
+            <div class="mcq-tab" id="rp-tab-cal"   onclick="rpTab('cal')">🗓 Calendar</div>
           </div>
           <div class="rp-clock-wrap">
             <div class="rp-clock-time"><span id="rp-clock-hm">--:--</span><span class="rp-clock-sec" id="rp-clock-sec"></span></div>
             <div class="rp-clock-date" id="rp-clock-date"></div>
           </div>
-        </div>
-
-        <div class="mcq-tabs">
-          <div class="mcq-tab active" id="rp-tab-today" onclick="rpTab('today')">📅 Today</div>
-          <div class="mcq-tab" id="rp-tab-add"   onclick="rpTab('add')">＋ Add Topic</div>
-          <div class="mcq-tab" id="rp-tab-all"   onclick="rpTab('all')">📋 All Topics</div>
-          <div class="mcq-tab" id="rp-tab-cal"   onclick="rpTab('cal')">🗓 Calendar</div>
         </div>
 
         <!-- TODAY -->
