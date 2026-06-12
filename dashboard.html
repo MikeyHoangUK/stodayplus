@@ -851,7 +851,7 @@
           <span>🧠</span> Poppy
         </div>
         <div class="nav-item" onclick="showPanel('saqs',this)">
-          <span>✍️</span> SAQs
+          <span>✍️</span> Sage
         </div>
         <div class="nav-item soon"><span>📝</span> Blurting Sheet<span class="soon-pill">Soon</span></div>
         <div class="nav-item soon"><span>⚡</span> Daily System<span class="soon-pill">Soon</span></div>
@@ -1225,8 +1225,8 @@
 
       <!-- SAQs Panel -->
       <div id="panel-saqs" class="panel anim">
-        <h1 class="mcq-h1">SAQs</h1>
-        <p class="mcq-sub">Generate short answer questions — split between rote recall and deep understanding.</p>
+        <h1 class="mcq-h1">Sage <span style="font-size:.55em;font-weight:700;opacity:.55;letter-spacing:.01em">SAQs Maker</span></h1>
+        <p class="mcq-sub">Generate short answer questions focused on deep understanding.</p>
 
         <div class="mcq-tabs">
           <div class="mcq-tab active" id="sq-tab-gen"  onclick="sqTab('gen')">✨ Generate</div>
@@ -2159,7 +2159,7 @@ function retryQuiz() {
 var PANEL_TITLES = {
   'mcq':     'Poppy<span class="tb-sub">MCQ Maker</span>',
   'planner': 'Revision Planner<span class="tb-sub">Spaced Repetition</span>',
-  'saqs':    'SAQs<span class="tb-sub">Short Answer Maker</span>'
+  'saqs':    'Sage<span class="tb-sub">SAQs Maker</span>'
 };
 function showPanel(id, el) {
   document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
