@@ -541,6 +541,26 @@
     .rp-next-date{font-size:.68rem;font-weight:700;color:#6e5438;white-space:nowrap}
     .rp-done-btn{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:10px;padding:6px 14px;font-size:.72rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:opacity .15s;white-space:nowrap}
     .rp-done-btn:hover{opacity:.85}
+    /* Method recommendation row on today cards */
+    .rp-method-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px 0;padding:8px 12px;background:rgba(109,40,217,.05);border:1px solid rgba(109,40,217,.1);border-radius:10px}
+    .rp-method-pill{font-size:.71rem;font-weight:800;color:#6d28d9;display:flex;align-items:center;gap:5px;flex:1;min-width:0}
+    .rp-go-tool-btn{font-size:.68rem;font-weight:800;background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:8px;padding:5px 12px;cursor:pointer;font-family:'Raleway',sans-serif;white-space:nowrap;transition:opacity .15s;flex-shrink:0}
+    .rp-go-tool-btn:hover{opacity:.85}
+    /* D1 score buttons */
+    .rp-score-row{display:flex;gap:8px;margin-top:12px}
+    .rp-pass-btn{flex:1;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:10px;padding:8px 10px;font-size:.71rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:opacity .15s}
+    .rp-pass-btn:hover{opacity:.85}
+    .rp-fail-btn{flex:1;background:rgba(239,68,68,.07);color:#dc2626;border:1px solid rgba(239,68,68,.22);border-radius:10px;padding:8px 10px;font-size:.71rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:all .15s}
+    .rp-fail-btn:hover{background:rgba(239,68,68,.14)}
+    /* Failure inline alert */
+    .rp-fail-alert{background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.18);border-radius:10px;padding:12px 14px;margin-top:12px}
+    .rp-fail-alert-msg{font-size:.78rem;font-weight:800;color:#b91c1c;margin-bottom:4px}
+    .rp-fail-alert-sub{font-size:.7rem;color:#6e5438;margin-bottom:12px;line-height:1.5}
+    .rp-fail-alert-btns{display:flex;gap:8px}
+    .rp-restart-btn{flex:1;background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:9px;padding:8px 10px;font-size:.69rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:opacity .15s}
+    .rp-restart-btn:hover{opacity:.85}
+    .rp-continue-btn{flex:1;background:rgba(109,40,217,.06);color:#6d28d9;border:1px solid rgba(109,40,217,.14);border-radius:9px;padding:8px 10px;font-size:.69rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:all .15s}
+    .rp-continue-btn:hover{background:rgba(109,40,217,.12)}
     .rp-del-btn{width:24px;height:24px;border-radius:50%;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.15);color:#ef4444;font-size:.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
     .rp-del-btn:hover{background:rgba(239,68,68,.15)}
     /* Review chain */
@@ -895,6 +915,13 @@
     body.hc .rp-due-now{background:rgba(124,58,237,.12)!important;color:#c084fc!important;border-color:rgba(124,58,237,.3)!important}
     body.hc .rp-overdue{background:rgba(239,68,68,.12)!important;color:#f87171!important;border-color:rgba(239,68,68,.3)!important}
     body.hc .rp-done-btn{background:linear-gradient(135deg,#15803d,#166534)!important;opacity:.9}
+    body.hc .rp-method-row{background:rgba(168,85,247,.07)!important;border-color:rgba(168,85,247,.25)!important}
+    body.hc .rp-method-pill{color:#c084fc!important}
+    body.hc .rp-fail-btn{background:rgba(239,68,68,.1)!important;color:#f87171!important;border-color:rgba(239,68,68,.3)!important}
+    body.hc .rp-fail-alert{background:rgba(239,68,68,.08)!important;border-color:rgba(239,68,68,.28)!important}
+    body.hc .rp-fail-alert-msg{color:#f87171!important}
+    body.hc .rp-fail-alert-sub{color:#a08878!important}
+    body.hc .rp-continue-btn{background:rgba(168,85,247,.07)!important;color:#c084fc!important;border-color:rgba(168,85,247,.22)!important}
     body.hc .rp-chain-line{background:rgba(168,85,247,.15)!important}
     body.hc .rp-chain-line.done{background:rgba(168,85,247,.4)!important}
     body.hc .rp-dot{border-color:rgba(168,85,247,.22)!important}
@@ -1327,19 +1354,19 @@
             <div class="rp-schedule-preview">
               <div class="rp-sched-lbl">Your review schedule</div>
               <div class="rp-sched-chain">
-                <div class="rp-sched-item"><div class="rp-sched-dot next"></div><div class="rp-sched-day">Day 1</div></div>
+                <div class="rp-sched-item"><div class="rp-sched-dot next"></div><div class="rp-sched-day">D1<br><span style="color:#7c3aed;font-size:.58rem;font-weight:800">🧠 MCQ</span></div></div>
                 <div class="rp-sched-line"></div>
-                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">Day 3</div></div>
+                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">D3<br><span style="color:#7c3aed;font-size:.58rem;font-weight:800">✍️ SAQ</span></div></div>
                 <div class="rp-sched-line"></div>
-                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">Day 7</div></div>
+                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">D7<br><span style="color:#7c3aed;font-size:.58rem;font-weight:800">📝 Blurt</span></div></div>
                 <div class="rp-sched-line"></div>
-                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">Day 14</div></div>
+                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">D14<br><span style="color:#9ca3af;font-size:.58rem;font-weight:700">optional</span></div></div>
                 <div class="rp-sched-line"></div>
-                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">Day 28</div></div>
+                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">D28<br><span style="color:#9ca3af;font-size:.58rem;font-weight:700">optional</span></div></div>
                 <div class="rp-sched-line"></div>
-                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">Day 56</div></div>
+                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">D56<br><span style="color:#9ca3af;font-size:.58rem;font-weight:700">optional</span></div></div>
                 <div class="rp-sched-line"></div>
-                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">Monthly</div></div>
+                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">∞<br><span style="color:#9ca3af;font-size:.58rem;font-weight:700">mastered</span></div></div>
               </div>
             </div>
             <button class="add-btn" onclick="rpAdd()">Add to plan →</button>
@@ -2995,6 +3022,13 @@ async function generateWithAI(isRetry){
 
 // ── Revision Planner ─────────────────────────────────────────────────
 var RP_BASE = [1, 3, 7, 14, 28, 56]; // days from addedDate for levels 0-5
+// D1=MCQ, D3=SAQ, D7=Blurting, D14+ optional
+var RP_METHODS = [
+  { tool:'mcq',    emoji:'🧠', name:'Poppy',  label:'MCQ Practice' },
+  { tool:'saqs',   emoji:'✍️', name:'Sage',   label:'Short Answer Qs' },
+  { tool:'blurto', emoji:'📝', name:'Blurto', label:'Blurting' },
+  null, null, null, null
+];
 var rpData = [];
 
 function rpIntervalDays(level) {
@@ -3037,6 +3071,30 @@ function rpMarkDone(id) {
   item.doneReviews.push({ level: item.level, doneDate: Date.now() });
   item.level++;
   item.nextReview = item.addedDate + rpIntervalDays(item.level) * 86400000;
+  rpSave();
+  rpRenderToday();
+}
+
+function rpFailedD1(id) {
+  var el = document.getElementById('rp-action-' + id);
+  if (!el) return;
+  el.innerHTML = '<div class="rp-fail-alert">'
+    + '<div class="rp-fail-alert-msg">Score below 60% — this topic needs more work</div>'
+    + '<div class="rp-fail-alert-sub">Repeating the cycle from Day 1 is the most effective way to build long-term memory. Or continue if you\'re happy to move on.</div>'
+    + '<div class="rp-fail-alert-btns">'
+    + '<button class="rp-restart-btn" onclick="rpRepeatCycle(\'' + id + '\')">🔄 Restart cycle from D1</button>'
+    + '<button class="rp-continue-btn" onclick="rpMarkDone(\'' + id + '\')">Continue anyway →</button>'
+    + '</div></div>';
+}
+
+function rpRepeatCycle(id) {
+  var item = rpData.find(function(x) { return x.id === id; });
+  if (!item) return;
+  item.doneReviews = item.doneReviews || [];
+  item.doneReviews.push({ level: item.level, doneDate: Date.now(), repeated: true });
+  item.level = 0;
+  item.addedDate = Date.now(); // restart cycle from today
+  item.nextReview = Date.now() + 86400000; // D1 again tomorrow
   rpSave();
   rpRenderToday();
 }
@@ -3114,14 +3172,35 @@ function rpRenderToday() {
     var badge = overdueDays > 0
       ? '<span class="rp-overdue">' + overdueDays + 'd overdue</span>'
       : '<span class="rp-due-now">Due today</span>';
+
+    var method = RP_METHODS[item.level] || null;
+    var methodRow = method
+      ? '<div class="rp-method-row">'
+        + '<span class="rp-method-pill">' + method.emoji + ' ' + ['D1','D3','D7'][item.level] + ' — ' + method.label + ' with ' + method.name + '</span>'
+        + '<button class="rp-go-tool-btn" onclick="rpGoTo(\'' + method.tool + '\')">' + method.name + ' →</button>'
+        + '</div>'
+      : '<div class="rp-method-row" style="justify-content:flex-start"><span class="rp-method-pill" style="color:#9ca3af">🔄 Optional — any study method you prefer</span></div>';
+
+    var actionRow;
+    if (item.level === 0) {
+      actionRow = '<div class="rp-score-row" id="rp-action-' + item.id + '">'
+        + '<button class="rp-pass-btn" onclick="rpMarkDone(\'' + item.id + '\')">✓ Passed — score ≥60%</button>'
+        + '<button class="rp-fail-btn" onclick="rpFailedD1(\'' + item.id + '\')">✗ Below 60%</button>'
+        + '</div>';
+    } else {
+      actionRow = '<div style="display:flex;justify-content:flex-end;margin-top:12px" id="rp-action-' + item.id + '">'
+        + '<button class="rp-done-btn" onclick="rpMarkDone(\'' + item.id + '\')">✓ Done</button>'
+        + '</div>';
+    }
+
     html += '<div class="rp-topic-card">'
       + '<div class="rp-card-top"><div class="rp-card-left">'
       + '<div class="rp-topic-name">' + rpEsc(item.topic) + '</div>'
       + (item.subject ? '<span class="rp-tag">' + rpEsc(item.subject) + '</span>' : '')
-      + '</div><div class="rp-card-right">' + badge
-      + '<button class="rp-done-btn" onclick="rpMarkDone(\'' + item.id + '\')">✓ Done</button>'
-      + '</div></div>'
+      + '</div><div class="rp-card-right">' + badge + '</div></div>'
+      + methodRow
       + rpChainHTML(item)
+      + actionRow
       + '</div>';
   });
   html += rpShortcutsHTML();
