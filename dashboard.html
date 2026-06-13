@@ -500,6 +500,8 @@
     .fc-quiz:hover{background:rgba(109,40,217,.18);border-color:rgba(109,40,217,.55)}
     .fc-del{padding:5px 9px;border-radius:8px;font-size:.64rem;cursor:pointer;border:1px solid rgba(248,113,113,.2);color:#f87171;background:rgba(248,113,113,.05);transition:all .18s}
     .fc-del:hover{background:rgba(248,113,113,.14);border-color:rgba(248,113,113,.4)}
+    .fc-confidence{font-size:.62rem;font-weight:800;letter-spacing:.03em;margin-top:-2px}
+    .rp-best-score{font-size:.72rem;font-weight:800;padding:4px 10px;border-radius:8px;background:rgba(0,0,0,.04);flex-shrink:0}
     /* ai folder picker */
     .ai-folder-pick{margin-top:12px;padding:12px 14px;background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.2);border-radius:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
     .ai-folder-lbl{font-size:.68rem;font-weight:800;color:#6e5438;flex-shrink:0}
@@ -2319,7 +2321,14 @@ function renderBank() {
       var card  = document.createElement('div');
       card.className = 'folder-card';
       (function(folder){ card.onclick = function(e){ if(!e.target.classList.contains('fc-quiz')&&!e.target.classList.contains('fc-del')) filterFolder(folder); }; })(f);
-      card.innerHTML = '<div class="fc-icon">📁</div><div class="fc-name">'+esc(f)+'</div><div class="fc-count">'+count+' question'+(count!==1?'s':'')+'</div><div class="fc-actions"><button class="fc-quiz" onclick="quizFolder(\''+esc(f)+'\')">▶ Quiz</button><button class="fc-del" onclick="deleteFolder(\''+esc(f)+'\')">🗑</button></div>';
+      var fsc = getFolderScores()[f];
+      var confBadge = '';
+      if (fsc && fsc.best >= 0) {
+        var bCol = fsc.best >= 75 ? '#16a34a' : fsc.best >= 50 ? '#b45309' : '#dc2626';
+        var bIcon = fsc.best >= 75 ? '🟢' : fsc.best >= 50 ? '🟡' : '🔴';
+        confBadge = '<div class="fc-confidence" style="color:' + bCol + '">' + bIcon + ' ' + fsc.best + '% confidence</div>';
+      }
+      card.innerHTML = '<div class="fc-icon">📁</div><div class="fc-name">'+esc(f)+'</div><div class="fc-count">'+count+' question'+(count!==1?'s':'')+'</div>'+confBadge+'<div class="fc-actions"><button class="fc-quiz" onclick="quizFolder(\''+esc(f)+'\')">▶ Quiz</button><button class="fc-del" onclick="deleteFolder(\''+esc(f)+'\')">🗑</button></div>';
       grid.appendChild(card);
     });
     list.innerHTML = '';
@@ -2494,6 +2503,20 @@ function nextQ() {
   if (qzIdx >= qzQs.length) showResults(); else showQ();
 }
 
+// ── Folder confidence scores ──────────────────────────────────────────
+function getFolderScores() {
+  try { return JSON.parse(localStorage.getItem('sp_folder_scores') || '{}'); } catch(e) { return {}; }
+}
+function saveFolderScore(folder, pct) {
+  var scores = getFolderScores();
+  var s = scores[folder] || { best: -1, sessions: 0 };
+  s.best = Math.max(s.best, pct);
+  s.sessions = (s.sessions || 0) + 1;
+  s.last = pct;
+  scores[folder] = s;
+  localStorage.setItem('sp_folder_scores', JSON.stringify(scores));
+}
+
 function showResults() {
   document.getElementById('quiz-run').style.display = 'none';
   var pct = Math.round(qzScore / qzQs.length * 100);
@@ -2513,9 +2536,10 @@ function showResults() {
   var r = document.getElementById('quiz-results');
   r.style.display = 'block'; r.style.animation = 'fadeIn .4s ease';
   mascotPeek();
+  var f = document.getElementById('qz-folder').value;
+  if (f && f !== 'all') saveFolderScore(f, pct);
   var trackEl = document.getElementById('qz-track-rp');
   if (trackEl && trackEl.checked) {
-    var f = document.getElementById('qz-folder').value;
     if (f && f !== 'all') rpAddFromQuiz(f);
   }
 }
@@ -3220,10 +3244,24 @@ function rpRenderToday() {
 
     var actionRow;
     if (item.level === 0) {
-      actionRow = '<div class="rp-score-row" id="rp-action-' + item.id + '">'
-        + '<button class="rp-pass-btn" onclick="rpMarkDone(\'' + item.id + '\')">✓ Passed — score ≥60%</button>'
-        + '<button class="rp-fail-btn" onclick="rpFailedD1(\'' + item.id + '\')">✗ Below 60%</button>'
-        + '</div>';
+      var folderScores = getFolderScores();
+      var fs = folderScores[item.topic] || (item.subject && folderScores[item.subject]) || null;
+      if (fs && fs.best !== undefined && fs.best >= 0) {
+        var passed = fs.best >= 60;
+        var sc = passed ? '#16a34a' : '#dc2626';
+        actionRow = '<div class="rp-score-row" id="rp-action-' + item.id + '">'
+          + '<span class="rp-best-score" style="color:' + sc + '">Best: ' + fs.best + '%' + (fs.sessions > 1 ? ' (' + fs.sessions + ' sessions)' : '') + '</span>'
+          + (passed
+            ? '<button class="rp-pass-btn" onclick="rpMarkDone(\'' + item.id + '\')">✓ Mark Complete</button>'
+            : '<button class="rp-fail-btn" onclick="rpFailedD1(\'' + item.id + '\')">⟳ Retry Recommended</button>'
+              + '<button class="rp-pass-btn" style="flex:0;padding:6px 10px;font-size:.65rem" onclick="rpMarkDone(\'' + item.id + '\')">Skip →</button>')
+          + '</div>';
+      } else {
+        actionRow = '<div class="rp-score-row" id="rp-action-' + item.id + '">'
+          + '<button class="rp-pass-btn" onclick="rpMarkDone(\'' + item.id + '\')">✓ Passed — score ≥60%</button>'
+          + '<button class="rp-fail-btn" onclick="rpFailedD1(\'' + item.id + '\')">✗ Below 60%</button>'
+          + '</div>';
+      }
     } else {
       actionRow = '<div style="display:flex;justify-content:flex-end;margin-top:12px" id="rp-action-' + item.id + '">'
         + '<button class="rp-done-btn" onclick="rpMarkDone(\'' + item.id + '\')">✓ Done</button>'
