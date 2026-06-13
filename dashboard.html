@@ -4115,10 +4115,12 @@ async function blurtoSimplify() {
   st.textContent = 'AI is formatting your notes…';
   try {
     var input = notes;
-    if (input.length > CONDENSE_THRESHOLD) {
-      input = await condenseForAI(input, key, function(msg){ st.textContent = msg; });
-      st.textContent = 'Formatting…';
-    }
+    if (input.length > CONDENSE_CHARS) {
+      try {
+        input = await condenseForAI(input, key, function(msg){ st.textContent = msg; });
+        st.textContent = 'Formatting…';
+      } catch(ce) { input = input.slice(0, 8000); }
+    } else if (input.length > 8000) { input = input.slice(0, 8000); }
     var systemPrompt = 'You are a study notes formatter. The user will paste raw lecture notes or text.\n\nYour job is to return a clean, well-structured simplified version following these EXACT rules:\n\n1. TOPIC NAME:\n   - Extract or infer the main topic name.\n   - Place it at the very top, centred, large.\n   - Use: <h1 style="text-align:center;">TOPIC</h1>\n\n2. HEADINGS:\n   - Identify major sections or subtopics.\n   - Use: <h2><strong>Heading Name</strong></h2>\n\n3. BULLET POINTS:\n   - Under each heading, list only the key facts as bullet points.\n   - Use: <ul style="padding-left:2rem;"><li>key point</li></ul>\n\n4. RULES:\n   - Remove all waffle, filler, and repeated information.\n   - Keep only facts, definitions, mechanisms, and key terms.\n   - Maximum 6–8 bullet points per section.\n   - Do not add anything that wasn\'t in the original notes.\n   - Return ONLY the formatted HTML. No extra commentary, no markdown fences.\n   - Explain with simple wording as if talking to a 12-year-old.\n   - This is a one-time format — do not over-condense. Keep all meaningful content.';
     var r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -4129,16 +4131,17 @@ async function blurtoSimplify() {
         temperature: 0.3, max_tokens: 1500
       })
     });
+    if (!r.ok) { var eb = await r.json(); throw new Error((eb.error && eb.error.message) || ('HTTP ' + r.status)); }
     var d = await r.json();
     var out = d.choices && d.choices[0] && d.choices[0].message.content;
-    if (!out) throw new Error('No response');
+    if (!out) throw new Error('No response from AI');
     document.getElementById('blurto-notes-area').innerHTML = out.replace(/```html|```/g,'').trim();
     blurtoSimplified = true;
     btn.textContent = '✓ Simplified';
     btn.title = 'Already simplified — editing notes directly is the next step';
     st.textContent = 'Done! Review and edit before blurting.';
   } catch(e) {
-    st.textContent = 'AI error — check your key or try again.';
+    st.textContent = 'Error: ' + e.message;
     btn.disabled = false; btn.textContent = '✨ Simplify';
   }
 }
