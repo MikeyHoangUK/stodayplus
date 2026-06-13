@@ -3166,6 +3166,34 @@ function rpGoTo(id) {
   showPanel(id, navEl);
 }
 
+function rpGoToTopic(tool, itemId) {
+  var item = rpData.find(function(x) { return x.id === itemId; });
+  var topic = item ? item.topic : '';
+  var subject = item ? (item.subject || '') : '';
+  var navEl = document.querySelector('.nav-item[onclick*="\'' + tool + '\'"]');
+  showPanel(tool, navEl);
+  setTimeout(function() {
+    if (tool === 'mcq') {
+      var folders = getFolders();
+      var folder = folders.indexOf(topic) !== -1 ? topic
+                 : (subject && folders.indexOf(subject) !== -1 ? subject : 'all');
+      switchTab('quiz');
+      populateFolderSelect(folder);
+      updateAvail();
+      setTimeout(function() {
+        var btn = document.getElementById('start-btn');
+        if (btn && !btn.disabled) startQuiz();
+      }, 80);
+    } else if (tool === 'saqs') {
+      var sqFolders = sqGetFolders();
+      var folder = sqFolders.indexOf(topic) !== -1 ? topic
+                 : (subject && sqFolders.indexOf(subject) !== -1 ? subject : null);
+      if (folder) { sqPracFolder(folder); } else { sqTab('prac'); }
+    }
+    // blurto: showPanel is enough
+  }, 80);
+}
+
 function rpRenderToday() {
   var el = document.getElementById('rp-today-content');
   if (!el) return;
@@ -3186,7 +3214,7 @@ function rpRenderToday() {
     var methodRow = method
       ? '<div class="rp-method-row">'
         + '<span class="rp-method-pill">' + method.emoji + ' ' + ['D1','D3','D7'][item.level] + ' — ' + method.label + ' with ' + method.name + '</span>'
-        + '<button class="rp-go-tool-btn" onclick="rpGoTo(\'' + method.tool + '\')">' + method.name + ' →</button>'
+        + '<button class="rp-go-tool-btn" onclick="rpGoToTopic(\'' + method.tool + '\',\'' + item.id + '\')">▶ Start</button>'
         + '</div>'
       : '<div class="rp-method-row" style="justify-content:flex-start"><span class="rp-method-pill" style="color:#9ca3af">🔄 Optional — any study method you prefer</span></div>';
 
