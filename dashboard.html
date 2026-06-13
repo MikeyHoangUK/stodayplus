@@ -828,13 +828,21 @@
     body.hc .blurto-ai-pts{color:#c8b89a!important}
     body.hc .blurto-ai-comment{color:#a08878!important;border-top-color:rgba(168,85,247,.12)!important}
     /* ── ORGANISER ───────────────────────────────────────────────────── */
-    .org-focus{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
-    .org-focus-card{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.12);border-radius:14px;padding:12px 16px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:12px}
-    .org-focus-card:hover{border-color:rgba(168,85,247,.3);background:rgba(168,85,247,.05)}
-    .org-focus-card.active{border-color:rgba(109,40,217,.4);background:rgba(109,40,217,.07)}
-    .org-focus-icon{font-size:1.5rem;line-height:1;flex-shrink:0}
-    .org-focus-num{font-size:1.5rem;font-weight:900;color:#1c1208;line-height:1}
-    .org-focus-lbl{font-size:.62rem;font-weight:700;color:#6e5438;text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+    .org-focus{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+    .org-tracker-card{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.12);border-radius:16px;padding:18px 20px}
+    .org-tracker-title{font-size:.65rem;font-weight:800;color:#6e5438;text-transform:uppercase;letter-spacing:.09em;margin-bottom:12px}
+    .org-tracker-big{font-size:2.1rem;font-weight:900;color:#1c1208;line-height:1;margin-bottom:8px}
+    .org-tracker-bar-wrap{background:rgba(168,85,247,.1);border-radius:99px;height:7px;overflow:hidden;margin-bottom:10px;flex:1}
+    .org-tracker-bar{height:100%;border-radius:99px;background:linear-gradient(90deg,#7c3aed,#4338ca);transition:width .4s ease}
+    .org-tracker-row{display:flex;gap:14px;flex-wrap:wrap}
+    .org-tracker-stat{font-size:.68rem;font-weight:800}
+    .org-tracker-stat.green{color:#16a34a}
+    .org-tracker-stat.red{color:#dc2626}
+    .org-tracker-items{display:flex;flex-direction:column;gap:9px;margin-bottom:10px}
+    .org-tracker-item{display:flex;align-items:center;gap:8px;font-size:.68rem;font-weight:700;color:#5a4230}
+    .org-tracker-item-lbl{white-space:nowrap;min-width:52px}
+    .org-tracker-count{font-size:.66rem;font-weight:800;color:#1c1208;white-space:nowrap;min-width:32px;text-align:right}
+    .org-tracker-avg{font-size:.7rem;font-weight:800;color:#6d28d9;border-top:1px solid rgba(168,85,247,.1);padding-top:8px;margin-top:2px}
     .org-actions{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
     .org-add-btn{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:.74rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:opacity .15s}
     .org-add-btn:hover{opacity:.85}
@@ -899,10 +907,15 @@
     .org-subj-add-btn{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:10px;padding:9px 16px;font-size:.74rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif}
     .org-done-btn{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:12px;padding:12px 32px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif}
     /* HC */
-    body.hc .org-focus-card{background:#0f0d22!important;border-color:rgba(168,85,247,.35)!important}
-    body.hc .org-focus-card.active{background:rgba(109,40,217,.15)!important;border-color:rgba(168,85,247,.55)!important}
-    body.hc .org-focus-num{color:#e8dcc8!important}
-    body.hc .org-focus-lbl{color:#a08878!important}
+    body.hc .org-tracker-card{background:#0f0d22!important;border-color:rgba(168,85,247,.35)!important}
+    body.hc .org-tracker-title{color:#a08878!important}
+    body.hc .org-tracker-big{color:#e8dcc8!important}
+    body.hc .org-tracker-bar-wrap{background:rgba(168,85,247,.15)!important}
+    body.hc .org-tracker-stat.green{color:#4ade80!important}
+    body.hc .org-tracker-stat.red{color:#f87171!important}
+    body.hc .org-tracker-item{color:#a08878!important}
+    body.hc .org-tracker-count{color:#e8dcc8!important}
+    body.hc .org-tracker-avg{color:#c084fc!important;border-top-color:rgba(168,85,247,.15)!important}
     body.hc .org-add-card{background:#0f0d22!important;border-color:rgba(168,85,247,.4)!important}
     body.hc .org-add-sel,body.hc .org-add-inp,body.hc .org-search{background:#0d0b1e!important;color:#e8dcc8!important;border-color:rgba(168,85,247,.35)!important}
     body.hc .org-table-wrap{border-color:rgba(168,85,247,.25)!important}
@@ -4651,7 +4664,6 @@ function blurtoShowPhase(id) {
 var orgTopics   = [];
 var orgSubjects = [];
 var orgAttended = true;
-var orgFilter   = null; // null | 'overdue' | 'today' | 'week'
 var ORG_INTERVALS = [3, 7, 14, 28, 56];
 
 function orgLoadData() {
@@ -4777,7 +4789,6 @@ function orgSaveTopic() {
   orgSaveTopics();
   document.getElementById('org-new-topic').value = '';
   document.getElementById('org-add-card').classList.remove('open');
-  orgFilter = null;
   orgRenderBanner();
   orgRenderTable();
 }
@@ -4869,35 +4880,43 @@ function orgNextConf(level) {
 function orgRenderBanner() {
   var el = document.getElementById('org-focus');
   if (!el) return;
-  var today = new Date(); today.setHours(0, 0, 0, 0);
-  var overdue = 0, dueToday = 0, dueWeek = 0;
-  orgTopics.forEach(function(t) {
-    if (!t.next_due) return;
-    var due  = new Date(t.next_due + 'T00:00:00');
-    var diff = Math.round((due - today) / 86400000);
-    if (diff < 0)           overdue++;
-    else if (diff === 0)    dueToday++;
-    else if (diff <= 7)     dueWeek++;
-  });
-  var cards = [
-    { icon: '🔴', num: overdue,   lbl: 'Overdue',       f: 'overdue' },
-    { icon: '📌', num: dueToday,  lbl: 'Due today',     f: 'today'   },
-    { icon: '🟡', num: dueWeek,   lbl: 'Due this week', f: 'week'    }
-  ];
-  el.innerHTML = cards.map(function(c) {
-    var active = orgFilter === c.f ? ' active' : '';
-    return '<div class="org-focus-card' + active + '" onclick="orgSetFilter(\'' + c.f + '\')">'
-      + '<div class="org-focus-icon">' + c.icon + '</div>'
-      + '<div><div class="org-focus-num">' + c.num + '</div>'
-      + '<div class="org-focus-lbl">' + c.lbl + '</div></div>'
-      + '</div>';
-  }).join('');
-}
+  var total = orgTopics.length;
+  if (total === 0) { el.innerHTML = ''; return; }
 
-function orgSetFilter(f) {
-  orgFilter = (orgFilter === f) ? null : f;
-  orgRenderBanner();
-  orgRenderTable();
+  // Attendance
+  var attended = orgTopics.filter(function(t) { return t.attended; }).length;
+  var attPct   = Math.round(attended / total * 100);
+
+  // Progress
+  var mcqN  = orgTopics.filter(function(t) { return t.mcq_done; }).length;
+  var saqN  = orgTopics.filter(function(t) { return t.saq_done; }).length;
+  var blurN = orgTopics.filter(function(t) { return t.blurting_done; }).length;
+  var avgPct = Math.round((mcqN + saqN + blurN) / (total * 3) * 100);
+
+  function bar(pct) {
+    return '<div class="org-tracker-bar-wrap"><div class="org-tracker-bar" style="width:' + pct + '%"></div></div>';
+  }
+
+  el.innerHTML =
+    '<div class="org-tracker-card">'
+    + '<div class="org-tracker-title">📋 Attendance</div>'
+    + '<div class="org-tracker-big">' + attPct + '%</div>'
+    + bar(attPct)
+    + '<div class="org-tracker-row">'
+    + '<span class="org-tracker-stat green">✓ ' + attended + ' attended</span>'
+    + '<span class="org-tracker-stat red">✗ ' + (total - attended) + ' missed</span>'
+    + '</div>'
+    + '</div>'
+
+    + '<div class="org-tracker-card">'
+    + '<div class="org-tracker-title">📈 Revision Progress</div>'
+    + '<div class="org-tracker-items">'
+    + '<div class="org-tracker-item"><span class="org-tracker-item-lbl">🧠 MCQ</span>' + bar(Math.round(mcqN/total*100)) + '<span class="org-tracker-count">' + mcqN + '/' + total + '</span></div>'
+    + '<div class="org-tracker-item"><span class="org-tracker-item-lbl">✍️ SAQ</span>'  + bar(Math.round(saqN/total*100)) + '<span class="org-tracker-count">' + saqN + '/' + total + '</span></div>'
+    + '<div class="org-tracker-item"><span class="org-tracker-item-lbl">📝 Blurt</span>' + bar(Math.round(blurN/total*100)) + '<span class="org-tracker-count">' + blurN + '/' + total + '</span></div>'
+    + '</div>'
+    + '<div class="org-tracker-avg">Overall: ' + avgPct + '% of revision complete</div>'
+    + '</div>';
 }
 
 function orgRenderTable() {
@@ -4905,20 +4924,9 @@ function orgRenderTable() {
   var emptyEl = document.getElementById('org-empty');
   if (!tbody) return;
   var search = ((document.getElementById('org-search') || {}).value || '').toLowerCase().trim();
-  var today  = new Date(); today.setHours(0, 0, 0, 0);
 
   var list = orgTopics.filter(function(t) {
     if (search && t.topic_name.toLowerCase().indexOf(search) === -1 && t.subject.toLowerCase().indexOf(search) === -1) return false;
-    if (orgFilter) {
-      if (!t.next_due && orgFilter !== null) return false;
-      if (t.next_due) {
-        var due  = new Date(t.next_due + 'T00:00:00');
-        var diff = Math.round((due - today) / 86400000);
-        if (orgFilter === 'overdue' && diff >= 0)         return false;
-        if (orgFilter === 'today'   && diff !== 0)        return false;
-        if (orgFilter === 'week'    && (diff < 1 || diff > 7)) return false;
-      }
-    }
     return true;
   });
 
