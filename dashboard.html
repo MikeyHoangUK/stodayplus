@@ -5553,6 +5553,9 @@ function orgSaveTopic() {
 function orgToggleField(id, field) {
   var t = orgTopics.find(function(x) { return x.id === id; });
   if (!t) return;
+  // Block manually ticking ON for MCQ/SAQ if threshold not reached
+  if (field === 'mcq_done' && !t.mcq_done && (t.mcq_count || 0) < ORG_MCQ_THRESHOLD) return;
+  if (field === 'saq_done' && !t.saq_done && (t.saq_count || 0) < ORG_SAQ_THRESHOLD) return;
   t[field] = !t[field];
   // On any revision task ticked ON, advance spaced rep (once per day)
   var revFields = ['mcq_done', 'saq_done', 'blurting_done'];
@@ -5718,26 +5721,31 @@ function orgRenderBanner() {
 }
 
 function orgProgressCell(t, type) {
-  var done, count, threshold, field;
+  var done, count, threshold, field, locked;
   if (type === 'mcq') {
-    done = t.mcq_done; count = t.mcq_count || 0; threshold = ORG_MCQ_THRESHOLD; field = 'mcq_done';
+    done = t.mcq_done; count = t.mcq_count || 0; threshold = ORG_MCQ_THRESHOLD; field = 'mcq_done'; locked = true;
   } else if (type === 'saq') {
-    done = t.saq_done; count = t.saq_count || 0; threshold = ORG_SAQ_THRESHOLD; field = 'saq_done';
+    done = t.saq_done; count = t.saq_count || 0; threshold = ORG_SAQ_THRESHOLD; field = 'saq_done'; locked = true;
   } else {
-    done = t.blurting_done; count = t.blurting_count || 0; threshold = ORG_BLURT_THRESHOLD; field = 'blurting_done';
+    done = t.blurting_done; count = t.blurting_count || 0; threshold = ORG_BLURT_THRESHOLD; field = 'blurting_done'; locked = false;
   }
   if (done) {
-    return '<button class="org-toggle on" onclick="orgToggleField(\'' + t.id + '\',\'' + field + '\')" title="' + type + ' done">✓</button>';
+    return '<button class="org-toggle on" onclick="orgToggleField(\'' + t.id + '\',\'' + field + '\')" title="' + type + ' done — click to untick">✓</button>';
   }
+  var belowThreshold = count < threshold;
   if (count > 0) {
     var pct = Math.min(Math.round(count / threshold * 100), 100);
-    return '<div style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer" onclick="orgToggleField(\'' + t.id + '\',\'' + field + '\')" title="' + count + '/' + threshold + ' — tap to override">'
+    var clickAttr = (!locked || !belowThreshold) ? ' onclick="orgToggleField(\'' + t.id + '\',\'' + field + '\')" style="cursor:pointer"' : ' title="' + count + '/' + threshold + ' — reach the threshold to unlock" style="cursor:not-allowed"';
+    return '<div style="display:inline-flex;flex-direction:column;align-items:center;gap:2px"' + clickAttr + '>'
       + '<span style="font-size:.58rem;font-weight:800;color:#7c3aed">' + count + '/' + threshold + '</span>'
       + '<div style="width:38px;height:5px;background:rgba(124,58,237,.12);border-radius:99px;overflow:hidden">'
       + '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#7c3aed,#4338ca);border-radius:99px"></div></div>'
       + '</div>';
   }
-  return '<button class="org-toggle" onclick="orgToggleField(\'' + t.id + '\',\'' + field + '\')" title="' + type + ' (tap to manually tick)"></button>';
+  if (locked) {
+    return '<button class="org-toggle" style="cursor:not-allowed;opacity:.35" title="Complete ' + threshold + ' ' + type.toUpperCase() + 's to unlock" disabled></button>';
+  }
+  return '<button class="org-toggle" onclick="orgToggleField(\'' + t.id + '\',\'' + field + '\')" title="' + type + ' (tap to tick)"></button>';
 }
 
 function orgSort(col) {
