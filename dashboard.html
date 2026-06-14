@@ -1297,10 +1297,11 @@
             <div class="ai-status" id="ai-status"></div>
             <div class="ai-folder-pick" id="ai-folder-pick" style="display:none">
               <span class="ai-folder-lbl">Topic:</span>
-              <input id="ai-folder-new" class="ai-folder-new" placeholder="Topic name…" style="flex:1;min-width:130px"/>
+              <input id="ai-folder-new" class="ai-folder-new" list="shared-folder-list" placeholder="Topic name…" style="flex:1;min-width:130px"/>
               <span class="ai-folder-lbl">Subject:</span>
               <input id="ai-folder-subj" class="ai-folder-new" list="ai-subj-list" placeholder="Subject…" style="max-width:120px"/>
               <datalist id="ai-subj-list"></datalist>
+              <datalist id="shared-folder-list"></datalist>
               <button class="ai-folder-confirm" onclick="confirmAIAdd()">Save to Bank →</button>
             </div>
           </div>
@@ -1595,7 +1596,7 @@
             <div class="ai-status" id="sq-status"></div>
             <div class="ai-folder-pick" id="sq-folder-pick" style="display:none">
               <span class="ai-folder-lbl">Topic:</span>
-              <input id="sq-folder-new" class="ai-folder-new" placeholder="Topic name…" style="flex:1;min-width:130px"/>
+              <input id="sq-folder-new" class="ai-folder-new" list="shared-folder-list" placeholder="Topic name…" style="flex:1;min-width:130px"/>
               <span class="ai-folder-lbl">Subject:</span>
               <input id="sq-folder-subj" class="ai-folder-new" list="sq-subj-list" placeholder="Subject…" style="max-width:120px"/>
               <datalist id="sq-subj-list"></datalist>
@@ -1675,6 +1676,16 @@
         <h1 class="mcq-h1">Blurto <span style="font-size:.55em;font-weight:700;opacity:.55;letter-spacing:.01em">Blurting Machine</span></h1>
         <p class="mcq-sub">Fade your notes, write from memory, see what you missed.</p>
 
+        <div class="mcq-tabs" style="margin-bottom:16px">
+          <div class="mcq-tab active" id="blurto-tab-session" onclick="blurtoTabSwitch('session')">📝 Session</div>
+          <div class="mcq-tab" id="blurto-tab-bank" onclick="blurtoTabSwitch('bank')">📋 Bank</div>
+        </div>
+
+        <!-- BANK VIEW -->
+        <div id="blurto-bank" style="display:none">
+          <div id="blurto-bank-content"></div>
+        </div>
+
         <!-- SETUP PHASE -->
         <div id="blurto-setup">
           <div class="blurto-layout">
@@ -1734,7 +1745,7 @@
               </div>
               <div class="blurto-cfg-card">
                 <div style="font-size:.68rem;font-weight:800;color:#6e5438;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Topic name</div>
-                <input type="text" id="blurto-topic" class="sq-topic-inp" placeholder="e.g. Cell Division" style="width:100%;box-sizing:border-box;margin-bottom:8px">
+                <input type="text" id="blurto-topic" class="sq-topic-inp" list="shared-folder-list" placeholder="e.g. Cell Division" style="width:100%;box-sizing:border-box;margin-bottom:8px">
                 <div style="font-size:.68rem;font-weight:800;color:#6e5438;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Subject</div>
                 <input type="text" id="blurto-subj" class="sq-topic-inp" list="blurto-subj-list" placeholder="e.g. Biology" style="width:100%;box-sizing:border-box;margin-bottom:16px">
                 <datalist id="blurto-subj-list"></datalist>
@@ -1968,6 +1979,7 @@ window.addEventListener('DOMContentLoaded', function() {
   rpStartClock();
   sqLoad();
   blurtoLoad();
+  syncFoldersFromBanks();
 });
 
 // ── MARVEL ENTRY ANIMATION ──
@@ -2450,9 +2462,12 @@ function clearForm() {
   setDiff('easy'); editId = null;
 }
 
-// Bank — folders
+// Bank — folders (merged with shared registry)
 function getFolders(){
   var seen = {}, folders = [];
+  // shared registry first
+  getAllFolders().forEach(function(f) { if (!seen[f.name]) { seen[f.name] = 1; folders.push(f.name); } });
+  // then any MCQ-only folders not yet in registry
   bank.forEach(function(q){ var f = q.folder||'General'; if(!seen[f]){ seen[f]=1; folders.push(f); } });
   return folders;
 }
@@ -2727,6 +2742,51 @@ function getSubjectForFolder(folder) {
   return (meta[folder] && meta[folder].subject) || '';
 }
 
+// ── Shared folder registry (sp_folders) ──────────────────────────────────────
+function getAllFolders() {
+  try { return JSON.parse(localStorage.getItem('sp_folders') || '[]'); } catch(e) { return []; }
+}
+function saveAllFolders(list) { localStorage.setItem('sp_folders', JSON.stringify(list)); }
+
+function ensureFolder(name, subject) {
+  if (!name || name === 'General') return;
+  var list = getAllFolders();
+  var existing = list.find(function(f) { return f.name.toLowerCase() === name.toLowerCase(); });
+  if (existing) {
+    if (subject && !existing.subject) { existing.subject = subject; saveAllFolders(list); }
+    return;
+  }
+  list.push({ id: Date.now() + '-' + Math.random().toString(36).slice(2,5), name: name, subject: subject || '', createdAt: Date.now() });
+  saveAllFolders(list);
+  populateFolderDatalist();
+}
+
+function deleteSharedFolder(name) {
+  if (!confirm('Remove "' + name + '" from all bots? (Existing questions are kept but folder will be hidden)')) return;
+  var list = getAllFolders().filter(function(f) { return f.name !== name; });
+  saveAllFolders(list);
+  renderBlurtoBank();
+}
+
+function populateFolderDatalist() {
+  var options = getAllFolders().map(function(f) { return '<option value="' + rpEsc(f.name) + '">'; }).join('');
+  document.querySelectorAll('#shared-folder-list').forEach(function(dl) { dl.innerHTML = options; });
+}
+
+function syncFoldersFromBanks() {
+  // Backfill sp_folders from existing MCQ, SAQ, Blurto data
+  (typeof bank !== 'undefined' ? bank : []).forEach(function(q) {
+    if (q.folder && q.folder !== 'General') ensureFolder(q.folder, getSubjectForFolder(q.folder));
+  });
+  (typeof sqBank !== 'undefined' ? sqBank : []).forEach(function(q) {
+    if (q.folder && q.folder !== 'General') ensureFolder(q.folder, getSubjectForFolder(q.folder));
+  });
+  (typeof blurtoSessions !== 'undefined' ? blurtoSessions : []).forEach(function(s) {
+    if (s.topic && s.topic !== 'Blurto Session') ensureFolder(s.topic, getSubjectForFolder(s.topic));
+  });
+  populateFolderDatalist();
+}
+
 // ── AI topic name suggestion ──────────────────────────────────────────────────
 async function suggestTopicName(text, key) {
   if (!key || !text) return '';
@@ -2756,6 +2816,7 @@ function populateSubjectDatalist() {
     if (!dl) return;
     dl.innerHTML = orgSubjects.map(function(s) { return '<option value="' + rpEsc(s) + '">'; }).join('');
   });
+  populateFolderDatalist();
 }
 
 function showResults() {
@@ -2994,6 +3055,7 @@ function confirmAIAdd(){
   });
   aiPendingQs = null;
   saveFolderMeta(folder, subject);
+  ensureFolder(folder, subject);
   orgEnsureTopic(folder, subject);
   saveBank(); renderBank();
   document.getElementById('ai-folder-pick').style.display = 'none';
@@ -4037,6 +4099,7 @@ function sqConfirmAdd() {
   sqSave();
   sqPendingQs = null;
   saveFolderMeta(folder, subject);
+  ensureFolder(folder, subject);
   orgEnsureTopic(folder, subject);
   document.getElementById('sq-folder-pick').style.display = 'none';
   sqSetStatus('✓ ' + added + ' SAQs added to "' + folder + '".', 'sok');
@@ -4044,8 +4107,9 @@ function sqConfirmAdd() {
 }
 
 function sqGetFolders() {
-  var f = [];
-  sqBank.forEach(function(q) { var n = q.folder || 'General'; if (f.indexOf(n) === -1) f.push(n); });
+  var seen = {}, f = [];
+  getAllFolders().forEach(function(x) { if (!seen[x.name]) { seen[x.name] = 1; f.push(x.name); } });
+  sqBank.forEach(function(q) { var n = q.folder || 'General'; if (!seen[n]) { seen[n] = 1; f.push(n); } });
   return f.sort();
 }
 
@@ -4305,6 +4369,63 @@ var blurtoSelfRating = null;
 var blurtoSessions = [];
 var blurtoCurrentTopic = '';
 var blurtoSessionPeeks = 0;
+
+// ── Blurto tab + bank ────────────────────────────────────────────────────────
+function blurtoTabSwitch(tab) {
+  ['session','bank'].forEach(function(t) {
+    var panel = document.getElementById(t === 'session' ? 'blurto-setup' : 'blurto-bank');
+    var tabEl  = document.getElementById('blurto-tab-' + t);
+    if (panel) panel.style.display = t === tab ? '' : 'none';
+    if (tabEl)  tabEl.classList.toggle('active', t === tab);
+  });
+  if (tab === 'bank') renderBlurtoBank();
+}
+
+function renderBlurtoBank() {
+  var el = document.getElementById('blurto-bank-content');
+  if (!el) return;
+  var folders = getAllFolders();
+  if (!folders.length) {
+    el.innerHTML = '<div class="bank-empty"><div class="ei">📝</div><h3>No topics yet</h3><p>Create a topic in Poppy or Sage, or start a Blurto session — it will appear here.</p></div>';
+    return;
+  }
+  var grid = '<div class="folder-grid">';
+  folders.forEach(function(f) {
+    var sessions = blurtoSessions.filter(function(s) { return s.topic === f.name; });
+    var count = sessions.length;
+    var last = sessions[0] ? sessions[0].date : null;
+    var subjHtml = f.subject ? '<span class="folder-badge" style="margin-bottom:2px">' + rpEsc(f.subject) + '</span>' : '';
+    var ratingIcon = sessions[0] ? (sessions[0].rating === 'got' ? '🟢' : sessions[0].rating === 'partial' ? '🟡' : '🔴') : '';
+    var countTxt = count > 0 ? count + ' session' + (count !== 1 ? 's' : '') + (last ? ' · ' + last : '') : 'No sessions yet';
+    grid += '<div class="folder-card">'
+      + '<div class="fc-icon">📝</div>'
+      + subjHtml
+      + '<div class="fc-name">' + rpEsc(f.name) + '</div>'
+      + '<div class="fc-count">' + ratingIcon + ' ' + countTxt + '</div>'
+      + '<div class="fc-actions">'
+      + '<button class="fc-quiz" onclick="blurtoOpenFolder(\'' + rpEsc(f.name) + '\',\'' + rpEsc(f.subject || '') + '\')">▶ Start</button>'
+      + '</div></div>';
+  });
+  grid += '</div>';
+  el.innerHTML = grid;
+}
+
+function blurtoOpenFolder(name, subject) {
+  var topicEl = document.getElementById('blurto-topic');
+  var subjEl  = document.getElementById('blurto-subj');
+  if (topicEl) topicEl.value = name;
+  if (subjEl)  subjEl.value  = subject || getSubjectForFolder(name);
+  // Load cached content if available
+  var cached = orgGetContent(name);
+  if (cached) {
+    var notesEl = document.getElementById('blurto-notes-area');
+    if (notesEl) {
+      notesEl.innerText = cached.text;
+      document.getElementById('blurto-extract-status').textContent = '✓ Notes loaded from cache.';
+    }
+  }
+  blurtoTabSwitch('session');
+}
 
 function blurtoLoad() {
   try { blurtoSessions = JSON.parse(localStorage.getItem('sp_blurto') || '[]'); } catch(e) { blurtoSessions = []; }
@@ -4700,8 +4821,9 @@ function blurtoSaveSession() {
   var topic = blurtoCurrentTopic || 'Blurto Session';
   var blurtoSubjEl = document.getElementById('blurto-subj');
   var blurtoSubj = blurtoSubjEl ? blurtoSubjEl.value.trim() : '';
-  if (topic !== 'Blurto Session' && blurtoSubj) {
+  if (topic && topic !== 'Blurto Session') {
     saveFolderMeta(topic, blurtoSubj);
+    ensureFolder(topic, blurtoSubj);
     orgEnsureTopic(topic, blurtoSubj);
   }
   var rating = blurtoSelfRating || 'got';
@@ -4916,7 +5038,7 @@ function orgIncrementBlurting(topicName) {
 function orgLoadData() {
   try { orgTopics   = JSON.parse(localStorage.getItem('sp_org_topics')   || '[]'); } catch(e) { orgTopics = []; }
   try { orgSubjects = JSON.parse(localStorage.getItem('sp_org_subjects') || '[]'); } catch(e) { orgSubjects = []; }
-  populateSubjectDatalist();
+  populateSubjectDatalist(); // also calls populateFolderDatalist()
 }
 function orgSaveTopics()    { localStorage.setItem('sp_org_topics',   JSON.stringify(orgTopics)); }
 function orgSaveSubjects()  { localStorage.setItem('sp_org_subjects', JSON.stringify(orgSubjects)); }
@@ -5136,8 +5258,11 @@ function orgGoTool(tool, topicId) {
         }
       }
     } else if (tool === 'blurto') {
+      blurtoTabSwitch('session');
       var el = document.getElementById('blurto-topic');
       if (el) { el.value = name; }
+      var subjEl = document.getElementById('blurto-subj');
+      if (subjEl) subjEl.value = (t && t.subject) || getSubjectForFolder(name) || '';
       if (cached) {
         var notesEl = document.getElementById('blurto-notes-area');
         if (notesEl) {
