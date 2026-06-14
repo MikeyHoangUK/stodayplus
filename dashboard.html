@@ -509,6 +509,34 @@
     .fc-empty:hover{opacity:.75}
     @keyframes fc-shake{0%,100%{transform:translateX(0)}15%{transform:translateX(-5px)}30%{transform:translateX(5px)}45%{transform:translateX(-4px)}60%{transform:translateX(4px)}75%{transform:translateX(-2px)}90%{transform:translateX(2px)}}
     .fc-shaking{animation:fc-shake .55s ease}
+    /* Folder edit modal */
+    .fe-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:9000;align-items:center;justify-content:center;padding:16px;box-sizing:border-box}
+    .fe-modal{background:#fdf8f0;border-radius:22px;padding:28px 26px 22px;width:380px;max-width:100%;box-shadow:0 24px 80px rgba(0,0,0,.28),0 0 0 1px rgba(168,85,247,.12);position:relative;animation:feIn .18s ease}
+    @keyframes feIn{from{transform:translateY(10px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+    .fe-title{font-size:.92rem;font-weight:900;color:#1c1208;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+    .fe-close{margin-left:auto;background:none;border:none;cursor:pointer;font-size:1.3rem;color:#6e5438;line-height:1;padding:0 3px;opacity:.6;transition:opacity .15s}
+    .fe-close:hover{opacity:1}
+    .fe-lbl{font-size:.6rem;font-weight:800;color:#6e5438;text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:5px}
+    .fe-inp{width:100%;box-sizing:border-box;background:rgba(255,255,255,.75);border:1.5px solid rgba(168,85,247,.18);border-radius:10px;padding:9px 12px;color:#1c1208;font-family:'Raleway',sans-serif;font-size:.82rem;font-weight:600;outline:none;transition:border-color .18s}
+    .fe-inp:focus{border-color:#9333ea}
+    .fe-stats{font-size:.65rem;color:#6e5438;background:rgba(168,85,247,.05);border:1px solid rgba(168,85,247,.1);border-radius:10px;padding:10px 13px;margin:16px 0;display:flex;gap:14px;flex-wrap:wrap}
+    .fe-stat{display:flex;flex-direction:column;align-items:center;gap:2px}
+    .fe-stat-n{font-size:1.1rem;font-weight:900;color:#1c1208}
+    .fe-stat-lbl{font-size:.56rem;font-weight:700;color:#6e5438;text-transform:uppercase;letter-spacing:.08em}
+    .fe-divider{height:1px;background:rgba(168,85,247,.1);margin:18px 0}
+    .fe-actions{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .fe-del-btn{font-size:.68rem;font-weight:800;color:#dc2626;background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.22);border-radius:9px;padding:8px 14px;cursor:pointer;transition:all .18s;font-family:'Raleway',sans-serif}
+    .fe-del-btn:hover{background:rgba(248,113,113,.18);border-color:rgba(248,113,113,.45)}
+    .fe-cancel-btn{font-size:.72rem;font-weight:700;color:#6e5438;background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.18);border-radius:9px;padding:8px 16px;cursor:pointer;font-family:'Raleway',sans-serif;transition:all .18s}
+    .fe-cancel-btn:hover{background:rgba(168,85,247,.12)}
+    .fe-save-btn{font-size:.76rem;font-weight:900;color:#fff;background:linear-gradient(135deg,#7c3aed,#4338ca);border:none;border-radius:9px;padding:8px 22px;cursor:pointer;font-family:'Raleway',sans-serif;transition:opacity .18s;letter-spacing:.02em}
+    .fe-save-btn:hover{opacity:.88}
+    body.hc .fe-modal{background:#0f0d22!important;border:1px solid rgba(168,85,247,.4)!important}
+    body.hc .fe-title,body.hc .fe-stat-n{color:#e8dcc8!important}
+    body.hc .fe-lbl,body.hc .fe-stat-lbl,body.hc .fe-close{color:#a08878!important}
+    body.hc .fe-inp{background:#0d0b1e!important;color:#e8dcc8!important;border-color:rgba(168,85,247,.4)!important}
+    body.hc .fe-stats{background:rgba(168,85,247,.06)!important;border-color:rgba(168,85,247,.18)!important}
+    body.hc .fe-cancel-btn{color:#c8b89a!important}
     .fc-confidence{font-size:.62rem;font-weight:800;letter-spacing:.03em;margin-top:-2px}
     .rp-best-score{font-size:.72rem;font-weight:800;padding:4px 10px;border-radius:8px;background:rgba(0,0,0,.04);flex-shrink:0}
     /* ai folder picker */
@@ -2548,7 +2576,7 @@ function renderBank() {
       }
       var subjChip = folderSubjChip(f);
       var quizBtn = count > 0 ? '<button class="fc-quiz" onclick="quizFolder(\''+esc(f)+'\')">▶ Quiz</button>' : '';
-      card.innerHTML = '<div class="fc-icon">📁</div>'+subjChip+'<div class="fc-name">'+esc(f)+'</div><div class="fc-count">'+(count===0?'No MCQs yet':count+' question'+(count!==1?'s':''))+'</div>'+confBadge+'<div class="fc-actions">'+quizBtn+'<button class="fc-edit" onclick="editFolderSubject(\''+esc(f)+'\',\''+esc(getFolderSubject(f))+'\')">✎</button><button class="fc-del" onclick="deleteFolder(\''+esc(f)+'\')">🗑</button></div>';
+      card.innerHTML = '<div class="fc-icon">📁</div>'+subjChip+'<div class="fc-name">'+esc(f)+'</div><div class="fc-count">'+(count===0?'No MCQs yet':count+' question'+(count!==1?'s':''))+'</div>'+confBadge+'<div class="fc-actions">'+quizBtn+'<button class="fc-edit" onclick="openFolderEdit(\''+esc(f)+'\')">✎</button><button class="fc-del" onclick="deleteFolder(\''+esc(f)+'\')">🗑</button></div>';
       grid.appendChild(card);
     });
     list.innerHTML = '';
@@ -2803,27 +2831,87 @@ function getFolderSubject(name) {
   return (entry && entry.subject) || getSubjectForFolder(name) || '';
 }
 
-function editFolderSubject(name, currentSubj) {
-  var newSubj = prompt('Subject for "' + name + '":', currentSubj || '');
-  if (newSubj === null) return; // cancelled
-  newSubj = newSubj.trim();
-  // update shared registry
-  var list = getAllFolders();
-  var entry = list.find(function(f) { return f.name.toLowerCase() === name.toLowerCase(); });
-  if (entry) { entry.subject = newSubj; saveAllFolders(list); }
-  // update folder meta
-  saveFolderMeta(name, newSubj);
-  // update linked organiser topic
-  var ot = orgTopics.find(function(t) { return t.topic_name.toLowerCase() === name.toLowerCase(); });
-  if (ot) { ot.subject = newSubj; orgSaveTopics(); }
-  // add subject to global list if new
-  if (newSubj && orgSubjects.indexOf(newSubj) === -1) { orgSubjects.push(newSubj); orgSaveSubjects(); }
-  populateSubjectDatalist();
-  // re-render whichever bank is currently visible
-  renderBank();
-  renderSqBank();
-  if (document.getElementById('blurto-bank') && document.getElementById('blurto-bank').style.display !== 'none') renderBlurtoBank();
+// ── Folder edit modal ─────────────────────────────────────────────────────────
+var folderEditOrigName = '';
+
+function openFolderEdit(name) {
+  folderEditOrigName = name;
+  document.getElementById('fe-name').value = name;
+  document.getElementById('fe-subj').value = getFolderSubject(name);
+  var dl = document.getElementById('fe-subj-list');
+  if (dl) dl.innerHTML = orgSubjects.map(function(s){ return '<option value="'+rpEsc(s)+'">'; }).join('');
+  var mcqCount   = (typeof bank!=='undefined'?bank:[]).filter(function(q){ return (q.folder||'General')===name; }).length;
+  var saqCount   = (typeof sqBank!=='undefined'?sqBank:[]).filter(function(q){ return (q.folder||'General')===name; }).length;
+  var blurtCount = (typeof blurtoSessions!=='undefined'?blurtoSessions:[]).filter(function(s){ return s.topic===name; }).length;
+  document.getElementById('fe-stats').innerHTML =
+    '<div class="fe-stat"><span class="fe-stat-n">'+mcqCount+'</span><span class="fe-stat-lbl">MCQs</span></div>'
+    +'<div class="fe-stat"><span class="fe-stat-n">'+saqCount+'</span><span class="fe-stat-lbl">SAQs</span></div>'
+    +'<div class="fe-stat"><span class="fe-stat-n">'+blurtCount+'</span><span class="fe-stat-lbl">Blurto sessions</span></div>';
+  document.getElementById('folder-edit-backdrop').style.display = 'flex';
+  setTimeout(function(){ document.getElementById('fe-name').select(); }, 60);
 }
+
+function closeFolderEdit() {
+  document.getElementById('folder-edit-backdrop').style.display = 'none';
+}
+
+function saveFolderEdit() {
+  var newName = (document.getElementById('fe-name').value||'').trim();
+  var newSubj = (document.getElementById('fe-subj').value||'').trim();
+  var oldName = folderEditOrigName;
+  if (!newName) { document.getElementById('fe-name').focus(); return; }
+
+  if (newName !== oldName) {
+    (typeof bank!=='undefined'?bank:[]).forEach(function(q){ if((q.folder||'General')===oldName) q.folder=newName; });
+    if (typeof saveBank==='function') saveBank();
+    (typeof sqBank!=='undefined'?sqBank:[]).forEach(function(q){ if((q.folder||'General')===oldName) q.folder=newName; });
+    if (typeof sqSave==='function') sqSave();
+    (typeof blurtoSessions!=='undefined'?blurtoSessions:[]).forEach(function(s){ if(s.topic===oldName) s.topic=newName; });
+    if (typeof blurtoSave==='function') blurtoSave();
+    var sc=getFolderScores(); if(sc[oldName]!==undefined){sc[newName]=sc[oldName];delete sc[oldName];localStorage.setItem('sp_folder_scores',JSON.stringify(sc));}
+    try{ var tc=JSON.parse(localStorage.getItem('sp_topic_content')||'{}'); if(tc[oldName.toLowerCase()]){tc[newName.toLowerCase()]=tc[oldName.toLowerCase()];delete tc[oldName.toLowerCase()];localStorage.setItem('sp_topic_content',JSON.stringify(tc));} }catch(e){}
+    var ot=orgTopics.find(function(t){ return t.topic_name.toLowerCase()===oldName.toLowerCase(); }); if(ot) ot.topic_name=newName;
+    var meta=getFolderMeta(); delete meta[oldName]; localStorage.setItem('sp_folder_meta',JSON.stringify(meta));
+  }
+
+  var list=getAllFolders();
+  var entry=list.find(function(f){ return f.name.toLowerCase()===oldName.toLowerCase(); });
+  if (entry){ entry.name=newName; entry.subject=newSubj; } else { list.push({id:Date.now()+'-'+Math.random().toString(36).slice(2,5),name:newName,subject:newSubj,createdAt:Date.now()}); }
+  saveAllFolders(list);
+  saveFolderMeta(newName, newSubj);
+
+  var ot2=orgTopics.find(function(t){ return t.topic_name.toLowerCase()===newName.toLowerCase(); });
+  if (ot2){ ot2.subject=newSubj; }
+  orgSaveTopics(); orgRenderBanner(); orgRenderTable();
+
+  if (newSubj && orgSubjects.indexOf(newSubj)===-1){ orgSubjects.push(newSubj); orgSaveSubjects(); }
+  populateSubjectDatalist(); populateFolderDatalist();
+  closeFolderEdit();
+  renderBank(); renderSqBank();
+  if (document.getElementById('blurto-bank') && document.getElementById('blurto-bank').style.display!=='none') renderBlurtoBank();
+}
+
+function deleteFolderFromEdit() {
+  var name=folderEditOrigName;
+  var mcqN=(typeof bank!=='undefined'?bank:[]).filter(function(q){ return (q.folder||'General')===name; }).length;
+  var saqN=(typeof sqBank!=='undefined'?sqBank:[]).filter(function(q){ return (q.folder||'General')===name; }).length;
+  var blN =(typeof blurtoSessions!=='undefined'?blurtoSessions:[]).filter(function(s){ return s.topic===name; }).length;
+  var msg='Delete "'+name+'"?\n\nThis will permanently remove:\n• '+mcqN+' MCQ question'+(mcqN!==1?'s':'')+'\n• '+saqN+' SAQ'+(saqN!==1?'s':'')+'\n• '+blN+' Blurto session'+(blN!==1?'s':'')+'\n\nThis cannot be undone.';
+  if (!confirm(msg)) return;
+  if (typeof bank!=='undefined'){ bank=bank.filter(function(q){ return (q.folder||'General')!==name; }); if(typeof saveBank==='function') saveBank(); }
+  if (typeof sqBank!=='undefined'){ sqBank=sqBank.filter(function(q){ return (q.folder||'General')!==name; }); if(typeof sqSave==='function') sqSave(); }
+  if (typeof blurtoSessions!=='undefined'){ blurtoSessions=blurtoSessions.filter(function(s){ return s.topic!==name; }); if(typeof blurtoSave==='function') blurtoSave(); }
+  saveAllFolders(getAllFolders().filter(function(f){ return f.name!==name; }));
+  orgTopics=orgTopics.filter(function(t){ return t.topic_name.toLowerCase()!==name.toLowerCase(); });
+  orgSaveTopics(); orgRenderBanner(); orgRenderTable();
+  var meta=getFolderMeta(); delete meta[name]; localStorage.setItem('sp_folder_meta',JSON.stringify(meta));
+  var scores=getFolderScores(); delete scores[name]; localStorage.setItem('sp_folder_scores',JSON.stringify(scores));
+  populateFolderDatalist();
+  closeFolderEdit();
+  renderBank(); renderSqBank(); renderBlurtoBank();
+}
+
+function editFolderSubject(name) { openFolderEdit(name); }
 
 function folderSubjChip(name) {
   var subj = getFolderSubject(name);
@@ -4236,7 +4324,7 @@ function renderSqBank() {
       + '<div class="fc-count">' + (count === 0 ? 'No SAQs yet' : count + ' SAQ' + (count !== 1 ? 's' : '')) + '</div>'
       + '<div class="fc-actions">'
       + (count > 0 ? '<button class="fc-quiz" onclick="sqPracFolder(\'' + rpEsc(f) + '\')">▶ Practice</button>' : '')
-      + '<button class="fc-edit" onclick="editFolderSubject(\'' + rpEsc(f) + '\',\'' + rpEsc(getFolderSubject(f)) + '\')">✎</button>'
+      + '<button class="fc-edit" onclick="openFolderEdit(\'' + rpEsc(f) + '\')">✎</button>'
       + '<button class="fc-del" onclick="sqDeleteFolder(\'' + rpEsc(f) + '\')">🗑</button>'
       + '</div>';
     grid.appendChild(card);
@@ -4474,7 +4562,7 @@ function renderBlurtoBank() {
       + '<div class="fc-count">' + ratingIcon + ' ' + countTxt + '</div>'
       + '<div class="fc-actions">'
       + '<button class="fc-quiz" onclick="blurtoOpenFolder(\'' + rpEsc(f.name) + '\',\'' + rpEsc(f.subject || '') + '\')">▶ Start</button>'
-      + '<button class="fc-edit" onclick="editFolderSubject(\'' + rpEsc(f.name) + '\',\'' + rpEsc(f.subject || '') + '\')">✎</button>'
+      + '<button class="fc-edit" onclick="openFolderEdit(\'' + rpEsc(f.name) + '\')">✎</button>'
       + '</div></div>';
   });
   grid += '</div>';
@@ -5481,5 +5569,29 @@ function orgRenderTable() {
   }).join('');
 }
 </script>
+
+<!-- Folder Edit Modal -->
+<div class="fe-backdrop" id="folder-edit-backdrop" onclick="if(event.target===this)closeFolderEdit()">
+  <div class="fe-modal">
+    <div class="fe-title">
+      ✎ Edit Folder
+      <button class="fe-close" onclick="closeFolderEdit()">×</button>
+    </div>
+    <label class="fe-lbl">Topic name</label>
+    <input id="fe-name" class="fe-inp" placeholder="Topic name…" style="margin-bottom:14px" onkeydown="if(event.key==='Enter')document.getElementById('fe-subj').focus()">
+    <label class="fe-lbl">Subject</label>
+    <input id="fe-subj" class="fe-inp" list="fe-subj-list" placeholder="e.g. Biology" onkeydown="if(event.key==='Enter')saveFolderEdit()">
+    <datalist id="fe-subj-list"></datalist>
+    <div class="fe-stats" id="fe-stats"></div>
+    <div class="fe-divider"></div>
+    <div class="fe-actions">
+      <button class="fe-del-btn" onclick="deleteFolderFromEdit()">🗑 Delete folder</button>
+      <div style="display:flex;gap:8px">
+        <button class="fe-cancel-btn" onclick="closeFolderEdit()">Cancel</button>
+        <button class="fe-save-btn" onclick="saveFolderEdit()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
