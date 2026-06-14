@@ -3602,12 +3602,19 @@ async function generateWithAI(isRetry){
   var typeDesc = type === 'case'
     ? 'Case-based: present a realistic short scenario or situation first, then ask what follows (e.g. "A student notices… which of the following best explains…")'
     : 'Info-based: direct factual or conceptual recall questions (e.g. "Which of the following is true about…")';
-  var diffDesc = {easy:'Straightforward recall, single concept, definitional',medium:'Requires understanding relationships or applying a concept',hard:'Multi-step reasoning, analysis, or synthesis'}[diff];
-  var existingStems = bank.map(function(q){ return (q.stem||q.question||'').trim(); }).filter(Boolean);
-  var existingBlock = existingStems.length
-    ? '\n\nEXISTING QUESTIONS (do NOT repeat or closely paraphrase any of these):\n' + existingStems.map(function(s,i){ return (i+1)+'. '+s; }).join('\n')
+  var diffDesc = {
+    easy:   'EASY — tests exactly ONE concept or fact in isolation. The student only needs to recall or recognise a single definition, mechanism, or term. Do NOT combine ideas.',
+    medium: 'MEDIUM — tests the COMBINATION of exactly TWO concepts or perceptions. The student must understand how two ideas relate, interact, or depend on each other. Do NOT test a single fact, and do NOT combine three or more ideas.',
+    hard:   'HARD — tests the COMBINATION of exactly THREE concepts or perceptions. The student must synthesise three distinct ideas simultaneously. Do NOT test fewer than three combined concepts.'
+  }[diff];
+  // Combine saved questions + any unsaved pending batch so duplicates are caught either way
+  var seenStems = bank.map(function(q){ return (q.stem||q.question||'').trim(); });
+  if (aiPendingQs) aiPendingQs.forEach(function(q){ if(q.question) seenStems.push(q.question.trim()); });
+  seenStems = seenStems.filter(Boolean);
+  var existingBlock = seenStems.length
+    ? '\n\nDO NOT REPEAT — these questions already exist. Do not reuse, rephrase, or test the same concept as ANY of these:\n' + seenStems.map(function(s,i){ return (i+1)+'. '+s; }).join('\n')
     : '';
-  var prompt = 'You are an expert educator writing exam questions for university students.\n\nGenerate ' + n + ' multiple choice questions based on the following topic or notes:\n\n' + topic + '\n\nSettings:\n- Question type: ' + typeDesc + '\n- Difficulty: ' + diff + ' — ' + diffDesc + '\n\nRules:\n- Each question must have EXACTLY 5 options (A B C D E)\n- Exactly one option is correct\n- All options must be plausible and specific (no obvious fillers)\n- Label correct option by its 0-based index (0=A, 1=B, 2=C, 3=D, 4=E)\n- ALL questions must be ' + diff + ' difficulty\n- Include a short one-line hint\n- Every question in this batch must test a DIFFERENT concept, fact or scenario — no overlapping ideas\n- Do NOT repeat, rephrase or closely paraphrase any question from the existing list below' + existingBlock + '\n\nRespond with ONLY a valid JSON array. No markdown, no code fences, no explanation:\n[\n  {\n    "question": "...",\n    "options": ["A text","B text","C text","D text","E text"],\n    "correct": 0,\n    "difficulty": "' + diff + '",\n    "hint": "..."\n  }\n]';
+  var prompt = 'You are an expert educator writing exam questions for university students.\n\nGenerate ' + n + ' multiple choice questions based on the following topic or notes:\n\n' + topic + '\n\nSettings:\n- Question type: ' + typeDesc + '\n- Difficulty: ' + diffDesc + '\n\nSTRICT RULES — follow every rule exactly:\n1. Each question must have EXACTLY 5 options (A B C D E)\n2. Exactly one option is correct; all others must be plausible — no obvious wrong answers\n3. Label the correct option by its 0-based index (0=A, 1=B, 2=C, 3=D, 4=E)\n4. ALL questions must match the difficulty definition above — wrong difficulty = invalid\n5. Include a short one-line hint\n6. Every question in this batch must test a DIFFERENT concept — no overlapping ideas within the batch\n7. CRITICAL: Before outputting each question, verify it does not appear in the existing list below. If it tests the same concept as any existing question, replace it with a completely different one.' + existingBlock + '\n\nRespond with ONLY a valid JSON array. No markdown, no code fences, no explanation:\n[\n  {\n    "question": "...",\n    "options": ["A text","B text","C text","D text","E text"],\n    "correct": 0,\n    "difficulty": "' + diff + '",\n    "hint": "..."\n  }\n]';
   try {
     var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -3615,7 +3622,7 @@ async function generateWithAI(isRetry){
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
         messages: [{role:'user', content: prompt}],
-        temperature: 0.75,
+        temperature: 0.5,
         max_tokens: 3000
       })
     });
