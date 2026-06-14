@@ -1273,13 +1273,13 @@
         <p class="mcq-sub">Build your question bank from your study materials, then quiz yourself.</p>
 
         <div class="mcq-tabs">
-          <div class="mcq-tab active" id="tab-create" onclick="switchTab('create')">＋ Create</div>
-          <div class="mcq-tab" id="tab-bank" onclick="switchTab('bank')">📋 Bank</div>
+          <div class="mcq-tab active" id="tab-bank" onclick="switchTab('bank')">📋 Bank</div>
           <div class="mcq-tab" id="tab-quiz" onclick="switchTab('quiz')">▶ Quiz</div>
+          <div class="mcq-tab" id="tab-create" onclick="switchTab('create')">＋ Create</div>
         </div>
 
         <!-- CREATE -->
-        <div id="sub-create">
+        <div id="sub-create" style="display:none">
 
           <!-- AI Generate -->
           <div class="ai-card">
@@ -1392,7 +1392,7 @@
         </div>
 
         <!-- BANK -->
-        <div id="sub-bank" style="display:none">
+        <div id="sub-bank">
           <div class="folder-bar" id="bank-folder-bar"></div>
           <div class="bank-bar">
             <div class="bank-stat" id="bank-stat" style="flex:1">0 questions</div>
@@ -1591,13 +1591,13 @@
         <p class="mcq-sub">Generate short answer questions focused on deep understanding.</p>
 
         <div class="mcq-tabs">
-          <div class="mcq-tab active" id="sq-tab-gen"  onclick="sqTab('gen')">✨ Generate</div>
-          <div class="mcq-tab" id="sq-tab-bank" onclick="sqTab('bank')">📋 Bank</div>
+          <div class="mcq-tab active" id="sq-tab-bank" onclick="sqTab('bank')">📋 Bank</div>
           <div class="mcq-tab" id="sq-tab-prac" onclick="sqTab('prac')">▶ Practice</div>
+          <div class="mcq-tab" id="sq-tab-gen"  onclick="sqTab('gen')">✨ Generate</div>
         </div>
 
         <!-- Generate -->
-        <div id="sq-gen">
+        <div id="sq-gen" style="display:none">
           <div class="ai-card">
             <div class="ai-header">
               <span style="font-size:1.1rem">✨</span>
@@ -1676,7 +1676,7 @@
         </div>
 
         <!-- Bank -->
-        <div id="sq-bank" style="display:none">
+        <div id="sq-bank">
           <div id="sq-bank-content"></div>
         </div>
 
@@ -1730,17 +1730,17 @@
         <p class="mcq-sub">Fade your notes, write from memory, see what you missed.</p>
 
         <div class="mcq-tabs" style="margin-bottom:16px">
-          <div class="mcq-tab active" id="blurto-tab-session" onclick="blurtoTabSwitch('session')">📝 Session</div>
-          <div class="mcq-tab" id="blurto-tab-bank" onclick="blurtoTabSwitch('bank')">📋 Bank</div>
+          <div class="mcq-tab active" id="blurto-tab-bank" onclick="blurtoTabSwitch('bank')">📋 Bank</div>
+          <div class="mcq-tab" id="blurto-tab-session" onclick="blurtoTabSwitch('session')">📝 Practice</div>
         </div>
 
         <!-- BANK VIEW -->
-        <div id="blurto-bank" style="display:none">
+        <div id="blurto-bank">
           <div id="blurto-bank-content"></div>
         </div>
 
         <!-- SETUP PHASE -->
-        <div id="blurto-setup">
+        <div id="blurto-setup" style="display:none">
           <div class="blurto-layout">
 
             <!-- Notes column -->
@@ -2040,6 +2040,10 @@ window.addEventListener('DOMContentLoaded', function() {
   blurtoLoad();
   orgLoadData(); // load organiser data early so sync can see existing topics
   syncFoldersFromBanks();
+  // Banks are now the default tab — render them on load
+  renderBank();
+  renderSqBank();
+  renderBlurtoBank();
 });
 
 // ── MARVEL ENTRY ANIMATION ──
