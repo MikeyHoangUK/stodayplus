@@ -873,7 +873,7 @@
     .org-td{padding:8px 10px;border-bottom:1px solid rgba(168,85,247,.06);vertical-align:middle}
     .org-tr:last-child .org-td{border-bottom:none}
     .org-tr:hover .org-td{background:rgba(168,85,247,.025)}
-    .org-subj-tag{font-size:.58rem;font-weight:800;background:rgba(109,40,217,.08);color:#6d28d9;border-radius:6px;padding:2px 7px;white-space:nowrap}
+    .org-subj-tag{font-size:.58rem;font-weight:800;border-radius:6px;padding:2px 7px;white-space:nowrap}
     .org-topic-name{font-size:.8rem;font-weight:700;color:#1c1208}
     .org-date-sub{font-size:.58rem;color:#9ca3af;margin-top:2px}
     .org-toggle{width:26px;height:26px;border-radius:7px;border:2px solid rgba(168,85,247,.2);background:rgba(255,255,255,.5);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.75rem;transition:all .15s;margin:0 auto;font-family:'Raleway',sans-serif}
@@ -898,8 +898,8 @@
     .org-setup-title{font-size:1.25rem;font-weight:900;color:#1c1208;margin-bottom:8px}
     .org-setup-sub{font-size:.8rem;color:#6e5438;margin-bottom:28px;line-height:1.5}
     .org-subj-list{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:20px;min-height:36px}
-    .org-subj-chip{display:flex;align-items:center;gap:5px;background:rgba(109,40,217,.08);border:1px solid rgba(109,40,217,.2);border-radius:20px;padding:5px 12px;font-size:.74rem;font-weight:700;color:#6d28d9}
-    .org-subj-chip button{background:none;border:none;cursor:pointer;color:#6d28d9;font-size:.8rem;padding:0;line-height:1;opacity:.55}
+    .org-subj-chip{display:flex;align-items:center;gap:5px;border-radius:20px;padding:5px 12px;font-size:.74rem;font-weight:700;border-width:1px;border-style:solid}
+    .org-subj-chip button{background:none;border:none;cursor:pointer;font-size:.8rem;padding:0;line-height:1;opacity:.55;inherit:color}
     .org-subj-chip button:hover{opacity:1}
     .org-subj-add-row{display:flex;gap:8px;justify-content:center;margin-bottom:26px}
     .org-subj-inp{padding:9px 14px;border:1.5px solid rgba(168,85,247,.25);border-radius:10px;font-size:.8rem;font-family:'Raleway',sans-serif;outline:none;background:rgba(255,255,255,.7);width:220px}
@@ -923,14 +923,13 @@
     body.hc .org-td{border-bottom-color:rgba(168,85,247,.08)!important}
     body.hc .org-tr:hover .org-td{background:rgba(168,85,247,.04)!important}
     body.hc .org-topic-name{color:#e8dcc8!important}
-    body.hc .org-subj-tag{background:rgba(168,85,247,.15)!important;color:#c084fc!important}
+    /* org-subj-tag and org-subj-chip colors handled inline per subject */
     body.hc .org-toggle{background:#0d0b1e!important;border-color:rgba(168,85,247,.28)!important;color:transparent}
     body.hc .org-toggle.on{background:#166534!important;border-color:#166534!important;color:#fff!important}
     body.hc .org-tool-btn{background:rgba(168,85,247,.07)!important;border-color:rgba(168,85,247,.25)!important;color:#c084fc!important}
     body.hc .org-gear-btn{color:#a08878!important;border-color:rgba(168,85,247,.2)!important}
     body.hc .org-setup-title{color:#e8dcc8!important}
     body.hc .org-setup-sub{color:#a08878!important}
-    body.hc .org-subj-chip{background:rgba(168,85,247,.14)!important;border-color:rgba(168,85,247,.3)!important;color:#c084fc!important}
     body.hc .org-subj-inp{background:#0d0b1e!important;color:#e8dcc8!important;border-color:rgba(168,85,247,.35)!important}
     body.hc .org-empty{color:#a08878!important}
     /* Planner clock */
@@ -4666,6 +4665,31 @@ var orgSubjects = [];
 var orgAttended = true;
 var ORG_INTERVALS = [3, 7, 14, 28, 56];
 
+var ORG_COLORS = [
+  { bg:'rgba(124,58,237,.12)',  text:'#7c3aed', textHc:'#c4b5fd', border:'rgba(124,58,237,.3)'  }, // violet
+  { bg:'rgba(37,99,235,.12)',   text:'#2563eb', textHc:'#93c5fd', border:'rgba(37,99,235,.3)'   }, // blue
+  { bg:'rgba(5,150,105,.12)',   text:'#047857', textHc:'#6ee7b7', border:'rgba(5,150,105,.3)'   }, // emerald
+  { bg:'rgba(234,88,12,.12)',   text:'#c2410c', textHc:'#fdba74', border:'rgba(234,88,12,.3)'   }, // orange
+  { bg:'rgba(219,39,119,.12)',  text:'#be185d', textHc:'#f9a8d4', border:'rgba(219,39,119,.3)'  }, // pink
+  { bg:'rgba(6,182,212,.12)',   text:'#0e7490', textHc:'#67e8f9', border:'rgba(6,182,212,.3)'   }, // cyan
+  { bg:'rgba(217,119,6,.12)',   text:'#b45309', textHc:'#fcd34d', border:'rgba(217,119,6,.3)'   }, // amber
+  { bg:'rgba(99,102,241,.12)',  text:'#4338ca', textHc:'#a5b4fc', border:'rgba(99,102,241,.3)'  }, // indigo
+  { bg:'rgba(20,184,166,.12)',  text:'#0f766e', textHc:'#5eead4', border:'rgba(20,184,166,.3)'  }, // teal
+  { bg:'rgba(239,68,68,.12)',   text:'#b91c1c', textHc:'#fca5a5', border:'rgba(239,68,68,.3)'   }, // rose
+];
+
+function orgSubjectColor(subject) {
+  var idx = orgSubjects.indexOf(subject);
+  if (idx < 0) idx = 0;
+  var c  = ORG_COLORS[idx % ORG_COLORS.length];
+  var hc = document.body.classList.contains('hc');
+  return {
+    bg:     hc ? c.bg.replace(/\.12\)/, '.2)') : c.bg,
+    text:   hc ? c.textHc : c.text,
+    border: c.border
+  };
+}
+
 function orgLoadData() {
   try { orgTopics   = JSON.parse(localStorage.getItem('sp_org_topics')   || '[]'); } catch(e) { orgTopics = []; }
   try { orgSubjects = JSON.parse(localStorage.getItem('sp_org_subjects') || '[]'); } catch(e) { orgSubjects = []; }
@@ -4715,8 +4739,10 @@ function orgRenderSubjectChips() {
   if (!el) return;
   el.innerHTML = orgSubjects.length
     ? orgSubjects.map(function(s, i) {
-        return '<div class="org-subj-chip">' + rpEsc(s)
-          + '<button onclick="orgRemoveSubject(' + i + ')" title="Remove">✕</button></div>';
+        var c = orgSubjectColor(s);
+        return '<div class="org-subj-chip" style="background:' + c.bg + ';border-color:' + c.border + ';color:' + c.text + '">'
+          + rpEsc(s)
+          + '<button onclick="orgRemoveSubject(' + i + ')" title="Remove" style="color:' + c.text + '">✕</button></div>';
       }).join('')
     : '<span style="font-size:.75rem;color:#9ca3af;font-style:italic">No subjects yet</span>';
 }
@@ -4936,8 +4962,9 @@ function orgRenderTable() {
     var nextConf = orgNextConf(t.confidence);
     var confArg  = nextConf === null ? 'null' : nextConf;
     var esc = rpEsc;
+    var sc = orgSubjectColor(t.subject);
     return '<tr class="org-tr">'
-      + '<td class="org-td"><span class="org-subj-tag">' + esc(t.subject) + '</span></td>'
+      + '<td class="org-td"><span class="org-subj-tag" style="background:' + sc.bg + ';color:' + sc.text + '">' + esc(t.subject) + '</span></td>'
       + '<td class="org-td"><div class="org-topic-name">' + esc(t.topic_name) + '</div>'
       + '<div class="org-date-sub">' + t.week_added + '</div></td>'
       + '<td class="org-td" style="text-align:center">'
