@@ -1296,10 +1296,12 @@
             </div>
             <div class="ai-status" id="ai-status"></div>
             <div class="ai-folder-pick" id="ai-folder-pick" style="display:none">
-              <span class="ai-folder-lbl">Add to folder:</span>
-              <select id="ai-folder-sel" class="ai-folder-sel"></select>
-              <input id="ai-folder-new" class="ai-folder-new" placeholder="or type new folder…"/>
-              <button class="ai-folder-confirm" onclick="confirmAIAdd()">Add to Bank →</button>
+              <span class="ai-folder-lbl">Topic:</span>
+              <input id="ai-folder-new" class="ai-folder-new" placeholder="Topic name…" style="flex:1;min-width:130px"/>
+              <span class="ai-folder-lbl">Subject:</span>
+              <input id="ai-folder-subj" class="ai-folder-new" list="ai-subj-list" placeholder="Subject…" style="max-width:120px"/>
+              <datalist id="ai-subj-list"></datalist>
+              <button class="ai-folder-confirm" onclick="confirmAIAdd()">Save to Bank →</button>
             </div>
           </div>
           <div class="ai-divider"><span class="ai-divider-txt">or create manually</span></div>
@@ -1592,10 +1594,12 @@
             </div>
             <div class="ai-status" id="sq-status"></div>
             <div class="ai-folder-pick" id="sq-folder-pick" style="display:none">
-              <span class="ai-folder-lbl">Add to folder:</span>
-              <select id="sq-folder-sel" class="ai-folder-sel"></select>
-              <input id="sq-folder-new" class="ai-folder-new" placeholder="or type new folder…"/>
-              <button class="ai-folder-confirm" onclick="sqConfirmAdd()">Add to Bank →</button>
+              <span class="ai-folder-lbl">Topic:</span>
+              <input id="sq-folder-new" class="ai-folder-new" placeholder="Topic name…" style="flex:1;min-width:130px"/>
+              <span class="ai-folder-lbl">Subject:</span>
+              <input id="sq-folder-subj" class="ai-folder-new" list="sq-subj-list" placeholder="Subject…" style="max-width:120px"/>
+              <datalist id="sq-subj-list"></datalist>
+              <button class="ai-folder-confirm" onclick="sqConfirmAdd()">Save to Bank →</button>
             </div>
           </div>
           <div class="ai-divider"><span class="ai-divider-txt">or create manually</span></div>
@@ -1730,7 +1734,10 @@
               </div>
               <div class="blurto-cfg-card">
                 <div style="font-size:.68rem;font-weight:800;color:#6e5438;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Topic name</div>
-                <input type="text" id="blurto-topic" class="sq-topic-inp" placeholder="e.g. Cell Division" style="width:100%;box-sizing:border-box;margin-bottom:16px">
+                <input type="text" id="blurto-topic" class="sq-topic-inp" placeholder="e.g. Cell Division" style="width:100%;box-sizing:border-box;margin-bottom:8px">
+                <div style="font-size:.68rem;font-weight:800;color:#6e5438;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Subject</div>
+                <input type="text" id="blurto-subj" class="sq-topic-inp" list="blurto-subj-list" placeholder="e.g. Biology" style="width:100%;box-sizing:border-box;margin-bottom:16px">
+                <datalist id="blurto-subj-list"></datalist>
                 <div style="font-size:.68rem;font-weight:800;color:#6e5438;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Timer</div>
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
                   <span class="sq-pill active" id="blurto-mode-count" onclick="blurtoPickMode('count',this)">Countdown</span>
@@ -2705,6 +2712,52 @@ function saveFolderScore(folder, pct) {
   localStorage.setItem('sp_folder_scores', JSON.stringify(scores));
 }
 
+// ── Folder metadata (subject per folder) ─────────────────────────────────────
+function getFolderMeta() {
+  try { return JSON.parse(localStorage.getItem('sp_folder_meta') || '{}'); } catch(e) { return {}; }
+}
+function saveFolderMeta(folder, subject) {
+  if (!folder) return;
+  var meta = getFolderMeta();
+  meta[folder] = { subject: subject || '', updatedAt: Date.now() };
+  localStorage.setItem('sp_folder_meta', JSON.stringify(meta));
+}
+function getSubjectForFolder(folder) {
+  var meta = getFolderMeta();
+  return (meta[folder] && meta[folder].subject) || '';
+}
+
+// ── AI topic name suggestion ──────────────────────────────────────────────────
+async function suggestTopicName(text, key) {
+  if (!key || !text) return '';
+  try {
+    var sample = text.slice(0, 600).replace(/\n+/g, ' ');
+    var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [{ role: 'user', content: 'Based on this content, suggest a short topic name (max 5 words, title case, no quotes). Return only the topic name:\n\n' + sample }],
+        temperature: 0.2,
+        max_tokens: 20
+      })
+    });
+    if (!res.ok) return '';
+    var d = await res.json();
+    var name = ((d.choices || [])[0] || {}).message ? d.choices[0].message.content.trim() : '';
+    return name.replace(/^["']|["']$/g, '').trim().slice(0, 60);
+  } catch(e) { return ''; }
+}
+
+// ── Subject datalist population ───────────────────────────────────────────────
+function populateSubjectDatalist() {
+  ['ai-subj-list','sq-subj-list','blurto-subj-list'].forEach(function(id) {
+    var dl = document.getElementById(id);
+    if (!dl) return;
+    dl.innerHTML = orgSubjects.map(function(s) { return '<option value="' + rpEsc(s) + '">'; }).join('');
+  });
+}
+
 function showResults() {
   document.getElementById('quiz-run').style.display = 'none';
   var pct = Math.round(qzScore / qzQs.length * 100);
@@ -2921,8 +2974,8 @@ function setAIStatus(msg, cls){
 }
 function confirmAIAdd(){
   if(!aiPendingQs || !aiPendingQs.length) return;
-  var newName = document.getElementById('ai-folder-new').value.trim();
-  var folder  = newName || document.getElementById('ai-folder-sel').value || 'General';
+  var folder = (document.getElementById('ai-folder-new').value || '').trim() || 'General';
+  var subject = (document.getElementById('ai-folder-subj').value || '').trim();
   var added = 0;
   aiPendingQs.forEach(function(q){
     if(!q.question || !Array.isArray(q.options) || q.options.length < 2) return;
@@ -2940,6 +2993,8 @@ function confirmAIAdd(){
     added++;
   });
   aiPendingQs = null;
+  saveFolderMeta(folder, subject);
+  orgEnsureTopic(folder, subject);
   saveBank(); renderBank();
   document.getElementById('ai-folder-pick').style.display = 'none';
   setAIStatus('✓ ' + added + ' questions added to "' + folder + '".','sok');
@@ -3012,6 +3067,17 @@ async function processAIFile(file){
       var ot = orgTopics.find(function(x) { return x.id === orgLastTopicId; });
       if (ot) orgStoreContent(ot.topic_name, text, file.name);
     }
+    // AI-suggest topic name and pre-fill folder field
+    populateSubjectDatalist();
+    suggestTopicName(text, aiKey).then(function(suggested) {
+      if (suggested) {
+        document.getElementById('ai-folder-new').value = suggested;
+        // pre-fill subject if topic already exists in organiser
+        var meta = getFolderMeta();
+        var existSubj = (meta[suggested] && meta[suggested].subject) || getSubjectForFolder(suggested);
+        if (existSubj) document.getElementById('ai-folder-subj').value = existSubj;
+      }
+    });
   } catch(err){
     document.getElementById('ai-drop-loading').style.display = 'none';
     document.getElementById('ai-drop-idle').style.display = 'block';
@@ -3235,12 +3301,9 @@ async function generateWithAI(isRetry){
     var qs = JSON.parse(raw);
     if(!Array.isArray(qs) || !qs.length) throw new Error('No questions returned.');
     aiPendingQs = qs;
-    // populate folder picker
-    var sel = document.getElementById('ai-folder-sel');
-    sel.innerHTML = getFolders().map(function(f){ return '<option value="'+esc(f)+'">'+esc(f)+'</option>'; }).join('');
-    document.getElementById('ai-folder-new').value = '';
+    populateSubjectDatalist();
     document.getElementById('ai-folder-pick').style.display = 'flex';
-    setAIStatus('✓ ' + qs.length + ' questions ready — choose a folder below.','sok');
+    setAIStatus('✓ ' + qs.length + ' questions ready — confirm topic & subject below.','sok');
   } catch(e) {
     setAIStatus('Error: ' + e.message,'serr');
   } finally {
@@ -3890,6 +3953,14 @@ async function sqProcessFile(file) {
       var ot = orgTopics.find(function(x) { return x.id === orgLastTopicId; });
       if (ot) orgStoreContent(ot.topic_name, text, file.name);
     }
+    populateSubjectDatalist();
+    suggestTopicName(text, sqKey).then(function(suggested) {
+      if (suggested) {
+        document.getElementById('sq-folder-new').value = suggested;
+        var existSubj = getSubjectForFolder(suggested);
+        if (existSubj) document.getElementById('sq-folder-subj').value = existSubj;
+      }
+    });
   } catch(err) {
     document.getElementById('sq-drop-loading').style.display = 'none';
     document.getElementById('sq-drop-idle').style.display = 'block';
@@ -3943,14 +4014,9 @@ async function sqGenerateWithAI(isRetry) {
     var qs = JSON.parse(raw);
     if (!Array.isArray(qs) || !qs.length) throw new Error('No SAQs returned.');
     sqPendingQs = qs;
-    var sel = document.getElementById('sq-folder-sel');
-    var folders = sqGetFolders();
-    sel.innerHTML = folders.length
-      ? folders.map(function(f) { return '<option value="' + rpEsc(f) + '">' + rpEsc(f) + '</option>'; }).join('')
-      : '<option value="General">General</option>';
-    document.getElementById('sq-folder-new').value = '';
+    populateSubjectDatalist();
     document.getElementById('sq-folder-pick').style.display = 'flex';
-    sqSetStatus('✓ ' + qs.length + ' SAQs ready — choose a folder below.', 'sok');
+    sqSetStatus('✓ ' + qs.length + ' SAQs ready — confirm topic & subject below.', 'sok');
   } catch(e) {
     sqSetStatus('Error: ' + e.message, 'serr');
   } finally {
@@ -3960,8 +4026,8 @@ async function sqGenerateWithAI(isRetry) {
 
 function sqConfirmAdd() {
   if (!sqPendingQs || !sqPendingQs.length) return;
-  var newName = (document.getElementById('sq-folder-new').value || '').trim();
-  var folder = newName || document.getElementById('sq-folder-sel').value || 'General';
+  var folder = (document.getElementById('sq-folder-new').value || '').trim() || 'General';
+  var subject = (document.getElementById('sq-folder-subj').value || '').trim();
   var added = 0;
   sqPendingQs.forEach(function(q) {
     if (!q.question || !q.modelAnswer) return;
@@ -3970,6 +4036,8 @@ function sqConfirmAdd() {
   });
   sqSave();
   sqPendingQs = null;
+  saveFolderMeta(folder, subject);
+  orgEnsureTopic(folder, subject);
   document.getElementById('sq-folder-pick').style.display = 'none';
   sqSetStatus('✓ ' + added + ' SAQs added to "' + folder + '".', 'sok');
   setTimeout(function() { sqSetStatus('', ''); }, 2500);
@@ -4343,6 +4411,18 @@ async function blurtoExtractFile(file) {
       var ot = orgTopics.find(function(x) { return x.id === orgLastTopicId; });
       if (ot) orgStoreContent(ot.topic_name, text, file.name);
     }
+    // AI-suggest topic name if field is empty
+    var topicEl = document.getElementById('blurto-topic');
+    if (topicEl && !topicEl.value.trim()) {
+      suggestTopicName(text, key).then(function(suggested) {
+        if (suggested && !topicEl.value.trim()) {
+          topicEl.value = suggested;
+          var existSubj = getSubjectForFolder(suggested);
+          var subjEl = document.getElementById('blurto-subj');
+          if (existSubj && subjEl && !subjEl.value) subjEl.value = existSubj;
+        }
+      });
+    }
   } catch(e) { st.textContent = 'Could not extract. Paste notes manually.'; }
 }
 
@@ -4618,6 +4698,12 @@ function blurtoShowGrade(j) {
 function blurtoSaveSession() {
   var btn = document.getElementById('blurto-save-btn');
   var topic = blurtoCurrentTopic || 'Blurto Session';
+  var blurtoSubjEl = document.getElementById('blurto-subj');
+  var blurtoSubj = blurtoSubjEl ? blurtoSubjEl.value.trim() : '';
+  if (topic !== 'Blurto Session' && blurtoSubj) {
+    saveFolderMeta(topic, blurtoSubj);
+    orgEnsureTopic(topic, blurtoSubj);
+  }
   var rating = blurtoSelfRating || 'got';
   var now = Date.now();
   // Push to revision planner using same pattern as rpAddFromQuiz
@@ -4712,6 +4798,40 @@ function orgSubjectColor(subject) {
   };
 }
 
+// ── Auto-create organiser topic (no duplicates) ──────────────────────────────
+function orgEnsureTopic(name, subject) {
+  if (!name) return;
+  var exists = orgTopics.some(function(t) { return t.topic_name.toLowerCase() === name.toLowerCase(); });
+  if (exists) return;
+  var today = new Date().toISOString().slice(0, 10);
+  orgTopics.unshift({
+    id: Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+    subject: subject || '',
+    topic_name: name,
+    week_added: today,
+    attended: false,
+    mcq_done: false,
+    saq_done: false,
+    blurting_done: false,
+    mcq_count: 0,
+    saq_count: 0,
+    blurting_count: 0,
+    confidence: null,
+    revision_count: 0,
+    last_revised: null,
+    next_due: null,
+    notes: ''
+  });
+  if (subject && orgSubjects.indexOf(subject) === -1) {
+    orgSubjects.push(subject);
+    orgSaveSubjects();
+    populateSubjectDatalist();
+  }
+  orgSaveTopics();
+  orgRenderBanner();
+  orgRenderTable();
+}
+
 // ── Organiser content cache (7-day TTL) ──────────────────────────────────────
 function orgStoreContent(topicName, text, filename) {
   if (!topicName || !text) return;
@@ -4736,9 +4856,10 @@ function orgGetContent(topicName) {
 function orgMatchTopic(folder) {
   if (!folder) return null;
   var fl = folder.toLowerCase();
-  return orgTopics.find(function(t) {
-    return t.topic_name.toLowerCase() === fl || (t.subject && t.subject.toLowerCase() === fl);
-  }) || null;
+  var byName = orgTopics.find(function(t) { return t.topic_name.toLowerCase() === fl; });
+  if (byName) return byName;
+  // fallback: subject match
+  return orgTopics.find(function(t) { return t.subject && t.subject.toLowerCase() === fl; }) || null;
 }
 function orgIncrementMCQ(folder, count) {
   var t = orgMatchTopic(folder);
@@ -4795,6 +4916,7 @@ function orgIncrementBlurting(topicName) {
 function orgLoadData() {
   try { orgTopics   = JSON.parse(localStorage.getItem('sp_org_topics')   || '[]'); } catch(e) { orgTopics = []; }
   try { orgSubjects = JSON.parse(localStorage.getItem('sp_org_subjects') || '[]'); } catch(e) { orgSubjects = []; }
+  populateSubjectDatalist();
 }
 function orgSaveTopics()    { localStorage.setItem('sp_org_topics',   JSON.stringify(orgTopics)); }
 function orgSaveSubjects()  { localStorage.setItem('sp_org_subjects', JSON.stringify(orgSubjects)); }
@@ -4898,6 +5020,16 @@ function orgSaveTopic() {
   var subj = (document.getElementById('org-new-subj').value || '').trim();
   var name = (document.getElementById('org-new-topic').value || '').trim();
   if (!name) { document.getElementById('org-new-topic').focus(); return; }
+  var duplicate = orgTopics.some(function(t) { return t.topic_name.toLowerCase() === name.toLowerCase(); });
+  if (duplicate) {
+    document.getElementById('org-new-topic').style.borderColor = '#dc2626';
+    document.getElementById('org-new-topic').title = 'This topic already exists';
+    setTimeout(function() {
+      document.getElementById('org-new-topic').style.borderColor = '';
+      document.getElementById('org-new-topic').title = '';
+    }, 2000);
+    return;
+  }
   var today = new Date().toISOString().slice(0, 10);
   orgTopics.unshift({
     id:            Date.now() + '-' + Math.random().toString(36).slice(2, 6),
