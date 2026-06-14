@@ -3296,8 +3296,8 @@ function saveAIKey(){
   if(!k){ setAIStatus('Please paste a key first.','serr'); return; }
   localStorage.setItem('sp_groq_key', k);
   document.getElementById('ai-key-row').style.display = 'none';
-  document.getElementById('ai-key-set').style.display = 'flex';
-  setAIStatus('Key saved.','sok');
+  document.getElementById('ai-key-set').style.display = 'none';
+  setAIStatus('✓ Key saved.','sok');
   setTimeout(function(){ setAIStatus('',''); }, 2000);
 }
 function clearAIKey(){
@@ -3346,9 +3346,8 @@ function aiPick(el){
 }
 function aiGetOpt(g){ var s = document.querySelector('.ai-pill.sel[data-g="'+g+'"]'); return s ? s.dataset.v : null; }
 function initAIKeyUI(){
-  var hasKey = !!getAIKey();
   document.getElementById('ai-key-row').style.display = 'none';
-  document.getElementById('ai-key-set').style.display = hasKey ? 'flex' : 'none';
+  document.getElementById('ai-key-set').style.display = 'none';
 }
 
 // ── FILE DROP ──
@@ -4235,18 +4234,16 @@ function sqSetStatus(msg, cls) {
 }
 
 function sqInitAIKeyUI() {
-  var hasKey = !!getAIKey();
   document.getElementById('sq-key-row').style.display = 'none';
-  document.getElementById('sq-key-set').style.display = hasKey ? 'flex' : 'none';
+  document.getElementById('sq-key-set').style.display = 'none';
 }
 function sqSaveAIKey() {
   var k = (document.getElementById('sq-key-inp').value || '').trim();
   if (!k) { sqSetStatus('Please paste a key first.', 'serr'); return; }
   localStorage.setItem('sp_groq_key', k);
   document.getElementById('sq-key-row').style.display = 'none';
-  document.getElementById('sq-key-set').style.display = 'flex';
-  initAIKeyUI();
-  sqSetStatus('Key saved.', 'sok');
+  document.getElementById('sq-key-set').style.display = 'none';
+  sqSetStatus('✓ Key saved.', 'sok');
   setTimeout(function() { sqSetStatus('', ''); }, 2000);
 }
 function sqClearAIKey() {
