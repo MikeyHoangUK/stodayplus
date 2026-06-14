@@ -3346,10 +3346,9 @@ function aiPick(el){
 }
 function aiGetOpt(g){ var s = document.querySelector('.ai-pill.sel[data-g="'+g+'"]'); return s ? s.dataset.v : null; }
 function initAIKeyUI(){
-  if(getAIKey()){
-    document.getElementById('ai-key-row').style.display = 'none';
-    document.getElementById('ai-key-set').style.display = 'flex';
-  }
+  var hasKey = !!getAIKey();
+  document.getElementById('ai-key-row').style.display = 'none';
+  document.getElementById('ai-key-set').style.display = hasKey ? 'flex' : 'none';
 }
 
 // ── FILE DROP ──
@@ -3590,7 +3589,7 @@ async function condenseForAI(text, key, onProgress) {
 
 async function generateWithAI(isRetry){
   var key = getAIKey();
-  if(!key){ setAIStatus('Save your Groq API key first — free at console.groq.com (no card needed).','serr'); return; }
+  if(!key){ setAIStatus('Save your Groq API key first — free at console.groq.com (no card needed).','serr'); document.getElementById('ai-key-row').style.display='flex'; return; }
   var topic = document.getElementById('ai-topic').value.trim();
   if(!topic){ setAIStatus('Enter a topic or paste your notes first.','serr'); return; }
   if(topic.length > 8000) topic = topic.slice(0, 8000); // safety — file uploads are already condensed
@@ -4236,13 +4235,9 @@ function sqSetStatus(msg, cls) {
 }
 
 function sqInitAIKeyUI() {
-  if (getAIKey()) {
-    document.getElementById('sq-key-row').style.display = 'none';
-    document.getElementById('sq-key-set').style.display = 'flex';
-  } else {
-    document.getElementById('sq-key-row').style.display = 'flex';
-    document.getElementById('sq-key-set').style.display = 'none';
-  }
+  var hasKey = !!getAIKey();
+  document.getElementById('sq-key-row').style.display = 'none';
+  document.getElementById('sq-key-set').style.display = hasKey ? 'flex' : 'none';
 }
 function sqSaveAIKey() {
   var k = (document.getElementById('sq-key-inp').value || '').trim();
@@ -4321,7 +4316,7 @@ function sqCountdown(secs, cb) {
 
 async function sqGenerateWithAI(isRetry) {
   var key = getAIKey();
-  if (!key) { sqSetStatus('Save your Groq API key first — free at console.groq.com.', 'serr'); return; }
+  if (!key) { sqSetStatus('Save your Groq API key first — free at console.groq.com.', 'serr'); document.getElementById('sq-key-row').style.display='flex'; return; }
   var topic = (document.getElementById('sq-topic').value || '').trim();
   if (!topic) { sqSetStatus('Enter a topic or paste your notes first.', 'serr'); return; }
   var n = parseInt(sqGetOpt('count') || '5');
