@@ -906,6 +906,13 @@
     .org-table{width:100%;border-collapse:collapse;min-width:660px}
     .org-th{font-size:.58rem;font-weight:800;color:#6e5438;text-transform:uppercase;letter-spacing:.07em;padding:9px 10px;background:rgba(250,243,224,.85);border-bottom:1px solid rgba(168,85,247,.1);text-align:left;white-space:nowrap;user-select:none}
     .org-th.center{text-align:center}
+    .org-th.sortable{cursor:pointer;transition:color .15s}
+    .org-th.sortable:hover{color:#7c3aed}
+    .org-th .sort-arr{margin-left:3px;opacity:.3;font-style:normal;font-size:.8em}
+    .org-th.sort-asc .sort-arr{opacity:1;color:#7c3aed}
+    .org-th.sort-desc .sort-arr{opacity:1;color:#7c3aed}
+    body.hc .org-th.sortable:hover{color:#c084fc!important}
+    body.hc .org-th.sort-asc .sort-arr,body.hc .org-th.sort-desc .sort-arr{color:#c084fc!important}
     .org-td{padding:8px 10px;border-bottom:1px solid rgba(168,85,247,.06);vertical-align:middle}
     .org-tr:last-child .org-td{border-bottom:none}
     .org-tr:hover .org-td{background:rgba(168,85,247,.025)}
@@ -1953,8 +1960,8 @@
             <table class="org-table">
               <thead>
                 <tr>
-                  <th class="org-th">Subject</th>
-                  <th class="org-th">Topic</th>
+                  <th class="org-th sortable" id="org-th-subj" onclick="orgSort('subject')">Subject<span class="sort-arr" id="org-arr-subj"></span></th>
+                  <th class="org-th sortable" id="org-th-topic" onclick="orgSort('topic')">Topic<span class="sort-arr" id="org-arr-topic"></span></th>
                   <th class="org-th center">Att</th>
                   <th class="org-th center">MCQ</th>
                   <th class="org-th center">SAQ</th>
@@ -2557,6 +2564,12 @@ function renderBank() {
     document.getElementById('bank-stat').textContent = bank.length + ' question' + (bank.length !== 1 ? 's' : '') + ' across all folders';
 
     var folders = getFolders();
+    folders.sort(function(a, b) {
+      var ac = bank.some(function(q){ return (q.folder||'General') === a; }) ? 0 : 1;
+      var bc = bank.some(function(q){ return (q.folder||'General') === b; }) ? 0 : 1;
+      if (ac !== bc) return ac - bc;
+      return a.toLowerCase().localeCompare(b.toLowerCase());
+    });
     if (folders.length === 0) {
       list.innerHTML = '<div class="bank-empty"><div class="ei">📭</div><h3>No questions yet</h3><p>Go to the Create tab to add your first question.</p></div>';
       return;
@@ -4351,6 +4364,12 @@ function renderSqBank() {
   var el = document.getElementById('sq-bank-content');
   if (!el) return;
   var folders = sqGetFolders();
+  folders.sort(function(a, b) {
+    var ac = sqBank.some(function(q){ return (q.folder||'General') === a; }) ? 0 : 1;
+    var bc = sqBank.some(function(q){ return (q.folder||'General') === b; }) ? 0 : 1;
+    if (ac !== bc) return ac - bc;
+    return a.toLowerCase().localeCompare(b.toLowerCase());
+  });
   if (!folders.length) {
     el.innerHTML = '<div class="bank-empty"><div class="ei">✍️</div><h3>No SAQs yet</h3><p>Go to Generate to create your first questions.</p></div>';
     return;
@@ -4587,6 +4606,12 @@ function renderBlurtoBank() {
   var el = document.getElementById('blurto-bank-content');
   if (!el) return;
   var folders = getAllFolders();
+  folders.sort(function(a, b) {
+    var ac = blurtoSessions.some(function(s){ return s.topic === a.name; }) ? 0 : 1;
+    var bc = blurtoSessions.some(function(s){ return s.topic === b.name; }) ? 0 : 1;
+    if (ac !== bc) return ac - bc;
+    return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+  });
   if (!folders.length) {
     el.innerHTML = '<div class="bank-empty"><div class="ei">📝</div><h3>No topics yet</h3><p>Create a topic in Poppy or Sage, or start a Blurto session — it will appear here.</p></div>';
     return;
@@ -5091,6 +5116,8 @@ function blurtoShowPhase(id) {
 var orgTopics   = [];
 var orgSubjects = [];
 var orgAttended = true;
+var orgSortCol  = null; // 'subject' | 'topic' | null
+var orgSortDir  = 1;    // 1 = asc, -1 = desc
 var ORG_INTERVALS = [3, 7, 14, 28, 56];
 var ORG_MCQ_THRESHOLD   = 100;
 var ORG_SAQ_THRESHOLD   = 10;
@@ -5573,6 +5600,30 @@ function orgProgressCell(t, type) {
   return '<button class="org-toggle" onclick="orgToggleField(\'' + t.id + '\',\'' + field + '\')" title="' + type + ' (tap to manually tick)"></button>';
 }
 
+function orgSort(col) {
+  if (orgSortCol === col) {
+    if (orgSortDir === 1) { orgSortDir = -1; }
+    else { orgSortCol = null; orgSortDir = 1; }
+  } else {
+    orgSortCol = col;
+    orgSortDir = 1;
+  }
+  ['subj','topic'].forEach(function(c) {
+    var th  = document.getElementById('org-th-' + c);
+    var arr = document.getElementById('org-arr-' + c);
+    if (!th || !arr) return;
+    var mapped = c === 'subj' ? 'subject' : 'topic';
+    th.classList.remove('sort-asc','sort-desc');
+    if (orgSortCol === mapped) {
+      th.classList.add(orgSortDir === 1 ? 'sort-asc' : 'sort-desc');
+      arr.textContent = orgSortDir === 1 ? ' ↑' : ' ↓';
+    } else {
+      arr.textContent = '';
+    }
+  });
+  orgRenderTable();
+}
+
 function orgRenderTable() {
   var tbody   = document.getElementById('org-tbody');
   var emptyEl = document.getElementById('org-empty');
@@ -5583,6 +5634,14 @@ function orgRenderTable() {
     if (search && t.topic_name.toLowerCase().indexOf(search) === -1 && t.subject.toLowerCase().indexOf(search) === -1) return false;
     return true;
   });
+
+  if (orgSortCol) {
+    list.sort(function(a, b) {
+      var av = orgSortCol === 'subject' ? (a.subject || '') : a.topic_name;
+      var bv = orgSortCol === 'subject' ? (b.subject || '') : b.topic_name;
+      return av.toLowerCase().localeCompare(bv.toLowerCase()) * orgSortDir;
+    });
+  }
 
   emptyEl.style.display = list.length === 0 ? 'block' : 'none';
 
