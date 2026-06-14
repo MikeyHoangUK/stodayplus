@@ -194,7 +194,7 @@
     .bank-folder-search:focus{border-color:#7c3aed}
     .bank-folder-search::placeholder{color:#b09880}
     .bank-subj-chips{display:flex;flex-wrap:wrap;gap:4px}
-    .bsc-chip{font-size:.6rem;font-weight:800;padding:3px 9px;border-radius:20px;border:1.5px solid rgba(109,40,217,.2);background:rgba(109,40,217,.06);color:#6d28d9;cursor:pointer;transition:all .12s;letter-spacing:.04em;text-transform:uppercase}
+    .bsc-chip{font-size:.53rem;font-weight:800;padding:2px 7px;border-radius:20px;border:1.5px solid rgba(109,40,217,.2);background:rgba(109,40,217,.06);color:#6d28d9;cursor:pointer;transition:all .12s;letter-spacing:.04em;text-transform:uppercase}
     .bsc-chip.bsc-active{background:rgba(109,40,217,.16);border-color:#7c3aed;color:#5b21b6}
     body.hc .bank-folder-search{background:#1a1a1a!important;color:#e2cfc0!important;border-color:rgba(168,85,247,.3)!important}
     body.hc .bsc-chip{color:#c084fc!important;border-color:rgba(168,85,247,.3)!important;background:rgba(168,85,247,.06)!important}
@@ -2007,6 +2007,10 @@ var bankFilt = 'all';
 var bankFolder = 'all';
 var bankSubjFilt = 'all';
 var bankFolderSearch = '';
+var sqSubjFilt = 'all';
+var sqFolderSearch = '';
+var blurtoSubjFilt = 'all';
+var blurtoFolderSearch = '';
 var editId = null;
 var aiPendingQs = null;
 var qzQs = [], qzIdx = 0, qzScore = 0, qzAnswered = false, lastCfg = null;
@@ -4431,9 +4435,38 @@ function renderSqBank() {
     el.innerHTML = '<div class="bank-empty"><div class="ei">✍️</div><h3>No SAQs yet</h3><p>Go to Generate to create your first questions.</p></div>';
     return;
   }
+
+  // Build subject chips
+  var subjList = ['all'];
+  getAllFolders().forEach(function(f) { if (f.subject && subjList.indexOf(f.subject) === -1) subjList.push(f.subject); });
+  var filterBar = '<div class="bank-stat bank-filter-mode" style="margin-bottom:16px">'
+    + '<input id="sq-folder-search" class="bank-folder-search" placeholder="Search folders…" value="' + esc(sqFolderSearch) + '" oninput="sqFolderSearchInput(this.value)" />'
+    + '<div class="bank-subj-chips">'
+    + subjList.map(function(s) {
+        var styleAttr = '';
+        if (s !== 'all') { var sc = orgSubjectColor(s); styleAttr = ' style="background:' + sc.bg + ';color:' + sc.text + ';border-color:' + sc.border + '"'; }
+        return '<button class="bsc-chip' + (sqSubjFilt === s ? ' bsc-active' : '') + '"' + styleAttr + ' onclick="sqSetSubj(\'' + jsq(s) + '\')">' + (s === 'all' ? 'All subjects' : esc(s)) + '</button>';
+      }).join('')
+    + '</div></div>';
+
+  // Apply filters
+  var visible = folders.filter(function(f) {
+    if (sqFolderSearch && f.toLowerCase().indexOf(sqFolderSearch.toLowerCase()) === -1) return false;
+    if (sqSubjFilt !== 'all' && getFolderSubject(f) !== sqSubjFilt) return false;
+    return true;
+  });
+
+  if (!visible.length) {
+    el.innerHTML = filterBar + '<div class="bank-empty"><div class="ei">🔍</div><h3>No folders match</h3><p>Try a different search or subject filter.</p></div>';
+    // restore focus
+    var inp = document.getElementById('sq-folder-search');
+    if (inp) { inp.focus(); inp.setSelectionRange(sqFolderSearch.length, sqFolderSearch.length); }
+    return;
+  }
+
   var grid = document.createElement('div');
   grid.className = 'folder-grid';
-  folders.forEach(function(f) {
+  visible.forEach(function(f) {
     var count = sqBank.filter(function(q) { return (q.folder || 'General') === f; }).length;
     var card = document.createElement('div');
     card.className = 'folder-card' + (count === 0 ? ' fc-empty' : '');
@@ -4448,9 +4481,13 @@ function renderSqBank() {
       + '</div>';
     grid.appendChild(card);
   });
-  el.innerHTML = '';
+  el.innerHTML = filterBar;
   el.appendChild(grid);
+  var inp2 = document.getElementById('sq-folder-search');
+  if (inp2 && document.activeElement === inp2) { inp2.focus(); inp2.setSelectionRange(sqFolderSearch.length, sqFolderSearch.length); }
 }
+function sqSetSubj(s) { sqSubjFilt = s; renderSqBank(); }
+function sqFolderSearchInput(v) { sqFolderSearch = v; renderSqBank(); var inp = document.getElementById('sq-folder-search'); if (inp) { inp.focus(); inp.setSelectionRange(v.length, v.length); } }
 
 function sqDeleteFolder(folder) {
   if (!confirm('Delete all SAQs in "' + folder + '"?')) return;
@@ -4673,8 +4710,36 @@ function renderBlurtoBank() {
     el.innerHTML = '<div class="bank-empty"><div class="ei">📝</div><h3>No topics yet</h3><p>Create a topic in Poppy or Sage, or start a Blurto session — it will appear here.</p></div>';
     return;
   }
+
+  // Build subject chips
+  var subjList = ['all'];
+  folders.forEach(function(f) { if (f.subject && subjList.indexOf(f.subject) === -1) subjList.push(f.subject); });
+  var filterBar = '<div class="bank-stat bank-filter-mode" style="margin-bottom:16px">'
+    + '<input id="blurto-folder-search" class="bank-folder-search" placeholder="Search folders…" value="' + esc(blurtoFolderSearch) + '" oninput="blurtoFolderSearchInput(this.value)" />'
+    + '<div class="bank-subj-chips">'
+    + subjList.map(function(s) {
+        var styleAttr = '';
+        if (s !== 'all') { var sc = orgSubjectColor(s); styleAttr = ' style="background:' + sc.bg + ';color:' + sc.text + ';border-color:' + sc.border + '"'; }
+        return '<button class="bsc-chip' + (blurtoSubjFilt === s ? ' bsc-active' : '') + '"' + styleAttr + ' onclick="blurtoSetSubj(\'' + jsq(s) + '\')">' + (s === 'all' ? 'All subjects' : esc(s)) + '</button>';
+      }).join('')
+    + '</div></div>';
+
+  // Apply filters
+  var visible = folders.filter(function(f) {
+    if (blurtoFolderSearch && f.name.toLowerCase().indexOf(blurtoFolderSearch.toLowerCase()) === -1) return false;
+    if (blurtoSubjFilt !== 'all' && (f.subject || '') !== blurtoSubjFilt) return false;
+    return true;
+  });
+
+  if (!visible.length) {
+    el.innerHTML = filterBar + '<div class="bank-empty"><div class="ei">🔍</div><h3>No folders match</h3><p>Try a different search or subject filter.</p></div>';
+    var inp = document.getElementById('blurto-folder-search');
+    if (inp) { inp.focus(); inp.setSelectionRange(blurtoFolderSearch.length, blurtoFolderSearch.length); }
+    return;
+  }
+
   var grid = '<div class="folder-grid">';
-  folders.forEach(function(f) {
+  visible.forEach(function(f) {
     var sessions = blurtoSessions.filter(function(s) { return s.topic === f.name; });
     var count = sessions.length;
     var last = sessions[0] ? sessions[0].date : null;
@@ -4691,8 +4756,12 @@ function renderBlurtoBank() {
       + '</div></div>';
   });
   grid += '</div>';
-  el.innerHTML = grid;
+  el.innerHTML = filterBar + grid;
+  var inp2 = document.getElementById('blurto-folder-search');
+  if (inp2 && document.activeElement === inp2) { inp2.focus(); inp2.setSelectionRange(blurtoFolderSearch.length, blurtoFolderSearch.length); }
 }
+function blurtoSetSubj(s) { blurtoSubjFilt = s; renderBlurtoBank(); }
+function blurtoFolderSearchInput(v) { blurtoFolderSearch = v; renderBlurtoBank(); var inp = document.getElementById('blurto-folder-search'); if (inp) { inp.focus(); inp.setSelectionRange(v.length, v.length); } }
 
 function blurtoOpenFolder(name, subject) {
   var topicEl = document.getElementById('blurto-topic');
