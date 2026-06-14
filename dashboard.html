@@ -501,6 +501,10 @@
     .fc-quiz:hover{background:rgba(109,40,217,.18);border-color:rgba(109,40,217,.55)}
     .fc-del{padding:5px 9px;border-radius:8px;font-size:.64rem;cursor:pointer;border:1px solid rgba(248,113,113,.2);color:#f87171;background:rgba(248,113,113,.05);transition:all .18s}
     .fc-del:hover{background:rgba(248,113,113,.14);border-color:rgba(248,113,113,.4)}
+    .fc-edit{padding:5px 9px;border-radius:8px;font-size:.64rem;cursor:pointer;border:1px solid rgba(168,85,247,.2);color:#6d28d9;background:rgba(168,85,247,.06);transition:all .18s}
+    .fc-edit:hover{background:rgba(168,85,247,.18);border-color:rgba(168,85,247,.4)}
+    body.hc .fc-edit{color:#c084fc!important;background:rgba(168,85,247,.08)!important;border-color:rgba(168,85,247,.28)!important}
+    .fc-subj-chip{display:inline-block;font-size:.56rem;font-weight:800;border-radius:6px;padding:2px 8px;white-space:nowrap;border-width:1px;border-style:solid;margin-bottom:1px}
     .fc-empty{opacity:.42;transition:opacity .3s}
     .fc-empty:hover{opacity:.75}
     @keyframes fc-shake{0%,100%{transform:translateX(0)}15%{transform:translateX(-5px)}30%{transform:translateX(5px)}45%{transform:translateX(-4px)}60%{transform:translateX(4px)}75%{transform:translateX(-2px)}90%{transform:translateX(2px)}}
@@ -2534,7 +2538,7 @@ function renderBank() {
       var count = bank.filter(function(q){ return (q.folder||'General') === f; }).length;
       var card  = document.createElement('div');
       card.className = 'folder-card' + (count === 0 ? ' fc-empty' : '');
-      (function(folder){ card.onclick = function(e){ if(!e.target.classList.contains('fc-quiz')&&!e.target.classList.contains('fc-del')) filterFolder(folder); }; })(f);
+      (function(folder){ card.onclick = function(e){ if(!e.target.classList.contains('fc-quiz')&&!e.target.classList.contains('fc-del')&&!e.target.classList.contains('fc-edit')) filterFolder(folder); }; })(f);
       var fsc = getFolderScores()[f];
       var confBadge = '';
       if (fsc && fsc.best >= 0) {
@@ -2542,7 +2546,9 @@ function renderBank() {
         var bIcon = fsc.best >= 75 ? '🟢' : fsc.best >= 50 ? '🟡' : '🔴';
         confBadge = '<div class="fc-confidence" style="color:' + bCol + '">' + bIcon + ' ' + fsc.best + '% confidence</div>';
       }
-      card.innerHTML = '<div class="fc-icon">📁</div><div class="fc-name">'+esc(f)+'</div><div class="fc-count">'+count+' question'+(count!==1?'s':'')+'</div>'+confBadge+'<div class="fc-actions"><button class="fc-quiz" onclick="quizFolder(\''+esc(f)+'\')">▶ Quiz</button><button class="fc-del" onclick="deleteFolder(\''+esc(f)+'\')">🗑</button></div>';
+      var subjChip = folderSubjChip(f);
+      var quizBtn = count > 0 ? '<button class="fc-quiz" onclick="quizFolder(\''+esc(f)+'\')">▶ Quiz</button>' : '';
+      card.innerHTML = '<div class="fc-icon">📁</div>'+subjChip+'<div class="fc-name">'+esc(f)+'</div><div class="fc-count">'+(count===0?'No MCQs yet':count+' question'+(count!==1?'s':''))+'</div>'+confBadge+'<div class="fc-actions">'+quizBtn+'<button class="fc-edit" onclick="editFolderSubject(\''+esc(f)+'\',\''+esc(getFolderSubject(f))+'\')">✎</button><button class="fc-del" onclick="deleteFolder(\''+esc(f)+'\')">🗑</button></div>';
       grid.appendChild(card);
     });
     list.innerHTML = '';
@@ -2789,6 +2795,41 @@ function syncFoldersFromBanks() {
     if (s.topic && s.topic !== 'Blurto Session') ensureFolder(s.topic, getSubjectForFolder(s.topic));
   });
   populateFolderDatalist();
+}
+
+// ── Folder subject helpers ───────────────────────────────────────────────────
+function getFolderSubject(name) {
+  var entry = getAllFolders().find(function(f) { return f.name.toLowerCase() === name.toLowerCase(); });
+  return (entry && entry.subject) || getSubjectForFolder(name) || '';
+}
+
+function editFolderSubject(name, currentSubj) {
+  var newSubj = prompt('Subject for "' + name + '":', currentSubj || '');
+  if (newSubj === null) return; // cancelled
+  newSubj = newSubj.trim();
+  // update shared registry
+  var list = getAllFolders();
+  var entry = list.find(function(f) { return f.name.toLowerCase() === name.toLowerCase(); });
+  if (entry) { entry.subject = newSubj; saveAllFolders(list); }
+  // update folder meta
+  saveFolderMeta(name, newSubj);
+  // update linked organiser topic
+  var ot = orgTopics.find(function(t) { return t.topic_name.toLowerCase() === name.toLowerCase(); });
+  if (ot) { ot.subject = newSubj; orgSaveTopics(); }
+  // add subject to global list if new
+  if (newSubj && orgSubjects.indexOf(newSubj) === -1) { orgSubjects.push(newSubj); orgSaveSubjects(); }
+  populateSubjectDatalist();
+  // re-render whichever bank is currently visible
+  renderBank();
+  renderSqBank();
+  if (document.getElementById('blurto-bank') && document.getElementById('blurto-bank').style.display !== 'none') renderBlurtoBank();
+}
+
+function folderSubjChip(name) {
+  var subj = getFolderSubject(name);
+  if (!subj) return '<div class="fc-subj-chip" style="background:rgba(168,85,247,.08);color:#9333ea;border-color:rgba(168,85,247,.2)">No subject</div>';
+  var sc = orgSubjectColor(subj);
+  return '<div class="fc-subj-chip" style="background:' + sc.bg + ';color:' + sc.text + ';border-color:' + sc.border + '">' + rpEsc(subj) + '</div>';
 }
 
 // ── Periodic shake for empty folder cards ────────────────────────────────────
@@ -4190,10 +4231,12 @@ function renderSqBank() {
     var card = document.createElement('div');
     card.className = 'folder-card' + (count === 0 ? ' fc-empty' : '');
     card.innerHTML = '<div class="fc-icon">✍️</div>'
+      + folderSubjChip(f)
       + '<div class="fc-name">' + rpEsc(f) + '</div>'
       + '<div class="fc-count">' + (count === 0 ? 'No SAQs yet' : count + ' SAQ' + (count !== 1 ? 's' : '')) + '</div>'
       + '<div class="fc-actions">'
       + (count > 0 ? '<button class="fc-quiz" onclick="sqPracFolder(\'' + rpEsc(f) + '\')">▶ Practice</button>' : '')
+      + '<button class="fc-edit" onclick="editFolderSubject(\'' + rpEsc(f) + '\',\'' + rpEsc(getFolderSubject(f)) + '\')">✎</button>'
       + '<button class="fc-del" onclick="sqDeleteFolder(\'' + rpEsc(f) + '\')">🗑</button>'
       + '</div>';
     grid.appendChild(card);
@@ -4422,16 +4465,16 @@ function renderBlurtoBank() {
     var sessions = blurtoSessions.filter(function(s) { return s.topic === f.name; });
     var count = sessions.length;
     var last = sessions[0] ? sessions[0].date : null;
-    var subjHtml = f.subject ? '<span class="folder-badge" style="margin-bottom:2px">' + rpEsc(f.subject) + '</span>' : '';
     var ratingIcon = sessions[0] ? (sessions[0].rating === 'got' ? '🟢' : sessions[0].rating === 'partial' ? '🟡' : '🔴') : '';
     var countTxt = count > 0 ? count + ' session' + (count !== 1 ? 's' : '') + (last ? ' · ' + last : '') : 'No sessions yet';
     grid += '<div class="folder-card' + (count === 0 ? ' fc-empty' : '') + '">'
       + '<div class="fc-icon">📝</div>'
-      + subjHtml
+      + folderSubjChip(f.name)
       + '<div class="fc-name">' + rpEsc(f.name) + '</div>'
       + '<div class="fc-count">' + ratingIcon + ' ' + countTxt + '</div>'
       + '<div class="fc-actions">'
       + '<button class="fc-quiz" onclick="blurtoOpenFolder(\'' + rpEsc(f.name) + '\',\'' + rpEsc(f.subject || '') + '\')">▶ Start</button>'
+      + '<button class="fc-edit" onclick="editFolderSubject(\'' + rpEsc(f.name) + '\',\'' + rpEsc(f.subject || '') + '\')">✎</button>'
       + '</div></div>';
   });
   grid += '</div>';
