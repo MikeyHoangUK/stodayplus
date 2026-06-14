@@ -1337,7 +1337,15 @@
                 </div>
               </div>
             </div>
-            <button class="ai-btn" id="ai-btn" onclick="generateWithAI()" style="width:100%">Generate →</button>
+            <div class="ai-folder-pick" style="margin-bottom:10px">
+              <span class="ai-folder-lbl">Topic:</span>
+              <input id="ai-folder-new" class="ai-folder-new" list="shared-folder-list" placeholder="Select or type a topic first…" oninput="aiTopicInput()" style="flex:1;min-width:130px"/>
+              <span class="ai-folder-lbl">Subject:</span>
+              <input id="ai-folder-subj" class="ai-folder-new" list="ai-subj-list" placeholder="Subject…" style="max-width:120px"/>
+              <datalist id="ai-subj-list"></datalist>
+              <datalist id="shared-folder-list"></datalist>
+            </div>
+            <button class="ai-btn" id="ai-btn" onclick="generateWithAI()" style="width:100%" disabled>Generate →</button>
             <div class="ai-key-row" id="ai-key-row">
               <span class="ai-key-lbl">Groq key:</span>
               <input type="password" id="ai-key-inp" class="ai-key-inp" placeholder="Paste your free key from console.groq.com…"/>
@@ -1349,12 +1357,6 @@
             </div>
             <div class="ai-status" id="ai-status"></div>
             <div class="ai-folder-pick" id="ai-folder-pick" style="display:none">
-              <span class="ai-folder-lbl">Topic:</span>
-              <input id="ai-folder-new" class="ai-folder-new" list="shared-folder-list" placeholder="Topic name…" style="flex:1;min-width:130px"/>
-              <span class="ai-folder-lbl">Subject:</span>
-              <input id="ai-folder-subj" class="ai-folder-new" list="ai-subj-list" placeholder="Subject…" style="max-width:120px"/>
-              <datalist id="ai-subj-list"></datalist>
-              <datalist id="shared-folder-list"></datalist>
               <button class="ai-folder-confirm" onclick="confirmAIAdd()">Save to Bank →</button>
             </div>
           </div>
@@ -3586,12 +3588,19 @@ async function condenseForAI(text, key, onProgress) {
   return condensed;
 }
 
+function aiTopicInput() {
+  var btn = document.getElementById('ai-btn');
+  if (btn) btn.disabled = !(document.getElementById('ai-folder-new').value || '').trim();
+}
+
 async function generateWithAI(isRetry){
   var key = getAIKey();
   if(!key){ setAIStatus('Save your Groq API key first — free at console.groq.com (no card needed).','serr'); document.getElementById('ai-key-row').style.display='flex'; return; }
+  var folderName = (document.getElementById('ai-folder-new').value || '').trim();
+  if(!folderName){ setAIStatus('Select a topic first.','serr'); return; }
   var topic = document.getElementById('ai-topic').value.trim();
-  if(!topic){ setAIStatus('Enter a topic or paste your notes first.','serr'); return; }
-  if(topic.length > 8000) topic = topic.slice(0, 8000); // safety — file uploads are already condensed
+  if(!topic){ setAIStatus('Enter notes or a topic description to generate from.','serr'); return; }
+  if(topic.length > 8000) topic = topic.slice(0, 8000);
   var n    = aiGetOpt('count') || '5';
   var diff = aiGetOpt('diff')  || 'medium';
   var type = aiGetOpt('type')  || 'info';
@@ -3607,8 +3616,10 @@ async function generateWithAI(isRetry){
     medium: 'MEDIUM — tests the COMBINATION of exactly TWO concepts or perceptions. The student must understand how two ideas relate, interact, or depend on each other. Do NOT test a single fact, and do NOT combine three or more ideas.',
     hard:   'HARD — tests the COMBINATION of exactly THREE concepts or perceptions. The student must synthesise three distinct ideas simultaneously. Do NOT test fewer than three combined concepts.'
   }[diff];
-  // Combine saved questions + any unsaved pending batch so duplicates are caught either way
-  var seenStems = bank.map(function(q){ return (q.stem||q.question||'').trim(); });
+  // Deduplicate against questions already in the target folder + any unsaved pending batch
+  var seenStems = bank
+    .filter(function(q){ return (q.folder||'General') === folderName; })
+    .map(function(q){ return (q.stem||q.question||'').trim(); });
   if (aiPendingQs) aiPendingQs.forEach(function(q){ if(q.question) seenStems.push(q.question.trim()); });
   seenStems = seenStems.filter(Boolean);
   var existingBlock = seenStems.length
