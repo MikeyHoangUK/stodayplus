@@ -4937,9 +4937,9 @@ function orgRenderBanner() {
     + '<div class="org-tracker-card">'
     + '<div class="org-tracker-title">📈 Revision Progress</div>'
     + '<div class="org-tracker-items">'
-    + '<div class="org-tracker-item"><span class="org-tracker-item-lbl">🧠 MCQ</span>' + bar(Math.round(mcqN/total*100)) + '<span class="org-tracker-count">' + mcqN + '/' + total + '</span></div>'
-    + '<div class="org-tracker-item"><span class="org-tracker-item-lbl">✍️ SAQ</span>'  + bar(Math.round(saqN/total*100)) + '<span class="org-tracker-count">' + saqN + '/' + total + '</span></div>'
-    + '<div class="org-tracker-item"><span class="org-tracker-item-lbl">📝 Blurt</span>' + bar(Math.round(blurN/total*100)) + '<span class="org-tracker-count">' + blurN + '/' + total + '</span></div>'
+    + '<div class="org-tracker-item"><span class="org-tracker-item-lbl">🧠 MCQ</span>' + bar(Math.round(mcqN/total*100)) + '<span class="org-tracker-count">' + Math.round(mcqN/total*100) + '%</span></div>'
+    + '<div class="org-tracker-item"><span class="org-tracker-item-lbl">✍️ SAQ</span>'  + bar(Math.round(saqN/total*100)) + '<span class="org-tracker-count">' + Math.round(saqN/total*100) + '%</span></div>'
+    + '<div class="org-tracker-item"><span class="org-tracker-item-lbl">📝 Blurt</span>' + bar(Math.round(blurN/total*100)) + '<span class="org-tracker-count">' + Math.round(blurN/total*100) + '%</span></div>'
     + '</div>'
     + '<div class="org-tracker-avg">Overall: ' + avgPct + '% of revision complete</div>'
     + '</div>';
