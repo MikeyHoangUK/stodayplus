@@ -2726,6 +2726,7 @@ function showResults() {
   mascotPeek();
   var f = document.getElementById('qz-folder').value;
   if (f && f !== 'all') saveFolderScore(f, pct);
+  if (f && f !== 'all') orgIncrementMCQ(f, qzQs.length);
   var trackEl = document.getElementById('qz-track-rp');
   if (trackEl && trackEl.checked) {
     if (f && f !== 'all') rpAddFromQuiz(f);
@@ -3007,6 +3008,10 @@ async function processAIFile(file){
     document.getElementById('ai-drop-loading').style.display = 'none';
     document.getElementById('ai-drop-done').style.display = 'block';
     setAIStatus(condensed ? '✓ Key facts extracted — review, then hit Generate.' : '✓ Text extracted — hit Generate when ready.','sok');
+    if (orgLastTopicId) {
+      var ot = orgTopics.find(function(x) { return x.id === orgLastTopicId; });
+      if (ot) orgStoreContent(ot.topic_name, text, file.name);
+    }
   } catch(err){
     document.getElementById('ai-drop-loading').style.display = 'none';
     document.getElementById('ai-drop-idle').style.display = 'block';
@@ -3804,6 +3809,7 @@ var sqPendingQs = null;
 var sqSelectedType = 'rote';
 var sqPracQs = [];
 var sqPracIdx = 0;
+var sqCurrentFolder = null;
 
 function sqLoad() { try { sqBank = JSON.parse(localStorage.getItem('sp_saqs') || '[]'); } catch(e) { sqBank = []; } }
 function sqSave() { localStorage.setItem('sp_saqs', JSON.stringify(sqBank)); }
@@ -3880,6 +3886,10 @@ async function sqProcessFile(file) {
     document.getElementById('sq-drop-loading').style.display = 'none';
     document.getElementById('sq-drop-done').style.display = 'block';
     sqSetStatus(sqCondensed ? '✓ Key facts extracted — review, then hit Generate.' : '✓ Text extracted — hit Generate when ready.', 'sok');
+    if (orgLastTopicId) {
+      var ot = orgTopics.find(function(x) { return x.id === orgLastTopicId; });
+      if (ot) orgStoreContent(ot.topic_name, text, file.name);
+    }
   } catch(err) {
     document.getElementById('sq-drop-loading').style.display = 'none';
     document.getElementById('sq-drop-idle').style.display = 'block';
@@ -4040,6 +4050,7 @@ function sqDeleteFolder(folder) {
 }
 
 function sqPracFolder(folder) {
+  sqCurrentFolder = folder;
   sqPracQs = sqBank.filter(function(q) { return (q.folder || 'General') === folder; });
   if (!sqPracQs.length) return;
   for (var i = sqPracQs.length - 1; i > 0; i--) {
@@ -4073,6 +4084,7 @@ function sqPopulatePracFolder() {
 
 function sqStartPrac() {
   var folder = document.getElementById('sq-prac-folder').value;
+  sqCurrentFolder = folder !== 'all' ? folder : null;
   sqPracQs = sqBank.filter(function(q) {
     return folder === 'all' || (q.folder || 'General') === folder;
   });
@@ -4149,6 +4161,7 @@ async function sqPracSubmit() {
     document.getElementById('sq-prac-answer-area').style.display = 'none';
     sqShowMarkResult(result, q.modelAnswer);
     document.getElementById('sq-prac-result').style.display = 'block';
+    if (sqCurrentFolder) orgIncrementSAQ(sqCurrentFolder);
   } catch(e) {
     st.textContent = 'Marking failed: ' + e.message;
     st.className = 'ai-status serr';
@@ -4326,6 +4339,10 @@ async function blurtoExtractFile(file) {
     var text = ext === 'pdf' ? await extractPdf(file, key, bProg) : await extractPptx(file, key, bProg);
     if (text.length > 80000) text = text.slice(0, 80000) + '\n[…truncated]';
     document.getElementById('blurto-notes-area').innerText = text;
+    if (orgLastTopicId) {
+      var ot = orgTopics.find(function(x) { return x.id === orgLastTopicId; });
+      if (ot) orgStoreContent(ot.topic_name, text, file.name);
+    }
   } catch(e) { st.textContent = 'Could not extract. Paste notes manually.'; }
 }
 
@@ -4627,6 +4644,7 @@ function blurtoSaveSession() {
     date: new Date(now).toLocaleDateString()
   });
   blurtoSave();
+  if (topic && topic !== 'Blurto Session') orgIncrementBlurting(topic);
   btn.textContent = '✓ Saved!';
   btn.disabled = true;
   // Show banner
@@ -4664,6 +4682,10 @@ var orgTopics   = [];
 var orgSubjects = [];
 var orgAttended = true;
 var ORG_INTERVALS = [3, 7, 14, 28, 56];
+var ORG_MCQ_THRESHOLD   = 100;
+var ORG_SAQ_THRESHOLD   = 10;
+var ORG_BLURT_THRESHOLD = 1;
+var orgLastTopicId = null;
 
 var ORG_COLORS = [
   { bg:'rgba(124,58,237,.12)',  text:'#7c3aed', textHc:'#c4b5fd', border:'rgba(124,58,237,.3)'  }, // violet
@@ -4688,6 +4710,86 @@ function orgSubjectColor(subject) {
     text:   hc ? c.textHc : c.text,
     border: c.border
   };
+}
+
+// ── Organiser content cache (7-day TTL) ──────────────────────────────────────
+function orgStoreContent(topicName, text, filename) {
+  if (!topicName || !text) return;
+  try {
+    var store = JSON.parse(localStorage.getItem('sp_topic_content') || '{}');
+    store[topicName.toLowerCase()] = { text: text.slice(0, 40000), filename: filename || '', addedAt: Date.now() };
+    localStorage.setItem('sp_topic_content', JSON.stringify(store));
+  } catch(e) {}
+}
+function orgGetContent(topicName) {
+  if (!topicName) return null;
+  try {
+    var store = JSON.parse(localStorage.getItem('sp_topic_content') || '{}');
+    var entry = store[topicName.toLowerCase()];
+    if (!entry) return null;
+    if (Date.now() - entry.addedAt > 7 * 86400000) return null; // 7-day TTL
+    return entry;
+  } catch(e) { return null; }
+}
+
+// ── Organiser counter increments ─────────────────────────────────────────────
+function orgMatchTopic(folder) {
+  if (!folder) return null;
+  var fl = folder.toLowerCase();
+  return orgTopics.find(function(t) {
+    return t.topic_name.toLowerCase() === fl || (t.subject && t.subject.toLowerCase() === fl);
+  }) || null;
+}
+function orgIncrementMCQ(folder, count) {
+  var t = orgMatchTopic(folder);
+  if (!t) return;
+  t.mcq_count = (t.mcq_count || 0) + (count || 1);
+  if (t.mcq_count >= ORG_MCQ_THRESHOLD && !t.mcq_done) {
+    t.mcq_done = true;
+    var today = new Date().toISOString().slice(0, 10);
+    if (t.last_revised !== today) {
+      t.revision_count = (t.revision_count || 0) + 1;
+      t.last_revised = today;
+      t.next_due = orgGetNextDue(t.revision_count, today);
+    }
+  }
+  orgSaveTopics();
+  orgRenderBanner();
+  orgRenderTable();
+}
+function orgIncrementSAQ(folder) {
+  var t = orgMatchTopic(folder);
+  if (!t) return;
+  t.saq_count = (t.saq_count || 0) + 1;
+  if (t.saq_count >= ORG_SAQ_THRESHOLD && !t.saq_done) {
+    t.saq_done = true;
+    var today = new Date().toISOString().slice(0, 10);
+    if (t.last_revised !== today) {
+      t.revision_count = (t.revision_count || 0) + 1;
+      t.last_revised = today;
+      t.next_due = orgGetNextDue(t.revision_count, today);
+    }
+  }
+  orgSaveTopics();
+  orgRenderBanner();
+  orgRenderTable();
+}
+function orgIncrementBlurting(topicName) {
+  var t = orgMatchTopic(topicName);
+  if (!t) return;
+  t.blurting_count = (t.blurting_count || 0) + 1;
+  if (t.blurting_count >= ORG_BLURT_THRESHOLD && !t.blurting_done) {
+    t.blurting_done = true;
+    var today = new Date().toISOString().slice(0, 10);
+    if (t.last_revised !== today) {
+      t.revision_count = (t.revision_count || 0) + 1;
+      t.last_revised = today;
+      t.next_due = orgGetNextDue(t.revision_count, today);
+    }
+  }
+  orgSaveTopics();
+  orgRenderBanner();
+  orgRenderTable();
 }
 
 function orgLoadData() {
@@ -4806,6 +4908,9 @@ function orgSaveTopic() {
     mcq_done:      false,
     saq_done:      false,
     blurting_done: false,
+    mcq_count:     0,
+    saq_count:     0,
+    blurting_count: 0,
     confidence:    null,
     revision_count: 0,
     last_revised:  null,
@@ -4859,20 +4964,55 @@ function orgDeleteTopic(id) {
 function orgGoTool(tool, topicId) {
   var t = orgTopics.find(function(x) { return x.id === topicId; });
   var name = t ? t.topic_name : '';
+  orgLastTopicId = topicId;
   var navEl = document.querySelector('.nav-item[onclick*="\'' + tool + '\'"]');
   showPanel(tool, navEl);
+  var cached = orgGetContent(name);
   setTimeout(function() {
     if (tool === 'mcq') {
       switchTab('create');
       var el = document.getElementById('ai-topic');
-      if (el) { el.value = name; el.focus(); }
+      if (el) {
+        if (cached) {
+          el.value = cached.text;
+          var doneEl = document.getElementById('ai-drop-done');
+          var idleEl = document.getElementById('ai-drop-idle');
+          var nameEl = document.getElementById('ai-file-name');
+          if (doneEl) doneEl.style.display = 'block';
+          if (idleEl) idleEl.style.display = 'none';
+          if (nameEl) nameEl.textContent = cached.filename || name;
+          setAIStatus('✓ Loaded from cache — hit Generate when ready.', 'sok');
+        } else {
+          el.value = name; el.focus();
+        }
+      }
     } else if (tool === 'saqs') {
       sqTab('gen');
       var el = document.getElementById('sq-topic');
-      if (el) { el.value = name; el.focus(); }
+      if (el) {
+        if (cached) {
+          el.value = cached.text;
+          var doneEl = document.getElementById('sq-drop-done');
+          var idleEl = document.getElementById('sq-drop-idle');
+          var nameEl = document.getElementById('sq-file-name');
+          if (doneEl) doneEl.style.display = 'block';
+          if (idleEl) idleEl.style.display = 'none';
+          if (nameEl) nameEl.textContent = cached.filename || name;
+          sqSetStatus('✓ Loaded from cache — hit Generate when ready.', 'sok');
+        } else {
+          el.value = name; el.focus();
+        }
+      }
     } else if (tool === 'blurto') {
       var el = document.getElementById('blurto-topic');
       if (el) { el.value = name; }
+      if (cached) {
+        var notesEl = document.getElementById('blurto-notes-area');
+        if (notesEl) {
+          notesEl.innerText = cached.text;
+          document.getElementById('blurto-extract-status').textContent = '✓ Notes loaded from cache.';
+        }
+      }
     }
   }, 80);
 }
@@ -4945,6 +5085,29 @@ function orgRenderBanner() {
     + '</div>';
 }
 
+function orgProgressCell(t, type) {
+  var done, count, threshold, field;
+  if (type === 'mcq') {
+    done = t.mcq_done; count = t.mcq_count || 0; threshold = ORG_MCQ_THRESHOLD; field = 'mcq_done';
+  } else if (type === 'saq') {
+    done = t.saq_done; count = t.saq_count || 0; threshold = ORG_SAQ_THRESHOLD; field = 'saq_done';
+  } else {
+    done = t.blurting_done; count = t.blurting_count || 0; threshold = ORG_BLURT_THRESHOLD; field = 'blurting_done';
+  }
+  if (done) {
+    return '<button class="org-toggle on" onclick="orgToggleField(\'' + t.id + '\',\'' + field + '\')" title="' + type + ' done">✓</button>';
+  }
+  if (count > 0) {
+    var pct = Math.min(Math.round(count / threshold * 100), 100);
+    return '<div style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer" onclick="orgToggleField(\'' + t.id + '\',\'' + field + '\')" title="' + count + '/' + threshold + ' — tap to override">'
+      + '<span style="font-size:.58rem;font-weight:800;color:#7c3aed">' + count + '/' + threshold + '</span>'
+      + '<div style="width:38px;height:5px;background:rgba(124,58,237,.12);border-radius:99px;overflow:hidden">'
+      + '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#7c3aed,#4338ca);border-radius:99px"></div></div>'
+      + '</div>';
+  }
+  return '<button class="org-toggle" onclick="orgToggleField(\'' + t.id + '\',\'' + field + '\')" title="' + type + ' (tap to manually tick)"></button>';
+}
+
 function orgRenderTable() {
   var tbody   = document.getElementById('org-tbody');
   var emptyEl = document.getElementById('org-empty');
@@ -4971,14 +5134,11 @@ function orgRenderTable() {
         + '<button class="org-toggle ' + (t.attended ? 'on' : '') + '" onclick="orgToggleField(\'' + t.id + '\',\'attended\')" title="Attended">'
         + (t.attended ? '✓' : '') + '</button></td>'
       + '<td class="org-td" style="text-align:center">'
-        + '<button class="org-toggle ' + (t.mcq_done ? 'on' : '') + '" onclick="orgToggleField(\'' + t.id + '\',\'mcq_done\')" title="MCQ done">'
-        + (t.mcq_done ? '✓' : '') + '</button></td>'
+        + orgProgressCell(t, 'mcq') + '</td>'
       + '<td class="org-td" style="text-align:center">'
-        + '<button class="org-toggle ' + (t.saq_done ? 'on' : '') + '" onclick="orgToggleField(\'' + t.id + '\',\'saq_done\')" title="SAQ done">'
-        + (t.saq_done ? '✓' : '') + '</button></td>'
+        + orgProgressCell(t, 'saq') + '</td>'
       + '<td class="org-td" style="text-align:center">'
-        + '<button class="org-toggle ' + (t.blurting_done ? 'on' : '') + '" onclick="orgToggleField(\'' + t.id + '\',\'blurting_done\')" title="Blurting done">'
-        + (t.blurting_done ? '✓' : '') + '</button></td>'
+        + orgProgressCell(t, 'blurting') + '</td>'
       + '<td class="org-td" style="text-align:center">'
         + '<button class="org-conf" onclick="orgSetConf(\'' + t.id + '\',' + confArg + ')" title="Tap to change confidence">'
         + orgConfEmoji(t.confidence) + '</button></td>'
