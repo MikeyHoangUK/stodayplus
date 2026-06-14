@@ -2589,8 +2589,8 @@ function renderBank() {
         confBadge = '<div class="fc-confidence" style="color:' + bCol + '">' + bIcon + ' ' + fsc.best + '% confidence</div>';
       }
       var subjChip = folderSubjChip(f);
-      var quizBtn = count > 0 ? '<button class="fc-quiz" onclick="quizFolder(\''+esc(f)+'\')">▶ Quiz</button>' : '';
-      card.innerHTML = '<div class="fc-icon">📁</div>'+subjChip+'<div class="fc-name">'+esc(f)+'</div><div class="fc-count">'+(count===0?'No MCQs yet':count+' question'+(count!==1?'s':''))+'</div>'+confBadge+'<div class="fc-actions">'+quizBtn+'<button class="fc-edit" onclick="openFolderEdit(\''+esc(f)+'\')">✎</button><button class="fc-del" onclick="deleteFolder(\''+esc(f)+'\')">🗑</button></div>';
+      var quizBtn = count > 0 ? '<button class="fc-quiz" onclick="quizFolder(\''+jsq(f)+'\')">▶ Quiz</button>' : '';
+      card.innerHTML = '<div class="fc-icon">📁</div>'+subjChip+'<div class="fc-name">'+esc(f)+'</div><div class="fc-count">'+(count===0?'No MCQs yet':count+' question'+(count!==1?'s':''))+'</div>'+confBadge+'<div class="fc-actions">'+quizBtn+'<button class="fc-edit" onclick="openFolderEdit(\''+jsq(f)+'\')">✎</button><button class="fc-del" onclick="deleteFolder(\''+jsq(f)+'\')">🗑</button></div>';
       grid.appendChild(card);
     });
     list.innerHTML = '';
@@ -3163,6 +3163,8 @@ function scheduleElectric() {
 }
 
 function esc(s) { s = (s == null) ? '' : String(s); return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+// escape for use as a JS string argument inside onclick="func('...')"
+function jsq(s) { return String(s == null ? '' : s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
 
 function returnToSetup() {
   if (document.fullscreenElement) document.exitFullscreen();
@@ -4385,9 +4387,9 @@ function renderSqBank() {
       + '<div class="fc-name">' + rpEsc(f) + '</div>'
       + '<div class="fc-count">' + (count === 0 ? 'No SAQs yet' : count + ' SAQ' + (count !== 1 ? 's' : '')) + '</div>'
       + '<div class="fc-actions">'
-      + (count > 0 ? '<button class="fc-quiz" onclick="sqPracFolder(\'' + rpEsc(f) + '\')">▶ Practice</button>' : '')
-      + '<button class="fc-edit" onclick="openFolderEdit(\'' + rpEsc(f) + '\')">✎</button>'
-      + '<button class="fc-del" onclick="sqDeleteFolder(\'' + rpEsc(f) + '\')">🗑</button>'
+      + (count > 0 ? '<button class="fc-quiz" onclick="sqPracFolder(\'' + jsq(f) + '\')">▶ Practice</button>' : '')
+      + '<button class="fc-edit" onclick="openFolderEdit(\'' + jsq(f) + '\')">✎</button>'
+      + '<button class="fc-del" onclick="sqDeleteFolder(\'' + jsq(f) + '\')">🗑</button>'
       + '</div>';
     grid.appendChild(card);
   });
@@ -4629,8 +4631,8 @@ function renderBlurtoBank() {
       + '<div class="fc-name">' + rpEsc(f.name) + '</div>'
       + '<div class="fc-count">' + ratingIcon + ' ' + countTxt + '</div>'
       + '<div class="fc-actions">'
-      + '<button class="fc-quiz" onclick="blurtoOpenFolder(\'' + rpEsc(f.name) + '\',\'' + rpEsc(f.subject || '') + '\')">▶ Start</button>'
-      + '<button class="fc-edit" onclick="openFolderEdit(\'' + rpEsc(f.name) + '\')">✎</button>'
+      + '<button class="fc-quiz" onclick="blurtoOpenFolder(\'' + jsq(f.name) + '\',\'' + jsq(f.subject || '') + '\')">▶ Start</button>'
+      + '<button class="fc-edit" onclick="openFolderEdit(\'' + jsq(f.name) + '\')">✎</button>'
       + '</div></div>';
   });
   grid += '</div>';
