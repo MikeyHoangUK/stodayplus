@@ -501,6 +501,10 @@
     .fc-quiz:hover{background:rgba(109,40,217,.18);border-color:rgba(109,40,217,.55)}
     .fc-del{padding:5px 9px;border-radius:8px;font-size:.64rem;cursor:pointer;border:1px solid rgba(248,113,113,.2);color:#f87171;background:rgba(248,113,113,.05);transition:all .18s}
     .fc-del:hover{background:rgba(248,113,113,.14);border-color:rgba(248,113,113,.4)}
+    .fc-empty{opacity:.42;transition:opacity .3s}
+    .fc-empty:hover{opacity:.75}
+    @keyframes fc-shake{0%,100%{transform:translateX(0)}15%{transform:translateX(-5px)}30%{transform:translateX(5px)}45%{transform:translateX(-4px)}60%{transform:translateX(4px)}75%{transform:translateX(-2px)}90%{transform:translateX(2px)}}
+    .fc-shaking{animation:fc-shake .55s ease}
     .fc-confidence{font-size:.62rem;font-weight:800;letter-spacing:.03em;margin-top:-2px}
     .rp-best-score{font-size:.72rem;font-weight:800;padding:4px 10px;border-radius:8px;background:rgba(0,0,0,.04);flex-shrink:0}
     /* ai folder picker */
@@ -2529,7 +2533,7 @@ function renderBank() {
     folders.forEach(function(f) {
       var count = bank.filter(function(q){ return (q.folder||'General') === f; }).length;
       var card  = document.createElement('div');
-      card.className = 'folder-card';
+      card.className = 'folder-card' + (count === 0 ? ' fc-empty' : '');
       (function(folder){ card.onclick = function(e){ if(!e.target.classList.contains('fc-quiz')&&!e.target.classList.contains('fc-del')) filterFolder(folder); }; })(f);
       var fsc = getFolderScores()[f];
       var confBadge = '';
@@ -2786,6 +2790,30 @@ function syncFoldersFromBanks() {
   });
   populateFolderDatalist();
 }
+
+// ── Periodic shake for empty folder cards ────────────────────────────────────
+(function startEmptyCardShaker() {
+  function shakeNext() {
+    var empties = Array.from(document.querySelectorAll('.fc-empty:not(.fc-shaking)'));
+    if (!empties.length) return;
+    // pick 1–2 random empty cards and shake them with a small stagger
+    var picks = empties.sort(function() { return Math.random() - .5; }).slice(0, Math.min(2, empties.length));
+    picks.forEach(function(card, i) {
+      setTimeout(function() {
+        card.classList.add('fc-shaking');
+        card.addEventListener('animationend', function h() {
+          card.classList.remove('fc-shaking');
+          card.removeEventListener('animationend', h);
+        });
+      }, i * 320);
+    });
+  }
+  // first shake after 6 s, then every 8–12 s (randomised)
+  setTimeout(function loop() {
+    shakeNext();
+    setTimeout(loop, 8000 + Math.random() * 4000);
+  }, 6000);
+})();
 
 // ── AI topic name suggestion ──────────────────────────────────────────────────
 async function suggestTopicName(text, key) {
@@ -4150,22 +4178,22 @@ function sqToggleAns(id) {
 function renderSqBank() {
   var el = document.getElementById('sq-bank-content');
   if (!el) return;
-  if (!sqBank.length) {
+  var folders = sqGetFolders();
+  if (!folders.length) {
     el.innerHTML = '<div class="bank-empty"><div class="ei">✍️</div><h3>No SAQs yet</h3><p>Go to Generate to create your first questions.</p></div>';
     return;
   }
-  var folders = sqGetFolders();
   var grid = document.createElement('div');
   grid.className = 'folder-grid';
   folders.forEach(function(f) {
     var count = sqBank.filter(function(q) { return (q.folder || 'General') === f; }).length;
     var card = document.createElement('div');
-    card.className = 'folder-card';
+    card.className = 'folder-card' + (count === 0 ? ' fc-empty' : '');
     card.innerHTML = '<div class="fc-icon">✍️</div>'
       + '<div class="fc-name">' + rpEsc(f) + '</div>'
-      + '<div class="fc-count">' + count + ' SAQ' + (count !== 1 ? 's' : '') + '</div>'
+      + '<div class="fc-count">' + (count === 0 ? 'No SAQs yet' : count + ' SAQ' + (count !== 1 ? 's' : '')) + '</div>'
       + '<div class="fc-actions">'
-      + '<button class="fc-quiz" onclick="sqPracFolder(\'' + rpEsc(f) + '\')">▶ Practice</button>'
+      + (count > 0 ? '<button class="fc-quiz" onclick="sqPracFolder(\'' + rpEsc(f) + '\')">▶ Practice</button>' : '')
       + '<button class="fc-del" onclick="sqDeleteFolder(\'' + rpEsc(f) + '\')">🗑</button>'
       + '</div>';
     grid.appendChild(card);
@@ -4397,7 +4425,7 @@ function renderBlurtoBank() {
     var subjHtml = f.subject ? '<span class="folder-badge" style="margin-bottom:2px">' + rpEsc(f.subject) + '</span>' : '';
     var ratingIcon = sessions[0] ? (sessions[0].rating === 'got' ? '🟢' : sessions[0].rating === 'partial' ? '🟡' : '🔴') : '';
     var countTxt = count > 0 ? count + ' session' + (count !== 1 ? 's' : '') + (last ? ' · ' + last : '') : 'No sessions yet';
-    grid += '<div class="folder-card">'
+    grid += '<div class="folder-card' + (count === 0 ? ' fc-empty' : '') + '">'
       + '<div class="fc-icon">📝</div>'
       + subjHtml
       + '<div class="fc-name">' + rpEsc(f.name) + '</div>'
