@@ -2015,6 +2015,7 @@ window.addEventListener('DOMContentLoaded', function() {
   rpStartClock();
   sqLoad();
   blurtoLoad();
+  orgLoadData(); // load organiser data early so sync can see existing topics
   syncFoldersFromBanks();
 });
 
@@ -2792,11 +2793,13 @@ function ensureFolder(name, subject) {
   var existing = list.find(function(f) { return f.name.toLowerCase() === name.toLowerCase(); });
   if (existing) {
     if (subject && !existing.subject) { existing.subject = subject; saveAllFolders(list); }
-    return;
+  } else {
+    list.push({ id: Date.now() + '-' + Math.random().toString(36).slice(2,5), name: name, subject: subject || '', createdAt: Date.now() });
+    saveAllFolders(list);
+    populateFolderDatalist();
   }
-  list.push({ id: Date.now() + '-' + Math.random().toString(36).slice(2,5), name: name, subject: subject || '', createdAt: Date.now() });
-  saveAllFolders(list);
-  populateFolderDatalist();
+  // Keep organiser in sync — orgEnsureTopic is a no-op if topic already exists
+  orgEnsureTopic(name, subject);
 }
 
 function deleteSharedFolder(name) {
@@ -2812,17 +2815,57 @@ function populateFolderDatalist() {
 }
 
 function syncFoldersFromBanks() {
-  // Backfill sp_folders from existing MCQ, SAQ, Blurto data
-  (typeof bank !== 'undefined' ? bank : []).forEach(function(q) {
+  var today = new Date().toISOString().slice(0, 10);
+
+  // ── Step 1: pull folder names from MCQ / SAQ / Blurto into sp_folders ──────
+  (bank || []).forEach(function(q) {
     if (q.folder && q.folder !== 'General') ensureFolder(q.folder, getSubjectForFolder(q.folder));
   });
-  (typeof sqBank !== 'undefined' ? sqBank : []).forEach(function(q) {
+  (sqBank || []).forEach(function(q) {
     if (q.folder && q.folder !== 'General') ensureFolder(q.folder, getSubjectForFolder(q.folder));
   });
-  (typeof blurtoSessions !== 'undefined' ? blurtoSessions : []).forEach(function(s) {
+  (blurtoSessions || []).forEach(function(s) {
     if (s.topic && s.topic !== 'Blurto Session') ensureFolder(s.topic, getSubjectForFolder(s.topic));
   });
-  populateFolderDatalist();
+
+  // ── Step 2: pull organiser topics into sp_folders ───────────────────────────
+  (orgTopics || []).forEach(function(t) {
+    ensureFolder(t.topic_name, t.subject);
+  });
+
+  // ── Step 3: for every sp_folder entry, ensure an organiser topic exists ─────
+  var orgChanged = false;
+  getAllFolders().forEach(function(f) {
+    if (!f.name) return;
+    var exists = (orgTopics || []).some(function(t) {
+      return t.topic_name.toLowerCase() === f.name.toLowerCase();
+    });
+    if (!exists) {
+      orgTopics.unshift({
+        id: Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+        subject:        f.subject || '',
+        topic_name:     f.name,
+        week_added:     today,
+        attended:       false,
+        mcq_done:       false,
+        saq_done:       false,
+        blurting_done:  false,
+        mcq_count:      0,
+        saq_count:      0,
+        blurting_count: 0,
+        confidence:     null,
+        revision_count: 0,
+        last_revised:   null,
+        next_due:       null,
+        notes:          ''
+      });
+      if (f.subject && orgSubjects.indexOf(f.subject) === -1) orgSubjects.push(f.subject);
+      orgChanged = true;
+    }
+  });
+
+  if (orgChanged) { orgSaveTopics(); orgSaveSubjects(); }
+  populateSubjectDatalist(); // also calls populateFolderDatalist()
 }
 
 // ── Folder subject helpers ───────────────────────────────────────────────────
@@ -5212,6 +5255,7 @@ function orgGetNextDue(revCount, lastRevised) {
 
 function orgInit() {
   orgLoadData();
+  syncFoldersFromBanks(); // ensure all bank folders appear as topics
   if (orgSubjects.length === 0) {
     orgShowSetup();
   } else {
@@ -5331,6 +5375,7 @@ function orgSaveTopic() {
     notes:         ''
   });
   orgSaveTopics();
+  ensureFolder(name, subj); // mirror new topic into sp_folders for all bots
   document.getElementById('org-new-topic').value = '';
   document.getElementById('org-add-card').classList.remove('open');
   orgRenderBanner();
@@ -5366,9 +5411,13 @@ function orgSetConf(id, next) {
 }
 
 function orgDeleteTopic(id) {
-  if (!confirm('Delete this topic?')) return;
+  var t = orgTopics.find(function(x) { return x.id === id; });
+  if (!t || !confirm('Delete "' + t.topic_name + '" from the organiser?\n(MCQs and SAQs in this folder are kept — only the organiser row is removed.)')) return;
   orgTopics = orgTopics.filter(function(x) { return x.id !== id; });
   orgSaveTopics();
+  // also remove from shared folder registry so it disappears from all bots
+  saveAllFolders(getAllFolders().filter(function(f) { return f.name.toLowerCase() !== t.topic_name.toLowerCase(); }));
+  populateFolderDatalist();
   orgRenderBanner();
   orgRenderTable();
 }
