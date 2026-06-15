@@ -1636,6 +1636,8 @@
               <span class="ai-htxt">Generate with AI</span>
               <span class="ai-badge">Groq · Llama 3.3</span>
             </div>
+            <div id="sq-notes-cache-info" style="display:none;align-items:center;padding:6px 10px;background:rgba(91,33,182,.06);border:1px solid rgba(91,33,182,.18);border-radius:8px;margin-bottom:8px"></div>
+            <div id="sq-notes-file-row">
             <div class="ai-drop" id="sq-drop"
                  ondragover="sqDragOver(event)" ondragleave="sqDragLeave(event)" ondrop="sqDrop(event)"
                  onclick="document.getElementById('sq-file-inp').click()">
@@ -1655,6 +1657,7 @@
                   <span class="ai-file-x" onclick="sqFileClear(event)">✕</span>
                 </span>
               </div>
+            </div>
             </div>
             <textarea id="sq-topic" class="ai-ta" placeholder="Or paste your notes / type a topic here…" style="width:100%;margin-bottom:14px"></textarea>
             <div class="ai-opts" style="margin-bottom:10px">
@@ -1681,7 +1684,7 @@
             <div class="ai-status" id="sq-status"></div>
             <div class="ai-folder-pick" id="sq-folder-pick" style="display:none">
               <span class="ai-folder-lbl">Topic:</span>
-              <input id="sq-folder-new" class="ai-folder-new" list="shared-folder-list" placeholder="Topic name…" style="flex:1;min-width:130px"/>
+              <input id="sq-folder-new" class="ai-folder-new" list="shared-folder-list" placeholder="Topic name…" style="flex:1;min-width:130px" oninput="updateSqNotesCacheUI()"/>
               <span class="ai-folder-lbl">Subject:</span>
               <input id="sq-folder-subj" class="ai-folder-new" list="sq-subj-list" placeholder="Subject…" style="max-width:120px"/>
               <datalist id="sq-subj-list"></datalist>
@@ -1789,6 +1792,7 @@
                 </div>
               </div>
               <div class="blurto-status" id="blurto-extract-status"></div>
+              <div id="blurto-cache-info" style="display:none;align-items:center;gap:6px;padding:5px 10px;background:rgba(91,33,182,.06);border:1px solid rgba(91,33,182,.18);border-radius:7px;margin-bottom:6px;font-size:.63rem;color:#6e5438"></div>
               <div class="blurto-toolbar" id="blurto-notes-toolbar">
                 <div class="blurto-tb-group">
                   <button class="blurto-tb-btn" onclick="blurtoFmt('bold')" title="Bold"><b>B</b></button>
@@ -3083,8 +3087,10 @@ function saveFolderEdit() {
     var sc=getFolderScores(); if(sc[oldName]!==undefined){sc[newName]=sc[oldName];delete sc[oldName];localStorage.setItem('sp_folder_scores',JSON.stringify(sc));}
     try{ var tc=JSON.parse(localStorage.getItem('sp_topic_content')||'{}'); if(tc[oldName.toLowerCase()]){tc[newName.toLowerCase()]=tc[oldName.toLowerCase()];delete tc[oldName.toLowerCase()];localStorage.setItem('sp_topic_content',JSON.stringify(tc));} }catch(e){}
     try{ var nc=JSON.parse(localStorage.getItem('sp_notes_cache')||'{}'); if(nc[oldName]){nc[newName]=nc[oldName];delete nc[oldName];localStorage.setItem('sp_notes_cache',JSON.stringify(nc));} }catch(e){}
+    try{ var bc=JSON.parse(localStorage.getItem('sp_blurto_cache')||'{}'); if(bc[oldName]){bc[newName]=bc[oldName];delete bc[oldName];localStorage.setItem('sp_blurto_cache',JSON.stringify(bc));} }catch(e){}
     var ot=orgTopics.find(function(t){ return t.topic_name.toLowerCase()===oldName.toLowerCase(); }); if(ot) ot.topic_name=newName;
     if(bankFolder===oldName) bankFolder=newName;
+    if(typeof sqCurrentFolder!=='undefined' && sqCurrentFolder===oldName) sqCurrentFolder=newName;
     var meta=getFolderMeta(); delete meta[oldName]; localStorage.setItem('sp_folder_meta',JSON.stringify(meta));
   }
 
@@ -3340,6 +3346,34 @@ function notesCacheClear(folder) {
     localStorage.setItem('sp_notes_cache', JSON.stringify(c));
   } catch(e) {}
 }
+function blurtoCacheGet(folder) {
+  try { var c = JSON.parse(localStorage.getItem('sp_blurto_cache') || '{}'); return c[folder] || null; } catch(e) { return null; }
+}
+function blurtoCacheSet(folder, simplified, fileName) {
+  try {
+    var c = JSON.parse(localStorage.getItem('sp_blurto_cache') || '{}');
+    c[folder] = { text: simplified, date: new Date().toISOString().slice(0,10), fileName: fileName || '' };
+    localStorage.setItem('sp_blurto_cache', JSON.stringify(c));
+  } catch(e) {}
+}
+function blurtoCacheClear(folder) {
+  try { var c = JSON.parse(localStorage.getItem('sp_blurto_cache') || '{}'); delete c[folder]; localStorage.setItem('sp_blurto_cache', JSON.stringify(c)); } catch(e) {}
+}
+function updateBlurtoCacheUI(folder) {
+  var info = document.getElementById('blurto-cache-info');
+  if (!info) return;
+  var name = folder || ((document.getElementById('blurto-topic') || {}).value || '');
+  if (!name) { info.style.display = 'none'; return; }
+  var cached = blurtoCacheGet(name);
+  if (cached) {
+    info.style.display = 'flex';
+    info.innerHTML = '<span style="font-weight:800;color:#5b21b6">📂 Simplified notes saved</span>'
+      + '<span style="margin-left:4px">· ' + esc(name) + ' · ' + cached.date + '</span>'
+      + '<button onclick="blurtoCacheClear(\'' + jsq(name) + '\');updateBlurtoCacheUI(\'' + jsq(name) + '\')" style="margin-left:8px;font-size:.6rem;font-weight:800;color:#b45309;background:none;border:1px solid rgba(180,83,9,.3);border-radius:5px;padding:1px 7px;cursor:pointer">Replace ↺</button>';
+  } else {
+    info.style.display = 'none';
+  }
+}
 function updateNotesCacheUI() {
   var folderName = (document.getElementById('ai-folder-new') || {}).value || '';
   var info = document.getElementById('ai-notes-cache-info');
@@ -3359,6 +3393,24 @@ function updateNotesCacheUI() {
   }
 }
 
+function updateSqNotesCacheUI() {
+  var folderName = (document.getElementById('sq-folder-new') || {}).value || '';
+  var info = document.getElementById('sq-notes-cache-info');
+  var fileRow = document.getElementById('sq-notes-file-row');
+  if (!info || !fileRow) return;
+  if (!folderName.trim()) { info.style.display = 'none'; fileRow.style.display = 'block'; return; }
+  var cached = notesCacheGet(folderName.trim());
+  if (cached) {
+    info.style.display = 'flex';
+    info.innerHTML = '<span style="font-size:.65rem;font-weight:800;color:#5b21b6">📂 Notes saved</span>'
+      + '<span style="font-size:.63rem;color:#6e5438;margin-left:6px">' + esc(cached.fileName || 'from upload') + ' · ' + cached.date + '</span>'
+      + '<button onclick="notesCacheClear(\'' + jsq(folderName.trim()) + '\');updateSqNotesCacheUI()" style="margin-left:10px;font-size:.6rem;font-weight:800;color:#b45309;background:none;border:1px solid rgba(180,83,9,.3);border-radius:5px;padding:1px 7px;cursor:pointer">Replace ↺</button>';
+    fileRow.style.display = 'none';
+  } else {
+    info.style.display = 'none';
+    fileRow.style.display = 'block';
+  }
+}
 function jumpToCreate(folderName) {
   switchTab('create');
   var inp = document.getElementById('ai-folder-new');
@@ -3368,6 +3420,16 @@ function jumpToCreate(folderName) {
   }
   var panel = document.getElementById('sub-create');
   if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function sqJumpToCreate(folderName) {
+  sqTab('gen');
+  var inp = document.getElementById('sq-folder-new');
+  if (inp) {
+    inp.value = folderName;
+    var fpick = document.getElementById('sq-folder-pick');
+    if (fpick) fpick.style.display = 'flex';
+  }
+  updateSqNotesCacheUI();
 }
 
 function returnToSetup() {
@@ -4464,6 +4526,8 @@ async function sqProcessFile(file) {
         document.getElementById('sq-folder-new').value = suggested;
         var existSubj = getSubjectForFolder(suggested);
         if (existSubj) document.getElementById('sq-folder-subj').value = existSubj;
+        notesCacheSet(suggested, text, file.name);
+        updateSqNotesCacheUI();
       }
     });
   } catch(err) {
@@ -4487,8 +4551,11 @@ function sqCountdown(secs, cb) {
 async function sqGenerateWithAI(isRetry) {
   var key = getAIKey();
   if (!key) { sqSetStatus('Save your Groq API key first — free at console.groq.com.', 'serr'); document.getElementById('sq-key-row').style.display='flex'; return; }
-  var topic = (document.getElementById('sq-topic').value || '').trim();
+  var sqFolderName = ((document.getElementById('sq-folder-new') || {}).value || '').trim();
+  var sqCachedNotes = sqFolderName ? notesCacheGet(sqFolderName) : null;
+  var topic = sqCachedNotes ? sqCachedNotes.text : (document.getElementById('sq-topic').value || '').trim();
   if (!topic) { sqSetStatus('Enter a topic or paste your notes first.', 'serr'); return; }
+  if (!sqCachedNotes && topic && sqFolderName) { notesCacheSet(sqFolderName, topic, (document.getElementById('sq-file-name') || {}).textContent || ''); }
   var n = parseInt(sqGetOpt('count') || '5');
   var btn = document.getElementById('sq-btn');
   btn.disabled = true;
@@ -4639,13 +4706,14 @@ function renderSqBank() {
     var count = sqBank.filter(function(q) { return (q.folder || 'General') === f; }).length;
     var card = document.createElement('div');
     card.className = 'folder-card' + (count === 0 ? ' fc-empty' : '');
-    card.innerHTML = '<div class="fc-icon">✍️</div>'
+    (function(folder){ card.onclick = function(e){ if(!e.target.classList.contains('fc-quiz')&&!e.target.classList.contains('fc-del')&&!e.target.classList.contains('fc-edit-top')&&!e.target.classList.contains('fc-create')&&count>0) sqPracFolder(folder); }; })(f);
+    card.innerHTML = '<button class="fc-edit-top" onclick="openFolderEdit(\'' + jsq(f) + '\')" title="Rename">✎ Edit</button>'
       + folderSubjChip(f)
       + '<div class="fc-name">' + rpEsc(f) + '</div>'
       + '<div class="fc-count">' + (count === 0 ? 'No SAQs yet' : count + ' SAQ' + (count !== 1 ? 's' : '')) + '</div>'
       + '<div class="fc-actions">'
       + (count > 0 ? '<button class="fc-quiz" onclick="sqPracFolder(\'' + jsq(f) + '\')">▶ Practice</button>' : '')
-      + '<button class="fc-edit" onclick="openFolderEdit(\'' + jsq(f) + '\')">✎</button>'
+      + '<button class="fc-create" onclick="sqJumpToCreate(\'' + jsq(f) + '\')" title="Generate SAQs for this folder">+</button>'
       + '<button class="fc-del" onclick="sqDeleteFolder(\'' + jsq(f) + '\')">🗑</button>'
       + '</div>';
     grid.appendChild(card);
@@ -4935,25 +5003,28 @@ function renderBlurtoBank() {
     return;
   }
 
-  var grid = '<div class="folder-grid">';
+  var grid = document.createElement('div');
+  grid.className = 'folder-grid';
   visible.forEach(function(f) {
     var sessions = blurtoSessions.filter(function(s) { return s.topic === f.name; });
     var count = sessions.length;
     var last = sessions[0] ? sessions[0].date : null;
     var ratingIcon = sessions[0] ? (sessions[0].rating === 'got' ? '🟢' : sessions[0].rating === 'partial' ? '🟡' : '🔴') : '';
     var countTxt = count > 0 ? count + ' session' + (count !== 1 ? 's' : '') + (last ? ' · ' + last : '') : 'No sessions yet';
-    grid += '<div class="folder-card' + (count === 0 ? ' fc-empty' : '') + '">'
-      + '<div class="fc-icon">📝</div>'
+    var card = document.createElement('div');
+    card.className = 'folder-card' + (count === 0 ? ' fc-empty' : '');
+    (function(fname, fsubj){ card.onclick = function(e){ if(!e.target.classList.contains('fc-quiz')&&!e.target.classList.contains('fc-edit-top')) blurtoOpenFolder(fname, fsubj); }; })(f.name, f.subject || '');
+    card.innerHTML = '<button class="fc-edit-top" onclick="openFolderEdit(\'' + jsq(f.name) + '\')" title="Rename">✎ Edit</button>'
       + folderSubjChip(f.name)
       + '<div class="fc-name">' + rpEsc(f.name) + '</div>'
-      + '<div class="fc-count">' + ratingIcon + ' ' + countTxt + '</div>'
+      + '<div class="fc-count">' + (ratingIcon ? ratingIcon + ' ' : '') + countTxt + '</div>'
       + '<div class="fc-actions">'
       + '<button class="fc-quiz" onclick="blurtoOpenFolder(\'' + jsq(f.name) + '\',\'' + jsq(f.subject || '') + '\')">▶ Start</button>'
-      + '<button class="fc-edit" onclick="openFolderEdit(\'' + jsq(f.name) + '\')">✎</button>'
-      + '</div></div>';
+      + '</div>';
+    grid.appendChild(card);
   });
-  grid += '</div>';
-  el.innerHTML = filterBar + grid;
+  el.innerHTML = filterBar;
+  el.appendChild(grid);
   var inp2 = document.getElementById('blurto-folder-search');
   if (inp2 && document.activeElement === inp2) { inp2.focus(); inp2.setSelectionRange(blurtoFolderSearch.length, blurtoFolderSearch.length); }
 }
@@ -4965,15 +5036,29 @@ function blurtoOpenFolder(name, subject) {
   var subjEl  = document.getElementById('blurto-subj');
   if (topicEl) topicEl.value = name;
   if (subjEl)  subjEl.value  = subject || getSubjectForFolder(name);
-  // Load cached content if available
-  var cached = orgGetContent(name);
-  if (cached) {
-    var notesEl = document.getElementById('blurto-notes-area');
-    if (notesEl) {
-      notesEl.innerText = cached.text;
-      document.getElementById('blurto-extract-status').textContent = '✓ Notes loaded from cache.';
+  // Load simplified cache if available (takes priority)
+  var blurtoCached = blurtoCacheGet(name);
+  if (blurtoCached) {
+    var notesElB = document.getElementById('blurto-notes-area');
+    if (notesElB) {
+      notesElB.innerHTML = blurtoCached.text;
+      blurtoSimplified = true;
+      var sBtn = document.getElementById('blurto-simplify-btn');
+      if (sBtn) { sBtn.disabled = true; sBtn.textContent = '✓ Simplified'; sBtn.title = 'Already simplified — editing notes directly is the next step'; }
+      document.getElementById('blurto-extract-status').textContent = '✓ Simplified notes loaded · ' + name + ' · ' + blurtoCached.date;
+    }
+  } else {
+    // Fall back to raw notes cache
+    var cached = orgGetContent(name);
+    if (cached) {
+      var notesEl = document.getElementById('blurto-notes-area');
+      if (notesEl) {
+        notesEl.innerText = cached.text;
+        document.getElementById('blurto-extract-status').textContent = '✓ Notes loaded from cache.';
+      }
     }
   }
+  updateBlurtoCacheUI(name);
   blurtoTabSwitch('session');
 }
 
@@ -5131,11 +5216,14 @@ async function blurtoSimplify() {
     var d = await r.json();
     var out = d.choices && d.choices[0] && d.choices[0].message.content;
     if (!out) throw new Error('No response from AI');
-    document.getElementById('blurto-notes-area').innerHTML = out.replace(/```html|```/g,'').trim();
+    var simplifiedOut = out.replace(/```html|```/g,'').trim();
+    document.getElementById('blurto-notes-area').innerHTML = simplifiedOut;
     blurtoSimplified = true;
     btn.textContent = '✓ Simplified';
     btn.title = 'Already simplified — editing notes directly is the next step';
     st.textContent = 'Done! Review and edit before blurting.';
+    var blurtoFolderForCache = ((document.getElementById('blurto-topic') || {}).value || '').trim();
+    if (blurtoFolderForCache) { blurtoCacheSet(blurtoFolderForCache, simplifiedOut, ''); updateBlurtoCacheUI(blurtoFolderForCache); }
   } catch(e) {
     st.textContent = 'Error: ' + e.message;
     btn.disabled = false; btn.textContent = '✨ Simplify';
@@ -5425,6 +5513,8 @@ function blurtoReset() {
   document.getElementById('blurto-notes-area').innerHTML = '';
   document.getElementById('blurto-write-area').innerHTML = '';
   document.getElementById('blurto-extract-status').textContent = '';
+  var blurtoCacheInfoEl = document.getElementById('blurto-cache-info');
+  if (blurtoCacheInfoEl) blurtoCacheInfoEl.style.display = 'none';
   blurtoShowPhase('blurto-setup');
 }
 
