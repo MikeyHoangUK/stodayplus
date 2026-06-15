@@ -6505,7 +6505,7 @@ function orgRenderTable() {
       + '<td class="org-td" style="text-align:center">'
         + (t.feynman_done
             ? '<button class="org-toggle on" onclick="orgToggleField(\'' + t.id + '\',\'feynman_done\')" title="Feynman done — click to untick">✓</button>'
-            : '<button class="org-toggle" onclick="finleyLaunchFromOrg(\'' + jsq(t.topic_name) + '\')" title="Teach this topic in Finley"></button>')
+            : '<button class="org-toggle" onclick="orgToggleField(\'' + t.id + '\',\'feynman_done\')" title="Feynman (tap to tick)"></button>')
         + '</td>'
       + '<td class="org-td" style="text-align:center">'
         + '<button class="org-conf" onclick="orgSetConf(\'' + t.id + '\',' + confArg + ')" title="Tap to change confidence">'
