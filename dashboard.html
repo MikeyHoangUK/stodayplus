@@ -509,6 +509,8 @@
     .fc-actions{display:flex;gap:6px;margin-top:2px}
     .fc-quiz{padding:5px 14px;border-radius:8px;font-size:.64rem;font-weight:800;cursor:pointer;border:1px solid rgba(109,40,217,.3);color:#6d28d9;background:rgba(109,40,217,.08);transition:all .18s;letter-spacing:.02em}
     .fc-quiz:hover{background:rgba(109,40,217,.18);border-color:rgba(109,40,217,.55)}
+    .fc-create{padding:5px 10px;border-radius:8px;font-size:.75rem;font-weight:900;cursor:pointer;border:1px solid rgba(109,40,217,.3);color:#6d28d9;background:rgba(109,40,217,.08);transition:all .18s;line-height:1}
+    .fc-create:hover{background:rgba(109,40,217,.18);border-color:rgba(109,40,217,.55)}
     .fc-del{padding:5px 9px;border-radius:8px;font-size:.64rem;cursor:pointer;border:1px solid rgba(248,113,113,.2);color:#f87171;background:rgba(248,113,113,.05);transition:all .18s}
     .fc-del:hover{background:rgba(248,113,113,.14);border-color:rgba(248,113,113,.4)}
     .fc-edit{padding:5px 9px;border-radius:8px;font-size:.64rem;cursor:pointer;border:1px solid rgba(168,85,247,.2);color:#6d28d9;background:rgba(168,85,247,.06);transition:all .18s}
@@ -2728,7 +2730,7 @@ function renderBank() {
       }
       var subjChip = folderSubjChip(f);
       var quizBtn = count > 0 ? '<button class="fc-quiz" onclick="quizFolder(\''+jsq(f)+'\')">▶ Quiz</button>' : '';
-      card.innerHTML = '<button class="fc-edit" onclick="openFolderEdit(\''+jsq(f)+'\')" style="position:absolute;top:7px;right:8px;font-size:.58rem;font-weight:700;color:#9ca3af;background:none;border:none;cursor:pointer;opacity:.55;padding:2px 5px;letter-spacing:.02em" title="Rename folder">✎ Edit</button><div class="fc-icon">📁</div>'+subjChip+'<div class="fc-name">'+esc(f)+'</div><div class="fc-count">'+(count===0?'No MCQs yet':count+' question'+(count!==1?'s':''))+'</div>'+confBadge+'<div class="fc-actions">'+quizBtn+'<button class="fc-create" onclick="jumpToCreate(\''+jsq(f)+'\')" style="font-size:.85rem;font-weight:900;color:#7c3aed;background:none;border:none;cursor:pointer;padding:0 3px;line-height:1" title="Generate more questions for this folder">+</button><button class="fc-del" onclick="deleteFolder(\''+jsq(f)+'\')">🗑</button></div>';
+      card.innerHTML = '<button class="fc-edit" onclick="openFolderEdit(\''+jsq(f)+'\')" style="position:absolute;top:7px;right:8px;font-size:.58rem;font-weight:700;color:#9ca3af;background:none;border:none;cursor:pointer;opacity:.55;padding:2px 5px;letter-spacing:.02em" title="Rename folder">✎ Edit</button><div class="fc-icon">📁</div>'+subjChip+'<div class="fc-name">'+esc(f)+'</div><div class="fc-count">'+(count===0?'No MCQs yet':count+' question'+(count!==1?'s':''))+'</div>'+confBadge+'<div class="fc-actions">'+quizBtn+'<button class="fc-create" onclick="jumpToCreate(\''+jsq(f)+'\')" title="Generate more questions for this folder">+</button><button class="fc-del" onclick="deleteFolder(\''+jsq(f)+'\')">🗑</button></div>';
       grid.appendChild(card);
     });
     list.innerHTML = '';
