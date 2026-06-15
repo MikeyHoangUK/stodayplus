@@ -5688,14 +5688,14 @@ async function blurtoSimplify() {
         st.textContent = 'Formatting…';
       } catch(ce) { input = input.slice(0, 8000); }
     } else if (input.length > 8000) { input = input.slice(0, 8000); }
-    var systemPrompt = 'You are a study notes formatter. The user will paste raw lecture notes or text.\n\nYour job is to return a clean, well-structured simplified version following these EXACT rules:\n\n1. TOPIC NAME:\n   - Extract or infer the main topic name.\n   - Place it at the very top, centred, large.\n   - Use: <h1 style="text-align:center;">TOPIC</h1>\n\n2. HEADINGS:\n   - Identify major sections or subtopics.\n   - Use: <h2><strong>Heading Name</strong></h2>\n\n3. BULLET POINTS:\n   - Under each heading, list only the key facts as bullet points.\n   - Use: <ul style="padding-left:2rem;"><li>key point</li></ul>\n\n4. RULES:\n   - Remove all waffle, filler, and repeated information.\n   - Keep only facts, definitions, mechanisms, and key terms.\n   - Maximum 6–8 bullet points per section.\n   - Do not add anything that wasn\'t in the original notes.\n   - Return ONLY the formatted HTML. No extra commentary, no markdown fences.\n   - Explain with simple wording as if talking to a 12-year-old.\n   - This is a one-time format — do not over-condense. Keep all meaningful content.';
+    var systemPrompt = 'You are a study notes formatter for a student who needs to memorise everything examinable in these notes.\n\nYour job is to return a clean, well-structured simplified version. Follow these rules EXACTLY:\n\n1. TOPIC NAME:\n   - Extract or infer the main topic name.\n   - Place it at the very top, centred.\n   - Use: <h1 style="text-align:center;">TOPIC</h1>\n\n2. HEADINGS:\n   - Identify every major section, subtopic, or learning objective.\n   - Use: <h2><strong>Heading Name</strong></h2>\n\n3. BULLET POINTS:\n   - Under each heading, list ALL key facts, definitions, mechanisms, named terms, processes, and examples as bullet points.\n   - Use: <ul style="padding-left:2rem;"><li>key point</li></ul>\n   - Include as many bullets as the content requires — do NOT cap or skip points.\n   - If something could appear in an exam question, it must be included.\n\n4. RULES:\n   - PRESERVE every distinct concept, definition, named term, mechanism, formula, and example.\n   - Only remove repeated sentences, filler phrases, and irrelevant admin text.\n   - Do not merge separate concepts into one bullet — keep them separate.\n   - Rewrite in plain simple language (as if explaining to a 16-year-old) but keep all the factual detail.\n   - Do not add anything that was not in the original notes.\n   - Return ONLY the formatted HTML. No extra commentary, no markdown fences.';
     var r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
         messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: input }],
-        temperature: 0.3, max_tokens: 1500
+        temperature: 0.3, max_tokens: 4000
       })
     });
     if (!r.ok) { var eb = await r.json(); throw new Error((eb.error && eb.error.message) || ('HTTP ' + r.status)); }
