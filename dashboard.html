@@ -501,7 +501,7 @@
     .q-move-row:not(:empty){max-height:60px;margin-top:8px}
     /* folder grid */
     .folder-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;padding:4px 0}
-    .folder-card{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.12);border-radius:18px;padding:26px 18px 20px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:9px;transition:border-color .2s,background .2s,box-shadow .2s;text-align:center}
+    .folder-card{position:relative;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.12);border-radius:18px;padding:26px 18px 20px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:9px;transition:border-color .2s,background .2s,box-shadow .2s;text-align:center}
     .folder-card:hover{border-color:rgba(168,85,247,.32);background:rgba(168,85,247,.05);box-shadow:0 8px 32px rgba(168,85,247,.08)}
     .fc-icon{font-size:2.2rem;line-height:1}
     .fc-name{font-size:.85rem;font-weight:800;color:#1c1208;word-break:break-word;letter-spacing:.01em}
@@ -2718,7 +2718,7 @@ function renderBank() {
       var count = bank.filter(function(q){ return (q.folder||'General') === f; }).length;
       var card  = document.createElement('div');
       card.className = 'folder-card' + (count === 0 ? ' fc-empty' : '');
-      (function(folder){ card.onclick = function(e){ if(!e.target.classList.contains('fc-quiz')&&!e.target.classList.contains('fc-del')&&!e.target.classList.contains('fc-edit')) filterFolder(folder); }; })(f);
+      (function(folder){ card.onclick = function(e){ if(!e.target.classList.contains('fc-quiz')&&!e.target.classList.contains('fc-del')&&!e.target.classList.contains('fc-edit')&&!e.target.classList.contains('fc-create')) filterFolder(folder); }; })(f);
       var fsc = getFolderScores()[f];
       var confBadge = '';
       if (fsc && fsc.best >= 0) {
@@ -2728,7 +2728,7 @@ function renderBank() {
       }
       var subjChip = folderSubjChip(f);
       var quizBtn = count > 0 ? '<button class="fc-quiz" onclick="quizFolder(\''+jsq(f)+'\')">▶ Quiz</button>' : '';
-      card.innerHTML = '<div class="fc-icon">📁</div>'+subjChip+'<div class="fc-name">'+esc(f)+'</div><div class="fc-count">'+(count===0?'No MCQs yet':count+' question'+(count!==1?'s':''))+'</div>'+confBadge+'<div class="fc-actions">'+quizBtn+'<button class="fc-edit" onclick="openFolderEdit(\''+jsq(f)+'\')">✎</button><button class="fc-del" onclick="deleteFolder(\''+jsq(f)+'\')">🗑</button></div>';
+      card.innerHTML = '<button class="fc-edit" onclick="openFolderEdit(\''+jsq(f)+'\')" style="position:absolute;top:7px;right:8px;font-size:.58rem;font-weight:700;color:#9ca3af;background:none;border:none;cursor:pointer;opacity:.55;padding:2px 5px;letter-spacing:.02em" title="Rename folder">✎ Edit</button><div class="fc-icon">📁</div>'+subjChip+'<div class="fc-name">'+esc(f)+'</div><div class="fc-count">'+(count===0?'No MCQs yet':count+' question'+(count!==1?'s':''))+'</div>'+confBadge+'<div class="fc-actions">'+quizBtn+'<button class="fc-create" onclick="jumpToCreate(\''+jsq(f)+'\')" style="font-size:.65rem;font-weight:800;color:#7c3aed;background:rgba(124,58,237,.08);border:1.5px solid rgba(124,58,237,.2);border-radius:7px;padding:3px 9px;cursor:pointer;white-space:nowrap" title="Generate more questions for this folder">✨ Create</button><button class="fc-del" onclick="deleteFolder(\''+jsq(f)+'\')">🗑</button></div>';
       grid.appendChild(card);
     });
     list.innerHTML = '';
@@ -3341,6 +3341,17 @@ function updateNotesCacheUI() {
     info.style.display = 'none';
     fileRow.style.display = 'block';
   }
+}
+
+function jumpToCreate(folderName) {
+  switchTab('create');
+  var inp = document.getElementById('ai-folder-new');
+  if (inp) {
+    inp.value = folderName;
+    aiTopicInput();
+  }
+  var panel = document.getElementById('sub-create');
+  if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function returnToSetup() {
