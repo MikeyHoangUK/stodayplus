@@ -504,9 +504,11 @@
     .folder-card{position:relative;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.12);border-radius:18px;padding:22px 16px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:border-color .2s,background .2s,box-shadow .2s;text-align:center;min-height:88px}
     .folder-card:hover{border-color:rgba(168,85,247,.32);background:rgba(168,85,247,.05);box-shadow:0 8px 32px rgba(168,85,247,.08)}
     .fc-icon{display:none}
-    .fc-name{font-size:.84rem;font-weight:800;color:#1c1208;word-break:break-word;letter-spacing:.01em;line-height:1.35;margin:2px 0}
-    .fc-confidence{font-size:.62rem;font-weight:800;letter-spacing:.02em;margin-top:2px}
+    .fc-name{font-size:.84rem;font-weight:800;color:#1c1208;word-break:break-word;letter-spacing:.01em;line-height:1.35;margin-top:auto;margin-bottom:auto;transition:margin .22s ease}
+    .folder-card:hover .fc-name{margin-top:4px;margin-bottom:0}
+    .fc-confidence{font-size:.62rem;font-weight:800;letter-spacing:.02em;max-height:0;opacity:0;overflow:hidden;transition:max-height .2s ease,opacity .18s ease}
     .fc-count{font-size:.61rem;font-weight:700;color:#8a6e54;letter-spacing:.03em;max-height:0;opacity:0;overflow:hidden;transition:max-height .2s ease,opacity .18s ease}
+    .folder-card:hover .fc-confidence{max-height:24px;opacity:1;margin-top:2px}
     .folder-card:hover .fc-count{max-height:24px;opacity:1;margin-top:3px}
     .fc-actions{display:flex;gap:5px;max-height:0;opacity:0;overflow:hidden;transition:max-height .22s ease,opacity .18s ease}
     .folder-card:hover .fc-actions{max-height:36px;opacity:1;margin-top:6px}
@@ -522,7 +524,8 @@
     .fc-edit{padding:5px 9px;border-radius:8px;font-size:.64rem;cursor:pointer;border:1px solid rgba(168,85,247,.2);color:#6d28d9;background:rgba(168,85,247,.06);transition:all .18s}
     .fc-edit:hover{background:rgba(168,85,247,.18);border-color:rgba(168,85,247,.4)}
     body.hc .fc-edit{color:#c084fc!important;background:rgba(168,85,247,.08)!important;border-color:rgba(168,85,247,.28)!important}
-    .fc-subj-chip{display:inline-block;font-size:.56rem;font-weight:800;border-radius:6px;padding:2px 8px;white-space:nowrap;border-width:1px;border-style:solid}
+    .fc-subj-chip{display:inline-block;font-size:.56rem;font-weight:800;border-radius:6px;padding:0 8px;white-space:nowrap;border-width:1px;border-style:solid;max-height:0;opacity:0;overflow:hidden;transition:max-height .22s ease,opacity .18s ease,padding .2s ease}
+    .folder-card:hover .fc-subj-chip{max-height:28px;opacity:1;padding:2px 8px}
     .fc-empty{opacity:.42;transition:opacity .3s}
     .fc-empty:hover{opacity:.75}
     @keyframes fc-shake{0%,100%{transform:translateX(0)}15%{transform:translateX(-5px)}30%{transform:translateX(5px)}45%{transform:translateX(-4px)}60%{transform:translateX(4px)}75%{transform:translateX(-2px)}90%{transform:translateX(2px)}}
