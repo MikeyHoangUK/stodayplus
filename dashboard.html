@@ -1300,6 +1300,8 @@
               <span class="ai-badge">Groq · Llama 3.3</span>
             </div>
             <!-- File drop zone -->
+            <div id="ai-notes-cache-info" style="display:none;padding:8px 12px;background:rgba(124,58,237,.06);border:1.5px solid rgba(124,58,237,.18);border-radius:9px;margin-bottom:8px;align-items:center;flex-wrap:wrap;gap:4px"></div>
+            <div id="ai-notes-file-row">
             <div class="ai-drop" id="ai-drop"
                  ondragover="aiDragOver(event)" ondragleave="aiDragLeave(event)" ondrop="aiDrop(event)"
                  onclick="document.getElementById('ai-file-inp').click()">
@@ -1320,6 +1322,7 @@
                 </span>
               </div>
             </div>
+            </div><!-- /ai-notes-file-row -->
 
             <textarea id="ai-topic" class="ai-ta" placeholder="Or paste your notes / type a topic here…" style="width:100%;margin-bottom:14px"></textarea>
 
@@ -2066,6 +2069,7 @@ window.addEventListener('DOMContentLoaded', function() {
   renderBank();
   renderSqBank();
   renderBlurtoBank();
+  updateNotesCacheUI();
 });
 
 // ── MARVEL ENTRY ANIMATION ──
@@ -3303,6 +3307,41 @@ function scheduleElectric() {
 function esc(s) { s = (s == null) ? '' : String(s); return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 // escape for use as a JS string argument inside onclick="func('...')"
 function jsq(s) { return String(s == null ? '' : s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+function notesCacheGet(folder) {
+  try { var c = JSON.parse(localStorage.getItem('sp_notes_cache') || '{}'); return c[folder] || null; } catch(e) { return null; }
+}
+function notesCacheSet(folder, text, fileName) {
+  try {
+    var c = JSON.parse(localStorage.getItem('sp_notes_cache') || '{}');
+    c[folder] = { text: text, date: new Date().toISOString().slice(0,10), fileName: fileName || '' };
+    localStorage.setItem('sp_notes_cache', JSON.stringify(c));
+  } catch(e) {}
+}
+function notesCacheClear(folder) {
+  try {
+    var c = JSON.parse(localStorage.getItem('sp_notes_cache') || '{}');
+    delete c[folder];
+    localStorage.setItem('sp_notes_cache', JSON.stringify(c));
+  } catch(e) {}
+}
+function updateNotesCacheUI() {
+  var folderName = (document.getElementById('ai-folder-new') || {}).value || '';
+  var info = document.getElementById('ai-notes-cache-info');
+  var fileRow = document.getElementById('ai-notes-file-row');
+  if (!info || !fileRow) return;
+  if (!folderName.trim()) { info.style.display = 'none'; fileRow.style.display = 'block'; return; }
+  var cached = notesCacheGet(folderName.trim());
+  if (cached) {
+    info.style.display = 'flex';
+    info.innerHTML = '<span style="font-size:.65rem;font-weight:800;color:#5b21b6">📂 Notes saved</span>'
+      + '<span style="font-size:.63rem;color:#6e5438;margin-left:6px">' + esc(cached.fileName || 'from upload') + ' · ' + cached.date + '</span>'
+      + '<button onclick="notesCacheClear(\'' + jsq(folderName.trim()) + '\');updateNotesCacheUI()" style="margin-left:10px;font-size:.6rem;font-weight:800;color:#b45309;background:none;border:1px solid rgba(180,83,9,.3);border-radius:5px;padding:1px 7px;cursor:pointer">Replace ↺</button>';
+    fileRow.style.display = 'none';
+  } else {
+    info.style.display = 'none';
+    fileRow.style.display = 'block';
+  }
+}
 
 function returnToSetup() {
   if (document.fullscreenElement) document.exitFullscreen();
@@ -3664,6 +3703,7 @@ async function condenseForAI(text, key, onProgress) {
 function aiTopicInput() {
   var btn = document.getElementById('ai-btn');
   if (btn) btn.disabled = !(document.getElementById('ai-folder-new').value || '').trim();
+  updateNotesCacheUI();
 }
 
 async function generateWithAI(isRetry){
@@ -3671,9 +3711,15 @@ async function generateWithAI(isRetry){
   if(!key){ setAIStatus('Save your Groq API key first — free at console.groq.com (no card needed).','serr'); document.getElementById('ai-key-row').style.display='flex'; return; }
   var folderName = (document.getElementById('ai-folder-new').value || '').trim();
   if(!folderName){ setAIStatus('Select a topic first.','serr'); return; }
-  var topic = document.getElementById('ai-topic').value.trim();
-  if(!topic){ setAIStatus('Enter notes or a topic description to generate from.','serr'); return; }
-  if(topic.length > 8000) topic = topic.slice(0, 8000);
+  // --- Cache check ---
+  var cachedNotes = notesCacheGet(folderName);
+  var skipToGenerate = !!cachedNotes;
+  var cachedFileName = cachedNotes ? cachedNotes.fileName : '';
+  var notesTextFromCache = cachedNotes ? cachedNotes.text : null;
+  var topic = skipToGenerate ? notesTextFromCache : document.getElementById('ai-topic').value.trim();
+  if(!skipToGenerate && !topic){ setAIStatus('Enter notes or a topic description to generate from.','serr'); return; }
+  if(topic && topic.length > 8000) topic = topic.slice(0, 8000);
+  if(!skipToGenerate) { notesCacheSet(folderName, topic, ''); updateNotesCacheUI(); }
   var n    = aiGetOpt('count') || '5';
   var diff = aiGetOpt('diff')  || 'medium';
   var type = aiGetOpt('type')  || 'info';
