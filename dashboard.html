@@ -861,6 +861,24 @@
     .blurto-sr-btn.missed{background:rgba(220,38,38,.07);border-color:rgba(220,38,38,.3);color:#dc2626}
     .blurto-sr-btn.missed:hover,.blurto-sr-btn.missed.sel{background:rgba(220,38,38,.15);border-color:rgba(220,38,38,.5)}
     .blurto-sr-btn.sel{font-weight:900}
+    /* Blurto Notes tab */
+    .blurto-note-card{background:rgba(255,255,255,.7);border:1px solid rgba(168,85,247,.14);border-radius:14px;padding:16px 18px;margin-bottom:12px}
+    .blurto-note-folder{font-size:.88rem;font-weight:900;color:#1c1208;margin-top:4px;line-height:1.2}
+    .blurto-note-meta{font-size:.6rem;font-weight:700;color:#6e5438;margin-top:3px;opacity:.8}
+    .blurto-note-body{background:rgba(250,243,224,.5);border:1px solid rgba(168,85,247,.1);border-radius:9px;padding:12px 14px;font-size:.74rem;line-height:1.7;color:#2c1a0e;max-height:220px;overflow-y:auto;margin:10px 0 12px}
+    .blurto-note-actions{display:flex;gap:8px;justify-content:flex-end}
+    .blurto-note-review-btn{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:.7rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:opacity .15s}
+    .blurto-note-review-btn:hover{opacity:.85}
+    .blurto-note-del-btn{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.18);color:#dc2626;border-radius:8px;padding:6px 10px;font-size:.7rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:all .15s}
+    .blurto-note-del-btn:hover{background:rgba(239,68,68,.12)}
+    .blurto-notes-empty{text-align:center;padding:52px 24px;color:#6e5438}
+    .blurto-notes-empty-icon{font-size:2.2rem;margin-bottom:12px}
+    .blurto-notes-empty-title{font-size:.95rem;font-weight:900;color:#1c1208;margin-bottom:6px}
+    .blurto-notes-empty-sub{font-size:.75rem;font-weight:600;opacity:.65;line-height:1.5}
+    body.hc .blurto-note-card{background:#0f0d22!important;border-color:rgba(168,85,247,.3)!important}
+    body.hc .blurto-note-folder{color:#e8dcc8!important}
+    body.hc .blurto-note-meta{color:#a08878!important}
+    body.hc .blurto-note-body{background:#0a0918!important;border-color:rgba(168,85,247,.15)!important;color:#c8b89a!important}
     .blurto-ai-result{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.15);border-radius:14px;padding:18px 22px;margin-bottom:14px}
     .blurto-ai-score{font-size:2.4rem;font-weight:900;line-height:1}
     .blurto-ai-score-lbl{font-size:.6rem;font-weight:700;color:#6e5438;text-transform:uppercase;letter-spacing:.1em;margin-left:8px}
@@ -1853,11 +1871,17 @@
         <div class="mcq-tabs" style="margin-bottom:16px">
           <div class="mcq-tab active" id="blurto-tab-bank" onclick="blurtoTabSwitch('bank')">📋 Bank</div>
           <div class="mcq-tab" id="blurto-tab-session" onclick="blurtoTabSwitch('session')">📝 Practice</div>
+          <div class="mcq-tab" id="blurto-tab-notes" onclick="blurtoTabSwitch('notes')">📄 Notes</div>
         </div>
 
         <!-- BANK VIEW -->
         <div id="blurto-bank">
           <div id="blurto-bank-content"></div>
+        </div>
+
+        <!-- NOTES VIEW -->
+        <div id="blurto-notes" style="display:none">
+          <div id="blurto-notes-content"></div>
         </div>
 
         <!-- SETUP PHASE -->
@@ -5365,13 +5389,62 @@ var blurtoSessionPeeks = 0;
 
 // ── Blurto tab + bank ────────────────────────────────────────────────────────
 function blurtoTabSwitch(tab) {
-  ['session','bank'].forEach(function(t) {
-    var panel = document.getElementById(t === 'session' ? 'blurto-setup' : 'blurto-bank');
+  var panelMap = { session: 'blurto-setup', bank: 'blurto-bank', notes: 'blurto-notes' };
+  ['session','bank','notes'].forEach(function(t) {
+    var panel = document.getElementById(panelMap[t]);
     var tabEl  = document.getElementById('blurto-tab-' + t);
     if (panel) panel.style.display = t === tab ? '' : 'none';
     if (tabEl)  tabEl.classList.toggle('active', t === tab);
   });
-  if (tab === 'bank') renderBlurtoBank();
+  if (tab === 'bank')  renderBlurtoBank();
+  if (tab === 'notes') renderBlurtoNotes();
+}
+
+function renderBlurtoNotes() {
+  var el = document.getElementById('blurto-notes-content');
+  if (!el) return;
+  var cache;
+  try { cache = JSON.parse(localStorage.getItem('sp_blurto_cache') || '{}'); } catch(e) { cache = {}; }
+  var keys = Object.keys(cache);
+  if (keys.length === 0) {
+    el.innerHTML = '<div class="blurto-notes-empty">'
+      + '<div class="blurto-notes-empty-icon">📄</div>'
+      + '<div class="blurto-notes-empty-title">No simplified notes saved yet</div>'
+      + '<div class="blurto-notes-empty-sub">Use ✨ Simplify in a Practice session<br>to save notes here for later review.</div>'
+      + '</div>';
+    return;
+  }
+  keys.sort(function(a, b) { return (cache[b].date || '') > (cache[a].date || '') ? 1 : -1; });
+  el.innerHTML = keys.map(function(folder, i) {
+    var note = cache[folder];
+    var subj = getSubjectForFolder(folder);
+    var sc = subj ? orgSubjectColor(subj) : { bg: 'rgba(168,85,247,.1)', text: '#6d28d9' };
+    return '<div class="blurto-note-card">'
+      + (subj ? '<span class="org-subj-tag" style="background:' + sc.bg + ';color:' + sc.text + '">' + esc(subj) + '</span>' : '')
+      + '<div class="blurto-note-folder">' + esc(folder) + '</div>'
+      + '<div class="blurto-note-meta">' + (note.date || '') + (note.fileName ? ' · ' + esc(note.fileName) : '') + '</div>'
+      + '<div class="blurto-note-body" data-note-idx="' + i + '"></div>'
+      + '<div class="blurto-note-actions">'
+        + '<button class="blurto-note-del-btn" onclick="blurtoNoteDelete(\'' + jsq(folder) + '\')">✕ Delete</button>'
+        + '<button class="blurto-note-review-btn" onclick="blurtoNoteReview(\'' + jsq(folder) + '\')">▶ Review</button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+  // Set body HTML safely after DOM injection (avoids HTML-in-string escaping issues)
+  keys.forEach(function(folder, i) {
+    var body = el.querySelector('[data-note-idx="' + i + '"]');
+    if (body && cache[folder].text) body.innerHTML = cache[folder].text;
+  });
+}
+
+function blurtoNoteDelete(folder) {
+  if (!confirm('Delete simplified notes for "' + folder + '"?')) return;
+  blurtoCacheClear(folder);
+  renderBlurtoNotes();
+}
+
+function blurtoNoteReview(folder) {
+  blurtoOpenFolder(folder, getSubjectForFolder(folder));
 }
 
 function renderBlurtoBank() {
