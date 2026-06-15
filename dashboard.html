@@ -663,7 +663,7 @@
     .rp-empty-title{font-size:1.1rem;font-weight:900;color:#1c1208;margin-bottom:6px}
     .rp-empty-sub{font-size:.8rem;color:#6e5438;font-weight:500}
     .rp-shortcuts{display:flex;gap:10px;margin-top:28px;flex-wrap:wrap}
-    .rp-shortcut-btn{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.65);border:1px solid rgba(168,85,247,.15);border-radius:12px;padding:12px 18px;cursor:pointer;font-family:'Raleway',sans-serif;font-weight:800;font-size:.78rem;color:#5a4230;transition:all .18s;flex:1;min-width:120px;justify-content:center}
+    .rp-shortcut-btn{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.65);border:1px solid rgba(168,85,247,.15);border-radius:12px;padding:10px 14px;cursor:pointer;font-family:'Raleway',sans-serif;font-weight:800;font-size:.78rem;color:#5a4230;transition:all .18s;flex:1;min-width:96px;justify-content:center}
     .rp-shortcut-btn:hover{background:rgba(168,85,247,.09);border-color:rgba(168,85,247,.35);color:#6d28d9;transform:translateY(-1px)}
     .rp-shortcut-btn .rp-sc-emoji{font-size:1.2rem;line-height:1}
     .rp-shortcut-btn .rp-sc-text{display:flex;flex-direction:column;gap:1px;text-align:left}
@@ -961,7 +961,7 @@
     .org-due-badge.later{background:rgba(22,163,74,.1);color:#16a34a}
     .org-due-badge.none{background:rgba(0,0,0,.05);color:#9ca3af}
     .org-action-btns{display:flex;gap:4px;align-items:center}
-    .org-tool-btn{padding:4px 7px;border-radius:7px;border:1px solid rgba(168,85,247,.2);background:rgba(109,40,217,.05);color:#6d28d9;font-size:.72rem;cursor:pointer;font-family:'Raleway',sans-serif;transition:all .15s;line-height:1}
+    .org-tool-btn{padding:4px 5px;border-radius:7px;border:1px solid rgba(168,85,247,.2);background:rgba(109,40,217,.05);color:#6d28d9;font-size:.72rem;cursor:pointer;font-family:'Raleway',sans-serif;transition:all .15s;line-height:1}
     .org-tool-btn:hover{background:rgba(109,40,217,.14);border-color:rgba(109,40,217,.4)}
     .org-del-btn{padding:4px 7px;border-radius:7px;border:1px solid rgba(220,38,38,.18);background:rgba(220,38,38,.04);color:#dc2626;font-size:.72rem;cursor:pointer;font-family:'Raleway',sans-serif;transition:all .15s;line-height:1}
     .org-del-btn:hover{background:rgba(220,38,38,.12);border-color:rgba(220,38,38,.35)}
@@ -4417,6 +4417,10 @@ function rpShortcutsHTML() {
     + '<span class="rp-sc-emoji">📝</span>'
     + '<span class="rp-sc-text"><span class="rp-sc-name">Blurto</span><span class="rp-sc-sub">Blurting Machine</span></span>'
     + '</button>'
+    + '<button class="rp-shortcut-btn" onclick="rpGoTo(\'finley\')">'
+    + '<span class="rp-sc-emoji">🎓</span>'
+    + '<span class="rp-sc-text"><span class="rp-sc-name">Finley</span><span class="rp-sc-sub">Feynman Teaching</span></span>'
+    + '</button>'
     + '</div>';
 }
 
@@ -6498,9 +6502,11 @@ function orgRenderTable() {
         + orgProgressCell(t, 'saq') + '</td>'
       + '<td class="org-td" style="text-align:center">'
         + orgProgressCell(t, 'blurting') + '</td>'
-      + (t.feynman_done
-          ? '<td class="org-td center" title="' + esc(t.feynman_summary || '') + '"><span style="color:#16a34a;font-size:.85rem">✓</span></td>'
-          : '<td class="org-td center"><button onclick="finleyLaunchFromOrg(\'' + jsq(t.topic_name) + '\')" style="font-size:.58rem;font-weight:800;color:#7c3aed;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.22);border-radius:6px;padding:2px 7px;cursor:pointer">Teach</button></td>')
+      + '<td class="org-td" style="text-align:center">'
+        + (t.feynman_done
+            ? '<button class="org-toggle on" onclick="orgToggleField(\'' + t.id + '\',\'feynman_done\')" title="Feynman done — click to untick">✓</button>'
+            : '<button class="org-toggle" onclick="finleyLaunchFromOrg(\'' + jsq(t.topic_name) + '\')" title="Teach this topic in Finley"></button>')
+        + '</td>'
       + '<td class="org-td" style="text-align:center">'
         + '<button class="org-conf" onclick="orgSetConf(\'' + t.id + '\',' + confArg + ')" title="Tap to change confidence">'
         + orgConfEmoji(t.confidence) + '</button></td>'
@@ -6509,6 +6515,7 @@ function orgRenderTable() {
         + '<button class="org-tool-btn" onclick="orgGoTool(\'mcq\',\'' + t.id + '\')" title="Open in Poppy">🧠</button>'
         + '<button class="org-tool-btn" onclick="orgGoTool(\'saqs\',\'' + t.id + '\')" title="Open in Sage">✍️</button>'
         + '<button class="org-tool-btn" onclick="orgGoTool(\'blurto\',\'' + t.id + '\')" title="Open in Blurto">📝</button>'
+        + '<button class="org-tool-btn" onclick="finleyLaunchFromOrg(\'' + jsq(t.topic_name) + '\')" title="Teach in Finley">🎓</button>'
         + '<button class="org-del-btn" onclick="orgDeleteTopic(\'' + t.id + '\')" title="Delete">✕</button>'
         + '</div></td>'
       + '</tr>';
