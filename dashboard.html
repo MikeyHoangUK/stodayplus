@@ -3521,6 +3521,8 @@ async function processAIFile(file){
     }
     // AI-suggest topic name and pre-fill folder field
     populateSubjectDatalist();
+    var capturedText = text;
+    var capturedFileName = file.name;
     suggestTopicName(text, aiKey).then(function(suggested) {
       if (suggested) {
         document.getElementById('ai-folder-new').value = suggested;
@@ -3528,6 +3530,13 @@ async function processAIFile(file){
         var meta = getFolderMeta();
         var existSubj = (meta[suggested] && meta[suggested].subject) || getSubjectForFolder(suggested);
         if (existSubj) document.getElementById('ai-folder-subj').value = existSubj;
+        aiTopicInput();
+      }
+      // Save processed text to cache immediately so Generate works without re-upload
+      var folderForCache = (document.getElementById('ai-folder-new').value || '').trim();
+      if (folderForCache) {
+        notesCacheSet(folderForCache, capturedText, capturedFileName);
+        updateNotesCacheUI();
       }
     });
   } catch(err){
@@ -3719,7 +3728,7 @@ async function generateWithAI(isRetry){
   var topic = skipToGenerate ? notesTextFromCache : document.getElementById('ai-topic').value.trim();
   if(!skipToGenerate && !topic){ setAIStatus('Enter notes or a topic description to generate from.','serr'); return; }
   if(topic && topic.length > 8000) topic = topic.slice(0, 8000);
-  if(!skipToGenerate) { notesCacheSet(folderName, topic, ''); updateNotesCacheUI(); }
+  if(!skipToGenerate) { notesCacheSet(folderName, topic, (document.getElementById('ai-file-name')||{}).textContent||''); updateNotesCacheUI(); }
   var n    = aiGetOpt('count') || '5';
   var diff = aiGetOpt('diff')  || 'medium';
   var type = aiGetOpt('type')  || 'info';
