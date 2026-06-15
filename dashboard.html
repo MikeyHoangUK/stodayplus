@@ -558,6 +558,17 @@
     .ai-folder-new::placeholder{color:#4a3824}
     .ai-folder-confirm{background:linear-gradient(135deg,#9333ea,#3730a3);color:#fff;font-weight:900;font-size:.76rem;padding:6px 16px;border-radius:8px;cursor:pointer;border:none;font-family:'Raleway',sans-serif;transition:opacity .15s;white-space:nowrap}
     .ai-folder-confirm:hover{opacity:.87}
+    .qsc-wrap{background:rgba(124,58,237,.06);border:1.5px solid rgba(124,58,237,.18);border-radius:12px;padding:12px 16px;margin-bottom:14px;text-align:left}
+    .qsc-topic{font-size:.78rem;font-weight:900;color:#4c1d95;margin-bottom:2px}
+    .qsc-phase{font-size:.6rem;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+    .qsc-row{font-size:.63rem;color:#6e5438;margin-bottom:3px}
+    .qsc-suggest{display:inline-block;margin-top:4px;font-size:.66rem;font-weight:800;color:#5b21b6;background:rgba(124,58,237,.1);border-radius:6px;padding:3px 9px}
+    .qsc-lock{display:inline-block;margin-top:4px;font-size:.66rem;font-weight:800;color:#b45309;background:rgba(180,83,9,.08);border-radius:6px;padding:3px 9px}
+    body.hc .qsc-wrap{background:rgba(168,85,247,.06)!important;border-color:rgba(168,85,247,.25)!important}
+    body.hc .qsc-topic{color:#c084fc!important}
+    body.hc .qsc-phase{color:#a855f7!important}
+    body.hc .qsc-row{color:#a08878!important}
+    body.hc .qsc-suggest{color:#c084fc!important;background:rgba(168,85,247,.12)!important}
     .ai-divider{display:flex;align-items:center;gap:12px;max-width:680px;margin-bottom:20px}
     .ai-divider::before,.ai-divider::after{content:'';flex:1;height:1px;background:rgba(168,85,247,.1)}
     .ai-divider-txt{font-size:.6rem;font-weight:700;letter-spacing:.12em;color:#4a3824;text-transform:uppercase}
@@ -1437,9 +1448,16 @@
                   <option value="5">5 questions</option>
                   <option value="10">10 questions</option>
                   <option value="15">15 questions</option>
+                  <option value="20">20 questions</option>
+                  <option value="25">25 questions</option>
+                  <option value="30">30 questions</option>
+                  <option value="40">40 questions</option>
+                  <option value="50">50 questions</option>
+                  <option value="75">75 questions</option>
                 </select>
               </div>
             </div>
+            <div id="quiz-session-card" style="display:none"></div>
             <div class="avail-msg" id="avail-msg"></div>
             <button class="start-btn" id="start-btn" onclick="startQuiz()">Start Quiz →</button>
             <div class="rp-quiz-link">
@@ -1685,6 +1703,7 @@
         <!-- Practice -->
         <div id="sq-prac" style="display:none">
           <div id="sq-prac-setup">
+            <div id="sq-phase-warn" style="display:none;margin-bottom:12px;padding:10px 14px;background:rgba(180,83,9,.08);border:1.5px solid rgba(180,83,9,.25);border-radius:10px;font-size:.7rem;font-weight:800;color:#92400e"></div>
             <div class="form-card" style="max-width:420px">
               <div class="f-grp">
                 <label class="f-lbl">Folder</label>
@@ -2011,6 +2030,7 @@ var bankSubjFilt = 'all';
 var bankFolderSearch = '';
 var sqSubjFilt = 'all';
 var sqFolderSearch = '';
+var sqSessionQCount = 0;
 var blurtoSubjFilt = 'all';
 var blurtoFolderSearch = '';
 var editId = null;
@@ -2562,6 +2582,58 @@ function applyMoveFolder(id, folder){
   var q = bank.find(function(x){ return x.id===id; });
   if(q){ q.folder = folder; saveBank(); renderBank(); }
 }
+function orgSuggestCountQ(sessions, threshold, currentCount) {
+  // alias used by session card (same logic as orgSuggestCount)
+  return orgSuggestCount(sessions, threshold, currentCount);
+}
+
+function autoSelectQzCount(n) {
+  var sel = document.getElementById('qz-count');
+  if (!sel) return;
+  var best = null, bestDiff = Infinity;
+  for (var i = 0; i < sel.options.length; i++) {
+    var v = sel.options[i].value;
+    if (v === 'all') continue;
+    var diff = Math.abs(parseInt(v) - n);
+    if (diff < bestDiff) { bestDiff = diff; best = i; }
+  }
+  if (best !== null) sel.selectedIndex = best;
+}
+
+function renderQuizSessionCard(folderName) {
+  var card = document.getElementById('quiz-session-card');
+  if (!card) return;
+  if (!folderName || folderName === 'all') { card.style.display = 'none'; card.innerHTML = ''; return; }
+  var t = orgMatchTopic(folderName);
+  if (!t) { card.style.display = 'none'; return; }
+  var sessions = t.mcq_sessions || [];
+  var count = t.mcq_count || 0;
+  var suggested = orgSuggestCount(sessions, ORG_MCQ_THRESHOLD, count);
+  var lastSession = sessions.length ? sessions[sessions.length - 1] : null;
+  var phase = !t.mcq_done ? ('MCQ phase · ' + count + ' / ' + ORG_MCQ_THRESHOLD + ' done')
+    : !t.saq_done ? 'SAQ phase · MCQ complete ✓'
+    : 'Blurting phase · SAQ complete ✓';
+  var html = '<div class="qsc-wrap">'
+    + '<div class="qsc-topic">' + esc(folderName) + '</div>'
+    + '<div class="qsc-phase">' + phase + '</div>';
+  if (sessions.length) {
+    html += '<div class="qsc-row">' + sessions.length + ' session' + (sessions.length !== 1 ? 's' : '') + (lastSession ? ' · last: ' + lastSession.count + ' Qs on ' + lastSession.date : '') + '</div>';
+  } else {
+    html += '<div class="qsc-row">No sessions yet — any amount counts</div>';
+  }
+  if (suggested > 0 && !t.mcq_done) {
+    html += '<span class="qsc-suggest">Suggested today: ' + suggested + ' questions</span>';
+    autoSelectQzCount(suggested);
+  } else if (t.mcq_done && !t.saq_done) {
+    html += '<span class="qsc-lock">MCQ done — switch to Sage for SAQs</span>';
+  } else if (t.mcq_done && t.saq_done) {
+    html += '<span class="qsc-lock">MCQ + SAQ done — open Blurto to finish</span>';
+  }
+  html += '</div>';
+  card.innerHTML = html;
+  card.style.display = 'block';
+}
+
 function filterBank(f) {
   bankFilt = f;
   document.querySelectorAll('.filt-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.f === f); });
@@ -2737,6 +2809,7 @@ function populateFolderSelect(preselect) {
 function updateAvail() {
   var d = document.getElementById('qz-diff').value;
   var f = document.getElementById('qz-folder').value;
+  renderQuizSessionCard(f);
   var pool = bank.filter(function(q){
     var fMatch = f === 'all' || (q.folder||'General') === f;
     var dMatch = d === 'all' || q.difficulty === d;
@@ -4541,11 +4614,25 @@ function sqPopulatePracFolder() {
   var folders = sqGetFolders();
   sel.innerHTML = '<option value="all">All folders</option>'
     + folders.map(function(f) { return '<option value="' + rpEsc(f) + '">' + rpEsc(f) + '</option>'; }).join('');
+  sel.onchange = function() {
+    var warn = document.getElementById('sq-phase-warn');
+    if (warn) warn.style.display = 'none';
+  };
 }
 
 function sqStartPrac() {
   var folder = document.getElementById('sq-prac-folder').value;
+  // Phase lock: MCQs must be done first for specific folders
+  if (folder !== 'all') {
+    var phaseT = orgMatchTopic(folder);
+    if (phaseT && (phaseT.mcq_count || 0) < ORG_MCQ_THRESHOLD) {
+      var warn = document.getElementById('sq-phase-warn');
+      if (warn) { warn.textContent = '⚠ Complete ' + ORG_MCQ_THRESHOLD + ' MCQs for "' + folder + '" first — ' + (phaseT.mcq_count || 0) + '/' + ORG_MCQ_THRESHOLD + ' done. MCQs build the foundation before short-answer practice.'; warn.style.display = 'block'; }
+      return;
+    }
+  }
   sqCurrentFolder = folder !== 'all' ? folder : null;
+  sqSessionQCount = 0;
   sqPracQs = sqBank.filter(function(q) {
     return folder === 'all' || (q.folder || 'General') === folder;
   });
@@ -4623,6 +4710,7 @@ async function sqPracSubmit() {
     sqShowMarkResult(result, q.modelAnswer);
     document.getElementById('sq-prac-result').style.display = 'block';
     if (sqCurrentFolder) orgIncrementSAQ(sqCurrentFolder);
+    sqSessionQCount++;
   } catch(e) {
     st.textContent = 'Marking failed: ' + e.message;
     st.className = 'ai-status serr';
@@ -4658,8 +4746,21 @@ function sqPracNext() {
 
 function sqPracEnd() {
   if (document.fullscreenElement) document.exitFullscreen();
+  // Log the SAQ session if any questions were answered
+  if (sqSessionQCount > 0 && sqCurrentFolder) {
+    var saqT = orgMatchTopic(sqCurrentFolder);
+    if (saqT) {
+      var todaySaq = new Date().toISOString().slice(0, 10);
+      if (!saqT.saq_sessions) saqT.saq_sessions = [];
+      saqT.saq_sessions.push({ date: todaySaq, count: sqSessionQCount });
+      orgSaveTopics();
+    }
+  }
+  sqSessionQCount = 0;
   document.getElementById('sq-prac-run').style.display = 'none';
   document.getElementById('sq-prac-setup').style.display = 'block';
+  var warn = document.getElementById('sq-phase-warn');
+  if (warn) warn.style.display = 'none';
   sqPopulatePracFolder();
 }
 
@@ -5352,13 +5453,24 @@ function orgMatchTopic(folder) {
   // fallback: subject match
   return orgTopics.find(function(t) { return t.subject && t.subject.toLowerCase() === fl; }) || null;
 }
+function orgSuggestCount(sessions, threshold, currentCount) {
+  var remaining = threshold - currentCount;
+  if (remaining <= 0) return 0;
+  if (!sessions || !sessions.length) return Math.min(20, remaining);
+  var avg = sessions.reduce(function(s, x) { return s + x.count; }, 0) / sessions.length;
+  var suggested = Math.round(avg * 1.15 / 5) * 5;
+  return Math.max(5, Math.min(suggested, remaining));
+}
+
 function orgIncrementMCQ(folder, count) {
   var t = orgMatchTopic(folder);
   if (!t) return;
+  var today = new Date().toISOString().slice(0, 10);
+  if (!t.mcq_sessions) t.mcq_sessions = [];
+  t.mcq_sessions.push({ date: today, count: count || 1 });
   t.mcq_count = (t.mcq_count || 0) + (count || 1);
   if (t.mcq_count >= ORG_MCQ_THRESHOLD && !t.mcq_done) {
     t.mcq_done = true;
-    var today = new Date().toISOString().slice(0, 10);
     if (t.last_revised !== today) {
       t.revision_count = (t.revision_count || 0) + 1;
       t.last_revised = today;
