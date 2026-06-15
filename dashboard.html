@@ -3951,7 +3951,7 @@ async function generateWithAI(isRetry){
   var diffDesc = {
     easy:   'EASY — tests exactly ONE concept or fact in isolation. The student only needs to recall or recognise a single definition, mechanism, or term. Do NOT combine ideas.',
     medium: 'MEDIUM — tests the COMBINATION of exactly TWO concepts or perceptions. The student must understand how two ideas relate, interact, or depend on each other. Do NOT test a single fact, and do NOT combine three or more ideas.',
-    hard:   'HARD — tests the COMBINATION of exactly THREE concepts or perceptions. The student must synthesise three distinct ideas simultaneously. Do NOT test fewer than three combined concepts.'
+    hard:   'HARD — requires genuine application or synthesis, not just recall. The difficulty must come from depth of reasoning, NOT from forcing unrelated concepts together. Good hard questions: (a) apply a concept to a tricky or unexpected scenario where surface knowledge fails, (b) test a cause-and-effect chain where each step must be understood to reach the answer, (c) expose a common misconception by making the wrong answer look obviously right to someone who only half-understands, or (d) require comparing two similar mechanisms to identify a subtle but important distinction. The links between ideas must feel natural and genuinely examinable — never artificially combine concepts just to add complexity.'
   }[diff];
   // Deduplicate against questions already in the target folder + any unsaved pending batch
   var seenStems = bank
@@ -3962,7 +3962,7 @@ async function generateWithAI(isRetry){
   var existingBlock = seenStems.length
     ? '\n\nDO NOT REPEAT — these questions already exist. Do not reuse, rephrase, or test the same concept as ANY of these:\n' + seenStems.map(function(s,i){ return (i+1)+'. '+s; }).join('\n')
     : '';
-  var prompt = 'You are an expert educator writing exam questions for university students.\n\nGenerate ' + n + ' multiple choice questions based on the following topic or notes:\n\n' + topic + '\n\nSettings:\n- Question type: ' + typeDesc + '\n- Difficulty: ' + diffDesc + '\n\nSTRICT RULES — follow every rule exactly:\n1. Each question must have EXACTLY 5 options (A B C D E)\n2. Exactly one option is correct; all others must be plausible — no obvious wrong answers\n3. Label the correct option by its 0-based index (0=A, 1=B, 2=C, 3=D, 4=E)\n4. ALL questions must match the difficulty definition above — wrong difficulty = invalid\n5. Hint — write TWO things in the hint field:\n   a) Explain WHY the correct answer is correct (the underlying mechanism or reason), WITHOUT naming or identifying the correct option\n   b) Add "📌 Slide N" or "📌 Page N" with the exact source reference from the notes — only include this if the notes contain slide/page markers; omit if not\n   Example hint: "This pathway is responsible for reward-motivated behaviour and is disrupted in addiction. 📌 Slide 4"\n6. Every question in this batch must test a DIFFERENT concept — no overlapping ideas within the batch\n7. CRITICAL: Before outputting each question, verify it does not appear in the existing list below. If it tests the same concept as any existing question, replace it with a completely different one.' + existingBlock + '\n\nRespond with ONLY a valid JSON array. No markdown, no code fences, no explanation:\n[\n  {\n    "question": "...",\n    "options": ["A text","B text","C text","D text","E text"],\n    "correct": 0,\n    "difficulty": "' + diff + '",\n    "hint": "..."\n  }\n]';
+  var prompt = 'You are an expert educator writing exam questions for university students.\n\nGenerate ' + n + ' multiple choice questions based on the following topic or notes:\n\n' + topic + '\n\nSettings:\n- Question type: ' + typeDesc + '\n- Difficulty: ' + diffDesc + '\n\nSTRICT RULES — follow every rule exactly:\n1. Each question must have EXACTLY 5 options (A B C D E)\n2. Exactly one option is correct; all others must be plausible — no obvious wrong answers\n3. Label the correct option by its 0-based index (0=A, 1=B, 2=C, 3=D, 4=E)\n4. ALL questions must match the difficulty definition above — wrong difficulty = invalid\n5. Hint — write TWO things in the hint field:\n   a) Explain WHY the correct answer is correct (the underlying mechanism or reason), WITHOUT naming or identifying the correct option\n   b) Add "📌 Slide N" or "📌 Page N" with the exact source reference from the notes — only include this if the notes contain slide/page markers; omit if not\n   Example hint: "This pathway is responsible for reward-motivated behaviour and is disrupted in addiction. 📌 Slide 4"\n6. Every question in this batch must test a DIFFERENT concept — no overlapping ideas within the batch\n7. CRITICAL: Before outputting each question, verify it does not appear in the existing list below. If it tests the same concept as any existing question, replace it with a completely different one.' + existingBlock + '\n\nCRITICAL — options format: each option must be plain answer text only. Do NOT prefix with A / B / C / D / E or any letter label — the app adds labels automatically. Wrong: "A The nucleus". Correct: "The nucleus".\n\nRespond with ONLY a valid JSON array. No markdown, no code fences, no explanation:\n[\n  {\n    "question": "...",\n    "options": ["first option text","second option text","third option text","fourth option text","fifth option text"],\n    "correct": 0,\n    "difficulty": "' + diff + '",\n    "hint": "..."\n  }\n]';
   try {
     var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -3993,6 +3993,14 @@ async function generateWithAI(isRetry){
     raw = raw.replace(/^```(?:json)?\n?/,'').replace(/\n?```$/,'').trim();
     var qs = JSON.parse(raw);
     if(!Array.isArray(qs) || !qs.length) throw new Error('No questions returned.');
+    // Strip any A/B/C/D/E prefixes the model added despite instructions
+    qs.forEach(function(q) {
+      if (Array.isArray(q.options)) {
+        q.options = q.options.map(function(o) {
+          return String(o).replace(/^[A-Ea-e][).:\s]\s*/,'').trim();
+        });
+      }
+    });
     aiPendingQs = qs;
     populateSubjectDatalist();
     document.getElementById('ai-folder-pick').style.display = 'flex';
