@@ -1123,6 +1123,67 @@
     body.hc .sq-prac-reveal{opacity:.9}
     /* HC — sq-topic-inp (Blurto config input) */
     body.hc .sq-topic-inp{background:#0d0b1e!important;color:#e8dcc8!important;border-color:rgba(168,85,247,.4)!important}
+
+    /* ── Finley ───────────────────────────────────────────────── */
+    .finley-setup{max-width:480px;margin:0 auto}
+    .finley-setup .f-grp{margin-bottom:16px}
+    .finley-type-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+    .finley-type-btn{padding:7px 16px;border-radius:10px;font-size:.72rem;font-weight:800;cursor:pointer;border:1.5px solid rgba(124,58,237,.2);color:#6d28d9;background:rgba(124,58,237,.06);transition:all .18s;font-family:'Raleway',sans-serif}
+    .finley-type-btn.active{background:rgba(124,58,237,.16);border-color:#7c3aed;color:#5b21b6}
+    .finley-type-btn:hover:not(.active){background:rgba(124,58,237,.1)}
+    .finley-start-btn{width:100%;padding:13px;border-radius:12px;font-size:.82rem;font-weight:900;cursor:pointer;border:none;background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;letter-spacing:.03em;font-family:'Raleway',sans-serif;transition:opacity .18s;margin-top:8px}
+    .finley-start-btn:hover{opacity:.88}
+    .finley-start-btn:disabled{opacity:.45;cursor:not-allowed}
+
+    .finley-chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 200px);min-height:400px;max-height:700px}
+    .finley-chat-header{padding:12px 16px;background:rgba(124,58,237,.07);border-radius:14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+    .finley-chat-topic{font-size:.78rem;font-weight:900;color:#4c1d95}
+    .finley-chat-meta{font-size:.62rem;color:#9980b8;font-weight:700}
+    .finley-messages{flex:1;overflow-y:auto;padding:4px 2px;display:flex;flex-direction:column;gap:12px}
+    .finley-bubble-wrap{display:flex;flex-direction:column;gap:3px;max-width:82%}
+    .finley-bubble-wrap.finley-side{align-self:flex-start}
+    .finley-bubble-wrap.user-side{align-self:flex-end;align-items:flex-end}
+    .finley-label{font-size:.56rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#9980b8;margin-bottom:2px;padding:0 4px}
+    .user-label{color:#8a7060}
+    .finley-bubble{padding:11px 15px;border-radius:16px;font-size:.78rem;line-height:1.55;font-weight:500;white-space:pre-wrap;word-break:break-word}
+    .finley-side .finley-bubble{background:rgba(124,58,237,.09);border:1px solid rgba(124,58,237,.16);color:#1c1208;border-top-left-radius:4px}
+    .user-side .finley-bubble{background:rgba(250,243,224,.9);border:1px solid rgba(168,85,247,.14);color:#1c1208;border-top-right-radius:4px}
+    .finley-typing{display:flex;align-items:center;gap:4px;padding:11px 15px;background:rgba(124,58,237,.09);border:1px solid rgba(124,58,237,.16);border-radius:16px;border-top-left-radius:4px;width:fit-content}
+    .finley-dot{width:6px;height:6px;border-radius:50%;background:#7c3aed;opacity:.5;animation:finleyDot 1.2s infinite ease-in-out}
+    .finley-dot:nth-child(2){animation-delay:.2s}
+    .finley-dot:nth-child(3){animation-delay:.4s}
+    @keyframes finleyDot{0%,80%,100%{transform:scale(1);opacity:.4}40%{transform:scale(1.3);opacity:1}}
+    .finley-input-row{display:flex;gap:8px;margin-top:12px;align-items:flex-end}
+    .finley-input{flex:1;border:1.5px solid rgba(124,58,237,.22);border-radius:12px;padding:10px 14px;font-size:.78rem;font-family:'Raleway',sans-serif;resize:none;min-height:44px;max-height:120px;background:rgba(250,243,224,.6);color:#1c1208;transition:border-color .18s}
+    .finley-input:focus{outline:none;border-color:rgba(124,58,237,.5)}
+    .finley-send-btn{padding:10px 18px;border-radius:12px;font-size:.76rem;font-weight:900;cursor:pointer;border:none;background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;font-family:'Raleway',sans-serif;transition:opacity .18s;white-space:nowrap;align-self:flex-end}
+    .finley-send-btn:hover{opacity:.88}
+    .finley-send-btn:disabled{opacity:.4;cursor:not-allowed}
+
+    .finley-complete{max-width:500px;margin:0 auto;text-align:center}
+    .finley-complete-icon{font-size:3rem;margin-bottom:12px}
+    .finley-complete-title{font-size:1.3rem;font-weight:900;color:#4c1d95;margin-bottom:6px}
+    .finley-complete-sub{font-size:.75rem;color:#7c6a54;margin-bottom:20px}
+    .finley-summary-box{background:rgba(124,58,237,.06);border:1.5px solid rgba(124,58,237,.18);border-radius:14px;padding:18px 20px;text-align:left;margin-bottom:20px;font-size:.78rem;line-height:1.65;color:#1c1208}
+    .finley-stats-row{display:flex;gap:20px;justify-content:center;margin-bottom:24px}
+    .finley-stat{text-align:center}
+    .finley-stat-n{font-size:1.4rem;font-weight:900;color:#7c3aed}
+    .finley-stat-l{font-size:.6rem;font-weight:800;color:#9980b8;text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+    .finley-complete-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+    .finley-save-btn{padding:11px 24px;border-radius:12px;font-size:.76rem;font-weight:900;cursor:pointer;border:none;background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;font-family:'Raleway',sans-serif;transition:opacity .18s}
+    .finley-save-btn:hover{opacity:.88}
+    .finley-again-btn{padding:11px 24px;border-radius:12px;font-size:.76rem;font-weight:900;cursor:pointer;border:1.5px solid rgba(124,58,237,.3);background:rgba(124,58,237,.07);color:#6d28d9;font-family:'Raleway',sans-serif;transition:all .18s}
+    .finley-again-btn:hover{background:rgba(124,58,237,.14)}
+
+    .finley-hist-card{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.14);border-radius:14px;padding:14px 18px;margin-bottom:10px}
+    .finley-hist-topic{font-size:.82rem;font-weight:900;color:#1c1208;margin-bottom:4px}
+    .finley-hist-meta{font-size:.62rem;color:#9980b8;font-weight:700;margin-bottom:8px}
+    .finley-hist-summary{font-size:.72rem;color:#4a3828;line-height:1.55}
+
+    /* high-contrast */
+    body.hc .finley-side .finley-bubble{background:rgba(168,85,247,.1)!important;border-color:rgba(168,85,247,.3)!important}
+    body.hc .finley-type-btn{color:#c084fc!important;border-color:rgba(168,85,247,.3)!important}
+    body.hc .finley-type-btn.active{background:rgba(168,85,247,.18)!important;border-color:#a855f7!important;color:#e9d5ff!important}
   </style>
 </head>
 <body class="font-sans">
@@ -1225,6 +1286,7 @@
           <span>✍️</span> Sage
         </div>
         <div class="nav-item" onclick="showPanel('blurto',this)"><span>📝</span> Blurto</div>
+        <div class="nav-item" onclick="showPanel('finley',this)"><span>🎓</span> Finley</div>
         <div class="nav-item soon"><span>⚡</span> Daily System<span class="soon-pill">Soon</span></div>
       </div>
       <div class="sb-sec">
@@ -1602,6 +1664,7 @@
                     <th class="org-th center">MCQ</th>
                     <th class="org-th center">SAQ</th>
                     <th class="org-th center">Blur</th>
+                    <th class="org-th center">Feyn</th>
                     <th class="org-th center">Conf</th>
                     <th class="org-th">Next Due</th>
                     <th class="org-th">Go</th>
@@ -1965,6 +2028,90 @@
         </div><!-- /review -->
 
       </div><!-- /panel-blurto -->
+
+      <!-- Finley Panel -->
+      <div id="panel-finley" class="panel anim">
+        <h1 class="mcq-h1">Finley <span style="font-size:.55em;font-weight:700;opacity:.55;letter-spacing:.01em">Feynman Teaching</span></h1>
+        <p class="mcq-sub">Teach a confused student. If you can explain it, you understand it.</p>
+
+        <div class="mcq-tabs">
+          <div class="mcq-tab active" id="finley-tab-teach" onclick="finleyTab('teach')">🎓 Teach</div>
+          <div class="mcq-tab" id="finley-tab-hist" onclick="finleyTab('hist')">📋 History</div>
+        </div>
+
+        <!-- TEACH tab -->
+        <div id="finley-teach">
+
+          <!-- Setup screen -->
+          <div id="finley-setup">
+            <div class="finley-setup">
+              <div class="f-grp">
+                <label class="f-lbl">Topic</label>
+                <input id="finley-topic-inp" class="f-input" list="finley-topic-list" placeholder="e.g. Cellular Respiration" oninput="finleyTopicInput()"/>
+                <datalist id="finley-topic-list"></datalist>
+              </div>
+              <div class="f-grp">
+                <label class="f-lbl">Subject type</label>
+                <div class="finley-type-row">
+                  <button class="finley-type-btn active" onclick="finleySetType('science',this)">🔬 Science</button>
+                  <button class="finley-type-btn" onclick="finleySetType('humanities',this)">📖 Humanities</button>
+                  <button class="finley-type-btn" onclick="finleySetType('maths',this)">📐 Maths</button>
+                  <button class="finley-type-btn" onclick="finleySetType('other',this)">💬 Other</button>
+                </div>
+              </div>
+              <div class="f-grp">
+                <label class="f-lbl">Notes <span style="opacity:.45;font-weight:500;text-transform:none;letter-spacing:0">optional — helps Finley ask better questions</span></label>
+                <textarea id="finley-notes-inp" class="ai-ta" placeholder="Paste your lecture notes or leave blank…" style="height:90px"></textarea>
+              </div>
+              <div id="finley-setup-status" style="font-size:.72rem;font-weight:700;margin-bottom:8px;min-height:20px"></div>
+              <button class="finley-start-btn" id="finley-start-btn" onclick="finleyStart()" disabled>Start Teaching →</button>
+            </div>
+          </div>
+
+          <!-- Chat screen -->
+          <div id="finley-chat" style="display:none">
+            <div class="finley-chat-wrap">
+              <div class="finley-chat-header">
+                <div>
+                  <div class="finley-chat-topic" id="finley-chat-topic-label"></div>
+                  <div class="finley-chat-meta" id="finley-chat-meta">Finley is waiting for your explanation…</div>
+                </div>
+                <button onclick="finleyEndEarly()" style="font-size:.6rem;font-weight:800;color:#b0a090;background:none;border:none;cursor:pointer;padding:4px 8px">End session</button>
+              </div>
+              <div class="finley-messages" id="finley-messages"></div>
+              <div class="finley-input-row">
+                <textarea class="finley-input" id="finley-input" placeholder="Type your explanation here…" rows="2" onkeydown="finleyInputKeydown(event)"></textarea>
+                <button class="finley-send-btn" id="finley-send-btn" onclick="finleySend()">Send ▶</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Complete screen -->
+          <div id="finley-complete" style="display:none">
+            <div class="finley-complete">
+              <div class="finley-complete-icon">✅</div>
+              <div class="finley-complete-title">Finley gets it now!</div>
+              <div class="finley-complete-sub">Here's what you taught Finley:</div>
+              <div class="finley-summary-box" id="finley-summary-box"></div>
+              <div class="finley-stats-row">
+                <div class="finley-stat"><div class="finley-stat-n" id="finley-stat-msgs">—</div><div class="finley-stat-l">messages</div></div>
+                <div class="finley-stat"><div class="finley-stat-n" id="finley-stat-time">—</div><div class="finley-stat-l">minutes</div></div>
+              </div>
+              <div class="finley-complete-btns">
+                <button class="finley-save-btn" onclick="finleySaveAndReturn()">Save & Return →</button>
+                <button class="finley-again-btn" onclick="finleyTeachAgain()">Teach Again ↺</button>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /finley-teach -->
+
+        <!-- HISTORY tab -->
+        <div id="finley-hist" style="display:none">
+          <div id="finley-hist-content"></div>
+        </div>
+
+      </div><!-- /panel-finley -->
 
 
     </div><!-- /content -->
@@ -3177,7 +3324,8 @@ var PANEL_TITLES = {
   'planner':    'Revision Planner<span class="tb-sub">Spaced Repetition</span>',
 
   'saqs':    'Sage<span class="tb-sub">SAQs Maker</span>',
-  'blurto':  'Blurto<span class="tb-sub">Blurting Machine</span>'
+  'blurto':  'Blurto<span class="tb-sub">Blurting Machine</span>',
+  'finley':  'Finley<span class="tb-sub">Feynman Teaching</span>'
 };
 function showPanel(id, el) {
   document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
@@ -3189,6 +3337,7 @@ function showPanel(id, el) {
   if (id === 'planner') rpRenderToday();
   if (id === 'saqs') sqInitAIKeyUI();
   if (id === 'blurto') blurtoInit();
+  if (id === 'finley') finleyInit();
 }
 
 function goHome() {
@@ -3823,6 +3972,308 @@ async function generateWithAI(isRetry){
   } finally {
     if(!pendingRetry) btn.disabled = false;
   }
+}
+
+// ── Finley ────────────────────────────────────────────────────────────────────
+var finleySubjectType = 'science';
+var finleySession = null;
+var finleyStartTime = null;
+var finleyMessageCount = 0;
+
+function finleyTab(t) {
+  ['teach','hist'].forEach(function(x) {
+    document.getElementById('finley-' + x).style.display = x === t ? 'block' : 'none';
+    document.getElementById('finley-tab-' + x).classList.toggle('active', x === t);
+  });
+  if (t === 'hist') finleyRenderHist();
+}
+
+function finleyTopicInput() {
+  var val = (document.getElementById('finley-topic-inp').value || '').trim();
+  document.getElementById('finley-start-btn').disabled = !val;
+}
+
+function finleySetType(type, btn) {
+  finleySubjectType = type;
+  document.querySelectorAll('.finley-type-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+}
+
+function finleyPopulateTopics() {
+  var opts = getAllFolders().map(function(f) { return '<option value="' + esc(f.name) + '">'; }).join('');
+  var dl = document.getElementById('finley-topic-list');
+  if (dl) dl.innerHTML = opts;
+}
+
+function finleyShowScreen(screen) {
+  ['setup','chat','complete'].forEach(function(s) {
+    document.getElementById('finley-' + s).style.display = s === screen ? 'block' : 'none';
+  });
+}
+
+function finleyBuildSystemPrompt(topic, concepts) {
+  var typeInstructions = {
+    science: 'Focus on mechanisms, processes, and cause-and-effect. Ask "how does that work?" and "what drives that process?"',
+    humanities: 'Focus on reasons, consequences, and interpretations. Ask "but why did that happen?" and "what was the effect on people?"',
+    maths: 'Focus on steps and logic. Say things like "I don\'t get that step, can you walk me through it one at a time?" Never skip steps.',
+    other: 'Ask natural follow-up questions to understand each concept clearly.'
+  };
+  return 'You are Finley, a Year 12 student who genuinely missed the lecture on "' + topic + '" and needs the user to explain it.\n\nYOUR ROLE:\n- You are NOT a teacher, tutor, or grader. Never evaluate or score the user.\n- You are a confused student who is learning as the user explains.\n- You genuinely do not know the topic at the start.\n\nYOUR BEHAVIOUR:\n- Ask ONE question at a time. Never multiple questions in one message.\n- Use simple, natural student language. No academic jargon.\n- If the user says something vague, ask for clarification.\n- If the user says something factually wrong, do NOT correct them directly. Instead ask a question that exposes the gap (e.g. "Wait, you said X but I thought Y? Can you explain that?").\n- If the user skips an important concept, ask about it naturally.\n- Never say "Great explanation!" or give empty praise. Only react positively when a point is genuinely clear.\n- Occasionally say "oh that makes sense!" when something clicks.\n- Gently push back when something is vague or seems wrong.\n- ' + (typeInstructions[finleySubjectType] || typeInstructions.other) + '\n- When ALL key concepts have been explained clearly and all your confusions resolved, end the session by saying EXACTLY:\n  FINLEY_UNDERSTOOD: [2-3 sentence summary of what the student taught you]\n\nKEY CONCEPTS TO COVER:\n' + concepts + '\n\nTOPIC: ' + topic;
+}
+
+async function finleyExtractConcepts(topic, notes) {
+  var key = getAIKey();
+  if (!key) return '(No API key — Finley will ask general questions)';
+  var prompt = 'Extract exactly 5-8 key concepts a student must understand about "' + topic + '".' +
+    (notes ? ' Based on these notes:\n' + notes.slice(0, 4000) : '') +
+    '\nReturn as a numbered list. One concept per line. No explanations. Just short concept names/phrases.';
+  try {
+    var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Authorization':'Bearer ' + key},
+      body: JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:prompt}],temperature:0.3,max_tokens:300})
+    });
+    var data = await res.json();
+    return (data.choices && data.choices[0] && data.choices[0].message.content || '').trim();
+  } catch(e) { return '1. Core concepts\n2. Key processes\n3. Main applications'; }
+}
+
+async function finleyStart() {
+  var topic = (document.getElementById('finley-topic-inp').value || '').trim();
+  if (!topic) return;
+  var notes = (document.getElementById('finley-notes-inp').value || '').trim();
+  var btn = document.getElementById('finley-start-btn');
+  var status = document.getElementById('finley-setup-status');
+  btn.disabled = true;
+  status.textContent = 'Preparing Finley…';
+  status.style.color = '#7c3aed';
+
+  var concepts = await finleyExtractConcepts(topic, notes);
+  var systemPrompt = finleyBuildSystemPrompt(topic, concepts);
+
+  // Init session state
+  finleySession = {
+    topic: topic,
+    concepts: concepts,
+    systemPrompt: systemPrompt,
+    history: [],
+    understood: false,
+    summary: null
+  };
+  finleyStartTime = Date.now();
+  finleyMessageCount = 0;
+
+  // Show chat screen
+  document.getElementById('finley-chat-topic-label').textContent = '🎓 Finley · Teaching: ' + topic;
+  document.getElementById('finley-messages').innerHTML = '';
+  finleyShowScreen('chat');
+  status.textContent = '';
+  btn.disabled = false;
+
+  // Finley's first message (no API call needed)
+  var firstMsg = 'Hey! I completely missed the lecture on ' + topic + '. Can you explain it to me from the beginning? Like, what even is it?';
+  finleySession.history.push({role:'assistant', content: firstMsg});
+  finleyAddBubble('finley', firstMsg);
+  finleyUpdateMeta();
+  document.getElementById('finley-input').focus();
+}
+
+function finleyAddBubble(who, text) {
+  var msgs = document.getElementById('finley-messages');
+  var wrap = document.createElement('div');
+  wrap.className = 'finley-bubble-wrap ' + (who === 'finley' ? 'finley-side' : 'user-side');
+  var label = document.createElement('div');
+  label.className = 'finley-label' + (who !== 'finley' ? ' user-label' : '');
+  label.textContent = who === 'finley' ? '🎓 Finley' : 'You';
+  var bubble = document.createElement('div');
+  bubble.className = 'finley-bubble';
+  bubble.textContent = text;
+  wrap.appendChild(label);
+  wrap.appendChild(bubble);
+  msgs.appendChild(wrap);
+  msgs.scrollTop = msgs.scrollHeight;
+  return wrap;
+}
+
+function finleyShowTyping() {
+  var msgs = document.getElementById('finley-messages');
+  var wrap = document.createElement('div');
+  wrap.className = 'finley-bubble-wrap finley-side';
+  wrap.id = 'finley-typing-wrap';
+  var label = document.createElement('div');
+  label.className = 'finley-label';
+  label.textContent = '🎓 Finley';
+  var dots = document.createElement('div');
+  dots.className = 'finley-typing';
+  dots.innerHTML = '<div class="finley-dot"></div><div class="finley-dot"></div><div class="finley-dot"></div>';
+  wrap.appendChild(label);
+  wrap.appendChild(dots);
+  msgs.appendChild(wrap);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function finleyRemoveTyping() {
+  var el = document.getElementById('finley-typing-wrap');
+  if (el) el.remove();
+}
+
+function finleyUpdateMeta() {
+  var el = document.getElementById('finley-chat-meta');
+  if (!el) return;
+  var elapsed = finleyStartTime ? Math.floor((Date.now() - finleyStartTime) / 60000) : 0;
+  el.textContent = finleyMessageCount + ' exchange' + (finleyMessageCount !== 1 ? 's' : '') + (elapsed > 0 ? ' · ' + elapsed + ' min' : '');
+}
+
+function finleyInputKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); finleySend(); }
+}
+
+async function finleySend() {
+  if (!finleySession) return;
+  var inp = document.getElementById('finley-input');
+  var msg = (inp.value || '').trim();
+  if (!msg) return;
+  inp.value = '';
+  var sendBtn = document.getElementById('finley-send-btn');
+  sendBtn.disabled = true;
+  inp.disabled = true;
+
+  finleyMessageCount++;
+  finleyAddBubble('user', msg);
+  finleySession.history.push({role:'user', content: msg});
+  finleyUpdateMeta();
+  finleyShowTyping();
+
+  try {
+    var key = getAIKey();
+    if (!key) throw new Error('No API key saved.');
+    var messages = [{role:'system', content: finleySession.systemPrompt}].concat(finleySession.history);
+    var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Authorization':'Bearer ' + key},
+      body: JSON.stringify({model:'llama-3.3-70b-versatile', messages: messages, temperature: 0.72, max_tokens: 400})
+    });
+    var data = await res.json();
+    var reply = (data.choices && data.choices[0] && data.choices[0].message.content || '').trim();
+    finleyRemoveTyping();
+
+    if (reply.includes('FINLEY_UNDERSTOOD:')) {
+      var summary = reply.split('FINLEY_UNDERSTOOD:')[1].trim();
+      finleySession.understood = true;
+      finleySession.summary = summary;
+      // Show Finley's final message briefly before complete screen
+      var endMsg = "I think I've got it now! You explained that really well. Let me just make sure I understood correctly…";
+      finleyAddBubble('finley', endMsg);
+      finleySession.history.push({role:'assistant', content: reply});
+      finleySaveSession();
+      setTimeout(function() { finleyShowComplete(summary); }, 1200);
+    } else {
+      finleySession.history.push({role:'assistant', content: reply});
+      finleyAddBubble('finley', reply);
+    }
+  } catch(e) {
+    finleyRemoveTyping();
+    finleyAddBubble('finley', '(Something went wrong: ' + e.message + ')');
+  }
+
+  sendBtn.disabled = false;
+  inp.disabled = false;
+  inp.focus();
+  finleyUpdateMeta();
+}
+
+function finleyShowComplete(summary) {
+  finleyShowScreen('complete');
+  document.getElementById('finley-summary-box').textContent = summary;
+  document.getElementById('finley-stat-msgs').textContent = finleyMessageCount;
+  var mins = finleyStartTime ? Math.max(1, Math.round((Date.now() - finleyStartTime) / 60000)) : '—';
+  document.getElementById('finley-stat-time').textContent = mins;
+}
+
+function finleySaveSession() {
+  if (!finleySession) return;
+  var sessions = [];
+  try { sessions = JSON.parse(localStorage.getItem('finley_sessions') || '[]'); } catch(e) {}
+  sessions.push({
+    topic: finleySession.topic,
+    date: new Date().toISOString(),
+    messageCount: finleyMessageCount,
+    duration: finleyStartTime ? Math.round((Date.now() - finleyStartTime) / 60000) : 0,
+    summary: finleySession.summary,
+    understood: finleySession.understood
+  });
+  localStorage.setItem('finley_sessions', JSON.stringify(sessions));
+}
+
+function finleySaveAndReturn() {
+  if (finleySession && finleySession.topic && finleySession.summary) {
+    // Mark feynman done on matching orgTopic
+    var topicName = finleySession.topic;
+    var t = orgTopics.find(function(x) { return x.topic_name.toLowerCase() === topicName.toLowerCase(); });
+    if (t) {
+      t.feynman_done = true;
+      t.feynman_summary = finleySession.summary;
+      t.feynman_date = new Date().toISOString();
+      orgSaveTopics();
+      orgRenderTable();
+    }
+  }
+  // Go back to setup
+  finleyTeachAgain();
+  // Switch to planner topics tab so user sees updated organiser
+  showPanel('planner', null);
+  rpTab('topics');
+}
+
+function finleyTeachAgain() {
+  finleySession = null;
+  finleyStartTime = null;
+  finleyMessageCount = 0;
+  document.getElementById('finley-topic-inp').value = '';
+  document.getElementById('finley-notes-inp').value = '';
+  document.getElementById('finley-start-btn').disabled = true;
+  finleyShowScreen('setup');
+}
+
+function finleyEndEarly() {
+  if (!confirm('End this session? Progress will not be saved.')) return;
+  finleyTeachAgain();
+}
+
+function finleyRenderHist() {
+  var sessions = [];
+  try { sessions = JSON.parse(localStorage.getItem('finley_sessions') || '[]'); } catch(e) {}
+  var el = document.getElementById('finley-hist-content');
+  if (!sessions.length) {
+    el.innerHTML = '<div class="bank-empty"><div class="ei">🎓</div><h3>No sessions yet</h3><p>Teach Finley a topic to see history here.</p></div>';
+    return;
+  }
+  var html = '';
+  sessions.slice().reverse().forEach(function(s) {
+    html += '<div class="finley-hist-card">'
+      + '<div class="finley-hist-topic">' + esc(s.topic) + '</div>'
+      + '<div class="finley-hist-meta">' + (s.date ? s.date.slice(0,10) : '') + ' · ' + (s.messageCount || 0) + ' exchanges · ' + (s.duration || 0) + ' min</div>'
+      + (s.summary ? '<div class="finley-hist-summary">' + esc(s.summary) + '</div>' : '')
+      + '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function finleyLaunchFromOrg(topicName) {
+  showPanel('finley', null);
+  finleyTab('teach');
+  finleyShowScreen('setup');
+  var inp = document.getElementById('finley-topic-inp');
+  if (inp) { inp.value = topicName; finleyTopicInput(); }
+  // Pre-fill notes from cache if available
+  var cached = notesCacheGet(topicName);
+  var notesInp = document.getElementById('finley-notes-inp');
+  if (cached && notesInp) notesInp.value = cached.text || '';
+}
+
+function finleyInit() {
+  finleyPopulateTopics();
+  // Pre-fill from URL param or previous selection
 }
 
 // ── Revision Planner ─────────────────────────────────────────────────
@@ -6035,6 +6486,9 @@ function orgRenderTable() {
         + orgProgressCell(t, 'saq') + '</td>'
       + '<td class="org-td" style="text-align:center">'
         + orgProgressCell(t, 'blurting') + '</td>'
+      + (t.feynman_done
+          ? '<td class="org-td center" title="' + esc(t.feynman_summary || '') + '"><span style="color:#16a34a;font-size:.85rem">✓</span></td>'
+          : '<td class="org-td center"><button onclick="finleyLaunchFromOrg(\'' + jsq(t.topic_name) + '\')" style="font-size:.58rem;font-weight:800;color:#7c3aed;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.22);border-radius:6px;padding:2px 7px;cursor:pointer">Teach</button></td>')
       + '<td class="org-td" style="text-align:center">'
         + '<button class="org-conf" onclick="orgSetConf(\'' + t.id + '\',' + confArg + ')" title="Tap to change confidence">'
         + orgConfEmoji(t.confidence) + '</button></td>'
