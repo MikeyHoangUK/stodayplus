@@ -5681,33 +5681,51 @@ async function blurtoSimplify() {
   var st = document.getElementById('blurto-extract-status');
   st.textContent = 'AI is formatting your notes…';
   try {
-    var input = notes;
-    if (input.length > CONDENSE_CHARS) {
-      try {
-        input = await condenseForAI(input, key, function(msg){ st.textContent = msg; });
-        st.textContent = 'Formatting…';
-      } catch(ce) { input = input.slice(0, 8000); }
-    } else if (input.length > 8000) { input = input.slice(0, 8000); }
-    var systemPrompt = 'You are a study notes formatter for a student who needs to memorise everything examinable in these notes.\n\nYour job is to return a clean, well-structured simplified version. Follow these rules EXACTLY:\n\n1. TOPIC NAME:\n   - Extract or infer the main topic name.\n   - Place it at the very top, centred.\n   - Use: <h1 style="text-align:center;">TOPIC</h1>\n\n2. HEADINGS:\n   - Identify every major section, subtopic, or learning objective.\n   - Use: <h2><strong>Heading Name</strong></h2>\n\n3. BULLET POINTS:\n   - Under each heading, list ALL key facts, definitions, mechanisms, named terms, processes, and examples as bullet points.\n   - Use: <ul style="padding-left:2rem;"><li>key point</li></ul>\n   - Include as many bullets as the content requires — do NOT cap or skip points.\n   - If something could appear in an exam question, it must be included.\n\n4. RULES:\n   - PRESERVE every distinct concept, definition, named term, mechanism, formula, and example.\n   - Only remove repeated sentences, filler phrases, and irrelevant admin text.\n   - Do not merge separate concepts into one bullet — keep them separate.\n   - Rewrite in plain simple language (as if explaining to a 16-year-old) but keep all the factual detail.\n   - Do not add anything that was not in the original notes.\n   - Return ONLY the formatted HTML. No extra commentary, no markdown fences.';
-    var r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: input }],
-        temperature: 0.3, max_tokens: 4000
-      })
-    });
-    if (!r.ok) { var eb = await r.json(); throw new Error((eb.error && eb.error.message) || ('HTTP ' + r.status)); }
-    var d = await r.json();
-    var out = d.choices && d.choices[0] && d.choices[0].message.content;
-    if (!out) throw new Error('No response from AI');
-    var simplifiedOut = out.replace(/```html|```/g,'').trim();
+    // Bypass condenseForAI entirely — it was designed for MCQ/SAQ and loses too much content.
+    // The model accepts 128k tokens of input, so we chunk large notes and process sequentially.
+    var BLURTO_CHUNK = 14000; // ~3,500 tokens per chunk, leaves plenty of room for output
+    var chunks = [];
+    if (notes.length <= BLURTO_CHUNK) {
+      chunks = [notes];
+    } else {
+      var remaining = notes;
+      while (remaining.length > 0) {
+        if (remaining.length <= BLURTO_CHUNK) { chunks.push(remaining); break; }
+        // Cut at a paragraph break near the chunk boundary
+        var cut = remaining.lastIndexOf('\n\n', BLURTO_CHUNK);
+        if (cut < BLURTO_CHUNK * 0.5) cut = remaining.lastIndexOf('\n', BLURTO_CHUNK);
+        if (cut < 1) cut = BLURTO_CHUNK;
+        chunks.push(remaining.slice(0, cut));
+        remaining = remaining.slice(cut).trim();
+      }
+    }
+    var basePrompt = 'You are a study notes formatter for a student who needs to memorise everything examinable in these notes.\n\nYour job is to return a clean, well-structured simplified version. Follow these rules EXACTLY:\n\n1. TOPIC NAME (first chunk only):\n   - Extract or infer the main topic name.\n   - Place it at the very top, centred.\n   - Use: <h1 style="text-align:center;">TOPIC</h1>\n\n2. HEADINGS:\n   - Identify every major section, subtopic, or learning objective.\n   - Use: <h2><strong>Heading Name</strong></h2>\n\n3. BULLET POINTS:\n   - Under each heading, list ALL key facts, definitions, mechanisms, named terms, processes, and examples.\n   - Use: <ul style="padding-left:2rem;"><li>key point</li></ul>\n   - Include as many bullets as the content requires — do NOT cap or skip points.\n   - If something could appear in an exam question, it must be included.\n\n4. RULES:\n   - PRESERVE every distinct concept, definition, named term, mechanism, formula, and example.\n   - Only remove repeated sentences, filler phrases, and irrelevant admin text (e.g. slide numbers, URLs, logos).\n   - Do not merge separate concepts into one bullet — keep them separate.\n   - Rewrite in plain simple language (as if explaining to a 16-year-old) but keep all the factual detail.\n   - Do not add anything that was not in the original notes.\n   - Return ONLY the formatted HTML. No extra commentary, no markdown fences.';
+    var htmlParts = [];
+    for (var ci = 0; ci < chunks.length; ci++) {
+      if (chunks.length > 1) st.textContent = 'Simplifying part ' + (ci + 1) + ' of ' + chunks.length + '…';
+      var sysPrompt = ci === 0 ? basePrompt
+        : basePrompt + '\n\nIMPORTANT: This is a continuation (part ' + (ci + 1) + ' of ' + chunks.length + '). Do NOT output the H1 title — start directly with <h2> section headings for this section\'s content.';
+      var r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          messages: [{ role: 'system', content: sysPrompt }, { role: 'user', content: chunks[ci] }],
+          temperature: 0.3, max_tokens: 4000
+        })
+      });
+      if (!r.ok) { var eb = await r.json(); throw new Error((eb.error && eb.error.message) || ('HTTP ' + r.status)); }
+      var d = await r.json();
+      var out = d.choices && d.choices[0] && d.choices[0].message.content;
+      if (!out) throw new Error('No response from AI on part ' + (ci + 1));
+      htmlParts.push(out.replace(/```html|```/g, '').trim());
+    }
+    var simplifiedOut = htmlParts.join('\n');
     document.getElementById('blurto-notes-area').innerHTML = simplifiedOut;
     blurtoSimplified = true;
     btn.textContent = '✓ Simplified';
     btn.title = 'Already simplified — editing notes directly is the next step';
-    st.textContent = 'Done! Review and edit before blurting.';
+    st.textContent = chunks.length > 1 ? 'Done! All ' + chunks.length + ' sections simplified.' : 'Done! Review and edit before blurting.';
     var blurtoFolderForCache = ((document.getElementById('blurto-topic') || {}).value || '').trim();
     if (blurtoFolderForCache) { blurtoCacheSet(blurtoFolderForCache, simplifiedOut, ''); updateBlurtoCacheUI(blurtoFolderForCache); }
   } catch(e) {
