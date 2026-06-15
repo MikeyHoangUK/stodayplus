@@ -1225,7 +1225,6 @@
           <span>✍️</span> Sage
         </div>
         <div class="nav-item" onclick="showPanel('blurto',this)"><span>📝</span> Blurto</div>
-        <div class="nav-item" onclick="showPanel('organiser',this)"><span>🗂️</span> Organiser</div>
         <div class="nav-item soon"><span>⚡</span> Daily System<span class="soon-pill">Soon</span></div>
       </div>
       <div class="sb-sec">
@@ -1530,10 +1529,9 @@
       <div id="panel-planner" class="panel active anim">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
           <div class="mcq-tabs" style="margin-bottom:0">
-            <div class="mcq-tab active" id="rp-tab-today" onclick="rpTab('today')">📅 Today</div>
-            <div class="mcq-tab" id="rp-tab-add"   onclick="rpTab('add')">＋ Add Topic</div>
-            <div class="mcq-tab" id="rp-tab-all"   onclick="rpTab('all')">📋 All Topics</div>
-            <div class="mcq-tab" id="rp-tab-cal"   onclick="rpTab('cal')">🗓 Calendar</div>
+            <div class="mcq-tab active" id="rp-tab-today"  onclick="rpTab('today')">📅 Today</div>
+            <div class="mcq-tab" id="rp-tab-topics" onclick="rpTab('topics')">🗂 Topics</div>
+            <div class="mcq-tab" id="rp-tab-cal"    onclick="rpTab('cal')">🗓 Calendar</div>
           </div>
           <div class="rp-clock-wrap">
             <div class="rp-clock-time"><span id="rp-clock-hm">--:--</span><span class="rp-clock-sec" id="rp-clock-sec"></span></div>
@@ -1546,50 +1544,74 @@
           <div id="rp-today-content"></div>
         </div>
 
-        <!-- ADD -->
-        <div id="rp-add" style="display:none">
-          <div class="form-card">
-            <div class="f-grp">
-              <label class="f-lbl">Topic name</label>
-              <input id="rp-topic-inp" class="f-input" placeholder="e.g. Mitosis and Meiosis" type="text" onkeydown="if(event.key==='Enter')rpAdd()"/>
-            </div>
-            <div class="f-grp">
-              <label class="f-lbl">Subject <span style="opacity:.45;font-weight:500;text-transform:none;letter-spacing:0">optional</span></label>
-              <input id="rp-subject-inp" class="f-input" placeholder="e.g. Biology" type="text" onkeydown="if(event.key==='Enter')rpAdd()"/>
-            </div>
-            <div class="rp-schedule-preview">
-              <div class="rp-sched-lbl">Your review schedule</div>
-              <div class="rp-sched-chain">
-                <div class="rp-sched-item"><div class="rp-sched-dot next"></div><div class="rp-sched-day">D1<br><span style="color:#7c3aed;font-size:.56rem;font-weight:800">🧠 MCQ</span></div></div>
-                <div class="rp-sched-line"></div>
-                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">D3<br><span style="color:#7c3aed;font-size:.56rem;font-weight:800">✍️ SAQ</span></div></div>
-                <div class="rp-sched-line"></div>
-                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">D7<br><span style="color:#7c3aed;font-size:.56rem;font-weight:800">📝 Blurt</span></div></div>
-                <div class="rp-sched-line"></div>
-                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">D14<br><span style="color:#9ca3af;font-size:.56rem;font-weight:700">optional</span></div></div>
-                <div class="rp-sched-line"></div>
-                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">D28<br><span style="color:#9ca3af;font-size:.56rem;font-weight:700">optional</span></div></div>
-                <div class="rp-sched-line"></div>
-                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">D56<br><span style="color:#9ca3af;font-size:.56rem;font-weight:700">optional</span></div></div>
-                <div class="rp-sched-line"></div>
-                <div class="rp-sched-item"><div class="rp-sched-dot"></div><div class="rp-sched-day">Monthly<br><span style="color:#9ca3af;font-size:.56rem;font-weight:700">until exam</span></div></div>
+        <!-- TOPICS (organiser) -->
+        <div id="rp-topics" style="display:none">
+          <!-- Subject setup screen -->
+          <div id="org-setup-screen" style="display:none">
+            <div class="org-setup">
+              <div class="org-setup-title">What subjects are you studying?</div>
+              <div class="org-setup-sub">Set these up once — they'll fill your topic dropdown automatically.</div>
+              <div class="org-subj-list" id="org-subj-list"></div>
+              <div class="org-subj-add-row">
+                <input class="org-subj-inp" id="org-subj-inp" placeholder="e.g. Biology, Chemistry…" onkeydown="if(event.key==='Enter')orgAddSubject()"/>
+                <button class="org-subj-add-btn" onclick="orgAddSubject()">+ Add</button>
               </div>
-            </div>
-            <button class="add-btn" onclick="rpAdd()">Add to plan →</button>
-            <div id="rp-add-msg" style="display:none;text-align:center;margin-top:14px;font-size:.78rem;color:#16a34a;font-weight:800"></div>
-            <div class="rp-from-poppy">
-              <div class="rp-fp-divider">or import from Poppy</div>
-              <div class="rp-fp-row">
-                <select id="rp-poppy-sel" class="f-input" style="margin-bottom:0;flex:1"></select>
-                <button class="rp-fp-btn" onclick="rpImportFromPoppy()">Add to plan →</button>
-              </div>
+              <button class="org-done-btn" onclick="orgSubjectDone()">Done — Start Adding Topics →</button>
             </div>
           </div>
-        </div>
-
-        <!-- ALL TOPICS -->
-        <div id="rp-all" style="display:none">
-          <div id="rp-all-content"></div>
+          <!-- Main organiser -->
+          <div id="org-main-screen" style="display:none">
+            <div class="org-focus" id="org-focus"></div>
+            <div class="org-actions">
+              <button class="org-add-btn" onclick="orgToggleAdd()">+ Add Topic</button>
+              <input class="org-search" id="org-search" placeholder="Search topics or subjects…" oninput="orgRenderTable()"/>
+              <button class="org-gear-btn" onclick="orgShowSetup()">⚙️ Subjects</button>
+            </div>
+            <div class="org-add-card" id="org-add-card">
+              <div class="org-add-row">
+                <div class="org-add-grp" style="flex:0;min-width:150px">
+                  <label class="org-add-lbl">Subject</label>
+                  <select class="org-add-sel" id="org-new-subj"></select>
+                </div>
+                <div class="org-add-grp" style="flex:2">
+                  <label class="org-add-lbl">Topic name</label>
+                  <input class="org-add-inp" id="org-new-topic" placeholder="e.g. Cellular Respiration" onkeydown="if(event.key==='Enter')orgSaveTopic()"/>
+                </div>
+              </div>
+              <div class="org-add-row" style="margin-bottom:0;align-items:center">
+                <div class="org-add-grp" style="flex:0;min-width:190px">
+                  <label class="org-add-lbl">Attended?</label>
+                  <div class="org-att-row">
+                    <button class="org-att-btn yes sel" id="org-att-yes" onclick="orgSetAtt(true)">✓ Yes</button>
+                    <button class="org-att-btn no" id="org-att-no" onclick="orgSetAtt(false)">✗ No</button>
+                  </div>
+                </div>
+                <div style="display:flex;gap:8px;margin-left:auto;align-items:center">
+                  <button class="org-card-save-btn" onclick="orgSaveTopic()">Add Topic →</button>
+                  <button class="org-cancel-btn" onclick="orgToggleAdd()">Cancel</button>
+                </div>
+              </div>
+            </div>
+            <div class="org-table-wrap">
+              <table class="org-table">
+                <thead>
+                  <tr>
+                    <th class="org-th sortable" id="org-th-subj" onclick="orgSort('subject')">Subject<span class="sort-arr" id="org-arr-subj"></span></th>
+                    <th class="org-th sortable" id="org-th-topic" onclick="orgSort('topic')">Topic<span class="sort-arr" id="org-arr-topic"></span></th>
+                    <th class="org-th center">Att</th>
+                    <th class="org-th center">MCQ</th>
+                    <th class="org-th center">SAQ</th>
+                    <th class="org-th center">Blur</th>
+                    <th class="org-th center">Conf</th>
+                    <th class="org-th">Next Due</th>
+                    <th class="org-th">Go</th>
+                  </tr>
+                </thead>
+                <tbody id="org-tbody"></tbody>
+              </table>
+            </div>
+            <div id="org-empty" class="org-empty" style="display:none">No topics yet — topics appear here automatically as you add questions in Poppy, Sage, or Blurto.</div>
+          </div>
         </div>
 
         <!-- CALENDAR -->
@@ -1944,86 +1966,6 @@
 
       </div><!-- /panel-blurto -->
 
-      <!-- Organiser Panel -->
-      <div id="panel-organiser" class="panel anim">
-        <h1 class="mcq-h1">Organiser <span style="font-size:.55em;font-weight:700;opacity:.55;letter-spacing:.01em">Topic Tracker</span></h1>
-        <p class="mcq-sub">Every lecture. Every revision. One place.</p>
-
-        <!-- Subject setup screen -->
-        <div id="org-setup-screen" style="display:none">
-          <div class="org-setup">
-            <div class="org-setup-title">What subjects are you studying?</div>
-            <div class="org-setup-sub">Set these up once — they'll fill your topic dropdown automatically.</div>
-            <div class="org-subj-list" id="org-subj-list"></div>
-            <div class="org-subj-add-row">
-              <input class="org-subj-inp" id="org-subj-inp" placeholder="e.g. Biology, Chemistry…" onkeydown="if(event.key==='Enter')orgAddSubject()"/>
-              <button class="org-subj-add-btn" onclick="orgAddSubject()">+ Add</button>
-            </div>
-            <button class="org-done-btn" onclick="orgSubjectDone()">Done — Start Adding Topics →</button>
-          </div>
-        </div>
-
-        <!-- Main organiser -->
-        <div id="org-main-screen" style="display:none">
-          <!-- Today's Focus banner -->
-          <div class="org-focus" id="org-focus"></div>
-
-          <!-- Actions bar -->
-          <div class="org-actions">
-            <button class="org-add-btn" onclick="orgToggleAdd()">+ Add Topic</button>
-            <input class="org-search" id="org-search" placeholder="Search topics or subjects…" oninput="orgRenderTable()"/>
-            <button class="org-gear-btn" onclick="orgShowSetup()">⚙️ Subjects</button>
-          </div>
-
-          <!-- Add Topic card -->
-          <div class="org-add-card" id="org-add-card">
-            <div class="org-add-row">
-              <div class="org-add-grp" style="flex:0;min-width:150px">
-                <label class="org-add-lbl">Subject</label>
-                <select class="org-add-sel" id="org-new-subj"></select>
-              </div>
-              <div class="org-add-grp" style="flex:2">
-                <label class="org-add-lbl">Topic name</label>
-                <input class="org-add-inp" id="org-new-topic" placeholder="e.g. Cellular Respiration" onkeydown="if(event.key==='Enter')orgSaveTopic()"/>
-              </div>
-            </div>
-            <div class="org-add-row" style="margin-bottom:0;align-items:center">
-              <div class="org-add-grp" style="flex:0;min-width:190px">
-                <label class="org-add-lbl">Attended?</label>
-                <div class="org-att-row">
-                  <button class="org-att-btn yes sel" id="org-att-yes" onclick="orgSetAtt(true)">✓ Yes</button>
-                  <button class="org-att-btn no" id="org-att-no" onclick="orgSetAtt(false)">✗ No</button>
-                </div>
-              </div>
-              <div style="display:flex;gap:8px;margin-left:auto;align-items:center">
-                <button class="org-card-save-btn" onclick="orgSaveTopic()">Add Topic →</button>
-                <button class="org-cancel-btn" onclick="orgToggleAdd()">Cancel</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Table -->
-          <div class="org-table-wrap">
-            <table class="org-table">
-              <thead>
-                <tr>
-                  <th class="org-th sortable" id="org-th-subj" onclick="orgSort('subject')">Subject<span class="sort-arr" id="org-arr-subj"></span></th>
-                  <th class="org-th sortable" id="org-th-topic" onclick="orgSort('topic')">Topic<span class="sort-arr" id="org-arr-topic"></span></th>
-                  <th class="org-th center">Att</th>
-                  <th class="org-th center">MCQ</th>
-                  <th class="org-th center">SAQ</th>
-                  <th class="org-th center">Blur</th>
-                  <th class="org-th center">Conf</th>
-                  <th class="org-th">Next Due</th>
-                  <th class="org-th">Go</th>
-                </tr>
-              </thead>
-              <tbody id="org-tbody"></tbody>
-            </table>
-          </div>
-          <div id="org-empty" class="org-empty" style="display:none">No topics yet — hit <strong>+ Add Topic</strong> to get started.</div>
-        </div>
-      </div><!-- /panel-organiser -->
 
     </div><!-- /content -->
   </div><!-- /main -->
@@ -3233,7 +3175,7 @@ function retryQuiz() {
 var PANEL_TITLES = {
   'mcq':        'Poppy<span class="tb-sub">MCQ Maker</span>',
   'planner':    'Revision Planner<span class="tb-sub">Spaced Repetition</span>',
-  'organiser':  'Organiser<span class="tb-sub">Topic Tracker</span>',
+
   'saqs':    'Sage<span class="tb-sub">SAQs Maker</span>',
   'blurto':  'Blurto<span class="tb-sub">Blurting Machine</span>'
 };
@@ -3247,7 +3189,6 @@ function showPanel(id, el) {
   if (id === 'planner') rpRenderToday();
   if (id === 'saqs') sqInitAIKeyUI();
   if (id === 'blurto') blurtoInit();
-  if (id === 'organiser') orgInit();
 }
 
 function goHome() {
@@ -4151,14 +4092,13 @@ function rpRenderAll() {
 }
 
 function rpTab(t) {
-  ['today','add','all','cal'].forEach(function(x) {
+  ['today','topics','cal'].forEach(function(x) {
     document.getElementById('rp-' + x).style.display = x === t ? 'block' : 'none';
     document.getElementById('rp-tab-' + x).classList.toggle('active', x === t);
   });
-  if (t === 'today') rpRenderToday();
-  if (t === 'all')   rpRenderAll();
-  if (t === 'cal')   { rpRenderCal(); rpRenderExams(); }
-  if (t === 'add')   rpPopulatePoppySel();
+  if (t === 'today')  rpRenderToday();
+  if (t === 'topics') orgInit();
+  if (t === 'cal')    { rpRenderCal(); rpRenderExams(); }
 }
 
 // ── Revision Planner — Poppy integration ────────────────────────────
