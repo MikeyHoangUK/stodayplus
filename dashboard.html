@@ -613,6 +613,8 @@
     .rp-next-date{font-size:.68rem;font-weight:700;color:#6e5438;white-space:nowrap}
     .rp-done-btn{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:10px;padding:6px 14px;font-size:.72rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:opacity .15s;white-space:nowrap}
     .rp-done-btn:hover{opacity:.85}
+    .rp-auto-hint{font-size:.62rem;font-weight:700;color:#9ca3af;margin-top:10px;padding:6px 10px;background:rgba(0,0,0,.03);border-radius:8px;border:1px solid rgba(0,0,0,.06);text-align:center}
+    body.hc .rp-auto-hint{background:rgba(255,255,255,.03)!important;border-color:rgba(168,85,247,.12)!important;color:#6b5c4a!important}
     /* Method recommendation row on today cards */
     .rp-method-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px 0;padding:8px 12px;background:rgba(109,40,217,.05);border:1px solid rgba(109,40,217,.1);border-radius:10px}
     .rp-method-pill{font-size:.71rem;font-weight:800;color:#6d28d9;display:flex;align-items:center;gap:5px;flex:1;min-width:0}
@@ -2165,12 +2167,12 @@ var bankSubjFilt = 'all';
 var bankFolderSearch = '';
 var sqSubjFilt = 'all';
 var sqFolderSearch = '';
-var sqSessionQCount = 0;
+var sqSessionQCount = 0, sqSessionStartTime = null, sqSessionTotalScore = 0, sqSessionMaxScore = 0;
 var blurtoSubjFilt = 'all';
 var blurtoFolderSearch = '';
 var editId = null;
 var aiPendingQs = null;
-var qzQs = [], qzIdx = 0, qzScore = 0, qzAnswered = false, lastCfg = null;
+var qzQs = [], qzIdx = 0, qzScore = 0, qzAnswered = false, lastCfg = null, qzStartTime = null;
 var pomoType = null, pomoLeft = 0, pomoTotal = 0, pomoRunning = false, pomoTimer = null, pomoElapsed = 0;
 var POMO_T = { normal: 1800, plus: 2700, max: 3600 };
 var mode = localStorage.getItem('sp_mode') || 'chill';
@@ -2974,7 +2976,7 @@ function startQuiz() {
   });
   for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random()*(i+1)); var t=pool[i]; pool[i]=pool[j]; pool[j]=t; }
   var n = cv === 'all' ? pool.length : Math.min(parseInt(cv), pool.length);
-  qzQs = pool.slice(0, n); qzIdx = 0; qzScore = 0; qzAnswered = false; lastCfg = { d: d, cv: cv };
+  qzQs = pool.slice(0, n); qzIdx = 0; qzScore = 0; qzAnswered = false; lastCfg = { d: d, cv: cv }; qzStartTime = Date.now();
   document.getElementById('quiz-setup').style.display = 'none';
   document.getElementById('quiz-run').style.display = 'block';
   document.getElementById('quiz-results').style.display = 'none';
@@ -3337,6 +3339,9 @@ function showResults() {
   var f = document.getElementById('qz-folder').value;
   if (f && f !== 'all') saveFolderScore(f, pct);
   if (f && f !== 'all') orgIncrementMCQ(f, qzQs.length);
+  if (f && f !== 'all' && pct >= 60 && qzStartTime && (Date.now() - qzStartTime) >= 600000) {
+    rpAutoComplete(f, 'mcq');
+  }
   var trackEl = document.getElementById('qz-track-rp');
   if (trackEl && trackEl.checked) {
     if (f && f !== 'all') rpAddFromQuiz(f);
@@ -4227,6 +4232,7 @@ async function finleySend() {
 }
 
 function finleyShowComplete(summary) {
+  if (finleySession && finleySession.topic) rpAutoComplete(finleySession.topic, 'finley');
   finleyShowScreen('complete');
   document.getElementById('finley-summary-box').textContent = summary;
   document.getElementById('finley-stat-msgs').textContent = finleyMessageCount;
@@ -4363,6 +4369,15 @@ function rpAdd() {
   msg.textContent = '✓ "' + topic + '" added — first review tomorrow';
   msg.style.display = 'block';
   setTimeout(function() { msg.style.display = 'none'; }, 3000);
+}
+
+function rpAutoComplete(topic, tool) {
+  var item = rpData.find(function(x) {
+    return x.topic.toLowerCase() === (topic || '').toLowerCase()
+        && (RP_METHODS[x.level] || {}).tool === tool;
+  });
+  if (!item) return;
+  rpMarkDone(item.id);
 }
 
 function rpMarkDone(id) {
@@ -4520,25 +4535,14 @@ function rpRenderToday() {
       : '<div class="rp-method-row" style="justify-content:flex-start"><span class="rp-method-pill" style="color:#9ca3af">🔄 Optional — any study method you prefer</span></div>';
 
     var actionRow;
-    if (item.level === 0) {
-      var folderScores = getFolderScores();
-      var fs = folderScores[item.topic] || (item.subject && folderScores[item.subject]) || null;
-      if (fs && fs.best !== undefined && fs.best >= 0) {
-        var passed = fs.best >= 60;
-        var sc = passed ? '#16a34a' : '#dc2626';
-        actionRow = '<div class="rp-score-row" id="rp-action-' + item.id + '">'
-          + '<span class="rp-best-score" style="color:' + sc + '">Best: ' + fs.best + '%' + (fs.sessions > 1 ? ' (' + fs.sessions + ' sessions)' : '') + '</span>'
-          + (passed
-            ? '<button class="rp-pass-btn" onclick="rpMarkDone(\'' + item.id + '\')">✓ Mark Complete</button>'
-            : '<button class="rp-fail-btn" onclick="rpFailedD1(\'' + item.id + '\')">⟳ Retry Recommended</button>'
-              + '<button class="rp-pass-btn" style="flex:0;padding:6px 10px;font-size:.65rem" onclick="rpMarkDone(\'' + item.id + '\')">Skip →</button>')
-          + '</div>';
-      } else {
-        actionRow = '<div class="rp-score-row" id="rp-action-' + item.id + '">'
-          + '<button class="rp-pass-btn" onclick="rpMarkDone(\'' + item.id + '\')">✓ Passed — score ≥60%</button>'
-          + '<button class="rp-fail-btn" onclick="rpFailedD1(\'' + item.id + '\')">✗ Below 60%</button>'
-          + '</div>';
-      }
+    if (method) {
+      var reqs = {
+        mcq:    'Poppy session &gt;10 min + score ≥60%',
+        saqs:   'Sage session &gt;10 min + score ≥50%',
+        blurto: 'Blurto session &gt;10 min + Got it or Partial',
+        finley: 'Complete a Finley teaching session'
+      }[method.tool] || 'Complete a qualifying session';
+      actionRow = '<div class="rp-auto-hint" id="rp-action-' + item.id + '">🔒 Auto-completes when: ' + reqs + '</div>';
     } else {
       actionRow = '<div style="display:flex;justify-content:flex-end;margin-top:12px" id="rp-action-' + item.id + '">'
         + '<button class="rp-done-btn" onclick="rpMarkDone(\'' + item.id + '\')">✓ Done</button>'
@@ -5227,7 +5231,7 @@ function sqStartPrac() {
     }
   }
   sqCurrentFolder = folder !== 'all' ? folder : null;
-  sqSessionQCount = 0;
+  sqSessionQCount = 0; sqSessionTotalScore = 0; sqSessionMaxScore = 0; sqSessionStartTime = Date.now();
   sqPracQs = sqBank.filter(function(q) {
     return folder === 'all' || (q.folder || 'General') === folder;
   });
@@ -5306,6 +5310,8 @@ async function sqPracSubmit() {
     document.getElementById('sq-prac-result').style.display = 'block';
     if (sqCurrentFolder) orgIncrementSAQ(sqCurrentFolder);
     sqSessionQCount++;
+    sqSessionTotalScore += (typeof result.score === 'number' ? result.score : 0);
+    sqSessionMaxScore   += (result.total || (result.feedback ? result.feedback.length : 0));
   } catch(e) {
     st.textContent = 'Marking failed: ' + e.message;
     st.className = 'ai-status serr';
@@ -5351,7 +5357,11 @@ function sqPracEnd() {
       orgSaveTopics();
     }
   }
-  sqSessionQCount = 0;
+  if (sqCurrentFolder && sqSessionStartTime && (Date.now() - sqSessionStartTime) >= 600000
+      && sqSessionMaxScore > 0 && (sqSessionTotalScore / sqSessionMaxScore) >= 0.5) {
+    rpAutoComplete(sqCurrentFolder, 'saqs');
+  }
+  sqSessionQCount = 0; sqSessionTotalScore = 0; sqSessionMaxScore = 0; sqSessionStartTime = null;
   document.getElementById('sq-prac-run').style.display = 'none';
   document.getElementById('sq-prac-setup').style.display = 'block';
   var warn = document.getElementById('sq-phase-warn');
@@ -5909,6 +5919,9 @@ function blurtoRate(rating, el) {
   blurtoSelfRating = rating;
   document.querySelectorAll('.blurto-sr-btn').forEach(function(b) { b.classList.remove('sel'); });
   el.classList.add('sel');
+  if ((rating === 'got' || rating === 'partial') && blurtoElapsed >= 600 && blurtoCurrentTopic) {
+    rpAutoComplete(blurtoCurrentTopic, 'blurto');
+  }
 }
 
 // ── AI Grade ──
