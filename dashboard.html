@@ -3341,7 +3341,7 @@ function showResults() {
   mascotPeek();
   var f = document.getElementById('qz-folder').value;
   if (f && f !== 'all') saveFolderScore(f, pct);
-  if (f && f !== 'all') orgIncrementMCQ(f, qzQs.length); // rpAutoComplete fires inside orgIncrementMCQ
+  if (f && f !== 'all') orgIncrementMCQ(f, qzQs); // rpAutoComplete fires inside orgIncrementMCQ
   var trackEl = document.getElementById('qz-track-rp');
   if (trackEl && trackEl.checked) {
     if (f && f !== 'all') rpAddFromQuiz(f);
@@ -5389,7 +5389,7 @@ async function sqPracSubmit() {
     document.getElementById('sq-prac-answer-area').style.display = 'none';
     sqShowMarkResult(result, q.modelAnswer);
     document.getElementById('sq-prac-result').style.display = 'block';
-    if (sqCurrentFolder) orgIncrementSAQ(sqCurrentFolder);
+    if (sqCurrentFolder) orgIncrementSAQ(sqCurrentFolder, q.id);
     sqSessionQCount++;
     sqSessionTotalScore += (typeof result.score === 'number' ? result.score : 0);
     sqSessionMaxScore   += (result.total || (result.feedback ? result.feedback.length : 0));
@@ -6240,13 +6240,21 @@ function orgSuggestCount(sessions, threshold, currentCount) {
   return Math.max(5, Math.min(suggested, remaining));
 }
 
-function orgIncrementMCQ(folder, count) {
+function orgIncrementMCQ(folder, questions) {
   var t = orgMatchTopic(folder);
   if (!t) return;
   var today = new Date().toISOString().slice(0, 10);
   if (!t.mcq_sessions) t.mcq_sessions = [];
-  t.mcq_sessions.push({ date: today, count: count || 1 });
-  t.mcq_count = (t.mcq_count || 0) + (count || 1);
+  if (!t.mcq_seen_ids) t.mcq_seen_ids = [];
+  // Only count questions not previously answered
+  var ids = Array.isArray(questions)
+    ? questions.map(function(q) { return q.id; }).filter(Boolean)
+    : [];
+  var newIds = ids.filter(function(id) { return t.mcq_seen_ids.indexOf(String(id)) === -1; });
+  newIds.forEach(function(id) { t.mcq_seen_ids.push(String(id)); });
+  var newCount = newIds.length;
+  t.mcq_sessions.push({ date: today, count: newCount });
+  t.mcq_count = (t.mcq_count || 0) + newCount;
   if (t.mcq_count >= ORG_MCQ_THRESHOLD && !t.mcq_done) {
     t.mcq_done = true;
     if (t.last_revised !== today) {
@@ -6260,9 +6268,13 @@ function orgIncrementMCQ(folder, count) {
   orgRenderTable();
   rpAutoComplete(t.topic_name, 'mcq');
 }
-function orgIncrementSAQ(folder) {
+function orgIncrementSAQ(folder, questionId) {
   var t = orgMatchTopic(folder);
   if (!t) return;
+  if (!t.saq_seen_ids) t.saq_seen_ids = [];
+  // Only count if this question hasn't been answered before
+  if (questionId && t.saq_seen_ids.indexOf(String(questionId)) !== -1) return;
+  if (questionId) t.saq_seen_ids.push(String(questionId));
   t.saq_count = (t.saq_count || 0) + 1;
   if (t.saq_count >= ORG_SAQ_THRESHOLD && !t.saq_done) {
     t.saq_done = true;
