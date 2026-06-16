@@ -1602,6 +1602,7 @@
               <span class="ai-key-ok">✓ API key saved</span>
               <span class="ai-key-change" onclick="clearAIKey()">change</span>
             </div>
+            <div style="font-size:.63rem;color:#9ca3af;margin-top:2px;">🔒 Key stored locally in your browser — never sent to our servers. Keep this device private.</div>
             <div class="ai-status" id="ai-status"></div>
             <div class="ai-folder-pick" id="ai-folder-pick" style="display:none">
               <button class="ai-folder-confirm" onclick="confirmAIAdd()">Save to Bank →</button>
@@ -1941,6 +1942,7 @@
               <span class="ai-key-ok">✓ API key saved</span>
               <span class="ai-key-change" onclick="sqClearAIKey()">change</span>
             </div>
+            <div style="font-size:.63rem;color:#9ca3af;margin-top:2px;">🔒 Key stored locally in your browser — never sent to our servers. Keep this device private.</div>
             <div class="ai-status" id="sq-status"></div>
             <div class="ai-folder-pick" id="sq-folder-pick" style="display:none">
               <span class="ai-folder-lbl">Topic:</span>
@@ -3458,11 +3460,20 @@ function closeFolderEdit() {
   document.getElementById('folder-edit-backdrop').style.display = 'none';
 }
 
+function validateFolderName(name) {
+  if (!name || !name.trim()) return 'Folder name cannot be empty.';
+  if (name.length > 80) return 'Folder name must be 80 characters or fewer.';
+  if (/[\n\r\t]/.test(name)) return 'Folder name cannot contain newlines or tabs.';
+  if (/^\.+$/.test(name)) return 'Folder name cannot be only dots.';
+  return null;
+}
+
 function saveFolderEdit() {
   var newName = (document.getElementById('fe-name').value||'').trim();
   var newSubj = (document.getElementById('fe-subj').value||'').trim();
   var oldName = folderEditOrigName;
-  if (!newName) { document.getElementById('fe-name').focus(); return; }
+  var nameErr = validateFolderName(newName);
+  if (nameErr) { alert(nameErr); document.getElementById('fe-name').focus(); return; }
 
   if (newName !== oldName) {
     // Snapshot everything before touching state so we can roll back on any write failure
@@ -4065,6 +4076,21 @@ function applyUndo() {
 window.addEventListener('offline', function() { document.getElementById('offline-banner').style.display = 'block'; });
 window.addEventListener('online',  function() { document.getElementById('offline-banner').style.display = 'none'; });
 
+// ── CROSS-TAB CONFLICT DETECTION ──
+var _tabConflictBanner = null;
+var _tabConflictKeys = ['sp_questions','sp_saqs','sp_blurto','sp_folders','sp_folder_scores','sp_org_topics'];
+window.addEventListener('storage', function(e) {
+  if (!e.key || _tabConflictKeys.indexOf(e.key) === -1) return;
+  if (_tabConflictBanner) return; // already showing
+  var banner = document.createElement('div');
+  banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#7c3aed;color:#fff;text-align:center;padding:10px 16px;font-size:.8rem;font-family:\'Raleway\',sans-serif;font-weight:700;letter-spacing:.02em;display:flex;align-items:center;justify-content:center;gap:12px;';
+  banner.innerHTML = '⚠️ Another Stoday tab just saved data — reload this tab to get the latest version, or your next save will overwrite it.'
+    + '<button onclick="location.reload()" style="background:#fff;color:#7c3aed;border:none;border-radius:6px;padding:4px 12px;font-weight:800;cursor:pointer;font-family:\'Raleway\',sans-serif;">Reload now</button>'
+    + '<button onclick="this.parentNode.remove();_tabConflictBanner=null;" style="background:none;border:none;color:#fff;font-size:1.1rem;cursor:pointer;line-height:1;">×</button>';
+  document.body.prepend(banner);
+  _tabConflictBanner = banner;
+});
+
 // ── STORAGE USAGE WARNING ──
 function checkStorageUsage() {
   var total = 0;
@@ -4171,6 +4197,9 @@ async function processAIFile(file){
   if(ext !== 'pdf' && ext !== 'pptx'){
     setAIStatus('Only .pdf and .pptx files are supported.','serr'); return;
   }
+  if (!(await checkFileMagic(file, ext))) {
+    setAIStatus('File content does not match .' + ext + ' format — please check the file.', 'serr'); return;
+  }
   document.getElementById('ai-drop-idle').style.display = 'none';
   document.getElementById('ai-drop-done').style.display = 'none';
   document.getElementById('ai-drop-loading').style.display = 'block';
@@ -4266,6 +4295,21 @@ async function getPptxSlideImage(zip, slideNum) {
   var ext = best.path.split('.').pop().toLowerCase();
   var mime = (ext === 'jpg' || ext === 'jpeg') ? 'image/jpeg' : ext === 'png' ? 'image/png' : 'image/' + ext;
   return 'data:' + mime + ';base64,' + ab2b64(best.ab);
+}
+
+async function checkFileMagic(file, expectedExt) {
+  var slice = file.slice(0, 8);
+  var buf = await slice.arrayBuffer();
+  var bytes = new Uint8Array(buf);
+  if (expectedExt === 'pdf') {
+    // PDF magic: %PDF  (0x25 0x50 0x44 0x46)
+    return bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46;
+  }
+  if (expectedExt === 'pptx') {
+    // PPTX is a ZIP (PK magic: 0x50 0x4B 0x03 0x04)
+    return bytes[0] === 0x50 && bytes[1] === 0x4B && bytes[2] === 0x03 && bytes[3] === 0x04;
+  }
+  return false;
 }
 
 async function extractPdf(file, key, onProgress) {
@@ -4487,6 +4531,22 @@ var finleySession = null;
 var finleyStartTime = null;
 var finleyMessageCount = 0;
 
+function finleyDraftSave() {
+  if (!finleySession) return;
+  try {
+    localStorage.setItem('sp_finley_draft', JSON.stringify({
+      session: finleySession,
+      startTime: finleyStartTime,
+      messageCount: finleyMessageCount,
+      savedAt: Date.now()
+    }));
+  } catch(e) {}
+}
+
+function finleyDraftClear() {
+  localStorage.removeItem('sp_finley_draft');
+}
+
 function finleyTab(t) {
   ['teach','hist'].forEach(function(x) {
     document.getElementById('finley-' + x).style.display = x === t ? 'block' : 'none';
@@ -4601,6 +4661,7 @@ async function finleyStart() {
   finleySession.history.push({role:'assistant', content: firstMsg});
   finleyAddBubble('finley', firstMsg);
   finleyUpdateMeta();
+  finleyDraftSave();
   document.getElementById('finley-input').focus();
 }
 
@@ -4692,10 +4753,12 @@ async function finleySend() {
       finleyAddBubble('finley', endMsg);
       finleySession.history.push({role:'assistant', content: reply});
       finleySaveSession();
+      finleyDraftClear();
       setTimeout(function() { finleyShowComplete(summary); }, 1200);
     } else {
       finleySession.history.push({role:'assistant', content: reply});
       finleyAddBubble('finley', reply);
+      finleyDraftSave();
     }
   } catch(e) {
     finleyRemoveTyping();
@@ -4753,6 +4816,7 @@ function finleySaveAndReturn() {
 }
 
 function finleyTeachAgain() {
+  finleyDraftClear();
   finleySession = null;
   finleyStartTime = null;
   finleyMessageCount = 0;
@@ -4809,7 +4873,40 @@ function finleyLaunchFromOrg(topicName) {
 
 function finleyInit() {
   finleyPopulateTopics();
-  // Pre-fill from URL param or previous selection
+  // Restore in-progress session if one was saved
+  if (!finleySession) {
+    try {
+      var raw = localStorage.getItem('sp_finley_draft');
+      if (raw) {
+        var draft = JSON.parse(raw);
+        // Only restore if saved within the last 24 hours
+        if (draft && draft.savedAt && (Date.now() - draft.savedAt) < 86400000) {
+          var minutesAgo = Math.round((Date.now() - draft.savedAt) / 60000);
+          var timeLabel = minutesAgo < 1 ? 'just now' : minutesAgo + ' min ago';
+          var resume = confirm('You have an unfinished Finley session on "' + draft.session.topic + '" (' + draft.session.history.length + ' messages, saved ' + timeLabel + ').\n\nResume it?');
+          if (resume) {
+            finleySession = draft.session;
+            finleyStartTime = draft.startTime;
+            finleyMessageCount = draft.messageCount || 0;
+            document.getElementById('finley-chat-topic-label').textContent = '🎓 Finley · Teaching: ' + finleySession.topic;
+            var msgsEl = document.getElementById('finley-messages');
+            msgsEl.innerHTML = '';
+            finleySession.history.forEach(function(m) {
+              finleyAddBubble(m.role === 'assistant' ? 'finley' : 'user', m.content);
+            });
+            finleyShowScreen('chat');
+            finleyUpdateMeta();
+            document.getElementById('finley-input').focus();
+            return;
+          } else {
+            finleyDraftClear();
+          }
+        } else {
+          finleyDraftClear();
+        }
+      }
+    } catch(e) { finleyDraftClear(); }
+  }
 }
 
 // ── Revision Planner ─────────────────────────────────────────────────
@@ -5476,6 +5573,7 @@ function sqFileClear(e) { e.stopPropagation(); document.getElementById('sq-drop-
 async function sqProcessFile(file) {
   var ext = file.name.split('.').pop().toLowerCase();
   if (ext !== 'pdf' && ext !== 'pptx') { sqSetStatus('Only .pdf and .pptx files are supported.', 'serr'); return; }
+  if (!(await checkFileMagic(file, ext))) { sqSetStatus('File content does not match .' + ext + ' format — please check the file.', 'serr'); return; }
   document.getElementById('sq-drop-idle').style.display = 'none';
   document.getElementById('sq-drop-done').style.display = 'none';
   document.getElementById('sq-drop-loading').style.display = 'block';
@@ -6197,6 +6295,7 @@ async function blurtoExtractFile(file) {
   var name = file.name.toLowerCase();
   var ext = name.split('.').pop();
   if (ext !== 'pdf' && ext !== 'pptx') { st.textContent = 'Only PDF or PPTX supported.'; return; }
+  if (!(await checkFileMagic(file, ext))) { st.textContent = 'File content does not match .' + ext + ' format — please check the file.'; return; }
   var key = getAIKey();
   function bProg(msg){ st.textContent = msg; }
   try {
@@ -6874,7 +6973,8 @@ function orgSetAtt(val) {
 function orgSaveTopic() {
   var subj = (document.getElementById('org-new-subj').value || '').trim();
   var name = (document.getElementById('org-new-topic').value || '').trim();
-  if (!name) { document.getElementById('org-new-topic').focus(); return; }
+  var nameErr = validateFolderName(name);
+  if (nameErr) { alert(nameErr); document.getElementById('org-new-topic').focus(); return; }
   var duplicate = orgTopics.some(function(t) { return t.topic_name.toLowerCase() === name.toLowerCase(); });
   if (duplicate) {
     document.getElementById('org-new-topic').style.borderColor = '#dc2626';
