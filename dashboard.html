@@ -3338,10 +3338,7 @@ function showResults() {
   mascotPeek();
   var f = document.getElementById('qz-folder').value;
   if (f && f !== 'all') saveFolderScore(f, pct);
-  if (f && f !== 'all') orgIncrementMCQ(f, qzQs.length);
-  if (f && f !== 'all' && pct >= 60 && qzStartTime && (Date.now() - qzStartTime) >= 600000) {
-    rpAutoComplete(f, 'mcq');
-  }
+  if (f && f !== 'all') orgIncrementMCQ(f, qzQs.length); // rpAutoComplete fires inside orgIncrementMCQ
   var trackEl = document.getElementById('qz-track-rp');
   if (trackEl && trackEl.checked) {
     if (f && f !== 'all') rpAddFromQuiz(f);
@@ -4371,10 +4368,25 @@ function rpAdd() {
   setTimeout(function() { msg.style.display = 'none'; }, 3000);
 }
 
+// Returns the current revision phase for a topic based on cumulative progress
+function rpGetCurrentTask(topic) {
+  var t = orgTopics.find(function(x) { return x.topic_name.toLowerCase() === (topic || '').toLowerCase(); });
+  var mcqDone  = t ? (t.mcq_count  || 0) : 0;
+  var saqDone  = t ? (t.saq_count  || 0) : 0;
+  if (mcqDone < ORG_MCQ_THRESHOLD)  return { tool:'mcq',    emoji:'🧠', name:'Poppy',  label:'MCQ Practice',    done:mcqDone, threshold:ORG_MCQ_THRESHOLD };
+  if (saqDone < ORG_SAQ_THRESHOLD)  return { tool:'saqs',   emoji:'✍️', name:'Sage',   label:'Short Answer Qs', done:saqDone, threshold:ORG_SAQ_THRESHOLD };
+  if (!t || !t.blurting_done)        return { tool:'blurto', emoji:'📝', name:'Blurto', label:'Blurting',         done:0,       threshold:1 };
+  if (!t || !t.feynman_done)         return { tool:'finley', emoji:'🎓', name:'Finley', label:'Feynman Teaching', done:0,       threshold:1 };
+  return                                     { tool:'free',   emoji:'🔄', name:'',       label:'Free review',      done:1,       threshold:1 };
+}
+
+// Auto-advances a due planner interval when a session is logged for the current task
 function rpAutoComplete(topic, tool) {
+  var now = Date.now();
   var item = rpData.find(function(x) {
-    return x.topic.toLowerCase() === (topic || '').toLowerCase()
-        && (RP_METHODS[x.level] || {}).tool === tool;
+    if (x.topic.toLowerCase() !== (topic || '').toLowerCase()) return false;
+    if (x.nextReview > now) return false; // interval not due yet
+    return rpGetCurrentTask(x.topic).tool === tool;
   });
   if (!item) return;
   rpMarkDone(item.id);
@@ -4526,23 +4538,30 @@ function rpRenderToday() {
       ? '<span class="rp-overdue">' + overdueDays + 'd overdue</span>'
       : '<span class="rp-due-now">Due today</span>';
 
-    var method = RP_METHODS[item.level] || null;
-    var methodRow = method
+    var task = rpGetCurrentTask(item.topic);
+    var dLabel = (['D1','D3','D7','D14','D28','D56','Monthly'])[item.level] || '';
+    var methodRow = task.tool !== 'free'
       ? '<div class="rp-method-row">'
-        + '<span class="rp-method-pill">' + method.emoji + ' ' + ['D1','D3','D7','D14'][item.level] + ' — ' + method.label + ' with ' + method.name + '</span>'
-        + '<button class="rp-go-tool-btn" onclick="rpGoToTopic(\'' + method.tool + '\',\'' + item.id + '\')">▶ Start</button>'
+        + '<span class="rp-method-pill">' + task.emoji + ' ' + dLabel + ' — ' + task.label + ' with ' + task.name + '</span>'
+        + '<button class="rp-go-tool-btn" onclick="rpGoToTopic(\'' + task.tool + '\',\'' + item.id + '\')">▶ Start</button>'
         + '</div>'
-      : '<div class="rp-method-row" style="justify-content:flex-start"><span class="rp-method-pill" style="color:#9ca3af">🔄 Optional — any study method you prefer</span></div>';
+      : '<div class="rp-method-row" style="justify-content:flex-start"><span class="rp-method-pill" style="color:#16a34a">✅ ' + dLabel + ' — All steps complete — free review</span></div>';
 
     var actionRow;
-    if (method) {
-      var reqs = {
-        mcq:    'Poppy session &gt;10 min + score ≥60%',
-        saqs:   'Sage session &gt;10 min + score ≥50%',
-        blurto: 'Blurto session &gt;10 min + Got it or Partial',
-        finley: 'Complete a Finley teaching session'
-      }[method.tool] || 'Complete a qualifying session';
-      actionRow = '<div class="rp-auto-hint" id="rp-action-' + item.id + '">🔒 Auto-completes when: ' + reqs + '</div>';
+    if (task.tool === 'mcq' || task.tool === 'saqs') {
+      var remaining = task.threshold - task.done;
+      var pct = Math.min(Math.round(task.done / task.threshold * 100), 100);
+      var unit = task.tool === 'mcq' ? 'MCQs' : 'SAQs';
+      actionRow = '<div class="rp-auto-hint" id="rp-action-' + item.id + '">'
+        + task.emoji + ' <strong>' + task.done + ' / ' + task.threshold + '</strong> ' + unit + ' done'
+        + (remaining > 0 ? ' — <strong>' + remaining + ' more</strong> to unlock next phase' : ' — target reached!')
+        + '<div style="margin-top:6px;background:rgba(124,58,237,.1);border-radius:99px;height:5px;overflow:hidden">'
+        + '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#7c3aed,#4338ca);border-radius:99px"></div></div>'
+        + '</div>';
+    } else if (task.tool === 'blurto') {
+      actionRow = '<div class="rp-auto-hint" id="rp-action-' + item.id + '">📝 Complete a Blurto session to progress</div>';
+    } else if (task.tool === 'finley') {
+      actionRow = '<div class="rp-auto-hint" id="rp-action-' + item.id + '">🎓 Teach this topic in Finley to complete your revision cycle</div>';
     } else {
       actionRow = '<div style="display:flex;justify-content:flex-end;margin-top:12px" id="rp-action-' + item.id + '">'
         + '<button class="rp-done-btn" onclick="rpMarkDone(\'' + item.id + '\')">✓ Done</button>'
@@ -5357,11 +5376,8 @@ function sqPracEnd() {
       orgSaveTopics();
     }
   }
-  if (sqCurrentFolder && sqSessionStartTime && (Date.now() - sqSessionStartTime) >= 600000
-      && sqSessionMaxScore > 0 && (sqSessionTotalScore / sqSessionMaxScore) >= 0.5) {
-    rpAutoComplete(sqCurrentFolder, 'saqs');
-  }
   sqSessionQCount = 0; sqSessionTotalScore = 0; sqSessionMaxScore = 0; sqSessionStartTime = null;
+  // rpAutoComplete fires inside orgIncrementSAQ on each question
   document.getElementById('sq-prac-run').style.display = 'none';
   document.getElementById('sq-prac-setup').style.display = 'block';
   var warn = document.getElementById('sq-phase-warn');
@@ -5919,9 +5935,7 @@ function blurtoRate(rating, el) {
   blurtoSelfRating = rating;
   document.querySelectorAll('.blurto-sr-btn').forEach(function(b) { b.classList.remove('sel'); });
   el.classList.add('sel');
-  if ((rating === 'got' || rating === 'partial') && blurtoElapsed >= 600 && blurtoCurrentTopic) {
-    rpAutoComplete(blurtoCurrentTopic, 'blurto');
-  }
+  // rpAutoComplete fires inside orgIncrementBlurting when session is saved
 }
 
 // ── AI Grade ──
@@ -6177,6 +6191,7 @@ function orgIncrementMCQ(folder, count) {
   orgSaveTopics();
   orgRenderBanner();
   orgRenderTable();
+  rpAutoComplete(t.topic_name, 'mcq');
 }
 function orgIncrementSAQ(folder) {
   var t = orgMatchTopic(folder);
@@ -6194,6 +6209,7 @@ function orgIncrementSAQ(folder) {
   orgSaveTopics();
   orgRenderBanner();
   orgRenderTable();
+  rpAutoComplete(t.topic_name, 'saqs');
 }
 function orgIncrementBlurting(topicName) {
   var t = orgMatchTopic(topicName);
@@ -6211,6 +6227,7 @@ function orgIncrementBlurting(topicName) {
   orgSaveTopics();
   orgRenderBanner();
   orgRenderTable();
+  rpAutoComplete(t.topic_name, 'blurto');
 }
 
 function orgLoadData() {
