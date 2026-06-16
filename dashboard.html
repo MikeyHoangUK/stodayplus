@@ -1552,10 +1552,9 @@
             </div>
             <div id="quiz-session-card" style="display:none"></div>
             <div class="avail-msg" id="avail-msg"></div>
-            <button class="start-btn" id="start-btn" onclick="startQuiz()">Start Quiz →</button>
-            <div id="quiz-create-hint" style="display:none;margin-top:14px;text-align:center">
-              <p style="font-size:.78rem;color:#6e5438;font-weight:700;margin-bottom:10px">No questions yet — generate some in the Create tab first!</p>
-              <button onclick="quizGoCreate()" style="background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;font-weight:900;font-size:.82rem;padding:12px 32px;border-radius:12px;border:none;cursor:pointer;font-family:'Raleway',sans-serif;box-shadow:0 4px 16px rgba(124,58,237,.28)">➕ Create questions</button>
+            <div style="display:flex;gap:10px">
+              <button class="start-btn" id="start-btn" onclick="startQuiz()" style="flex:1">Start Quiz →</button>
+              <button onclick="quizGoCreate()" style="flex:1;background:rgba(124,58,237,.08);color:#6d28d9;font-weight:900;font-size:.9rem;padding:15px 20px;border-radius:14px;border:1.5px solid rgba(124,58,237,.25);cursor:pointer;font-family:'Raleway',sans-serif;transition:all .18s" onmouseover="this.style.background='rgba(124,58,237,.15)'" onmouseout="this.style.background='rgba(124,58,237,.08)'">➕ Create</button>
             </div>
             <div class="rp-quiz-link">
               <label class="rp-ql-lbl">
@@ -2967,8 +2966,6 @@ function updateAvail() {
     + (f !== 'all' ? ' in "'+f+'"' : '')
     + (d !== 'all' ? ' · '+d : '');
   document.getElementById('start-btn').disabled = n === 0;
-  var hint = document.getElementById('quiz-create-hint');
-  if (hint) hint.style.display = n === 0 ? 'block' : 'none';
 }
 
 function startQuiz() {
