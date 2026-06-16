@@ -1204,6 +1204,128 @@
     body.hc .finley-side .finley-bubble{background:rgba(168,85,247,.1)!important;border-color:rgba(168,85,247,.3)!important}
     body.hc .finley-type-btn{color:#c084fc!important;border-color:rgba(168,85,247,.3)!important}
     body.hc .finley-type-btn.active{background:rgba(168,85,247,.18)!important;border-color:#a855f7!important;color:#e9d5ff!important}
+
+    /* ── MOBILE RESPONSIVE ───────────────────────────────────────────── */
+
+    /* Tablet: collapse two-column layouts */
+    @media (max-width: 800px) {
+      #content { padding: 32px 24px; }
+      #topbar  { padding: 0 16px; gap: 10px; }
+      .blurto-layout { grid-template-columns: 1fr; }
+      .blurto-active-layout { grid-template-columns: 1fr; }
+      .cfg-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .rp-cal-layout { flex-direction: column; }
+      .rp-exam-panel { width: 100%; min-width: 0; position: static; }
+      .panel.active { max-width: 100%; }
+    }
+
+    /* Phone: tighten everything */
+    @media (max-width: 560px) {
+      /* Layout */
+      #content { padding: 18px 12px; }
+      #topbar  { padding: 0 10px; gap: 7px; height: 52px; min-height: 52px; }
+
+      /* Hide mode toggle text on very small screens; keep toggle compact */
+      #mode-toggle { gap: 3px; }
+      .mode-btn { font-size: .6rem; padding: 4px 7px; border-radius: 7px; }
+
+      /* Panel */
+      .panel.active { max-width: 100%; }
+
+      /* Cards */
+      .form-card  { padding: 18px 14px; border-radius: 14px; }
+      .ai-card    { padding: 14px 12px; border-radius: 12px; }
+      .cfg-card   { padding: 12px; border-radius: 10px; }
+
+      /* Quiz config: single column */
+      .cfg-grid { grid-template-columns: 1fr; gap: 8px; margin-bottom: 14px; }
+
+      /* Start + Create buttons */
+      #quiz-setup > div > .start-btn { padding: 13px 16px; font-size: .82rem; }
+      .start-btn { padding: 13px 16px; }
+
+      /* MCQ tabs: scroll horizontally */
+      .mcq-tabs { overflow-x: auto; white-space: nowrap; width: 100%; box-sizing: border-box; -webkit-overflow-scrolling: touch; }
+      .mcq-tab  { padding: 7px 13px; font-size: .7rem; display: inline-block; }
+
+      /* Quiz title + sub */
+      .mcq-h1 { font-size: 1.5rem; }
+      .mcq-sub { font-size: .78rem; margin-bottom: 20px; }
+      .qs-h   { font-size: 1.2rem; }
+      .qs-p   { font-size: .78rem; margin-bottom: 20px; }
+
+      /* Active quiz */
+      .quiz-card  { padding: 18px 14px; border-radius: 14px; }
+      .qopt       { padding: 9px 11px; border-radius: 10px; }
+      .qopt .ot   { font-size: .82rem; }
+
+      /* Results */
+      .results-wrap { padding: 28px 0; }
+      .score-circle { width: 110px; height: 110px; }
+
+      /* Bank + filter bar */
+      .bank-bar { flex-wrap: wrap; gap: 6px; }
+      #bank-diff-bar { flex-wrap: wrap; gap: 4px; }
+
+      /* Q cards */
+      .q-card { padding: 14px 12px; border-radius: 12px; }
+      .q-stem-t { font-size: .8rem; }
+
+      /* AI generate card */
+      .ai-folder-pick { flex-wrap: wrap; gap: 6px; }
+      .ai-folder-new  { min-width: 0; width: 100%; }
+      .ai-folder-sel  { max-width: 100%; }
+      .ai-drop        { padding: 18px 12px; border-radius: 12px; }
+
+      /* Blurto setup */
+      .blurto-layout          { gap: 14px; }
+      .blurto-area            { min-height: 200px; font-size: .85rem; padding: 12px 14px; }
+      .blurto-notes-ro        { min-height: 200px; }
+      .blurto-write-col .blurto-area { min-height: 200px; }
+      .blurto-cfg-card        { padding: 14px 12px; }
+      .blurto-active-layout   { gap: 12px; }
+      .blurto-timer-disp      { font-size: 1.2rem; }
+      .blurto-toolbar         { gap: 3px; padding: 4px 6px; }
+      .blurto-tb-btn          { font-size: .68rem; padding: 3px 6px; }
+
+      /* SAQ practice */
+      .sq-prac-card   { padding: 18px 14px; min-height: 90px; border-radius: 14px; }
+      .sq-prac-q      { font-size: .9rem; }
+      .sq-prac-input  { min-height: 100px; font-size: .85rem; padding: 12px 14px; }
+      .sq-mark-result { padding: 14px 12px; border-radius: 12px; }
+
+      /* Finley */
+      .finley-setup         { max-width: 100%; }
+      .finley-chat-wrap     { height: calc(100svh - 150px); min-height: 300px; }
+      .finley-bubble-wrap   { max-width: 92%; }
+      .finley-type-row      { gap: 5px; }
+      .finley-type-btn      { font-size: .68rem; padding: 5px 10px; }
+
+      /* Organiser */
+      .org-actions      { gap: 6px; }
+      .org-search       { min-width: 0; max-width: 100%; flex: 1; }
+      .org-table-wrap   { border-radius: 10px; }
+      .org-tracker-banner { padding: 14px 12px; }
+      .org-tracker-items  { gap: 6px; }
+
+      /* Planner */
+      .rp-topic-card    { padding: 14px 12px; border-radius: 12px; }
+      .rp-card-top      { flex-wrap: wrap; gap: 8px; }
+      .rp-method-row    { flex-wrap: wrap; gap: 6px; }
+      .rp-shortcuts     { gap: 6px; }
+      .rp-shortcut-btn  { flex: 1 1 calc(50% - 3px); min-width: 0; padding: 9px 8px; font-size: .7rem; gap: 5px; }
+      .rp-shortcut-btn .rp-sc-emoji { font-size: 1rem; }
+      .rp-sched-chain   { overflow-x: auto; padding-bottom: 4px; }
+      .rp-empty         { padding: 36px 16px; }
+
+      /* Topbar title: smaller on phone */
+      .tb-title { font-size: .76rem; letter-spacing: .04em; }
+      .tb-sub   { font-size: .46rem; }
+
+      /* Folder cards grid */
+      .folder-grid { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+      .folder-card { padding: 12px 10px !important; border-radius: 12px !important; }
+    }
   </style>
 </head>
 <body class="font-sans">
