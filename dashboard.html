@@ -93,9 +93,14 @@
     .sb-sec{margin-bottom:14px}
     .sb-lbl{font-size:.6rem;font-weight:700;letter-spacing:.1em;color:#4a3824;text-transform:uppercase;padding:0 8px;margin-bottom:4px}
     .nav-item{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:8px;cursor:pointer;transition:background .15s;font-size:.78rem;font-weight:700;color:#6e5438;margin-bottom:2px;user-select:none}
+    button.nav-item{background:none;border:none;width:100%;text-align:left;font-family:'Raleway',sans-serif}
     .nav-item:hover:not(.soon){background:rgba(168,85,247,.1);color:#4a3820}
     .nav-item.active{background:rgba(168,85,247,.18);color:#6d28d9}
-    .nav-item.soon{opacity:.35;cursor:default}
+    .nav-item.soon{opacity:.35;cursor:default;position:relative}
+    .nav-item.soon::after{content:'Coming soon — you\'re on the waitlist';position:absolute;left:105%;top:50%;transform:translateY(-50%);background:#1e1b4b;color:#fff;font-size:.62rem;padding:4px 10px;border-radius:8px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:200;font-weight:600}
+    .nav-item.soon:hover{opacity:.6!important}
+    .nav-item.soon:hover::after{opacity:1}
+    .q-card.q-selected{background:rgba(124,58,237,.07);border-color:rgba(124,58,237,.3)!important}
     .soon-pill{margin-left:auto;font-size:.55rem;font-weight:700;background:rgba(168,85,247,.15);color:#6d28d9;padding:1px 5px;border-radius:8px;text-transform:uppercase}
     .sb-user{padding:12px 14px;border-top:1px solid rgba(168,85,247,.1);font-size:.72rem}
     .sb-email{color:#5a4230;word-break:break-all}
@@ -1376,7 +1381,7 @@
 </div>
 
 <!-- POMODORO MODAL -->
-<div id="pomo-modal">
+<div id="pomo-modal" role="dialog" aria-modal="true" aria-label="Focus session selector">
   <div class="pomo-card">
     <h2>Choose your session</h2>
     <p>How long do you want to focus today?</p>
@@ -1418,24 +1423,24 @@
     <div class="sb-nav">
       <div class="sb-sec">
         <div class="sb-lbl">Study Tools</div>
-        <div class="nav-item active" onclick="showPanel('planner',this)">
+        <button class="nav-item active" onclick="showPanel('planner',this)" aria-label="Revision Planner">
           <span>📅</span> Revision Planner
-        </div>
-        <div class="nav-item" onclick="showPanel('mcq',this)">
+        </button>
+        <button class="nav-item" onclick="showPanel('mcq',this)" aria-label="Poppy — MCQ maker">
           <span>🧠</span> Poppy
-        </div>
-        <div class="nav-item" onclick="showPanel('saqs',this)">
+        </button>
+        <button class="nav-item" onclick="showPanel('saqs',this)" aria-label="Sage — SAQ maker">
           <span>✍️</span> Sage
-        </div>
-        <div class="nav-item" onclick="showPanel('blurto',this)"><span>📝</span> Blurto</div>
-        <div class="nav-item" onclick="showPanel('finley',this)"><span>🎓</span> Finley</div>
-        <div class="nav-item soon"><span>⚡</span> Daily System<span class="soon-pill">Soon</span></div>
+        </button>
+        <button class="nav-item" onclick="showPanel('blurto',this)" aria-label="Blurto — blurting practice"><span>📝</span> Blurto</button>
+        <button class="nav-item" onclick="showPanel('finley',this)" aria-label="Finley — Feynman teaching"><span>🎓</span> Finley</button>
+        <div class="nav-item soon" aria-disabled="true"><span>⚡</span> Daily System<span class="soon-pill">Soon</span></div>
       </div>
       <div class="sb-sec">
         <div class="sb-lbl">Resources</div>
-        <div class="nav-item soon"><span>📁</span> All Resources<span class="soon-pill">Soon</span></div>
-        <div class="nav-item soon"><span>🎥</span> Videos<span class="soon-pill">Soon</span></div>
-        <div class="nav-item soon"><span>📅</span> Book Mentoring<span class="soon-pill">Soon</span></div>
+        <div class="nav-item soon" aria-disabled="true"><span>📁</span> All Resources<span class="soon-pill">Soon</span></div>
+        <div class="nav-item soon" aria-disabled="true"><span>🎥</span> Videos<span class="soon-pill">Soon</span></div>
+        <div class="nav-item soon" aria-disabled="true"><span>📅</span> Book Mentoring<span class="soon-pill">Soon</span></div>
       </div>
     </div>
     <!-- Music player (chill mode only) -->
@@ -1480,15 +1485,15 @@
   <!-- Main -->
   <div id="main">
     <header id="topbar">
-      <button id="sb-toggle" onclick="toggleSidebar()" title="Menu">☰</button>
+      <button id="sb-toggle" onclick="toggleSidebar()" title="Menu" aria-label="Open navigation menu">☰</button>
       <span class="tb-title" id="tb-title" onclick="goHome()">Revision Planner<span class="tb-sub">Spaced Repetition</span></span>
       <div style="display:flex;align-items:center;gap:6px">
         <div id="pomo-display" onclick="openPomo()" title="Start a focus session">
           <span>⏱</span>
           <span id="pomo-time" class="idle">Focus</span>
         </div>
-        <div class="pomo-ctrl" id="pomo-play" onclick="togglePomo()" title="Play / Pause">▶</div>
-        <div class="pomo-ctrl" id="pomo-reset" onclick="resetPomo()" title="Reset">↺</div>
+        <button class="pomo-ctrl" id="pomo-play" onclick="togglePomo()" title="Play / Pause" aria-label="Play or pause focus timer">▶</button>
+        <button class="pomo-ctrl" id="pomo-reset" onclick="resetPomo()" title="Reset" aria-label="Reset focus timer">↺</button>
       </div>
       <div id="mode-toggle">
         <div class="mode-btn m-chill" id="btn-chill" onclick="setMode('chill')">☁ Chill</div>
@@ -2850,6 +2855,7 @@ function getFolders(){
 }
 function filterFolder(f){
   bankFolder = f;
+  bankSelection.clear(); updateBulkBar();
   if (f !== 'all') {
     bankFilt = 'all';
     document.querySelectorAll('.filt-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.f==='all'); });
@@ -3078,10 +3084,15 @@ function renderBank() {
     }
     list.innerHTML = '';
     filtered.forEach(function(q, i) {
-      var folder = q.folder || 'General';
+      var sel = bankSelection.has(q.id) || bankSelection.has(String(q.id));
       var c = document.createElement('div');
-      c.className = 'q-card';
-      c.innerHTML = '<div class="q-top"><div class="q-num">'+(i+1)+'</div><div class="q-stem-t">'+esc(q.stem||q.question||'')+'</div><div class="q-btns"><button class="q-btn edit" onclick="editQ('+q.id+')">Edit</button><button class="q-btn del" onclick="delQ('+q.id+')">Delete</button></div></div><div class="q-meta"><span class="diff-badge '+q.difficulty+'">'+q.difficulty+'</span>'+(q.hint?'<span style="font-size:.7rem;color:#5a4230">💡 '+esc(q.hint)+'</span>':'')+'<button class="q-btn edit" style="margin-left:auto;padding:3px 9px;font-size:.68rem" onclick="moveFolder('+q.id+')">📁 Move</button></div><div class="q-move-row" id="mf-'+q.id+'"></div>';
+      c.className = 'q-card' + (sel ? ' q-selected' : '');
+      c.setAttribute('data-qid', q.id);
+      c.innerHTML = '<div class="q-top">'
+        + '<input type="checkbox" ' + (sel ? 'checked' : '') + ' onchange="bankToggleSelect(' + q.id + ', this.checked)" style="margin-right:6px;accent-color:#7c3aed;cursor:pointer;width:15px;height:15px;flex-shrink:0" aria-label="Select question ' + (i+1) + '">'
+        + '<div class="q-num">'+(i+1)+'</div><div class="q-stem-t">'+esc(q.stem||q.question||'')+'</div><div class="q-btns"><button class="q-btn edit" onclick="editQ('+q.id+')">Edit</button><button class="q-btn del" onclick="delQ('+q.id+')">Delete</button></div></div>'
+        + '<div class="q-meta"><span class="diff-badge '+q.difficulty+'">'+q.difficulty+'</span>'+(q.hint?'<span style="font-size:.7rem;color:#5a4230">💡 '+esc(q.hint)+'</span>':'')+'<button class="q-btn edit" style="margin-left:auto;padding:3px 9px;font-size:.68rem" onclick="moveFolder('+q.id+')">📁 Move</button></div>'
+        + '<div class="q-move-row" id="mf-'+q.id+'"></div>';
       list.appendChild(c);
     });
     refreshFolderDatalist();
@@ -3653,6 +3664,7 @@ function goHome() {
 }
 
 function switchTab(t) {
+  bankSelection.clear(); updateBulkBar();
   ['create','bank','quiz'].forEach(function(x) {
     document.getElementById('sub-'+x).style.display = x === t ? 'block' : 'none';
     document.getElementById('tab-'+x).classList.toggle('active', x === t);
@@ -3912,6 +3924,49 @@ function skipIntro() {
   ov.style.opacity = '0';
   ov.style.pointerEvents = 'none';
   setTimeout(function(){ ov.style.display = 'none'; }, 340);
+}
+
+// ── BULK QUESTION OPERATIONS ──
+var bankSelection = new Set();
+function bankToggleSelect(id, checked) {
+  if (checked) bankSelection.add(id); else bankSelection.delete(id);
+  var card = document.querySelector('.q-card[data-qid="' + id + '"]');
+  if (card) card.classList.toggle('q-selected', checked);
+  updateBulkBar();
+}
+function updateBulkBar() {
+  var bar = document.getElementById('bulk-action-bar');
+  if (!bar) return;
+  if (bankSelection.size > 0) {
+    bar.style.display = 'flex';
+    document.getElementById('bulk-count').textContent = bankSelection.size + ' selected';
+    var sel = document.getElementById('bulk-folder-sel');
+    if (sel && !sel.options.length) {
+      sel.innerHTML = getFolders().map(function(f) { return '<option value="' + esc(f) + '">' + esc(f) + '</option>'; }).join('');
+    }
+  } else {
+    bar.style.display = 'none';
+  }
+}
+function bulkClear() { bankSelection.clear(); updateBulkBar(); renderBank(); }
+function bulkDelete() {
+  if (!bankSelection.size) return;
+  if (!confirm('Delete ' + bankSelection.size + ' question' + (bankSelection.size !== 1 ? 's' : '') + '?')) return;
+  var snap = JSON.stringify(bank);
+  var ids = Array.from(bankSelection).map(String);
+  bank = bank.filter(function(q) { return ids.indexOf(String(q.id)) === -1; });
+  bankSelection.clear();
+  saveBank(); renderBank(); updateAvail(); updateBulkBar();
+  pushUndo(bankSelection.size + ' questions', function() { bank = JSON.parse(snap); saveBank(); renderBank(); updateAvail(); });
+}
+function bulkMove() {
+  if (!bankSelection.size) return;
+  var sel = document.getElementById('bulk-folder-sel');
+  var target = sel ? sel.value : '';
+  if (!target) return;
+  bank.forEach(function(q) { if (bankSelection.has(q.id) || bankSelection.has(String(q.id))) q.folder = target; });
+  bankSelection.clear();
+  saveBank(); renderBank(); updateAvail(); updateBulkBar();
 }
 
 // ── DATA BACKUP ──
@@ -7110,11 +7165,20 @@ function orgRenderTable() {
 </script>
 
 <!-- Folder Edit Modal -->
+<!-- BULK ACTION BAR -->
+<div id="bulk-action-bar" style="display:none;position:fixed;bottom:82px;left:50%;transform:translateX(-50%);background:#1e1b4b;color:#fff;padding:11px 16px;border-radius:14px;z-index:9996;align-items:center;gap:10px;font-family:'Raleway',sans-serif;font-size:.82rem;box-shadow:0 4px 28px rgba(0,0,0,.35);white-space:nowrap">
+  <span id="bulk-count" style="font-weight:700"></span>
+  <select id="bulk-folder-sel" style="background:#2d2060;color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:4px 8px;font-family:'Raleway',sans-serif;font-size:.78rem;cursor:pointer"></select>
+  <button onclick="bulkMove()" style="background:#7c3aed;color:#fff;border:none;padding:5px 12px;border-radius:8px;font-weight:700;cursor:pointer;font-family:'Raleway',sans-serif;font-size:.78rem" aria-label="Move selected questions to folder">📁 Move</button>
+  <button onclick="bulkDelete()" style="background:#dc2626;color:#fff;border:none;padding:5px 12px;border-radius:8px;font-weight:700;cursor:pointer;font-family:'Raleway',sans-serif;font-size:.78rem" aria-label="Delete selected questions">🗑 Delete</button>
+  <button onclick="bulkClear()" style="background:transparent;color:#9ca3af;border:none;font-size:1rem;cursor:pointer;padding:0 2px" aria-label="Clear selection">×</button>
+</div>
+
 <div class="fe-backdrop" id="folder-edit-backdrop" onclick="if(event.target===this)closeFolderEdit()">
-  <div class="fe-modal">
+  <div class="fe-modal" role="dialog" aria-modal="true" aria-label="Edit folder">
     <div class="fe-title">
       ✎ Edit Folder
-      <button class="fe-close" onclick="closeFolderEdit()">×</button>
+      <button class="fe-close" onclick="closeFolderEdit()" aria-label="Close">×</button>
     </div>
     <label class="fe-lbl">Topic name</label>
     <input id="fe-name" class="fe-inp" placeholder="Topic name…" style="margin-bottom:14px" onkeydown="if(event.key==='Enter')document.getElementById('fe-subj').focus()">
