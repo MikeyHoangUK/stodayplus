@@ -1638,6 +1638,9 @@
         <!-- BANK -->
         <div id="sub-bank">
           <div class="folder-bar" id="bank-folder-bar"></div>
+          <div style="margin-bottom:8px">
+            <input id="bank-q-search" class="org-search" style="width:100%;box-sizing:border-box" placeholder="🔍 Search questions…" oninput="bankQSearchInput(this.value)"/>
+          </div>
           <div class="bank-bar">
             <div class="bank-stat" id="bank-stat" style="flex:1">0 questions</div>
             <div id="bank-diff-bar" style="display:flex;gap:4px">
@@ -1690,6 +1693,12 @@
             </div>
             <div id="quiz-session-card" style="display:none"></div>
             <div class="avail-msg" id="avail-msg"></div>
+            <div id="retry-wrong-row" style="display:none;margin-bottom:10px">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.82rem;color:#6d28d9;font-family:'Raleway',sans-serif;font-weight:700">
+                <input type="checkbox" id="qz-retry-wrong" onchange="updateAvail()" style="accent-color:#7c3aed;width:15px;height:15px"/>
+                🔁 Retry wrong answers only (<span id="wrong-count">0</span> pending)
+              </label>
+            </div>
             <div style="display:flex;gap:10px">
               <button class="start-btn" id="start-btn" onclick="startQuiz()" style="flex:1">Start Quiz →</button>
               <button onclick="quizGoCreate()" style="flex:1;background:rgba(124,58,237,.08);color:#6d28d9;font-weight:900;font-size:.9rem;padding:15px 20px;border-radius:14px;border:1.5px solid rgba(124,58,237,.25);cursor:pointer;font-family:'Raleway',sans-serif;transition:all .18s" onmouseover="this.style.background='rgba(124,58,237,.15)'" onmouseout="this.style.background='rgba(124,58,237,.08)'">➕ Create</button>
@@ -2313,7 +2322,8 @@ var blurtoSubjFilt = 'all';
 var blurtoFolderSearch = '';
 var editId = null;
 var aiPendingQs = null;
-var qzQs = [], qzIdx = 0, qzScore = 0, qzAnswered = false, lastCfg = null, qzStartTime = null;
+var qzQs = [], qzIdx = 0, qzScore = 0, qzAnswered = false, lastCfg = null, qzStartTime = null, qzWrongInSession = [];
+var bankQSearch = '';
 var pomoType = null, pomoLeft = 0, pomoTotal = 0, pomoRunning = false, pomoTimer = null, pomoElapsed = 0;
 var POMO_T = { normal: 1800, plus: 2700, max: 3600 };
 var mode = localStorage.getItem('sp_mode') || 'chill';
@@ -2943,6 +2953,25 @@ function renderBank() {
   var list    = document.getElementById('bank-list');
   var diffBar = document.getElementById('bank-diff-bar');
 
+  // ── Global question search ──
+  if (bankQSearch.trim()) {
+    fbar.style.display = 'none'; fbar.innerHTML = ''; diffBar.style.display = 'none';
+    var statElS = document.getElementById('bank-stat'); statElS.className = 'bank-stat'; statElS.textContent = '';
+    var term = bankQSearch.toLowerCase();
+    var fScope = bankFolder === 'all' ? bank : bank.filter(function(q){ return (q.folder||'General') === bankFolder; });
+    var hits = fScope.filter(function(q){ return (q.stem||q.question||'').toLowerCase().indexOf(term) !== -1; });
+    if (!hits.length) { list.innerHTML = '<div class="bank-empty"><div class="ei">🔍</div><h3>No questions match</h3><p>Try a different search term.</p></div>'; return; }
+    statElS.textContent = hits.length + ' result' + (hits.length !== 1 ? 's' : '');
+    list.innerHTML = '';
+    hits.forEach(function(q, i) {
+      var c = document.createElement('div'); c.className = 'q-card';
+      c.innerHTML = '<div class="q-top"><div class="q-num">'+(i+1)+'</div><div class="q-stem-t">'+esc(q.stem||q.question||'')+'</div><div class="q-btns"><button class="q-btn edit" onclick="editQ('+q.id+')">Edit</button><button class="q-btn del" onclick="delQ('+q.id+')">Delete</button></div></div>'
+        + '<div class="q-meta"><span class="diff-badge '+q.difficulty+'">'+q.difficulty+'</span><span style="font-size:.7rem;color:#9333ea;margin-left:4px">📁 '+esc(q.folder||'General')+'</span>'+(q.hint?'<span style="font-size:.7rem;color:#5a4230">💡 '+esc(q.hint)+'</span>':'')+'</div>';
+      list.appendChild(c);
+    });
+    return;
+  }
+
   if (bankFolder === 'all') {
     // ── Folder overview ──────────────────────────────────────────
     fbar.style.display = 'none';
@@ -2998,10 +3027,12 @@ function renderBank() {
       (function(folder){ card.onclick = function(e){ if(!e.target.classList.contains('fc-quiz')&&!e.target.classList.contains('fc-del')&&!e.target.classList.contains('fc-edit')&&!e.target.classList.contains('fc-edit-top')&&!e.target.classList.contains('fc-create')) filterFolder(folder); }; })(f);
       var fsc = getFolderScores()[f];
       var confBadge = '';
+      var sparkHtml = '';
       if (fsc && fsc.best >= 0) {
         var bCol = fsc.best >= 75 ? '#16a34a' : fsc.best >= 50 ? '#b45309' : '#dc2626';
         var bIcon = fsc.best >= 75 ? '🟢' : fsc.best >= 50 ? '🟡' : '🔴';
         confBadge = '<div class="fc-confidence" style="color:' + bCol + '">' + bIcon + ' ' + fsc.best + '% confidence</div>';
+        if (fsc.history && fsc.history.length >= 2) sparkHtml = '<canvas data-sparkfolder="' + esc(f) + '" width="64" height="18" style="display:block;margin:4px 0"></canvas>';
       }
       var subjChip = folderSubjChip(f);
       var quizBtn = count > 0 ? '<button class="fc-quiz" onclick="quizFolder(\''+jsq(f)+'\')">▶ Quiz</button>' : '';
@@ -3009,12 +3040,17 @@ function renderBank() {
         + subjChip
         + '<div class="fc-name">'+esc(f)+'</div>'
         + confBadge
+        + sparkHtml
         + '<div class="fc-count">'+(count===0?'No MCQs yet':count+' question'+(count!==1?'s':''))+'</div>'
         + '<div class="fc-actions">'+quizBtn+'<button class="fc-create" onclick="jumpToCreate(\''+jsq(f)+'\')" title="Generate more questions">+</button><button class="fc-del" onclick="deleteFolder(\''+jsq(f)+'\')">🗑</button></div>';
       grid.appendChild(card);
     });
     list.innerHTML = '';
     list.appendChild(grid);
+    grid.querySelectorAll('canvas[data-sparkfolder]').forEach(function(cv) {
+      var sc2 = getFolderScores()[cv.getAttribute('data-sparkfolder')];
+      if (sc2 && sc2.history) drawSparkline(cv, sc2.history);
+    });
 
   } else {
     // ── Inside a folder ──────────────────────────────────────────
@@ -3031,7 +3067,10 @@ function renderBank() {
     statEl2.textContent = folderTotal + ' question' + (folderTotal !== 1 ? 's' : '') + ' in "' + bankFolder + '"';
 
     var filtered = bank.filter(function(q){
-      return (q.folder||'General') === bankFolder && (bankFilt==='all' || q.difficulty===bankFilt);
+      if ((q.folder||'General') !== bankFolder) return false;
+      if (bankFilt !== 'all' && q.difficulty !== bankFilt) return false;
+      if (bankQSearch.trim() && (q.stem||q.question||'').toLowerCase().indexOf(bankQSearch.toLowerCase()) === -1) return false;
+      return true;
     });
     if (filtered.length === 0) {
       list.innerHTML = '<div class="bank-empty"><div class="ei">🔍</div><h3>No matching questions</h3><p>Try a different difficulty filter.</p></div>';
@@ -3105,6 +3144,23 @@ function updateAvail() {
     var dMatch = d === 'all' || q.difficulty === d;
     return fMatch && dMatch;
   });
+  var retryRow = document.getElementById('retry-wrong-row');
+  var retryCheck = document.getElementById('qz-retry-wrong');
+  var wcEl = document.getElementById('wrong-count');
+  var wrongCount = 0;
+  if (f && f !== 'all') {
+    var wrongIds = (getWrongIds()[f] || []).map(String);
+    wrongCount = pool.filter(function(q) { return wrongIds.indexOf(String(q.id)) !== -1; }).length;
+  }
+  if (retryRow) {
+    retryRow.style.display = wrongCount > 0 ? 'block' : 'none';
+    if (wcEl) wcEl.textContent = wrongCount;
+    if (!wrongCount && retryCheck) retryCheck.checked = false;
+  }
+  if (retryCheck && retryCheck.checked && f && f !== 'all') {
+    var wr = (getWrongIds()[f] || []).map(String);
+    pool = pool.filter(function(q) { return wr.indexOf(String(q.id)) !== -1; });
+  }
   var n = pool.length;
   document.getElementById('avail-msg').textContent = n + ' question' + (n !== 1 ? 's' : '') + ' available'
     + (f !== 'all' ? ' in "'+f+'"' : '')
@@ -3116,14 +3172,20 @@ function startQuiz() {
   var d = document.getElementById('qz-diff').value;
   var f = document.getElementById('qz-folder').value;
   var cv = document.getElementById('qz-count').value;
+  var retryCheck = document.getElementById('qz-retry-wrong');
+  var retryMode = retryCheck && retryCheck.checked && f && f !== 'all';
   var pool = bank.filter(function(q){
     var fMatch = f === 'all' || (q.folder||'General') === f;
     var dMatch = d === 'all' || q.difficulty === d;
     return fMatch && dMatch;
   });
+  if (retryMode) {
+    var wrongIds = (getWrongIds()[f] || []).map(String);
+    pool = pool.filter(function(q) { return wrongIds.indexOf(String(q.id)) !== -1; });
+  }
   for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random()*(i+1)); var t=pool[i]; pool[i]=pool[j]; pool[j]=t; }
   var n = cv === 'all' ? pool.length : Math.min(parseInt(cv), pool.length);
-  qzQs = pool.slice(0, n); qzIdx = 0; qzScore = 0; qzAnswered = false; lastCfg = { d: d, cv: cv }; qzStartTime = Date.now();
+  qzQs = pool.slice(0, n); qzIdx = 0; qzScore = 0; qzAnswered = false; lastCfg = { d: d, cv: cv }; qzStartTime = Date.now(); qzWrongInSession = [];
   document.getElementById('quiz-setup').style.display = 'none';
   document.getElementById('quiz-run').style.display = 'block';
   document.getElementById('quiz-results').style.display = 'none';
@@ -3144,6 +3206,28 @@ function startQuiz() {
     fireBolt(document.getElementById('elec-lp'), 72);
     setTimeout(function() { fireBolt(document.getElementById('elec-rp'), 72); }, 700);
   }, 1100);
+}
+
+function bankQSearchInput(v) { bankQSearch = v; renderBank(); }
+
+function drawSparkline(canvas, data) {
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width, h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+  if (!data || data.length < 2) return;
+  var mn = Math.min.apply(null, data), mx = Math.max.apply(null, data);
+  if (mx === mn) { mn = Math.max(0, mn - 10); mx = Math.min(100, mx + 10); }
+  var pad = 2;
+  ctx.beginPath();
+  data.forEach(function(v, i) {
+    var x = pad + (i / (data.length - 1)) * (w - pad * 2);
+    var y = h - pad - ((v - mn) / (mx - mn)) * (h - pad * 2);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  var last = data[data.length - 1];
+  ctx.strokeStyle = last >= 75 ? '#16a34a' : last >= 50 ? '#b45309' : '#dc2626';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
 }
 
 function showQ() {
@@ -3178,6 +3262,7 @@ function answerQ(idx) {
   document.getElementById('qo'+q.correct).classList.add('c-opt');
   if (!ok) document.getElementById('qo'+idx).classList.add('w-opt');
   if (ok) { qzScore++; if (Math.random() < .3) setTimeout(mascotPeek, 400); }
+  else { qzWrongInSession.push(q.id); }
   document.getElementById('qscore').textContent = '✓ '+qzScore+' / '+(qzIdx+1);
   document.getElementById('next-btn').className = 'next-btn show';
 }
@@ -3203,8 +3288,27 @@ function saveFolderScore(folder, pct) {
   s.best = Math.max(s.best, pct);
   s.sessions = (s.sessions || 0) + 1;
   s.last = pct;
+  if (!s.history) s.history = [];
+  s.history.push(pct);
+  if (s.history.length > 20) s.history = s.history.slice(-20);
   scores[folder] = s;
   localStorage.setItem('sp_folder_scores', JSON.stringify(scores));
+}
+
+// ── Wrong-answer tracker ──────────────────────────────────────────────────────
+function getWrongIds() { try { return JSON.parse(localStorage.getItem('sp_wrong_ids') || '{}'); } catch(e) { return {}; } }
+function updateWrongIds(folder, wrongSessionIds, allSessionIds) {
+  if (!folder || folder === 'all') return;
+  var w = getWrongIds();
+  if (!w[folder]) w[folder] = [];
+  wrongSessionIds.forEach(function(id) { var s = String(id); if (w[folder].indexOf(s) === -1) w[folder].push(s); });
+  allSessionIds.forEach(function(id) {
+    if (wrongSessionIds.indexOf(id) === -1) {
+      var s = String(id); var idx = w[folder].indexOf(s); if (idx !== -1) w[folder].splice(idx, 1);
+    }
+  });
+  if (!w[folder].length) delete w[folder];
+  localStorage.setItem('sp_wrong_ids', JSON.stringify(w));
 }
 
 // ── Folder metadata (subject per folder) ─────────────────────────────────────
@@ -3505,7 +3609,11 @@ function showResults() {
   mascotPeek();
   var f = document.getElementById('qz-folder').value;
   if (f && f !== 'all') saveFolderScore(f, pct);
-  if (f && f !== 'all') orgIncrementMCQ(f, qzQs); // rpAutoComplete fires inside orgIncrementMCQ
+  if (f && f !== 'all') {
+    updateWrongIds(f, qzWrongInSession, qzQs.map(function(q) { return q.id; }));
+    updateAvail();
+  }
+  if (f && f !== 'all') orgIncrementMCQ(f, qzQs, pct); // rpAutoComplete fires inside orgIncrementMCQ
   var trackEl = document.getElementById('qz-track-rp');
   if (trackEl && trackEl.checked) {
     if (f && f !== 'all') rpAddFromQuiz(f);
@@ -4674,24 +4782,31 @@ function rpGetCurrentTask(topic) {
 }
 
 // Auto-advances a due planner interval when a session is logged for the current task
-function rpAutoComplete(topic, tool) {
+function rpAutoComplete(topic, tool, score) {
   var now = Date.now();
   var item = rpData.find(function(x) {
     if (x.topic.toLowerCase() !== (topic || '').toLowerCase()) return false;
-    if (x.nextReview > now) return false; // interval not due yet
+    if (x.nextReview > now) return false;
     return rpGetCurrentTask(x.topic).tool === tool;
   });
   if (!item) return;
-  rpMarkDone(item.id);
+  rpMarkDone(item.id, score);
 }
 
-function rpMarkDone(id) {
+function rpMarkDone(id, score) {
   var item = rpData.find(function(x) { return x.id === id; });
   if (!item) return;
   item.doneReviews = item.doneReviews || [];
-  item.doneReviews.push({ level: item.level, doneDate: Date.now() });
-  item.level++;
-  item.nextReview = item.addedDate + rpIntervalDays(item.level) * 86400000;
+  item.doneReviews.push({ level: item.level, doneDate: Date.now(), score: score });
+  if (typeof score === 'number' && score < 50) {
+    item.level = 0;
+    item.addedDate = Date.now();
+    item.nextReview = Date.now() + 86400000;
+  } else {
+    item.level++;
+    if (typeof score === 'number' && score >= 80 && item.level >= 2) item.level++;
+    item.nextReview = item.addedDate + rpIntervalDays(item.level) * 86400000;
+  }
   rpSave();
   rpRenderToday();
 }
@@ -6491,7 +6606,7 @@ function orgSuggestCount(sessions, threshold, currentCount) {
   return Math.max(5, Math.min(suggested, remaining));
 }
 
-function orgIncrementMCQ(folder, questions) {
+function orgIncrementMCQ(folder, questions, score) {
   var t = orgMatchTopic(folder);
   if (!t) return;
   var today = new Date().toISOString().slice(0, 10);
@@ -6517,7 +6632,7 @@ function orgIncrementMCQ(folder, questions) {
   orgSaveTopics();
   orgRenderBanner();
   orgRenderTable();
-  rpAutoComplete(t.topic_name, 'mcq');
+  rpAutoComplete(t.topic_name, 'mcq', score);
 }
 function orgIncrementSAQ(folder, questionId) {
   var t = orgMatchTopic(folder);
