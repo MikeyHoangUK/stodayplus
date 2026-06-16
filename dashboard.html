@@ -1553,6 +1553,10 @@
             <div id="quiz-session-card" style="display:none"></div>
             <div class="avail-msg" id="avail-msg"></div>
             <button class="start-btn" id="start-btn" onclick="startQuiz()">Start Quiz →</button>
+            <div id="quiz-create-hint" style="display:none;margin-top:14px;text-align:center">
+              <p style="font-size:.78rem;color:#6e5438;font-weight:700;margin-bottom:10px">No questions yet — generate some in the Create tab first!</p>
+              <button onclick="quizGoCreate()" style="background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;font-weight:900;font-size:.82rem;padding:12px 32px;border-radius:12px;border:none;cursor:pointer;font-family:'Raleway',sans-serif;box-shadow:0 4px 16px rgba(124,58,237,.28)">➕ Create questions</button>
+            </div>
             <div class="rp-quiz-link">
               <label class="rp-ql-lbl">
                 <input type="checkbox" id="qz-track-rp" class="rp-ql-check"/>
@@ -2963,6 +2967,8 @@ function updateAvail() {
     + (f !== 'all' ? ' in "'+f+'"' : '')
     + (d !== 'all' ? ' · '+d : '');
   document.getElementById('start-btn').disabled = n === 0;
+  var hint = document.getElementById('quiz-create-hint');
+  if (hint) hint.style.display = n === 0 ? 'block' : 'none';
 }
 
 function startQuiz() {
@@ -3543,6 +3549,30 @@ function jumpToCreate(folderName) {
   var panel = document.getElementById('sub-create');
   if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
+function quizGoCreate() {
+  var f = (document.getElementById('qz-folder') || {}).value || 'all';
+  var folder = f === 'all' ? '' : f;
+  switchTab('create');
+  if (!folder) return;
+  var inp = document.getElementById('ai-folder-new');
+  if (inp) { inp.value = folder; aiTopicInput(); }
+  // updateNotesCacheUI (called by aiTopicInput) shows cached badge if sp_notes_cache has it.
+  // Fallback: load raw text from orgGetContent (e.g. uploaded via organiser without Blurto/Poppy).
+  if (!notesCacheGet(folder)) {
+    var org = orgGetContent(folder);
+    if (org) {
+      document.getElementById('ai-topic').value = org.text;
+      var doneEl = document.getElementById('ai-drop-done');
+      var idleEl = document.getElementById('ai-drop-idle');
+      var nameEl = document.getElementById('ai-file-name');
+      if (doneEl) doneEl.style.display = 'block';
+      if (idleEl) idleEl.style.display = 'none';
+      if (nameEl) nameEl.textContent = org.filename || folder;
+    }
+  }
+  var panel = document.getElementById('sub-create');
+  if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 function sqJumpToCreate(folderName) {
   sqTab('gen');
   var inp = document.getElementById('sq-folder-new');
@@ -4031,6 +4061,19 @@ function finleyTab(t) {
 function finleyTopicInput() {
   var val = (document.getElementById('finley-topic-inp').value || '').trim();
   document.getElementById('finley-start-btn').disabled = !val;
+  // Auto-fill notes from cache if textarea is empty and topic matches a folder
+  var notesInp = document.getElementById('finley-notes-inp');
+  if (val && notesInp && !notesInp.value.trim()) {
+    var blurtoC = blurtoCacheGet(val);
+    if (blurtoC && blurtoC.text) {
+      var tmp = document.createElement('div');
+      tmp.innerHTML = blurtoC.text;
+      notesInp.value = (tmp.innerText || tmp.textContent || '').trim();
+    } else {
+      var rawC = notesCacheGet(val);
+      if (rawC) notesInp.value = rawC.text || '';
+    }
+  }
 }
 
 function finleySetType(type, btn) {
@@ -4312,10 +4355,19 @@ function finleyLaunchFromOrg(topicName) {
   finleyShowScreen('setup');
   var inp = document.getElementById('finley-topic-inp');
   if (inp) { inp.value = topicName; finleyTopicInput(); }
-  // Pre-fill notes from cache if available
-  var cached = notesCacheGet(topicName);
+  // Pre-fill notes: prefer Blurto simplified (strip HTML → plain text), fall back to raw notes
   var notesInp = document.getElementById('finley-notes-inp');
-  if (cached && notesInp) notesInp.value = cached.text || '';
+  if (notesInp) {
+    var blurtoC = blurtoCacheGet(topicName);
+    if (blurtoC && blurtoC.text) {
+      var tmp = document.createElement('div');
+      tmp.innerHTML = blurtoC.text;
+      notesInp.value = (tmp.innerText || tmp.textContent || '').trim();
+    } else {
+      var rawC = notesCacheGet(topicName);
+      if (rawC) notesInp.value = rawC.text || '';
+    }
+  }
 }
 
 function finleyInit() {
@@ -4517,6 +4569,19 @@ function rpGoToTopic(tool, itemId) {
       finleyShowScreen('setup');
       var inp = document.getElementById('finley-topic-inp');
       if (inp) { inp.value = topic; finleyTopicInput(); }
+      // Pre-fill notes from cache (blurto simplified takes priority)
+      var fNotesInp = document.getElementById('finley-notes-inp');
+      if (fNotesInp && !fNotesInp.value.trim()) {
+        var fBlurto = blurtoCacheGet(topic);
+        if (fBlurto && fBlurto.text) {
+          var fTmp = document.createElement('div');
+          fTmp.innerHTML = fBlurto.text;
+          fNotesInp.value = (fTmp.innerText || fTmp.textContent || '').trim();
+        } else {
+          var fRaw = notesCacheGet(topic);
+          if (fRaw) fNotesInp.value = fRaw.text || '';
+        }
+      }
     }
     // blurto: showPanel is enough
   }, 80);
@@ -5568,8 +5633,8 @@ function blurtoOpenFolder(name, subject) {
       document.getElementById('blurto-extract-status').textContent = '✓ Simplified notes loaded · ' + name + ' · ' + blurtoCached.date;
     }
   } else {
-    // Fall back to raw notes cache
-    var cached = orgGetContent(name);
+    // Fall back to raw notes cache (org store or shared sp_notes_cache from Poppy/Sage)
+    var cached = orgGetContent(name) || notesCacheGet(name);
     if (cached) {
       var notesEl = document.getElementById('blurto-notes-area');
       if (notesEl) {
@@ -5687,12 +5752,17 @@ async function blurtoExtractFile(file) {
       var ot = orgTopics.find(function(x) { return x.id === orgLastTopicId; });
       if (ot) orgStoreContent(ot.topic_name, text, file.name);
     }
-    // AI-suggest topic name if field is empty
     var topicEl = document.getElementById('blurto-topic');
+    var rawText = text, rawFileName = file.name;
+    // Save raw text to shared notes cache so Poppy, Sage, Finley can access this file
+    if (topicEl && topicEl.value.trim()) {
+      notesCacheSet(topicEl.value.trim(), rawText, rawFileName);
+    }
     if (topicEl && !topicEl.value.trim()) {
-      suggestTopicName(text, key).then(function(suggested) {
+      suggestTopicName(rawText, key).then(function(suggested) {
         if (suggested && !topicEl.value.trim()) {
           topicEl.value = suggested;
+          notesCacheSet(suggested, rawText, rawFileName);
           var existSubj = getSubjectForFolder(suggested);
           var subjEl = document.getElementById('blurto-subj');
           if (existSubj && subjEl && !subjEl.value) subjEl.value = existSubj;
