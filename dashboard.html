@@ -1465,6 +1465,18 @@
     </div>
   </nav>
 
+  <!-- OFFLINE BANNER -->
+  <div id="offline-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9998;background:#dc2626;color:#fff;text-align:center;padding:8px 16px;font-size:.8rem;font-family:'Raleway',sans-serif;font-weight:700;letter-spacing:.02em">
+    📡 You're offline — AI features won't work until your connection is restored
+  </div>
+
+  <!-- UNDO TOAST -->
+  <div id="undo-toast" style="display:none;position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#1e1b4b;color:#fff;padding:11px 18px;border-radius:14px;z-index:9997;align-items:center;gap:14px;font-family:'Raleway',sans-serif;font-size:.82rem;box-shadow:0 4px 28px rgba(0,0,0,.35);white-space:nowrap">
+    <span id="undo-toast-msg"></span>
+    <button onclick="applyUndo()" style="background:#7c3aed;color:#fff;border:none;padding:5px 14px;border-radius:8px;font-weight:700;cursor:pointer;font-family:'Raleway',sans-serif;font-size:.8rem">Undo</button>
+    <button onclick="hideUndoToast()" style="background:transparent;color:#9ca3af;border:none;font-size:1.1rem;cursor:pointer;line-height:1;padding:0 2px">×</button>
+  </div>
+
   <!-- Main -->
   <div id="main">
     <header id="topbar">
@@ -2333,6 +2345,8 @@ window.addEventListener('DOMContentLoaded', function() {
   renderSqBank();
   renderBlurtoBank();
   updateNotesCacheUI();
+  if (!navigator.onLine) document.getElementById('offline-banner').style.display = 'block';
+  checkStorageUsage();
 });
 
 // ── MARVEL ENTRY ANIMATION ──
@@ -3037,8 +3051,10 @@ function renderBank() {
 
 function delQ(id) {
   if (!confirm('Delete this question?')) return;
+  var snap = JSON.stringify(bank);
   bank = bank.filter(function(q) { return q.id !== id; });
   saveBank(); renderBank(); updateAvail();
+  pushUndo('Question', function() { bank = JSON.parse(snap); saveBank(); renderBank(); updateAvail(); });
 }
 
 function editQ(id) {
@@ -3060,8 +3076,10 @@ function editQ(id) {
 function deleteFolder(folder) {
   var count = bank.filter(function(q){ return (q.folder||'General') === folder; }).length;
   if (!confirm('Delete folder "' + folder + '"?\n\nThis will permanently delete all ' + count + ' question' + (count!==1?'s':'') + ' inside it.')) return;
+  var snap = JSON.stringify(bank);
   bank = bank.filter(function(q){ return (q.folder||'General') !== folder; });
   saveBank(); renderBank(); updateAvail();
+  pushUndo('"' + folder + '" MCQs', function() { bank = JSON.parse(snap); saveBank(); renderBank(); updateAvail(); });
 }
 
 function quizFolder(folder) {
@@ -3227,9 +3245,11 @@ function ensureFolder(name, subject) {
 
 function deleteSharedFolder(name) {
   if (!confirm('Remove "' + name + '" from all bots? (Existing questions are kept but folder will be hidden)')) return;
+  var snap = localStorage.getItem('sp_folders');
   var list = getAllFolders().filter(function(f) { return f.name !== name; });
   saveAllFolders(list);
   renderBlurtoBank();
+  pushUndo('"' + name + '" folder', function() { if (snap) localStorage.setItem('sp_folders', snap); renderBlurtoBank(); });
 }
 
 function populateFolderDatalist() {
@@ -3368,6 +3388,13 @@ function deleteFolderFromEdit() {
   var blN =(typeof blurtoSessions!=='undefined'?blurtoSessions:[]).filter(function(s){ return s.topic===name; }).length;
   var msg='Delete "'+name+'"?\n\nThis will permanently remove:\n• '+mcqN+' MCQ question'+(mcqN!==1?'s':'')+'\n• '+saqN+' SAQ'+(saqN!==1?'s':'')+'\n• '+blN+' Blurto session'+(blN!==1?'s':'')+'\n\nThis cannot be undone.';
   if (!confirm(msg)) return;
+  var snapBank    = JSON.stringify(bank);
+  var snapSq      = JSON.stringify(sqBank);
+  var snapBlurto  = JSON.stringify(blurtoSessions);
+  var snapFolders = localStorage.getItem('sp_folders');
+  var snapOrg     = JSON.stringify(orgTopics);
+  var snapMeta    = localStorage.getItem('sp_folder_meta');
+  var snapScores  = localStorage.getItem('sp_folder_scores');
   if (typeof bank!=='undefined'){ bank=bank.filter(function(q){ return (q.folder||'General')!==name; }); if(typeof saveBank==='function') saveBank(); }
   if (typeof sqBank!=='undefined'){ sqBank=sqBank.filter(function(q){ return (q.folder||'General')!==name; }); if(typeof sqSave==='function') sqSave(); }
   if (typeof blurtoSessions!=='undefined'){ blurtoSessions=blurtoSessions.filter(function(s){ return s.topic!==name; }); if(typeof blurtoSave==='function') blurtoSave(); }
@@ -3379,6 +3406,17 @@ function deleteFolderFromEdit() {
   populateFolderDatalist();
   closeFolderEdit();
   renderBank(); renderSqBank(); renderBlurtoBank();
+  pushUndo('"' + name + '"', function() {
+    bank = JSON.parse(snapBank); saveBank();
+    sqBank = JSON.parse(snapSq); sqSave();
+    blurtoSessions = JSON.parse(snapBlurto); blurtoSave();
+    if (snapFolders) localStorage.setItem('sp_folders', snapFolders);
+    orgTopics = JSON.parse(snapOrg); orgSaveTopics();
+    if (snapMeta)   localStorage.setItem('sp_folder_meta',   snapMeta);
+    if (snapScores) localStorage.setItem('sp_folder_scores', snapScores);
+    populateFolderDatalist(); orgRenderBanner(); orgRenderTable();
+    renderBank(); renderSqBank(); renderBlurtoBank();
+  });
 }
 
 function editFolderSubject(name) { openFolderEdit(name); }
@@ -3489,6 +3527,7 @@ var PANEL_TITLES = {
   'finley':  'Finley<span class="tb-sub">Feynman Teaching</span>'
 };
 function showPanel(id, el) {
+  if (sqCountdownTimer) { clearInterval(sqCountdownTimer); sqCountdownTimer = null; }
   document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
   var p = document.getElementById('panel-'+id);
   if (p) { p.classList.add('active'); p.classList.add('anim'); }
@@ -3803,6 +3842,47 @@ function importData(event) {
   };
   reader.readAsText(file);
   event.target.value = '';
+}
+
+// ── UNDO SYSTEM ──
+var undoStack = [];
+var undoToastTimer = null;
+function pushUndo(label, restoreFn) {
+  undoStack.push({ label: label, restore: restoreFn });
+  if (undoStack.length > 5) undoStack.shift();
+  if (undoToastTimer) clearTimeout(undoToastTimer);
+  var toast = document.getElementById('undo-toast');
+  document.getElementById('undo-toast-msg').textContent = label + ' deleted';
+  toast.style.display = 'flex';
+  undoToastTimer = setTimeout(hideUndoToast, 8000);
+}
+function hideUndoToast() {
+  document.getElementById('undo-toast').style.display = 'none';
+  if (undoToastTimer) { clearTimeout(undoToastTimer); undoToastTimer = null; }
+}
+function applyUndo() {
+  var entry = undoStack.pop();
+  if (!entry) return;
+  entry.restore();
+  hideUndoToast();
+}
+
+// ── OFFLINE DETECTION ──
+window.addEventListener('offline', function() { document.getElementById('offline-banner').style.display = 'block'; });
+window.addEventListener('online',  function() { document.getElementById('offline-banner').style.display = 'none'; });
+
+// ── STORAGE USAGE WARNING ──
+function checkStorageUsage() {
+  var total = 0;
+  for (var i = 0; i < localStorage.length; i++) {
+    var k = localStorage.key(i);
+    total += (k.length + (localStorage.getItem(k) || '').length) * 2;
+  }
+  var mb = total / (1024 * 1024);
+  if (mb > 4) {
+    var pct = Math.round(mb / 5 * 100);
+    if (confirm('⚠️ Storage is ' + pct + '% full (' + mb.toFixed(1) + ' MB of ~5 MB).\n\nExport a backup now to avoid losing data?')) exportData();
+  }
 }
 
 // ── AI GENERATE (Groq) ──
@@ -5116,7 +5196,9 @@ function rpRenderExams() {
 }
 
 // ── PLANNER CLOCK ─────────────────────────────────────────────────────────────
+var rpClockInterval = null;
 function rpStartClock() {
+  if (rpClockInterval) return;
   function tick() {
     var now = new Date();
     var hm  = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
@@ -5130,7 +5212,7 @@ function rpStartClock() {
     if (dayEl) dayEl.textContent = day;
   }
   tick();
-  setInterval(tick, 1000);
+  rpClockInterval = setInterval(tick, 1000);
 }
 
 // ── SAQs MAKER ────────────────────────────────────────────────────────────────
@@ -5231,14 +5313,16 @@ async function sqProcessFile(file) {
   }
 }
 
+var sqCountdownTimer = null;
 function sqCountdown(secs, cb) {
+  if (sqCountdownTimer) { clearInterval(sqCountdownTimer); sqCountdownTimer = null; }
   var remaining = secs;
   var btn = document.getElementById('sq-btn');
   btn.disabled = true;
-  var t = setInterval(function() {
+  sqCountdownTimer = setInterval(function() {
     remaining--;
     sqSetStatus('Rate limited — retrying in ' + remaining + 's…', 'sload');
-    if (remaining <= 0) { clearInterval(t); cb(); }
+    if (remaining <= 0) { clearInterval(sqCountdownTimer); sqCountdownTimer = null; cb(); }
   }, 1000);
 }
 
@@ -5422,9 +5506,10 @@ function sqFolderSearchInput(v) { sqFolderSearch = v; renderSqBank(); var inp = 
 
 function sqDeleteFolder(folder) {
   if (!confirm('Delete all SAQs in "' + folder + '"?')) return;
+  var snap = JSON.stringify(sqBank);
   sqBank = sqBank.filter(function(q) { return (q.folder || 'General') !== folder; });
-  sqSave();
-  renderSqBank();
+  sqSave(); renderSqBank();
+  pushUndo('"' + folder + '" SAQs', function() { sqBank = JSON.parse(snap); sqSave(); renderSqBank(); });
 }
 
 function sqPracFolder(folder) {
@@ -5699,8 +5784,10 @@ function renderBlurtoNotes() {
 
 function blurtoNoteDelete(folder) {
   if (!confirm('Delete simplified notes for "' + folder + '"?')) return;
+  var snap = localStorage.getItem('sp_blurto_cache');
   blurtoCacheClear(folder);
   renderBlurtoNotes();
+  pushUndo('"' + folder + '" notes', function() { if (snap) localStorage.setItem('sp_blurto_cache', snap); renderBlurtoNotes(); });
 }
 
 function blurtoNoteReview(folder) {
@@ -6652,13 +6739,17 @@ function orgSetConf(id, next) {
 function orgDeleteTopic(id) {
   var t = orgTopics.find(function(x) { return x.id === id; });
   if (!t || !confirm('Delete "' + t.topic_name + '" from the organiser?\n(MCQs and SAQs in this folder are kept — only the organiser row is removed.)')) return;
+  var snapOrg     = JSON.stringify(orgTopics);
+  var snapFolders = localStorage.getItem('sp_folders');
   orgTopics = orgTopics.filter(function(x) { return x.id !== id; });
   orgSaveTopics();
-  // also remove from shared folder registry so it disappears from all bots
   saveAllFolders(getAllFolders().filter(function(f) { return f.name.toLowerCase() !== t.topic_name.toLowerCase(); }));
-  populateFolderDatalist();
-  orgRenderBanner();
-  orgRenderTable();
+  populateFolderDatalist(); orgRenderBanner(); orgRenderTable();
+  pushUndo('"' + t.topic_name + '" topic', function() {
+    orgTopics = JSON.parse(snapOrg); orgSaveTopics();
+    if (snapFolders) localStorage.setItem('sp_folders', snapFolders);
+    populateFolderDatalist(); orgRenderBanner(); orgRenderTable();
+  });
 }
 
 // Navigation to study tools
