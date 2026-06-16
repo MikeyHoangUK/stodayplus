@@ -2327,6 +2327,8 @@ var blurtoSubjFilt = 'all';
 var blurtoFolderSearch = '';
 var editId = null;
 var aiPendingQs = null;
+var aiGenerating = false;
+var sqGenerating = false;
 var qzQs = [], qzIdx = 0, qzScore = 0, qzAnswered = false, lastCfg = null, qzStartTime = null, qzWrongInSession = [];
 var bankQSearch = '';
 var pomoType = null, pomoLeft = 0, pomoTotal = 0, pomoRunning = false, pomoTimer = null, pomoElapsed = 0;
@@ -3463,20 +3465,31 @@ function saveFolderEdit() {
   if (!newName) { document.getElementById('fe-name').focus(); return; }
 
   if (newName !== oldName) {
-    (typeof bank!=='undefined'?bank:[]).forEach(function(q){ if((q.folder||'General')===oldName) q.folder=newName; });
-    if (typeof saveBank==='function') saveBank();
-    (typeof sqBank!=='undefined'?sqBank:[]).forEach(function(q){ if((q.folder||'General')===oldName) q.folder=newName; });
-    if (typeof sqSave==='function') sqSave();
-    (typeof blurtoSessions!=='undefined'?blurtoSessions:[]).forEach(function(s){ if(s.topic===oldName) s.topic=newName; });
-    if (typeof blurtoSave==='function') blurtoSave();
-    var sc=getFolderScores(); if(sc[oldName]!==undefined){sc[newName]=sc[oldName];delete sc[oldName];localStorage.setItem('sp_folder_scores',JSON.stringify(sc));}
-    try{ var tc=JSON.parse(localStorage.getItem('sp_topic_content')||'{}'); if(tc[oldName.toLowerCase()]){tc[newName.toLowerCase()]=tc[oldName.toLowerCase()];delete tc[oldName.toLowerCase()];localStorage.setItem('sp_topic_content',JSON.stringify(tc));} }catch(e){}
-    try{ var nc=JSON.parse(localStorage.getItem('sp_notes_cache')||'{}'); if(nc[oldName]){nc[newName]=nc[oldName];delete nc[oldName];localStorage.setItem('sp_notes_cache',JSON.stringify(nc));} }catch(e){}
-    try{ var bc=JSON.parse(localStorage.getItem('sp_blurto_cache')||'{}'); if(bc[oldName]){bc[newName]=bc[oldName];delete bc[oldName];localStorage.setItem('sp_blurto_cache',JSON.stringify(bc));} }catch(e){}
-    var ot=orgTopics.find(function(t){ return t.topic_name.toLowerCase()===oldName.toLowerCase(); }); if(ot) ot.topic_name=newName;
-    if(bankFolder===oldName) bankFolder=newName;
-    if(typeof sqCurrentFolder!=='undefined' && sqCurrentFolder===oldName) sqCurrentFolder=newName;
-    var meta=getFolderMeta(); delete meta[oldName]; localStorage.setItem('sp_folder_meta',JSON.stringify(meta));
+    // Snapshot everything before touching state so we can roll back on any write failure
+    var _snapLS = {};
+    ['sp_questions','sp_saqs','sp_blurto','sp_folder_scores','sp_topic_content','sp_notes_cache','sp_blurto_cache','sp_folders','sp_org_topics','sp_folder_meta'].forEach(function(k){ _snapLS[k] = localStorage.getItem(k); });
+    var _snapBank = JSON.stringify(bank), _snapSq = JSON.stringify(sqBank), _snapBlurto = JSON.stringify(blurtoSessions), _snapOrg = JSON.stringify(orgTopics);
+    try {
+      bank.forEach(function(q){ if((q.folder||'General')===oldName) q.folder=newName; }); saveBank();
+      sqBank.forEach(function(q){ if((q.folder||'General')===oldName) q.folder=newName; }); sqSave();
+      blurtoSessions.forEach(function(s){ if(s.topic===oldName) s.topic=newName; }); blurtoSave();
+      var sc=getFolderScores(); if(sc[oldName]!==undefined){sc[newName]=sc[oldName];delete sc[oldName];localStorage.setItem('sp_folder_scores',JSON.stringify(sc));}
+      var tc=JSON.parse(localStorage.getItem('sp_topic_content')||'{}'); if(tc[oldName.toLowerCase()]){tc[newName.toLowerCase()]=tc[oldName.toLowerCase()];delete tc[oldName.toLowerCase()];localStorage.setItem('sp_topic_content',JSON.stringify(tc));}
+      var nc=JSON.parse(localStorage.getItem('sp_notes_cache')||'{}'); if(nc[oldName]){nc[newName]=nc[oldName];delete nc[oldName];localStorage.setItem('sp_notes_cache',JSON.stringify(nc));}
+      var bc=JSON.parse(localStorage.getItem('sp_blurto_cache')||'{}'); if(bc[oldName]){bc[newName]=bc[oldName];delete bc[oldName];localStorage.setItem('sp_blurto_cache',JSON.stringify(bc));}
+      var ot=orgTopics.find(function(t){ return t.topic_name.toLowerCase()===oldName.toLowerCase(); }); if(ot) ot.topic_name=newName;
+      if(bankFolder===oldName) bankFolder=newName;
+      if(typeof sqCurrentFolder!=='undefined' && sqCurrentFolder===oldName) sqCurrentFolder=newName;
+      var meta=getFolderMeta(); delete meta[oldName]; localStorage.setItem('sp_folder_meta',JSON.stringify(meta));
+    } catch(err) {
+      // Roll back localStorage
+      Object.keys(_snapLS).forEach(function(k){ if(_snapLS[k]!==null) localStorage.setItem(k,_snapLS[k]); else localStorage.removeItem(k); });
+      // Roll back in-memory
+      bank = JSON.parse(_snapBank); sqBank = JSON.parse(_snapSq); blurtoSessions = JSON.parse(_snapBlurto); orgTopics = JSON.parse(_snapOrg);
+      if(bankFolder===newName) bankFolder=oldName;
+      alert('Rename failed — all changes have been reversed.\n(' + err.message + ')');
+      return;
+    }
   }
 
   var list=getAllFolders();
@@ -3647,6 +3660,10 @@ var PANEL_TITLES = {
 };
 function showPanel(id, el) {
   if (sqCountdownTimer) { clearInterval(sqCountdownTimer); sqCountdownTimer = null; }
+  // Pause blurto timer when leaving the panel; it resumes in blurtoInit on re-entry
+  if (id !== 'blurto' && blurtoTimerInterval) { clearInterval(blurtoTimerInterval); blurtoTimerInterval = null; }
+  // Discard in-memory Finley session on panel switch (it's not persisted anyway)
+  if (id !== 'finley' && finleySession) { finleySession = null; finleyStartTime = null; finleyMessageCount = 0; }
   document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
   var p = document.getElementById('panel-'+id);
   if (p) { p.classList.add('active'); p.classList.add('anim'); }
@@ -4007,6 +4024,20 @@ function importData(event) {
   event.target.value = '';
 }
 
+// ── HTML SANITISER (strips script/event-handler injection from AI output) ──
+function sanitizeHtml(html) {
+  var tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  tmp.querySelectorAll('script,style,iframe,object,embed,form,input,button,meta,link').forEach(function(el) { el.remove(); });
+  tmp.querySelectorAll('*').forEach(function(el) {
+    Array.from(el.attributes).forEach(function(a) {
+      if (a.name.startsWith('on')) el.removeAttribute(a.name);
+      if ((a.name === 'href' || a.name === 'src' || a.name === 'action') && /^\s*javascript:/i.test(a.value)) el.removeAttribute(a.name);
+    });
+  });
+  return tmp.innerHTML;
+}
+
 // ── UNDO SYSTEM ──
 var undoStack = [];
 var undoToastTimer = null;
@@ -4361,8 +4392,10 @@ function aiTopicInput() {
 }
 
 async function generateWithAI(isRetry){
+  if (!isRetry && aiGenerating) return;
+  aiGenerating = true;
   var key = getAIKey();
-  if(!key){ setAIStatus('Save your Groq API key first — free at console.groq.com (no card needed).','serr'); document.getElementById('ai-key-row').style.display='flex'; return; }
+  if(!key){ aiGenerating = false; setAIStatus('Save your Groq API key first — free at console.groq.com (no card needed).','serr'); document.getElementById('ai-key-row').style.display='flex'; return; }
   var folderName = (document.getElementById('ai-folder-new').value || '').trim();
   if(!folderName){ setAIStatus('Select a topic first.','serr'); return; }
   // --- Cache check ---
@@ -4444,7 +4477,7 @@ async function generateWithAI(isRetry){
   } catch(e) {
     setAIStatus('Error: ' + e.message,'serr');
   } finally {
-    if(!pendingRetry) btn.disabled = false;
+    if(!pendingRetry) { aiGenerating = false; btn.disabled = false; }
   }
 }
 
@@ -5497,8 +5530,10 @@ function sqCountdown(secs, cb) {
 }
 
 async function sqGenerateWithAI(isRetry) {
+  if (!isRetry && sqGenerating) return;
+  sqGenerating = true;
   var key = getAIKey();
-  if (!key) { sqSetStatus('Save your Groq API key first — free at console.groq.com.', 'serr'); document.getElementById('sq-key-row').style.display='flex'; return; }
+  if (!key) { sqGenerating = false; sqSetStatus('Save your Groq API key first — free at console.groq.com.', 'serr'); document.getElementById('sq-key-row').style.display='flex'; return; }
   var sqFolderName = ((document.getElementById('sq-folder-new') || {}).value || '').trim();
   var sqCachedNotes = sqFolderName ? notesCacheGet(sqFolderName) : null;
   var topic = sqCachedNotes ? sqCachedNotes.text : (document.getElementById('sq-topic').value || '').trim();
@@ -5540,7 +5575,7 @@ async function sqGenerateWithAI(isRetry) {
   } catch(e) {
     sqSetStatus('Error: ' + e.message, 'serr');
   } finally {
-    if (!pendingRetry) btn.disabled = false;
+    if (!pendingRetry) { sqGenerating = false; btn.disabled = false; }
   }
 }
 
@@ -6044,7 +6079,7 @@ function blurtoOpenFolder(name, subject) {
   if (blurtoCached) {
     var notesElB = document.getElementById('blurto-notes-area');
     if (notesElB) {
-      notesElB.innerHTML = blurtoCached.text;
+      notesElB.innerHTML = sanitizeHtml(blurtoCached.text);
       blurtoSimplified = true;
       var sBtn = document.getElementById('blurto-simplify-btn');
       if (sBtn) { sBtn.disabled = true; sBtn.textContent = '✓ Simplified'; sBtn.title = 'Already simplified — editing notes directly is the next step'; }
@@ -6078,7 +6113,9 @@ function blurtoSave() {
 }
 
 function blurtoInit() {
-  // Called each time panel is opened; only do setup init
+  // Resume timer if a blurting session was paused by a panel switch
+  if (blurtoPhase === 'blurting' && !blurtoTimerInterval) blurtoTimerInterval = setInterval(blurtoTimerTick, 1000);
+  // Only do setup init when in setup phase
   if (blurtoPhase !== 'setup') return;
   blurtoRangeUpdate('mins');
   blurtoRangeUpdate('fade');
@@ -6242,7 +6279,7 @@ async function blurtoSimplify() {
       if (!out) throw new Error('No response from AI on part ' + (ci + 1));
       htmlParts.push(out.replace(/```html|```/g, '').trim());
     }
-    var simplifiedOut = htmlParts.join('\n');
+    var simplifiedOut = sanitizeHtml(htmlParts.join('\n'));
     document.getElementById('blurto-notes-area').innerHTML = simplifiedOut;
     blurtoSimplified = true;
     btn.textContent = '✓ Simplified';
