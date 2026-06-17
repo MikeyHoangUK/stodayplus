@@ -1898,28 +1898,22 @@
             </div>
             <div id="sq-notes-cache-info" style="display:none;align-items:center;padding:6px 10px;background:rgba(91,33,182,.06);border:1px solid rgba(91,33,182,.18);border-radius:8px;margin-bottom:8px"></div>
             <div id="sq-notes-file-row">
-            <div class="ai-drop" id="sq-drop"
-                 ondragover="sqDragOver(event)" ondragleave="sqDragLeave(event)" ondrop="sqDrop(event)"
-                 onclick="document.getElementById('sq-file-inp').click()">
-              <input type="file" id="sq-file-inp" accept=".pdf,.pptx" style="display:none" onchange="sqFileSelect(event)"/>
-              <div id="sq-drop-idle">
-                <span class="ai-drop-icon">📂</span>
-                <span class="ai-drop-txt">Drop your <strong>.pdf</strong> or <strong>.pptx</strong> here</span>
-                <span class="ai-drop-sub">or click to browse — text will be extracted automatically</span>
-              </div>
-              <div id="sq-drop-loading" style="display:none" class="ai-drop-loading">
-                <span class="ai-spin">⟳</span> Extracting text…
-              </div>
-              <div id="sq-drop-done" style="display:none">
-                <span class="ai-file-badge">
-                  <span>📎</span>
-                  <span id="sq-file-name"></span>
-                  <span class="ai-file-x" onclick="sqFileClear(event)">✕</span>
-                </span>
+              <div class="ai-file-list" id="sq-file-list"></div>
+              <div class="ai-drop" id="sq-drop"
+                   ondragover="sqDragOver(event)" ondragleave="sqDragLeave(event)" ondrop="sqDrop(event)"
+                   onclick="document.getElementById('sq-file-inp').click()">
+                <input type="file" id="sq-file-inp" accept=".pdf,.pptx" multiple style="display:none" onchange="sqFileSelect(event)"/>
+                <div id="sq-drop-idle">
+                  <span class="ai-drop-icon">📂</span>
+                  <span class="ai-drop-txt">Drop <strong>.pdf</strong> or <strong>.pptx</strong> files here</span>
+                  <span class="ai-drop-sub">Multiple files supported — text from all files will be merged</span>
+                </div>
+                <div id="sq-drop-loading" style="display:none" class="ai-drop-loading">
+                  <span class="ai-spin">⟳</span> <span id="sq-drop-loading-msg">Extracting…</span>
+                </div>
               </div>
             </div>
-            </div>
-            <textarea id="sq-topic" class="ai-ta" placeholder="Or paste your notes / type a topic here…" style="width:100%;margin-bottom:14px"></textarea>
+            <textarea id="sq-topic" class="ai-ta" placeholder="Or paste your notes / type a topic here…" style="width:100%;margin-bottom:14px" oninput="if(!this.value.trim()&&sqLoadedFiles.length){sqLoadedFiles=[];sqRenderFileList();document.getElementById('sq-drop-idle').style.display='';}"></textarea>
             <div class="ai-opts" style="margin-bottom:10px">
               <div class="ai-opt-group">
                 <span class="ai-opt-lbl">SAQs</span>
@@ -4487,15 +4481,16 @@ async function generateWithAI(isRetry){
   var key = getAIKey();
   if(!key){ aiGenerating = false; setAIStatus('Save your Groq API key first — free at console.groq.com (no card needed).','serr'); document.getElementById('ai-key-row').style.display='flex'; return; }
   var folderName = (document.getElementById('ai-folder-new').value || '').trim();
-  if(!folderName){ setAIStatus('Select a topic first.','serr'); return; }
+  if(!folderName){ aiGenerating = false; setAIStatus('Select a topic first.','serr'); return; }
   // --- Cache check ---
   var cachedNotes = notesCacheGet(folderName);
   var skipToGenerate = !!cachedNotes;
   var cachedFileName = cachedNotes ? cachedNotes.fileName : '';
   var notesTextFromCache = cachedNotes ? cachedNotes.text : null;
   var topic = skipToGenerate ? notesTextFromCache : document.getElementById('ai-topic').value.trim();
-  if(!skipToGenerate && !topic){ setAIStatus('Enter notes or a topic description to generate from.','serr'); return; }
-  if(topic && topic.length > 8000) topic = topic.slice(0, 8000);
+  if(!skipToGenerate && !topic){ aiGenerating = false; setAIStatus('Enter notes or a topic description to generate from.','serr'); return; }
+  // Trim only if genuinely a single paste (file uploads are already condensed per-file)
+  if(topic && topic.length > 32000) topic = topic.slice(0, 32000);
   if(!skipToGenerate) { notesCacheSet(folderName, topic, aiLoadedFiles.length ? aiLoadedFiles[0].name : ''); updateNotesCacheUI(); }
   var n    = aiGetOpt('count') || '5';
   var diff = aiGetOpt('diff')  || 'medium';
@@ -5610,53 +5605,103 @@ function sqClearAIKey() {
   document.getElementById('sq-key-row').style.display = 'flex';
 }
 
+// ── Sage file drop (multi-file) ──
+var sqLoadedFiles = []; // [{name, text}]
+
 function sqDragOver(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('sq-drop').classList.add('over'); }
 function sqDragLeave(e) { e.preventDefault(); document.getElementById('sq-drop').classList.remove('over'); }
-function sqDrop(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('sq-drop').classList.remove('over'); var f = e.dataTransfer.files[0]; if (f) sqProcessFile(f); }
-function sqFileSelect(e) { var f = e.target.files[0]; if (f) sqProcessFile(f); e.target.value = ''; }
-function sqFileClear(e) { e.stopPropagation(); document.getElementById('sq-drop-idle').style.display = ''; document.getElementById('sq-drop-done').style.display = 'none'; document.getElementById('sq-topic').value = ''; sqSetStatus('', ''); }
-
-async function sqProcessFile(file) {
-  var ext = file.name.split('.').pop().toLowerCase();
-  if (ext !== 'pdf' && ext !== 'pptx') { sqSetStatus('Only .pdf and .pptx files are supported.', 'serr'); return; }
-  if (!(await checkFileMagic(file, ext))) { sqSetStatus('File content does not match .' + ext + ' format — please check the file.', 'serr'); return; }
-  document.getElementById('sq-drop-idle').style.display = 'none';
-  document.getElementById('sq-drop-done').style.display = 'none';
-  document.getElementById('sq-drop-loading').style.display = 'block';
+function sqDrop(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('sq-drop').classList.remove('over'); var files = Array.from(e.dataTransfer.files); if (files.length) sqProcessFiles(files); }
+function sqFileSelect(e) { var files = Array.from(e.target.files); if (files.length) sqProcessFiles(files); e.target.value = ''; }
+function sqRemoveFile(idx) {
+  sqLoadedFiles.splice(idx, 1);
+  sqRenderFileList();
+  document.getElementById('sq-topic').value = sqLoadedFiles.map(function(f){ return f.text; }).join('\n\n---\n\n');
+  if (!sqLoadedFiles.length) { document.getElementById('sq-drop-idle').style.display = ''; sqSetStatus('', ''); }
+}
+function sqRenderFileList() {
+  var list = document.getElementById('sq-file-list');
+  list.innerHTML = sqLoadedFiles.map(function(f, i){
+    return '<span class="ai-file-badge"><span>📎</span><span>' + esc(f.name) + '</span>'
+      + '<span class="ai-file-x" onclick="sqRemoveFile(' + i + ')">✕</span></span>';
+  }).join('');
+}
+function sqResetDropZone() {
+  sqLoadedFiles = [];
+  sqRenderFileList();
+  document.getElementById('sq-drop-idle').style.display = '';
+  document.getElementById('sq-drop-loading').style.display = 'none';
+  document.getElementById('sq-topic').value = '';
   sqSetStatus('', '');
-  try {
-    var sqKey = getAIKey();
-    function sqProg(msg){ sqSetStatus(msg,'sload'); }
-    var text = ext === 'pdf' ? await extractPdf(file, sqKey, sqProg) : await extractPptx(file, sqKey, sqProg);
-    if (!text.replace(/\s+/g,'').trim()) throw new Error('No readable text found.');
-    var sqCondensed = false;
-    if(text.length > CONDENSE_CHARS && sqKey){
-      try{ text = await condenseForAI(text, sqKey, sqProg); sqCondensed = true; }
-      catch(e){ text = text.slice(0, 8000); }
-    } else if(text.length > 8000){ text = text.slice(0, 8000); }
-    document.getElementById('sq-topic').value = text;
-    document.getElementById('sq-file-name').textContent = file.name;
-    document.getElementById('sq-drop-loading').style.display = 'none';
-    document.getElementById('sq-drop-done').style.display = 'block';
-    sqSetStatus(sqCondensed ? '✓ Key facts extracted — review, then hit Generate.' : '✓ Text extracted — hit Generate when ready.', 'sok');
+}
+async function sqProcessFiles(files) {
+  var sqKey = getAIKey();
+  var loadingEl = document.getElementById('sq-drop-loading');
+  var loadingMsg = document.getElementById('sq-drop-loading-msg');
+  var idleEl = document.getElementById('sq-drop-idle');
+  var anyCondensed = false;
+  var errors = [];
+
+  for (var fi = 0; fi < files.length; fi++) {
+    var file = files[fi];
+    var ext = file.name.split('.').pop().toLowerCase();
+    if (ext !== 'pdf' && ext !== 'pptx') { errors.push(file.name + ': only .pdf and .pptx are supported'); continue; }
+    if (!(await checkFileMagic(file, ext))) { errors.push(file.name + ': file content does not match .' + ext + ' format'); continue; }
+    if (sqLoadedFiles.some(function(lf){ return lf.name === file.name; })) continue;
+
+    idleEl.style.display = 'none';
+    loadingEl.style.display = 'block';
+    loadingMsg.textContent = 'Extracting ' + file.name + ' (' + (fi + 1) + '/' + files.length + ')…';
+    sqSetStatus('', '');
+
+    try {
+      function mkSqProg(fname){ return function(msg){ loadingMsg.textContent = fname + ': ' + msg; }; }
+      var text = ext === 'pdf'
+        ? await extractPdf(file, sqKey, mkSqProg(file.name))
+        : await extractPptx(file, sqKey, mkSqProg(file.name));
+      if (!text.replace(/\s+/g,'').trim()) { errors.push(file.name + ': no readable text found'); continue; }
+      if (text.length > CONDENSE_CHARS && sqKey) {
+        try {
+          loadingMsg.textContent = 'Condensing ' + file.name + '…';
+          text = await condenseForAI(text, sqKey, mkSqProg(file.name));
+          anyCondensed = true;
+        } catch(e) { text = text.slice(0, 8000); }
+      } else if (text.length > 8000) { text = text.slice(0, 8000); }
+      sqLoadedFiles.push({ name: file.name, text: text });
+    } catch(err) {
+      errors.push(file.name + ': ' + err.message);
+    }
+  }
+
+  loadingEl.style.display = 'none';
+  if (!sqLoadedFiles.length) idleEl.style.display = '';
+
+  sqRenderFileList();
+  var merged = sqLoadedFiles.map(function(f){ return f.text; }).join('\n\n---\n\n');
+  document.getElementById('sq-topic').value = merged;
+
+  if (errors.length) {
+    sqSetStatus('⚠ ' + errors.join(' · '), 'serr');
+  } else if (sqLoadedFiles.length) {
+    var label = sqLoadedFiles.length === 1 ? '1 file loaded' : sqLoadedFiles.length + ' files merged';
+    sqSetStatus('✓ ' + label + (anyCondensed ? ' — key facts extracted' : ' — text extracted') + '. Hit Generate when ready.', 'sok');
+  }
+
+  if (sqLoadedFiles.length) {
     if (orgLastTopicId) {
-      var ot = orgTopics.find(function(x) { return x.id === orgLastTopicId; });
-      if (ot) orgStoreContent(ot.topic_name, text, file.name);
+      var ot = orgTopics.find(function(x){ return x.id === orgLastTopicId; });
+      if (ot) orgStoreContent(ot.topic_name, merged, sqLoadedFiles[0].name);
     }
     populateSubjectDatalist();
-    suggestTopicName(text, sqKey).then(function(suggested) {
-      if (suggested) {
+    var firstText = sqLoadedFiles[0].text, firstName = sqLoadedFiles[0].name;
+    suggestTopicName(firstText, sqKey).then(function(suggested){
+      if (suggested && !document.getElementById('sq-folder-new').value.trim()) {
         document.getElementById('sq-folder-new').value = suggested;
         var existSubj = getSubjectForFolder(suggested);
         if (existSubj) document.getElementById('sq-folder-subj').value = existSubj;
-        notesCacheSet(suggested, text, file.name);
+        notesCacheSet(suggested, merged, firstName);
         updateSqNotesCacheUI();
       }
     });
-  } catch(err) {
-    document.getElementById('sq-drop-loading').style.display = 'none';
-    document.getElementById('sq-drop-idle').style.display = 'block';
-    sqSetStatus('Error: ' + err.message, 'serr');
   }
 }
 
@@ -5681,14 +5726,14 @@ async function sqGenerateWithAI(isRetry) {
   var sqFolderName = ((document.getElementById('sq-folder-new') || {}).value || '').trim();
   var sqCachedNotes = sqFolderName ? notesCacheGet(sqFolderName) : null;
   var topic = sqCachedNotes ? sqCachedNotes.text : (document.getElementById('sq-topic').value || '').trim();
-  if (!topic) { sqSetStatus('Enter a topic or paste your notes first.', 'serr'); return; }
-  if (!sqCachedNotes && topic && sqFolderName) { notesCacheSet(sqFolderName, topic, (document.getElementById('sq-file-name') || {}).textContent || ''); }
+  if (!topic) { sqGenerating = false; sqSetStatus('Enter a topic or paste your notes first.', 'serr'); return; }
+  if (!sqCachedNotes && topic && sqFolderName) { notesCacheSet(sqFolderName, topic, sqLoadedFiles.length ? sqLoadedFiles[0].name : ''); }
   var n = parseInt(sqGetOpt('count') || '5');
   var btn = document.getElementById('sq-btn');
   btn.disabled = true;
   var pendingRetry = false;
   sqSetStatus('Generating ' + n + ' SAQs…', 'sload');
-  if (topic.length > 8000) topic = topic.slice(0, 8000); // safety — file uploads are already condensed
+  if (topic.length > 32000) topic = topic.slice(0, 32000); // safety cap — file uploads are condensed per-file
   document.getElementById('sq-folder-pick').style.display = 'none';
   var prompt = 'You are an expert educator writing exam short answer questions for university students.\n\nGenerate exactly ' + n + ' deep understanding questions from the content below. Questions must require application, analysis, evaluation, or explanation — not simple recall. Use stems like "Explain why…", "How does…", "Compare and contrast…", "Evaluate the role of…", "To what extent…"\n\nFor each question write a markscheme-style model answer as bullet points. Each bullet is a distinct examinable point worth credit. Aim for 3–6 bullets. Use "•" as the bullet character and put each point on its own line.\n\nRespond with ONLY a valid JSON array — no markdown fences, no extra text:\n[\n  {"question":"...","modelAnswer":"• Point one\\n• Point two\\n• Point three"}\n]\n\nContent:\n' + topic;
   try {
@@ -5733,7 +5778,7 @@ function sqConfirmAdd() {
     sqBank.push({ id: Date.now() + '_' + (Math.random() * 1e6 | 0), question: q.question, modelAnswer: q.modelAnswer, type: 'deep', folder: folder, createdAt: Date.now() });
     added++;
   });
-  sqSave();
+  sqSave(); renderSqBank();
   sqPendingQs = null;
   saveFolderMeta(folder, subject);
   ensureFolder(folder, subject);
@@ -7133,13 +7178,10 @@ function orgGoTool(tool, topicId) {
       var el = document.getElementById('sq-topic');
       if (el) {
         if (cached) {
+          sqLoadedFiles = [{ name: cached.filename || name, text: cached.text }];
+          sqRenderFileList();
           el.value = cached.text;
-          var doneEl = document.getElementById('sq-drop-done');
-          var idleEl = document.getElementById('sq-drop-idle');
-          var nameEl = document.getElementById('sq-file-name');
-          if (doneEl) doneEl.style.display = 'block';
-          if (idleEl) idleEl.style.display = 'none';
-          if (nameEl) nameEl.textContent = cached.filename || name;
+          document.getElementById('sq-drop-idle').style.display = 'none';
           sqSetStatus('✓ Loaded from cache — hit Generate when ready.', 'sok');
         } else {
           el.value = name; el.focus();
