@@ -596,6 +596,10 @@
     .ai-file-x{cursor:pointer;color:#6e5438;font-size:.85rem;line-height:1;transition:color .15s;flex-shrink:0}
     .ai-file-x:hover{color:#f87171}
     .ai-drop-loading{font-size:.78rem;color:#6d28d9;font-weight:700}
+    .ai-file-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+    .ai-file-list:empty{display:none}
+    .ai-add-more{font-size:.65rem;font-weight:700;color:#7c3aed;background:rgba(124,58,237,.08);border:1px dashed rgba(124,58,237,.35);border-radius:7px;padding:4px 10px;cursor:pointer;white-space:nowrap;transition:background .15s}
+    .ai-add-more:hover{background:rgba(124,58,237,.15)}
     @keyframes aispin{to{transform:rotate(360deg)}}
     .ai-spin{display:inline-block;animation:aispin .7s linear infinite}
 
@@ -1535,29 +1539,24 @@
             <!-- File drop zone -->
             <div id="ai-notes-cache-info" style="display:none;padding:8px 12px;background:rgba(124,58,237,.06);border:1.5px solid rgba(124,58,237,.18);border-radius:9px;margin-bottom:8px;align-items:center;flex-wrap:wrap;gap:4px"></div>
             <div id="ai-notes-file-row">
-            <div class="ai-drop" id="ai-drop"
-                 ondragover="aiDragOver(event)" ondragleave="aiDragLeave(event)" ondrop="aiDrop(event)"
-                 onclick="document.getElementById('ai-file-inp').click()">
-              <input type="file" id="ai-file-inp" accept=".pdf,.pptx" style="display:none" onchange="aiFileSelect(event)"/>
-              <div id="ai-drop-idle">
-                <span class="ai-drop-icon">📂</span>
-                <span class="ai-drop-txt">Drop your <strong>.pdf</strong> or <strong>.pptx</strong> here</span>
-                <span class="ai-drop-sub">or click to browse — text will be extracted automatically</span>
+              <!-- loaded file badges -->
+              <div class="ai-file-list" id="ai-file-list"></div>
+              <div class="ai-drop" id="ai-drop"
+                   ondragover="aiDragOver(event)" ondragleave="aiDragLeave(event)" ondrop="aiDrop(event)"
+                   onclick="document.getElementById('ai-file-inp').click()">
+                <input type="file" id="ai-file-inp" accept=".pdf,.pptx" multiple style="display:none" onchange="aiFileSelect(event)"/>
+                <div id="ai-drop-idle">
+                  <span class="ai-drop-icon">📂</span>
+                  <span class="ai-drop-txt">Drop <strong>.pdf</strong> or <strong>.pptx</strong> files here</span>
+                  <span class="ai-drop-sub">Multiple files supported — text from all files will be merged</span>
+                </div>
+                <div id="ai-drop-loading" style="display:none" class="ai-drop-loading">
+                  <span class="ai-spin">⟳</span> <span id="ai-drop-loading-msg">Extracting…</span>
+                </div>
               </div>
-              <div id="ai-drop-loading" style="display:none" class="ai-drop-loading">
-                <span class="ai-spin">⟳</span> Extracting text…
-              </div>
-              <div id="ai-drop-done" style="display:none">
-                <span class="ai-file-badge">
-                  <span>📎</span>
-                  <span id="ai-file-name"></span>
-                  <span class="ai-file-x" onclick="aiFileClear(event)">✕</span>
-                </span>
-              </div>
-            </div>
             </div><!-- /ai-notes-file-row -->
 
-            <textarea id="ai-topic" class="ai-ta" placeholder="Or paste your notes / type a topic here…" style="width:100%;margin-bottom:14px"></textarea>
+            <textarea id="ai-topic" class="ai-ta" placeholder="Or paste your notes / type a topic here…" style="width:100%;margin-bottom:14px" oninput="if(!this.value.trim()&&aiLoadedFiles.length){aiLoadedFiles=[];aiRenderFileList();document.getElementById('ai-drop-idle').style.display='';}"></textarea>
 
             <div class="ai-opts">
               <div class="ai-opt-group">
@@ -3871,13 +3870,10 @@ function quizGoCreate() {
   if (!notesCacheGet(folder)) {
     var org = orgGetContent(folder);
     if (org) {
+      aiLoadedFiles = [{ name: org.filename || folder, text: org.text }];
+      aiRenderFileList();
       document.getElementById('ai-topic').value = org.text;
-      var doneEl = document.getElementById('ai-drop-done');
-      var idleEl = document.getElementById('ai-drop-idle');
-      var nameEl = document.getElementById('ai-file-name');
-      if (doneEl) doneEl.style.display = 'block';
-      if (idleEl) idleEl.style.display = 'none';
-      if (nameEl) nameEl.textContent = org.filename || folder;
+      document.getElementById('ai-drop-idle').style.display = 'none';
     }
   }
   var panel = document.getElementById('sub-create');
@@ -4127,6 +4123,15 @@ function setAIStatus(msg, cls){
   el.textContent = msg;
   el.className = 'ai-status' + (cls ? ' ' + cls : '');
 }
+function aiResetDropZone(){
+  aiLoadedFiles = [];
+  aiRenderFileList();
+  document.getElementById('ai-drop-idle').style.display = '';
+  document.getElementById('ai-drop-loading').style.display = 'none';
+  document.getElementById('ai-topic').value = '';
+  setAIStatus('','');
+}
+
 function confirmAIAdd(){
   if(!aiPendingQs || !aiPendingQs.length) return;
   var folder = (document.getElementById('ai-folder-new').value || '').trim() || 'General';
@@ -4166,7 +4171,9 @@ function initAIKeyUI(){
   document.getElementById('ai-key-set').style.display = 'none';
 }
 
-// ── FILE DROP ──
+// ── FILE DROP (multi-file) ──
+var aiLoadedFiles = []; // [{name, text}]
+
 function aiDragOver(e){
   e.preventDefault(); e.stopPropagation();
   document.getElementById('ai-drop').classList.add('over');
@@ -4178,76 +4185,115 @@ function aiDragLeave(e){
 function aiDrop(e){
   e.preventDefault(); e.stopPropagation();
   document.getElementById('ai-drop').classList.remove('over');
-  var file = e.dataTransfer.files[0];
-  if(file) processAIFile(file);
+  var files = Array.from(e.dataTransfer.files);
+  if(files.length) processAIFiles(files);
 }
 function aiFileSelect(e){
-  var file = e.target.files[0];
-  if(file) processAIFile(file);
+  var files = Array.from(e.target.files);
+  if(files.length) processAIFiles(files);
   e.target.value = '';
 }
-function aiFileClear(e){
-  e.stopPropagation();
-  document.getElementById('ai-drop-idle').style.display = '';
-  document.getElementById('ai-drop-done').style.display = 'none';
-  document.getElementById('ai-topic').value = '';
+function aiRemoveFile(idx){
+  aiLoadedFiles.splice(idx, 1);
+  aiRenderFileList();
+  // Rebuild merged text
+  document.getElementById('ai-topic').value = aiLoadedFiles.map(function(f){ return f.text; }).join('\n\n---\n\n');
+  if (!aiLoadedFiles.length) {
+    document.getElementById('ai-drop-idle').style.display = '';
+    setAIStatus('','');
+  }
 }
-async function processAIFile(file){
-  var ext = file.name.split('.').pop().toLowerCase();
-  if(ext !== 'pdf' && ext !== 'pptx'){
-    setAIStatus('Only .pdf and .pptx files are supported.','serr'); return;
-  }
-  if (!(await checkFileMagic(file, ext))) {
-    setAIStatus('File content does not match .' + ext + ' format — please check the file.', 'serr'); return;
-  }
-  document.getElementById('ai-drop-idle').style.display = 'none';
-  document.getElementById('ai-drop-done').style.display = 'none';
-  document.getElementById('ai-drop-loading').style.display = 'block';
-  setAIStatus('','');
-  try {
-    var aiKey = getAIKey();
-    var aiLoadEl = document.getElementById('ai-drop-loading');
-    function aiProg(msg){ if(aiLoadEl) setAIStatus(msg,'sload'); }
-    var text = ext === 'pdf' ? await extractPdf(file, aiKey, aiProg) : await extractPptx(file, aiKey, aiProg);
-    if(!text.replace(/\s+/g,'').trim()) throw new Error('No readable text found in this file.');
-    var condensed = false;
-    if(text.length > CONDENSE_CHARS && aiKey){
-      try{ text = await condenseForAI(text, aiKey, aiProg); condensed = true; }
-      catch(e){ text = text.slice(0, 8000); }
-    } else if(text.length > 8000){ text = text.slice(0, 8000); }
-    document.getElementById('ai-topic').value = text;
-    document.getElementById('ai-file-name').textContent = file.name;
-    document.getElementById('ai-drop-loading').style.display = 'none';
-    document.getElementById('ai-drop-done').style.display = 'block';
-    setAIStatus(condensed ? '✓ Key facts extracted — review, then hit Generate.' : '✓ Text extracted — hit Generate when ready.','sok');
-    if (orgLastTopicId) {
-      var ot = orgTopics.find(function(x) { return x.id === orgLastTopicId; });
-      if (ot) orgStoreContent(ot.topic_name, text, file.name);
+function aiRenderFileList(){
+  var list = document.getElementById('ai-file-list');
+  list.innerHTML = aiLoadedFiles.map(function(f, i){
+    return '<span class="ai-file-badge"><span>📎</span><span>' + esc(f.name) + '</span>'
+      + '<span class="ai-file-x" onclick="aiRemoveFile(' + i + ')">✕</span></span>';
+  }).join('');
+}
+async function processAIFiles(files){
+  var aiKey = getAIKey();
+  var loadingEl = document.getElementById('ai-drop-loading');
+  var loadingMsg = document.getElementById('ai-drop-loading-msg');
+  var idleEl = document.getElementById('ai-drop-idle');
+  var anyCondensed = false;
+  var errors = [];
+
+  for (var fi = 0; fi < files.length; fi++) {
+    var file = files[fi];
+    var ext = file.name.split('.').pop().toLowerCase();
+    if (ext !== 'pdf' && ext !== 'pptx') {
+      errors.push(file.name + ': only .pdf and .pptx are supported');
+      continue;
     }
-    // AI-suggest topic name and pre-fill folder field
+    if (!(await checkFileMagic(file, ext))) {
+      errors.push(file.name + ': file content does not match .' + ext + ' format');
+      continue;
+    }
+    // Skip duplicates
+    if (aiLoadedFiles.some(function(lf){ return lf.name === file.name; })) continue;
+
+    idleEl.style.display = 'none';
+    loadingEl.style.display = 'block';
+    loadingMsg.textContent = 'Extracting ' + file.name + ' (' + (fi + 1) + '/' + files.length + ')…';
+    setAIStatus('', '');
+
+    try {
+      function mkProg(fname){ return function(msg){ loadingMsg.textContent = fname + ': ' + msg; }; }
+      var text = ext === 'pdf'
+        ? await extractPdf(file, aiKey, mkProg(file.name))
+        : await extractPptx(file, aiKey, mkProg(file.name));
+      if (!text.replace(/\s+/g,'').trim()) { errors.push(file.name + ': no readable text found'); continue; }
+      if (text.length > CONDENSE_CHARS && aiKey) {
+        try {
+          loadingMsg.textContent = 'Condensing ' + file.name + '…';
+          text = await condenseForAI(text, aiKey, mkProg(file.name));
+          anyCondensed = true;
+        } catch(e) { text = text.slice(0, 8000); }
+      } else if (text.length > 8000) { text = text.slice(0, 8000); }
+      aiLoadedFiles.push({ name: file.name, text: text });
+    } catch(err) {
+      errors.push(file.name + ': ' + err.message);
+    }
+  }
+
+  loadingEl.style.display = 'none';
+  if (!aiLoadedFiles.length) idleEl.style.display = '';
+
+  aiRenderFileList();
+
+  // Merge all texts into the textarea
+  var merged = aiLoadedFiles.map(function(f){ return f.text; }).join('\n\n---\n\n');
+  document.getElementById('ai-topic').value = merged;
+
+  if (errors.length) {
+    setAIStatus('⚠ ' + errors.join(' · '), 'serr');
+  } else if (aiLoadedFiles.length) {
+    var label = aiLoadedFiles.length === 1 ? '1 file loaded' : aiLoadedFiles.length + ' files merged';
+    setAIStatus('✓ ' + label + (anyCondensed ? ' — key facts extracted' : ' — text extracted') + '. Hit Generate when ready.', 'sok');
+  }
+
+  // Use first file to suggest topic name / pre-fill folder
+  if (aiLoadedFiles.length) {
+    if (orgLastTopicId) {
+      var ot = orgTopics.find(function(x){ return x.id === orgLastTopicId; });
+      if (ot) orgStoreContent(ot.topic_name, merged, aiLoadedFiles[0].name);
+    }
     populateSubjectDatalist();
-    var capturedText = text;
-    var capturedFileName = file.name;
-    suggestTopicName(text, aiKey).then(function(suggested) {
-      if (suggested) {
+    var firstText = aiLoadedFiles[0].text, firstName = aiLoadedFiles[0].name;
+    suggestTopicName(firstText, aiKey).then(function(suggested){
+      if (suggested && !document.getElementById('ai-folder-new').value.trim()) {
         document.getElementById('ai-folder-new').value = suggested;
-        // pre-fill subject if topic already exists in organiser
         var meta = getFolderMeta();
         var existSubj = (meta[suggested] && meta[suggested].subject) || getSubjectForFolder(suggested);
         if (existSubj) document.getElementById('ai-folder-subj').value = existSubj;
         aiTopicInput();
       }
-      // Save processed text to cache immediately so Generate works without re-upload
       var folderForCache = (document.getElementById('ai-folder-new').value || '').trim();
       if (folderForCache) {
-        notesCacheSet(folderForCache, capturedText, capturedFileName);
+        notesCacheSet(folderForCache, merged, firstName);
         updateNotesCacheUI();
       }
     });
-  } catch(err){
-    document.getElementById('ai-drop-loading').style.display = 'none';
-    document.getElementById('ai-drop-idle').style.display = 'block';
-    setAIStatus('Error: ' + err.message,'serr');
   }
 }
 // ── SMART EXTRACTION HELPERS ─────────────────────────────────────
@@ -4450,7 +4496,7 @@ async function generateWithAI(isRetry){
   var topic = skipToGenerate ? notesTextFromCache : document.getElementById('ai-topic').value.trim();
   if(!skipToGenerate && !topic){ setAIStatus('Enter notes or a topic description to generate from.','serr'); return; }
   if(topic && topic.length > 8000) topic = topic.slice(0, 8000);
-  if(!skipToGenerate) { notesCacheSet(folderName, topic, (document.getElementById('ai-file-name')||{}).textContent||''); updateNotesCacheUI(); }
+  if(!skipToGenerate) { notesCacheSet(folderName, topic, aiLoadedFiles.length ? aiLoadedFiles[0].name : ''); updateNotesCacheUI(); }
   var n    = aiGetOpt('count') || '5';
   var diff = aiGetOpt('diff')  || 'medium';
   var type = aiGetOpt('type')  || 'info';
@@ -7074,12 +7120,9 @@ function orgGoTool(tool, topicId) {
       if (el) {
         if (cached) {
           el.value = cached.text;
-          var doneEl = document.getElementById('ai-drop-done');
-          var idleEl = document.getElementById('ai-drop-idle');
-          var nameEl = document.getElementById('ai-file-name');
-          if (doneEl) doneEl.style.display = 'block';
-          if (idleEl) idleEl.style.display = 'none';
-          if (nameEl) nameEl.textContent = cached.filename || name;
+          aiLoadedFiles = [{ name: cached.filename || name, text: cached.text }];
+          aiRenderFileList();
+          document.getElementById('ai-drop-idle').style.display = 'none';
           setAIStatus('✓ Loaded from cache — hit Generate when ready.', 'sok');
         } else {
           el.value = name; el.focus();
