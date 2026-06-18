@@ -4441,39 +4441,46 @@ async function extractPptx(file, key, onProgress){
   if(onProgress) onProgress(vCount ? 'Done! (' + vCount + ' image slide' + (vCount!==1?'s':'') + ' read by AI)' : 'Extracted!');
   return text;
 }
-// Parse retry wait from Groq 429 — headers first, then body message, then default
+// Parse retry wait from Groq 429 — take MAX of all reset headers so both RPM and TPM are cleared
 function parseRetryAfter(msg, res) {
-  // Groq always sends x-ratelimit-reset-* headers; prefer them over body (body can fail to parse)
-  if (res && res.headers) {
-    var hdr = res.headers.get('x-ratelimit-reset-tokens') || res.headers.get('x-ratelimit-reset-requests') || res.headers.get('retry-after');
-    if (hdr) {
-      // Format can be "1.668s", "1m30s", or a plain number (seconds)
-      var mMs = hdr.match(/(\d+)m(\d+(?:\.\d+)?)s/);
-      if (mMs) return Math.ceil(parseInt(mMs[1]) * 60 + parseFloat(mMs[2])) + 3;
-      var mS = hdr.match(/(\d+(?:\.\d+)?)s/);
-      if (mS) return Math.ceil(parseFloat(mS[1])) + 3;
-      var n = parseFloat(hdr);
-      if (!isNaN(n)) return Math.ceil(n) + 3;
-    }
+  function parseHdrSecs(hdr) {
+    if (!hdr) return null;
+    var mMs = hdr.match(/(\d+)m(\d+(?:\.\d+)?)s/);
+    if (mMs) return parseInt(mMs[1]) * 60 + parseFloat(mMs[2]);
+    var mS = hdr.match(/(\d+(?:\.\d+)?)s/);
+    if (mS) return parseFloat(mS[1]);
+    var n = parseFloat(hdr);
+    return isNaN(n) ? null : n;
   }
-  // Fall back to body message ("Please try again in 1.668s")
+  if (res && res.headers) {
+    var vals = [
+      parseHdrSecs(res.headers.get('x-ratelimit-reset-tokens')),
+      parseHdrSecs(res.headers.get('x-ratelimit-reset-requests')),
+      parseHdrSecs(res.headers.get('retry-after'))
+    ].filter(function(v) { return v !== null; });
+    if (vals.length) return Math.ceil(Math.max.apply(null, vals)) + 3;
+  }
   var m = msg && msg.match(/try again in (\d+(?:\.\d+)?)\s*s/i);
   return m ? Math.ceil(parseFloat(m[1])) + 3 : 65;
 }
 
 var aiCountdownTimer = null;
-function aiCountdown(secs, onDone, attempt) {
+function aiCountdown(secs, onDone, attempt, isFinal) {
   if (aiCountdownTimer) { clearInterval(aiCountdownTimer); aiCountdownTimer = null; }
   var remaining = secs;
-  var attemptLabel = attempt ? ' (attempt ' + attempt + '/3)' : '';
-  setAIStatus('Rate limited — retrying in ' + remaining + 's' + attemptLabel + '…', 'sload');
+  function label() {
+    return isFinal
+      ? 'Quota reached — unlocking in ' + remaining + 's…'
+      : 'Rate limited — retrying in ' + remaining + 's (attempt ' + attempt + '/3)…';
+  }
+  setAIStatus(label(), isFinal ? 'serr' : 'sload');
   aiCountdownTimer = setInterval(function() {
     remaining--;
     if (remaining <= 0) {
       clearInterval(aiCountdownTimer); aiCountdownTimer = null;
       onDone();
     } else {
-      setAIStatus('Rate limited — retrying in ' + remaining + 's' + attemptLabel + '…', 'sload');
+      setAIStatus(label(), isFinal ? 'serr' : 'sload');
     }
   }, 1000);
 }
@@ -4573,13 +4580,18 @@ async function generateWithAI(isRetry, retryCount){
       var errBody = await res.json().catch(function(){return {};});
       var rawMsg = (errBody.error && errBody.error.message) || ('HTTP ' + res.status);
       if(res.status === 429){
+        pendingRetry = true;
+        var wait = parseRetryAfter(rawMsg, res);
         if(retryCount < 3){
-          pendingRetry = true;
-          var wait = parseRetryAfter(rawMsg, res);
-          aiCountdown(wait, function(){ generateWithAI(true, retryCount + 1); }, retryCount + 1);
-          return;
+          aiCountdown(wait, function(){ generateWithAI(true, retryCount + 1); }, retryCount + 1, false);
+        } else {
+          aiCountdown(wait, function() {
+            aiGenerating = false;
+            btn.disabled = false;
+            setAIStatus('Rate limit cleared — click Generate to try again.', 'sok');
+          }, 0, true);
         }
-        throw new Error('Rate limited after 3 attempts — Groq quota reached. Wait a minute, then try again.');
+        return;
       }
       throw new Error(rawMsg);
     }
@@ -5748,18 +5760,22 @@ async function sqProcessFiles(files) {
 }
 
 var sqCountdownTimer = null;
-function sqCountdown(secs, cb, attempt) {
+function sqCountdown(secs, cb, attempt, isFinal) {
   if (sqCountdownTimer) { clearInterval(sqCountdownTimer); sqCountdownTimer = null; }
   var remaining = secs;
-  var attemptLabel = attempt ? ' (attempt ' + attempt + '/3)' : '';
-  sqSetStatus('Rate limited — retrying in ' + remaining + 's' + attemptLabel + '…', 'sload');
+  function label() {
+    return isFinal
+      ? 'Quota reached — unlocking in ' + remaining + 's…'
+      : 'Rate limited — retrying in ' + remaining + 's (attempt ' + attempt + '/3)…';
+  }
+  sqSetStatus(label(), isFinal ? 'serr' : 'sload');
   sqCountdownTimer = setInterval(function() {
     remaining--;
     if (remaining <= 0) {
       clearInterval(sqCountdownTimer); sqCountdownTimer = null;
       cb();
     } else {
-      sqSetStatus('Rate limited — retrying in ' + remaining + 's' + attemptLabel + '…', 'sload');
+      sqSetStatus(label(), isFinal ? 'serr' : 'sload');
     }
   }, 1000);
 }
@@ -5793,13 +5809,18 @@ async function sqGenerateWithAI(isRetry, retryCount) {
       var errBody = await res.json().catch(function() { return {}; });
       var rawMsg = (errBody.error && errBody.error.message) || ('HTTP ' + res.status);
       if (res.status === 429) {
+        pendingRetry = true;
+        var wait = parseRetryAfter(rawMsg, res);
         if (retryCount < 3) {
-          pendingRetry = true;
-          var wait = parseRetryAfter(rawMsg, res);
-          sqCountdown(wait, function() { sqGenerateWithAI(true, retryCount + 1); }, retryCount + 1);
-          return;
+          sqCountdown(wait, function() { sqGenerateWithAI(true, retryCount + 1); }, retryCount + 1, false);
+        } else {
+          sqCountdown(wait, function() {
+            sqGenerating = false;
+            btn.disabled = false;
+            sqSetStatus('Rate limit cleared — click Generate to try again.', 'sok');
+          }, 0, true);
         }
-        throw new Error('Rate limited after 3 attempts — Groq quota reached. Wait a minute, then try again.');
+        return;
       }
       throw new Error(rawMsg);
     }
