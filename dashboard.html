@@ -2799,7 +2799,7 @@ window.addEventListener('beforeunload', function(e) {
 function loadBank() {
   try { bank = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { bank = []; }
 }
-function saveBank() { localStorage.setItem(STORAGE_KEY, JSON.stringify(bank)); _scheduleSyncToSupabase(); }
+function saveBank() { if (!_spUser) localStorage.setItem(STORAGE_KEY, JSON.stringify(bank)); _scheduleSyncToSupabase(); }
 
 function buildOpts() {
   var g = document.getElementById('opts-grid'); g.innerHTML = '';
@@ -5625,7 +5625,7 @@ var sqPracIdx = 0;
 var sqCurrentFolder = null;
 
 function sqLoad() { try { sqBank = JSON.parse(localStorage.getItem('sp_saqs') || '[]'); } catch(e) { sqBank = []; } }
-function sqSave() { localStorage.setItem('sp_saqs', JSON.stringify(sqBank)); _scheduleSyncToSupabase(); }
+function sqSave() { if (!_spUser) localStorage.setItem('sp_saqs', JSON.stringify(sqBank)); _scheduleSyncToSupabase(); }
 
 function sqGetOpt(g) {
   var el = document.querySelector('.sq-pill.sel[data-g="' + g + '"]');
@@ -7515,7 +7515,7 @@ async function _loadFromSupabase() {
   var r = await _spClient.from('user_data').select('bank, sq_bank').eq('user_id', _spUser.id).maybeSingle();
   if (r.error) { console.warn('Supabase load:', r.error.message); return; }
   if (!r.data) {
-    // First sign-in — create a fresh empty row, never inherit local demo data
+    // First sign-in — create empty cloud row; localStorage (demo) stays untouched
     await _spClient.from('user_data').upsert({
       user_id:    _spUser.id,
       bank:       [],
@@ -7524,16 +7524,13 @@ async function _loadFromSupabase() {
     }, { onConflict: 'user_id' });
     bank   = [];
     sqBank = [];
-    localStorage.setItem(STORAGE_KEY,   '[]');
-    localStorage.setItem('sp_saqs', '[]');
     if (typeof renderBank   === 'function') renderBank();
     if (typeof renderSqBank === 'function') renderSqBank();
     _setSyncStatus('☁ Account ready');
   } else {
+    // Load cloud into memory only — localStorage (demo) stays untouched
     bank   = r.data.bank    || [];
     sqBank = r.data.sq_bank || [];
-    localStorage.setItem(STORAGE_KEY,   JSON.stringify(bank));
-    localStorage.setItem('sp_saqs', JSON.stringify(sqBank));
     if (typeof renderBank   === 'function') renderBank();
     if (typeof renderSqBank === 'function') renderSqBank();
     _setSyncStatus('☁ Loaded from cloud');
@@ -7569,6 +7566,11 @@ async function _spSignOut() {
   if (!_spClient) return;
   await _spClient.auth.signOut();
   _spUser = null;
+  // Restore demo data from localStorage
+  if (typeof loadBank  === 'function') loadBank();
+  if (typeof sqLoad    === 'function') sqLoad();
+  if (typeof renderBank   === 'function') renderBank();
+  if (typeof renderSqBank === 'function') renderSqBank();
   _updateSyncUI();
 }
 
