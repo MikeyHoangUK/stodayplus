@@ -9,6 +9,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Raleway','system-ui','sans-serif']}}}}</script>
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <style>
@@ -1471,6 +1472,11 @@
         <label style="flex:1;background:rgba(124,58,237,.1);color:#6d28d9;border:1px solid rgba(124,58,237,.2);border-radius:8px;padding:6px 4px;font-size:.65rem;font-weight:700;cursor:pointer;font-family:'Raleway',sans-serif;text-align:center" title="Restore data from a backup file">⬆ Import<input type="file" accept=".json" id="import-file-inp" style="display:none" onchange="importData(event)"/></label>
       </div>
       <div class="logout-link" onclick="logout()">Log out →</div>
+      <div id="sp-sync-area" style="margin-top:10px;border-top:1px solid rgba(168,85,247,.1);padding-top:10px">
+        <div id="sp-sync-user" style="font-size:.68rem;color:#5a4230;margin-bottom:5px;display:none"></div>
+        <button id="sp-sync-btn" onclick="openAuthModal()" style="width:100%;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;border:none;border-radius:8px;padding:7px 8px;font-size:.68rem;font-weight:700;cursor:pointer;font-family:'Raleway',sans-serif">☁ Connect &amp; Sync</button>
+        <div id="sp-sync-status" style="font-size:.62rem;color:#888;margin-top:4px;text-align:center"></div>
+      </div>
     </div>
   </nav>
 
@@ -2793,7 +2799,7 @@ window.addEventListener('beforeunload', function(e) {
 function loadBank() {
   try { bank = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { bank = []; }
 }
-function saveBank() { localStorage.setItem(STORAGE_KEY, JSON.stringify(bank)); }
+function saveBank() { localStorage.setItem(STORAGE_KEY, JSON.stringify(bank)); _scheduleSyncToSupabase(); }
 
 function buildOpts() {
   var g = document.getElementById('opts-grid'); g.innerHTML = '';
@@ -5619,7 +5625,7 @@ var sqPracIdx = 0;
 var sqCurrentFolder = null;
 
 function sqLoad() { try { sqBank = JSON.parse(localStorage.getItem('sp_saqs') || '[]'); } catch(e) { sqBank = []; } }
-function sqSave() { localStorage.setItem('sp_saqs', JSON.stringify(sqBank)); }
+function sqSave() { localStorage.setItem('sp_saqs', JSON.stringify(sqBank)); _scheduleSyncToSupabase(); }
 
 function sqGetOpt(g) {
   var el = document.querySelector('.sq-pill.sel[data-g="' + g + '"]');
@@ -7457,6 +7463,149 @@ function orgRenderTable() {
       + '</tr>';
   }).join('');
 }
+
+// ── SUPABASE CLOUD SYNC ───────────────────────────────────────────────
+var _spClient  = null;
+var _spUser    = null;
+var _syncTimer = null;
+var _authMode  = 'signin';
+
+(function initSupabase() {
+  if (!window.supabase || !window.supabase.createClient) return;
+  _spClient = window.supabase.createClient(
+    'https://zdmnwykumprntbpfyour.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkbW53eWt1bXBybnRicGZ5b3VyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDc0MjAsImV4cCI6MjA5NzM4MzQyMH0.QBZ-4KR5da4O5YoOpErC_HLmYlL953YKIB50g52HkEg'
+  );
+  _spClient.auth.onAuthStateChange(function(event, session) {
+    _spUser = session ? session.user : null;
+    _updateSyncUI();
+    if (event === 'SIGNED_IN') _loadFromSupabase();
+  });
+  _spClient.auth.getSession().then(function(r) {
+    _spUser = (r.data && r.data.session) ? r.data.session.user : null;
+    _updateSyncUI();
+    if (_spUser) _loadFromSupabase();
+  });
+})();
+
+function _updateSyncUI() {
+  var btn    = document.getElementById('sp-sync-btn');
+  var userEl = document.getElementById('sp-sync-user');
+  var sta    = document.getElementById('sp-sync-status');
+  if (!btn) return;
+  if (_spUser) {
+    btn.textContent  = '☁ Disconnect';
+    btn.onclick      = _spSignOut;
+    btn.style.background = 'rgba(239,68,68,.12)';
+    btn.style.color  = '#dc2626';
+    if (userEl) { userEl.textContent = '✓ ' + _spUser.email; userEl.style.display = 'block'; }
+    if (sta) sta.textContent = 'Cloud sync active';
+  } else {
+    btn.textContent  = '☁ Connect & Sync';
+    btn.onclick      = openAuthModal;
+    btn.style.background = 'linear-gradient(135deg,#7c3aed,#4f46e5)';
+    btn.style.color  = '#fff';
+    if (userEl) userEl.style.display = 'none';
+    if (sta) sta.textContent = '';
+  }
+}
+
+async function _loadFromSupabase() {
+  if (!_spClient || !_spUser) return;
+  var r = await _spClient.from('user_data').select('bank, sq_bank').eq('user_id', _spUser.id).maybeSingle();
+  if (r.error) { console.warn('Supabase load:', r.error.message); return; }
+  if (!r.data) {
+    await _syncToSupabase();
+    _setSyncStatus('☁ Uploaded local data');
+  } else {
+    bank   = r.data.bank    || [];
+    sqBank = r.data.sq_bank || [];
+    localStorage.setItem(STORAGE_KEY,   JSON.stringify(bank));
+    localStorage.setItem('sp_saqs', JSON.stringify(sqBank));
+    if (typeof renderBank   === 'function') renderBank();
+    if (typeof renderSqBank === 'function') renderSqBank();
+    _setSyncStatus('☁ Loaded from cloud');
+  }
+}
+
+async function _syncToSupabase() {
+  if (!_spClient || !_spUser) return;
+  var r = await _spClient.from('user_data').upsert({
+    user_id:    _spUser.id,
+    bank:       bank,
+    sq_bank:    sqBank,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'user_id' });
+  if (r.error) console.warn('Supabase save:', r.error.message);
+  else _setSyncStatus('☁ Saved');
+}
+
+function _scheduleSyncToSupabase() {
+  if (!_spUser) return;
+  clearTimeout(_syncTimer);
+  _syncTimer = setTimeout(_syncToSupabase, 3000);
+}
+
+function _setSyncStatus(msg) {
+  var el = document.getElementById('sp-sync-status');
+  if (!el) return;
+  el.textContent = msg;
+  setTimeout(function() { if (el) el.textContent = _spUser ? 'Cloud sync active' : ''; }, 3000);
+}
+
+async function _spSignOut() {
+  if (!_spClient) return;
+  await _spClient.auth.signOut();
+  _spUser = null;
+  _updateSyncUI();
+}
+
+function openAuthModal() {
+  var m = document.getElementById('auth-modal');
+  if (!m) return;
+  m.style.display = 'flex';
+  document.getElementById('auth-email-inp').value = '';
+  document.getElementById('auth-pw-inp').value    = '';
+  document.getElementById('auth-modal-status').textContent = '';
+  _authMode = 'signin';
+  _refreshAuthModalLabels();
+}
+function closeAuthModal() {
+  var m = document.getElementById('auth-modal');
+  if (m) m.style.display = 'none';
+}
+function toggleAuthMode() {
+  _authMode = _authMode === 'signin' ? 'signup' : 'signin';
+  _refreshAuthModalLabels();
+  document.getElementById('auth-modal-status').textContent = '';
+}
+function _refreshAuthModalLabels() {
+  var s = _authMode === 'signup';
+  document.getElementById('auth-modal-title').textContent    = s ? 'Create account' : 'Sign in';
+  document.getElementById('auth-modal-sub').textContent      = s ? 'Your questions sync across all devices automatically.' : 'Welcome back — your questions will load from the cloud.';
+  document.getElementById('auth-submit-btn').textContent     = s ? 'Create account' : 'Sign in';
+  document.getElementById('auth-toggle-text').textContent    = s ? 'Already have an account?' : "Don't have an account?";
+  document.getElementById('auth-toggle-link').textContent    = s ? 'Sign in' : 'Sign up';
+}
+async function handleAuthSubmit() {
+  if (!_spClient) { document.getElementById('auth-modal-status').textContent = 'Supabase not ready.'; return; }
+  var email = (document.getElementById('auth-email-inp').value || '').trim();
+  var pw    = (document.getElementById('auth-pw-inp').value    || '').trim();
+  if (!email || !pw) { document.getElementById('auth-modal-status').textContent = 'Please fill in both fields.'; return; }
+  var btn = document.getElementById('auth-submit-btn');
+  btn.disabled = true; btn.textContent = 'Please wait…';
+  document.getElementById('auth-modal-status').textContent = '';
+  var r = _authMode === 'signup'
+    ? await _spClient.auth.signUp({ email: email, password: pw })
+    : await _spClient.auth.signInWithPassword({ email: email, password: pw });
+  btn.disabled = false;
+  _refreshAuthModalLabels();
+  if (r.error) {
+    document.getElementById('auth-modal-status').textContent = r.error.message;
+  } else {
+    closeAuthModal();
+  }
+}
 </script>
 
 <!-- Folder Edit Modal -->
@@ -7489,6 +7638,22 @@ function orgRenderTable() {
         <button class="fe-save-btn" onclick="saveFolderEdit()">Save</button>
       </div>
     </div>
+  </div>
+</div>
+<!-- SUPABASE AUTH MODAL -->
+<div id="auth-modal" onclick="if(event.target===this)closeAuthModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10001;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:18px;padding:28px 24px;width:340px;max-width:90vw;font-family:'Raleway',sans-serif;position:relative">
+    <button onclick="closeAuthModal()" style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:#999;line-height:1">×</button>
+    <h2 id="auth-modal-title" style="font-size:1.15rem;font-weight:800;color:#1c1208;margin:0 0 5px">Sign in</h2>
+    <p id="auth-modal-sub" style="font-size:.76rem;color:#6b7280;margin:0 0 16px;line-height:1.4">Welcome back — your questions will load from the cloud.</p>
+    <input id="auth-email-inp" type="email" placeholder="Email" autocomplete="email" style="width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:9px 12px;font-size:.85rem;font-family:'Raleway',sans-serif;margin-bottom:10px;box-sizing:border-box;outline:none"/>
+    <input id="auth-pw-inp" type="password" placeholder="Password (min 6 characters)" style="width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:9px 12px;font-size:.85rem;font-family:'Raleway',sans-serif;margin-bottom:10px;box-sizing:border-box;outline:none"/>
+    <div id="auth-modal-status" style="font-size:.75rem;min-height:16px;margin-bottom:8px;color:#ef4444"></div>
+    <button id="auth-submit-btn" onclick="handleAuthSubmit()" style="width:100%;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;border:none;border-radius:10px;padding:11px;font-size:.88rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;margin-bottom:12px">Sign in</button>
+    <p style="font-size:.75rem;color:#6b7280;text-align:center;margin:0">
+      <span id="auth-toggle-text">Don't have an account?</span>
+      <a id="auth-toggle-link" onclick="toggleAuthMode()" style="color:#7c3aed;font-weight:700;cursor:pointer;margin-left:4px">Sign up</a>
+    </p>
   </div>
 </div>
 </body>
