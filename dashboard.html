@@ -7334,9 +7334,12 @@ function orgRenderTable() {
     });
   }
 
+  var noTopics = orgTopics.length === 0;
   emptyEl.style.display = list.length === 0 ? 'block' : 'none';
   var actionsEl = document.getElementById('org-actions-bar');
-  if (actionsEl) actionsEl.style.display = orgTopics.length === 0 ? 'none' : 'flex';
+  if (actionsEl) actionsEl.style.display = noTopics ? 'none' : 'flex';
+  var tableEl = document.querySelector('.org-table-wrap');
+  if (tableEl) tableEl.style.display = noTopics ? 'none' : 'block';
 
   tbody.innerHTML = list.map(function(t) {
     var nextConf = orgNextConf(t.confidence);
