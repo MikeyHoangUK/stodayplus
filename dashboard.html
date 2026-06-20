@@ -995,7 +995,10 @@
     .org-tool-btn:hover{background:rgba(109,40,217,.14);border-color:rgba(109,40,217,.4)}
     .org-del-btn{padding:4px 7px;border-radius:7px;border:1px solid rgba(220,38,38,.18);background:rgba(220,38,38,.04);color:#dc2626;font-size:.72rem;cursor:pointer;font-family:'Raleway',sans-serif;transition:all .15s;line-height:1}
     .org-del-btn:hover{background:rgba(220,38,38,.12);border-color:rgba(220,38,38,.35)}
-    .org-empty{text-align:center;padding:44px 20px;color:#6e5438;font-size:.8rem;font-weight:700}
+    .org-empty{text-align:center;padding:64px 24px}
+    .org-empty-icon{font-size:2.4rem;margin-bottom:14px}
+    .org-empty-title{font-size:1.05rem;font-weight:900;color:#1c1208;margin-bottom:8px}
+    .org-empty-sub{font-size:.8rem;color:#6e5438;font-weight:500;line-height:1.6;max-width:320px;margin:0 auto}
     /* Subject setup */
     .org-setup{max-width:480px;margin:0 auto;text-align:center;padding:40px 20px}
     .org-setup-title{font-size:1.25rem;font-weight:900;color:#1c1208;margin-bottom:8px}
@@ -1828,7 +1831,11 @@
                 <tbody id="org-tbody"></tbody>
               </table>
             </div>
-            <div id="org-empty" class="org-empty" style="display:none">No topics yet — topics appear here automatically as you add questions in Poppy, Sage, or Blurto.</div>
+            <div id="org-empty" class="org-empty" style="display:none">
+              <div class="org-empty-icon">📋</div>
+              <div class="org-empty-title">No topics yet</div>
+              <div class="org-empty-sub">Topics appear here automatically once you generate questions in Poppy or Sage, or complete a Blurto session.</div>
+            </div>
           </div>
         </div>
 
