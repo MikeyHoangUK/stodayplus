@@ -1806,34 +1806,8 @@
           <div id="org-main-screen" style="display:none">
             <div class="org-focus" id="org-focus"></div>
             <div class="org-actions">
-              <button class="org-add-btn" onclick="orgToggleAdd()">+ Add Topic</button>
               <input class="org-search" id="org-search" placeholder="Search topics or subjects…" oninput="orgRenderTable()"/>
               <button class="org-gear-btn" onclick="orgShowSetup()">⚙️ Subjects</button>
-            </div>
-            <div class="org-add-card" id="org-add-card">
-              <div class="org-add-row">
-                <div class="org-add-grp" style="flex:0;min-width:150px">
-                  <label class="org-add-lbl">Subject</label>
-                  <select class="org-add-sel" id="org-new-subj"></select>
-                </div>
-                <div class="org-add-grp" style="flex:2">
-                  <label class="org-add-lbl">Topic name</label>
-                  <input class="org-add-inp" id="org-new-topic" placeholder="e.g. Cellular Respiration" onkeydown="if(event.key==='Enter')orgSaveTopic()"/>
-                </div>
-              </div>
-              <div class="org-add-row" style="margin-bottom:0;align-items:center">
-                <div class="org-add-grp" style="flex:0;min-width:190px">
-                  <label class="org-add-lbl">Attended?</label>
-                  <div class="org-att-row">
-                    <button class="org-att-btn yes sel" id="org-att-yes" onclick="orgSetAtt(true)">✓ Yes</button>
-                    <button class="org-att-btn no" id="org-att-no" onclick="orgSetAtt(false)">✗ No</button>
-                  </div>
-                </div>
-                <div style="display:flex;gap:8px;margin-left:auto;align-items:center">
-                  <button class="org-card-save-btn" onclick="orgSaveTopic()">Add Topic →</button>
-                  <button class="org-cancel-btn" onclick="orgToggleAdd()">Cancel</button>
-                </div>
-              </div>
             </div>
             <div class="org-table-wrap">
               <table class="org-table">
@@ -5293,7 +5267,7 @@ function rpRenderAll() {
   var el = document.getElementById('rp-all-content');
   if (!el) return;
   if (rpData.length === 0) {
-    el.innerHTML = '<div class="rp-empty"><div class="rp-empty-icon">📚</div><div class="rp-empty-title">No topics yet</div><div class="rp-empty-sub">Head to Add Topic to get started.</div></div>';
+    el.innerHTML = '<div class="rp-empty"><div class="rp-empty-icon">📚</div><div class="rp-empty-title">No topics yet</div><div class="rp-empty-sub">Generate questions in Poppy or Sage — topics appear here automatically.</div></div>';
     return;
   }
   var groups = {};
@@ -6861,7 +6835,6 @@ function blurtoShowPhase(id) {
 // ── ORGANISER ────────────────────────────────────────────────────────────
 var orgTopics   = [];
 var orgSubjects = [];
-var orgAttended = true;
 var orgSortCol  = null; // 'subject' | 'topic' | null
 var orgSortDir  = 1;    // 1 = asc, -1 = desc
 var ORG_INTERVALS = [3, 7, 14, 28, 56];
@@ -7122,65 +7095,6 @@ function orgPopulateSubjSel() {
   }).join('');
 }
 
-// Add-topic card
-function orgToggleAdd() {
-  var card = document.getElementById('org-add-card');
-  var open = card.classList.contains('open');
-  card.classList.toggle('open', !open);
-  if (!open) {
-    orgSetAtt(true);
-    var inp = document.getElementById('org-new-topic');
-    if (inp) { inp.value = ''; setTimeout(function(){ inp.focus(); }, 50); }
-  }
-}
-
-function orgSetAtt(val) {
-  orgAttended = val;
-  document.getElementById('org-att-yes').classList.toggle('sel', val);
-  document.getElementById('org-att-no').classList.toggle('sel', !val);
-}
-
-function orgSaveTopic() {
-  var subj = (document.getElementById('org-new-subj').value || '').trim();
-  var name = (document.getElementById('org-new-topic').value || '').trim();
-  var nameErr = validateFolderName(name);
-  if (nameErr) { alert(nameErr); document.getElementById('org-new-topic').focus(); return; }
-  var duplicate = orgTopics.some(function(t) { return t.topic_name.toLowerCase() === name.toLowerCase(); });
-  if (duplicate) {
-    document.getElementById('org-new-topic').style.borderColor = '#dc2626';
-    document.getElementById('org-new-topic').title = 'This topic already exists';
-    setTimeout(function() {
-      document.getElementById('org-new-topic').style.borderColor = '';
-      document.getElementById('org-new-topic').title = '';
-    }, 2000);
-    return;
-  }
-  var today = new Date().toISOString().slice(0, 10);
-  orgTopics.unshift({
-    id:            Date.now() + '-' + Math.random().toString(36).slice(2, 6),
-    subject:       subj,
-    topic_name:    name,
-    week_added:    today,
-    attended:      orgAttended,
-    mcq_done:      false,
-    saq_done:      false,
-    blurting_done: false,
-    mcq_count:     0,
-    saq_count:     0,
-    blurting_count: 0,
-    confidence:    null,
-    revision_count: 0,
-    last_revised:  null,
-    next_due:      null,
-    notes:         ''
-  });
-  orgSaveTopics();
-  ensureFolder(name, subj); // mirror new topic into sp_folders for all bots
-  document.getElementById('org-new-topic').value = '';
-  document.getElementById('org-add-card').classList.remove('open');
-  orgRenderBanner();
-  orgRenderTable();
-}
 
 // Toggle fields
 function orgToggleField(id, field) {
