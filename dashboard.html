@@ -999,6 +999,12 @@
     .org-empty-icon{font-size:2.4rem;margin-bottom:14px}
     .org-empty-title{font-size:1.05rem;font-weight:900;color:#1c1208;margin-bottom:8px}
     .org-empty-sub{font-size:.8rem;color:#6e5438;font-weight:500;line-height:1.6;max-width:320px;margin:0 auto}
+    .bot-lock-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 24px;min-height:calc(100vh - 200px);box-sizing:border-box}
+    .bot-lock-icon{font-size:3rem;margin-bottom:18px;opacity:.7}
+    .bot-lock-title{font-size:1.25rem;font-weight:900;color:#1c1208;margin-bottom:10px;letter-spacing:-.01em}
+    .bot-lock-body{font-size:.82rem;color:#6e5438;font-weight:500;line-height:1.7;max-width:320px;margin:0 auto 16px}
+    .bot-lock-hint{font-size:.68rem;color:#b8956a;font-weight:800;text-transform:uppercase;letter-spacing:.07em}
+    .fc-lock-badge{font-size:.63rem;font-weight:800;color:#92400e;background:rgba(217,119,6,.1);border:1px solid rgba(217,119,6,.25);border-radius:6px;padding:3px 7px;margin-top:6px;display:inline-block}
     /* Subject setup */
     .org-setup{max-width:480px;margin:0 auto;text-align:center;padding:40px 20px}
     .org-setup-title{font-size:1.25rem;font-weight:900;color:#1c1208;margin-bottom:8px}
@@ -1866,6 +1872,12 @@
 
       <!-- SAQs Panel -->
       <div id="panel-saqs" class="panel anim">
+        <div id="bot-lock-saqs" class="bot-lock-screen" style="display:none">
+          <div class="bot-lock-icon">🔒</div>
+          <div class="bot-lock-title">Sage is locked</div>
+          <div class="bot-lock-body">Answer 100 distinct MCQ questions in Poppy for any topic — Sage unlocks for that topic automatically.</div>
+          <div class="bot-lock-hint">Progress is tracked in the Revision Planner</div>
+        </div>
         <h1 class="mcq-h1">Sage <span style="font-size:.55em;font-weight:700;opacity:.55;letter-spacing:.01em">SAQs Maker</span></h1>
         <p class="mcq-sub">Generate short answer questions focused on deep understanding.</p>
 
@@ -2004,6 +2016,12 @@
 
       <!-- Blurto Panel -->
       <div id="panel-blurto" class="panel anim">
+        <div id="bot-lock-blurto" class="bot-lock-screen" style="display:none">
+          <div class="bot-lock-icon">🔒</div>
+          <div class="bot-lock-title">Blurto is locked</div>
+          <div class="bot-lock-body">Answer 10 distinct SAQs in Sage for any topic — Blurto unlocks for that topic automatically.</div>
+          <div class="bot-lock-hint">Progress is tracked in the Revision Planner</div>
+        </div>
         <h1 class="mcq-h1">Blurto <span style="font-size:.55em;font-weight:700;opacity:.55;letter-spacing:.01em">Blurting Machine</span></h1>
         <p class="mcq-sub">Fade your notes, write from memory, see what you missed.</p>
 
@@ -2194,6 +2212,12 @@
 
       <!-- Finley Panel -->
       <div id="panel-finley" class="panel anim">
+        <div id="bot-lock-finley" class="bot-lock-screen" style="display:none">
+          <div class="bot-lock-icon">🔒</div>
+          <div class="bot-lock-title">Finley is locked</div>
+          <div class="bot-lock-body">Complete a Blurto session with fewer than 30 peeks for any topic — Finley unlocks for that topic automatically.</div>
+          <div class="bot-lock-hint">Progress is tracked in the Revision Planner</div>
+        </div>
         <h1 class="mcq-h1">Finley <span style="font-size:.55em;font-weight:700;opacity:.55;letter-spacing:.01em">Feynman Teaching</span></h1>
         <p class="mcq-sub">Teach a confused student. If you can explain it, you understand it.</p>
 
@@ -2233,6 +2257,7 @@
                 <textarea id="finley-notes-inp" class="ai-ta" placeholder="Paste your lecture notes or leave blank…" style="height:90px"></textarea>
               </div>
               <div id="finley-setup-status" style="font-size:.72rem;font-weight:700;margin-bottom:8px;min-height:20px"></div>
+              <div id="finley-lock-msg" style="display:none;font-size:.72rem;font-weight:700;color:#92400e;background:rgba(217,119,6,.08);border:1px solid rgba(217,119,6,.2);border-radius:8px;padding:8px 12px;margin-bottom:8px">🔒 This topic is locked — complete a Blurto session with &lt;30 peeks to unlock Finley for it.</div>
               <button class="finley-start-btn" id="finley-start-btn" onclick="finleyStart()" disabled>Start Teaching →</button>
             </div>
           </div>
@@ -3671,9 +3696,10 @@ function showPanel(id, el) {
   if (el) el.classList.add('active');
   document.getElementById('tb-title').innerHTML = PANEL_TITLES[id] || 'Stoday Plus<span class="tb-sub">Dashboard</span>';
   if (id === 'planner') rpRenderToday();
-  if (id === 'saqs') sqInitAIKeyUI();
-  if (id === 'blurto') blurtoInit();
+  if (id === 'saqs') { sqInitAIKeyUI(); renderSqBank(); }
+  if (id === 'blurto') { blurtoInit(); if (!blurtoPhase || blurtoPhase === 'setup') renderBlurtoBank(); }
   if (id === 'finley') finleyInit();
+  if (id === 'saqs' || id === 'blurto' || id === 'finley') updateBotLockScreens();
 }
 
 function goHome() {
@@ -4639,7 +4665,10 @@ function finleyTab(t) {
 
 function finleyTopicInput() {
   var val = (document.getElementById('finley-topic-inp').value || '').trim();
-  document.getElementById('finley-start-btn').disabled = !val;
+  var unlocked = !val || isFinleyUnlocked(val);
+  document.getElementById('finley-start-btn').disabled = !val || !unlocked;
+  var lockMsg = document.getElementById('finley-lock-msg');
+  if (lockMsg) lockMsg.style.display = (val && !unlocked) ? 'block' : 'none';
   // Auto-fill notes from cache if textarea is empty and topic matches a folder
   var notesInp = document.getElementById('finley-notes-inp');
   if (val && notesInp && !notesInp.value.trim()) {
@@ -5936,15 +5965,18 @@ function renderSqBank() {
   grid.className = 'folder-grid';
   visible.forEach(function(f) {
     var count = sqBank.filter(function(q) { return (q.folder || 'General') === f; }).length;
+    var locked = !isSageUnlocked(f);
+    var lockedTopic = locked ? orgMatchTopic(f) : null;
+    var mcqProg = lockedTopic ? (lockedTopic.mcq_count || 0) : 0;
     var card = document.createElement('div');
     card.className = 'folder-card' + (count === 0 ? ' fc-empty' : '');
-    (function(folder){ card.onclick = function(e){ if(!e.target.classList.contains('fc-quiz')&&!e.target.classList.contains('fc-del')&&!e.target.classList.contains('fc-edit-top')&&!e.target.classList.contains('fc-create')&&count>0) sqPracFolder(folder); }; })(f);
+    (function(folder, isLocked){ card.onclick = function(e){ if(!e.target.classList.contains('fc-quiz')&&!e.target.classList.contains('fc-del')&&!e.target.classList.contains('fc-edit-top')&&!e.target.classList.contains('fc-create')&&count>0&&!isLocked) sqPracFolder(folder); }; })(f, locked);
     card.innerHTML = '<button class="fc-edit-top" onclick="openFolderEdit(\'' + jsq(f) + '\')" title="Rename">✎ Edit</button>'
       + folderSubjChip(f)
       + '<div class="fc-name">' + rpEsc(f) + '</div>'
-      + '<div class="fc-count">' + (count === 0 ? 'No SAQs yet' : count + ' SAQ' + (count !== 1 ? 's' : '')) + '</div>'
+      + '<div class="fc-count">' + (count === 0 ? 'No SAQs yet' : count + ' SAQ' + (count !== 1 ? 's' : '')) + (locked ? '<br><span class="fc-lock-badge">🔒 ' + mcqProg + '/100 MCQs done</span>' : '') + '</div>'
       + '<div class="fc-actions">'
-      + (count > 0 ? '<button class="fc-quiz" onclick="sqPracFolder(\'' + jsq(f) + '\')">▶ Practice</button>' : '')
+      + (count > 0 && !locked ? '<button class="fc-quiz" onclick="sqPracFolder(\'' + jsq(f) + '\')">▶ Practice</button>' : '')
       + '<button class="fc-create" onclick="sqJumpToCreate(\'' + jsq(f) + '\')" title="Generate SAQs for this folder">+</button>'
       + '<button class="fc-del" onclick="sqDeleteFolder(\'' + jsq(f) + '\')">🗑</button>'
       + '</div>';
@@ -5967,6 +5999,7 @@ function sqDeleteFolder(folder) {
 }
 
 function sqPracFolder(folder) {
+  if (!isSageUnlocked(folder)) return;
   sqCurrentFolder = folder;
   sqPracQs = sqBank.filter(function(q) { return (q.folder || 'General') === folder; });
   if (!sqPracQs.length) return;
@@ -6298,15 +6331,18 @@ function renderBlurtoBank() {
     var last = sessions[0] ? sessions[0].date : null;
     var ratingIcon = sessions[0] ? (sessions[0].rating === 'got' ? '🟢' : sessions[0].rating === 'partial' ? '🟡' : '🔴') : '';
     var countTxt = count > 0 ? count + ' session' + (count !== 1 ? 's' : '') + (last ? ' · ' + last : '') : 'No sessions yet';
+    var locked = !isBlurtoUnlocked(f.name);
+    var lockedTopic = locked ? orgMatchTopic(f.name) : null;
+    var saqProg = lockedTopic ? (lockedTopic.saq_count || 0) : 0;
     var card = document.createElement('div');
     card.className = 'folder-card' + (count === 0 ? ' fc-empty' : '');
-    (function(fname, fsubj){ card.onclick = function(e){ if(!e.target.classList.contains('fc-quiz')&&!e.target.classList.contains('fc-edit-top')) blurtoOpenFolder(fname, fsubj); }; })(f.name, f.subject || '');
+    (function(fname, fsubj, isLocked){ card.onclick = function(e){ if(!e.target.classList.contains('fc-quiz')&&!e.target.classList.contains('fc-edit-top')&&!isLocked) blurtoOpenFolder(fname, fsubj); }; })(f.name, f.subject || '', locked);
     card.innerHTML = '<button class="fc-edit-top" onclick="openFolderEdit(\'' + jsq(f.name) + '\')" title="Rename">✎ Edit</button>'
       + folderSubjChip(f.name)
       + '<div class="fc-name">' + rpEsc(f.name) + '</div>'
-      + '<div class="fc-count">' + (ratingIcon ? ratingIcon + ' ' : '') + countTxt + '</div>'
+      + '<div class="fc-count">' + (ratingIcon ? ratingIcon + ' ' : '') + countTxt + (locked ? '<br><span class="fc-lock-badge">🔒 ' + saqProg + '/10 SAQs done</span>' : '') + '</div>'
       + '<div class="fc-actions">'
-      + '<button class="fc-quiz" onclick="blurtoOpenFolder(\'' + jsq(f.name) + '\',\'' + jsq(f.subject || '') + '\')">▶ Start</button>'
+      + (locked ? '' : '<button class="fc-quiz" onclick="blurtoOpenFolder(\'' + jsq(f.name) + '\',\'' + jsq(f.subject || '') + '\')">▶ Start</button>')
       + '</div>';
     grid.appendChild(card);
   });
@@ -6319,6 +6355,7 @@ function blurtoSetSubj(s) { blurtoSubjFilt = s; renderBlurtoBank(); }
 function blurtoFolderSearchInput(v) { blurtoFolderSearch = v; renderBlurtoBank(); var inp = document.getElementById('blurto-folder-search'); if (inp) { inp.focus(); inp.setSelectionRange(v.length, v.length); } }
 
 function blurtoOpenFolder(name, subject) {
+  if (!isBlurtoUnlocked(name)) return;
   var topicEl = document.getElementById('blurto-topic');
   var subjEl  = document.getElementById('blurto-subj');
   if (topicEl) topicEl.value = name;
@@ -6850,6 +6887,23 @@ var ORG_SAQ_THRESHOLD   = 10;
 var ORG_BLURT_THRESHOLD = 1;
 var orgLastTopicId = null;
 
+// ── Progressive bot unlock helpers ───────────────────────────────────────────
+function isSageUnlocked(folder) { var t = orgMatchTopic(folder); return !t || !!t.mcq_done; }
+function isBlurtoUnlocked(folder) { var t = orgMatchTopic(folder); return !t || !!t.saq_done; }
+function isFinleyUnlocked(folder) { var t = orgMatchTopic(folder); return !t || !!t.blurto_low_peek_done; }
+function hasAnySageUnlocked() { return orgTopics.some(function(t) { return t.mcq_done; }); }
+function hasAnyBlurtoUnlocked() { return orgTopics.some(function(t) { return t.saq_done; }); }
+function hasAnyFinleyUnlocked() { return orgTopics.some(function(t) { return !!t.blurto_low_peek_done; }); }
+function updateBotLockScreens() {
+  var ls = document.getElementById('bot-lock-saqs');
+  var lb = document.getElementById('bot-lock-blurto');
+  var lf = document.getElementById('bot-lock-finley');
+  var anyTopics = orgTopics.length > 0;
+  if (ls) ls.style.display = (anyTopics && !hasAnySageUnlocked()) ? 'flex' : 'none';
+  if (lb) lb.style.display = (anyTopics && !hasAnyBlurtoUnlocked()) ? 'flex' : 'none';
+  if (lf) lf.style.display = (anyTopics && !hasAnyFinleyUnlocked()) ? 'flex' : 'none';
+}
+
 var ORG_COLORS = [
   { bg:'rgba(124,58,237,.12)',  text:'#7c3aed', textHc:'#c4b5fd', border:'rgba(124,58,237,.3)'  }, // violet
   { bg:'rgba(37,99,235,.12)',   text:'#2563eb', textHc:'#93c5fd', border:'rgba(37,99,235,.3)'   }, // blue
@@ -6974,6 +7028,7 @@ function orgIncrementMCQ(folder, questions, score) {
   orgRenderBanner();
   orgRenderTable();
   rpAutoComplete(t.topic_name, 'mcq', score);
+  updateBotLockScreens();
 }
 function orgIncrementSAQ(folder, questionId) {
   var t = orgMatchTopic(folder);
@@ -6996,10 +7051,14 @@ function orgIncrementSAQ(folder, questionId) {
   orgRenderBanner();
   orgRenderTable();
   rpAutoComplete(t.topic_name, 'saqs');
+  updateBotLockScreens();
 }
 function orgIncrementBlurting(topicName) {
   var t = orgMatchTopic(topicName);
   if (!t) return;
+  if (typeof blurtoSessionPeeks !== 'undefined' && blurtoSessionPeeks < 30 && !t.blurto_low_peek_done) {
+    t.blurto_low_peek_done = true;
+  }
   t.blurting_count = (t.blurting_count || 0) + 1;
   if (t.blurting_count >= ORG_BLURT_THRESHOLD && !t.blurting_done) {
     t.blurting_done = true;
@@ -7014,6 +7073,7 @@ function orgIncrementBlurting(topicName) {
   orgRenderBanner();
   orgRenderTable();
   rpAutoComplete(t.topic_name, 'blurto');
+  updateBotLockScreens();
 }
 
 function orgLoadData() {
