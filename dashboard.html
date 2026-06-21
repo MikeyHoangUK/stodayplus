@@ -2022,6 +2022,7 @@
           <div class="bot-lock-body">Answer 10 distinct SAQs in Sage for any topic — Blurto unlocks for that topic automatically.</div>
           <div class="bot-lock-hint">Progress is tracked in the Revision Planner</div>
         </div>
+        <div id="blurto-main-content">
         <h1 class="mcq-h1">Blurto <span style="font-size:.55em;font-weight:700;opacity:.55;letter-spacing:.01em">Blurting Machine</span></h1>
         <p class="mcq-sub">Fade your notes, write from memory, see what you missed.</p>
 
@@ -2207,6 +2208,7 @@
             </div>
           </div>
         </div><!-- /review -->
+        </div><!-- /blurto-main-content -->
 
       </div><!-- /panel-blurto -->
 
@@ -6898,9 +6900,12 @@ function updateBotLockScreens() {
   var ls = document.getElementById('bot-lock-saqs');
   var lb = document.getElementById('bot-lock-blurto');
   var lf = document.getElementById('bot-lock-finley');
+  var bmc = document.getElementById('blurto-main-content');
   var anyTopics = orgTopics.length > 0;
   if (ls) ls.style.display = (anyTopics && !hasAnySageUnlocked()) ? 'flex' : 'none';
-  if (lb) lb.style.display = (anyTopics && !hasAnyBlurtoUnlocked()) ? 'flex' : 'none';
+  var blurtoLocked = anyTopics && !hasAnyBlurtoUnlocked();
+  if (lb) lb.style.display = blurtoLocked ? 'flex' : 'none';
+  if (bmc) bmc.style.display = blurtoLocked ? 'none' : 'block';
   if (lf) lf.style.display = (anyTopics && !hasAnyFinleyUnlocked()) ? 'flex' : 'none';
 }
 
