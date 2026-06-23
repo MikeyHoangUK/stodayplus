@@ -512,9 +512,8 @@
     .fc-icon{display:none}
     .fc-name{font-size:.84rem;font-weight:800;color:#1c1208;word-break:break-word;letter-spacing:.01em;line-height:1.35;margin-top:auto;margin-bottom:auto;transition:margin .22s ease}
     .folder-card:hover .fc-name{margin-top:4px;margin-bottom:0}
-    .fc-confidence{font-size:.62rem;font-weight:800;letter-spacing:.02em;max-height:0;opacity:0;overflow:hidden;transition:max-height .2s ease,opacity .18s ease}
+    .fc-confidence{font-size:.62rem;font-weight:800;letter-spacing:.02em;margin-top:4px}
     .fc-count{font-size:.61rem;font-weight:700;color:#8a6e54;letter-spacing:.03em;max-height:0;opacity:0;overflow:hidden;transition:max-height .2s ease,opacity .18s ease}
-    .folder-card:hover .fc-confidence{max-height:24px;opacity:1;margin-top:2px}
     .folder-card:hover .fc-count{max-height:24px;opacity:1;margin-top:3px}
     .fc-actions{display:flex;gap:5px;max-height:0;opacity:0;overflow:hidden;transition:max-height .22s ease,opacity .18s ease}
     .folder-card:hover .fc-actions{max-height:36px;opacity:1;margin-top:6px}
@@ -562,7 +561,6 @@
     body.hc .fe-inp{background:#0d0b1e!important;color:#e8dcc8!important;border-color:rgba(168,85,247,.4)!important}
     body.hc .fe-stats{background:rgba(168,85,247,.06)!important;border-color:rgba(168,85,247,.18)!important}
     body.hc .fe-cancel-btn{color:#c8b89a!important}
-    .fc-confidence{font-size:.62rem;font-weight:800;letter-spacing:.03em;margin-top:-2px}
     .rp-best-score{font-size:.72rem;font-weight:800;padding:4px 10px;border-radius:8px;background:rgba(0,0,0,.04);flex-shrink:0}
     /* ai folder picker */
     .ai-folder-pick{margin-top:12px;padding:12px 14px;background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.2);border-radius:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -3048,12 +3046,10 @@ function renderBank() {
       (function(folder){ card.onclick = function(e){ if(!e.target.classList.contains('fc-quiz')&&!e.target.classList.contains('fc-del')&&!e.target.classList.contains('fc-edit')&&!e.target.classList.contains('fc-edit-top')&&!e.target.classList.contains('fc-create')) filterFolder(folder); }; })(f);
       var fsc = getFolderScores()[f];
       var confBadge = '';
-      var sparkHtml = '';
       if (fsc && fsc.best >= 0) {
         var bCol = fsc.best >= 75 ? '#16a34a' : fsc.best >= 50 ? '#b45309' : '#dc2626';
         var bIcon = fsc.best >= 75 ? '🟢' : fsc.best >= 50 ? '🟡' : '🔴';
-        confBadge = '<div class="fc-confidence" style="color:' + bCol + '">' + bIcon + ' ' + fsc.best + '% confidence</div>';
-        if (fsc.history && fsc.history.length >= 2) sparkHtml = '<canvas data-sparkfolder="' + esc(f) + '" width="64" height="18" style="display:block;margin:4px 0"></canvas>';
+        confBadge = '<div class="fc-confidence" style="color:' + bCol + '">' + bIcon + ' ' + fsc.best + '%</div>';
       }
       var subjChip = folderSubjChip(f);
       var quizBtn = count > 0 ? '<button class="fc-quiz" onclick="quizFolder(\''+jsq(f)+'\')">▶ Quiz</button>' : '';
@@ -3061,17 +3057,12 @@ function renderBank() {
         + subjChip
         + '<div class="fc-name">'+esc(f)+'</div>'
         + confBadge
-        + sparkHtml
         + '<div class="fc-count">'+(count===0?'No MCQs yet':count+' question'+(count!==1?'s':''))+'</div>'
         + '<div class="fc-actions">'+quizBtn+'<button class="fc-create" onclick="jumpToCreate(\''+jsq(f)+'\')" title="Generate more questions">+</button><button class="fc-del" onclick="deleteFolder(\''+jsq(f)+'\')">🗑</button></div>';
       grid.appendChild(card);
     });
     list.innerHTML = '';
     list.appendChild(grid);
-    grid.querySelectorAll('canvas[data-sparkfolder]').forEach(function(cv) {
-      var sc2 = getFolderScores()[cv.getAttribute('data-sparkfolder')];
-      if (sc2 && sc2.history) drawSparkline(cv, sc2.history);
-    });
 
   } else {
     // ── Inside a folder ──────────────────────────────────────────
