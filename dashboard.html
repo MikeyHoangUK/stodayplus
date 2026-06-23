@@ -2811,7 +2811,11 @@ window.addEventListener('beforeunload', function(e) {
 function loadBank() {
   try { bank = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { bank = []; }
 }
-function saveBank() { if (!_spUser) localStorage.setItem(STORAGE_KEY, JSON.stringify(bank)); _scheduleSyncToSupabase(); }
+function saveBank() {
+  if (!_spUser) localStorage.setItem(STORAGE_KEY, JSON.stringify(bank));
+  else localStorage.setItem('sp_bank_cache', JSON.stringify({ data: bank, ts: Date.now() }));
+  _scheduleSyncToSupabase();
+}
 
 function buildOpts() {
   var g = document.getElementById('opts-grid'); g.innerHTML = '';
@@ -5615,7 +5619,11 @@ var sqPracIdx = 0;
 var sqCurrentFolder = null;
 
 function sqLoad() { try { sqBank = JSON.parse(localStorage.getItem('sp_saqs') || '[]'); } catch(e) { sqBank = []; } }
-function sqSave() { if (!_spUser) localStorage.setItem('sp_saqs', JSON.stringify(sqBank)); _scheduleSyncToSupabase(); }
+function sqSave() {
+  if (!_spUser) localStorage.setItem('sp_saqs', JSON.stringify(sqBank));
+  else localStorage.setItem('sp_saqs_cache', JSON.stringify({ data: sqBank, ts: Date.now() }));
+  _scheduleSyncToSupabase();
+}
 
 function sqGetOpt(g) {
   var el = document.querySelector('.sq-pill.sel[data-g="' + g + '"]');
@@ -7502,6 +7510,18 @@ async function _loadFromSupabase() {
     // Load cloud into memory only — localStorage (demo) stays untouched
     bank   = r.data.bank    || [];
     sqBank = r.data.sq_bank || [];
+    // Recover any unsynced data from local cache if it is newer than the cloud
+    var cloudTs = r.data.updated_at ? new Date(r.data.updated_at).getTime() : 0;
+    try {
+      var bc = JSON.parse(localStorage.getItem('sp_bank_cache') || 'null');
+      if (bc && bc.ts > cloudTs) { bank = bc.data; }
+      else localStorage.removeItem('sp_bank_cache');
+    } catch(e) { localStorage.removeItem('sp_bank_cache'); }
+    try {
+      var sc = JSON.parse(localStorage.getItem('sp_saqs_cache') || 'null');
+      if (sc && sc.ts > cloudTs) { sqBank = sc.data; }
+      else localStorage.removeItem('sp_saqs_cache');
+    } catch(e) { localStorage.removeItem('sp_saqs_cache'); }
     if (typeof renderBank   === 'function') renderBank();
     if (typeof renderSqBank === 'function') renderSqBank();
     _setSyncStatus('☁ Loaded from cloud');
@@ -7517,13 +7537,17 @@ async function _syncToSupabase() {
     updated_at: new Date().toISOString()
   }, { onConflict: 'user_id' });
   if (r.error) console.warn('Supabase save:', r.error.message);
-  else _setSyncStatus('☁ Saved');
+  else {
+    localStorage.removeItem('sp_bank_cache');
+    localStorage.removeItem('sp_saqs_cache');
+    _setSyncStatus('☁ Saved');
+  }
 }
 
 function _scheduleSyncToSupabase() {
   if (!_spUser) return;
   clearTimeout(_syncTimer);
-  _syncTimer = setTimeout(_syncToSupabase, 3000);
+  _syncTimer = setTimeout(_syncToSupabase, 1000);
 }
 
 function _setSyncStatus(msg) {
@@ -7537,6 +7561,8 @@ async function _spSignOut() {
   if (!_spClient) return;
   await _spClient.auth.signOut();
   _spUser = null;
+  localStorage.removeItem('sp_bank_cache');
+  localStorage.removeItem('sp_saqs_cache');
   // Restore demo data from localStorage
   if (typeof loadBank  === 'function') loadBank();
   if (typeof sqLoad    === 'function') sqLoad();
