@@ -1658,7 +1658,7 @@
         <div id="sub-bank">
           <div class="folder-bar" id="bank-folder-bar"></div>
           <div style="margin-bottom:8px">
-            <input id="bank-q-search" class="org-search" style="width:100%;box-sizing:border-box" placeholder="🔍 Search questions…" oninput="bankQSearchInput(this.value)"/>
+            <input id="bank-search" class="org-search" style="width:100%;box-sizing:border-box" placeholder="🔍 Search folders…" oninput="bankSearchInput(this.value)"/>
           </div>
           <div class="bank-bar">
             <div class="bank-stat" id="bank-stat" style="flex:1">0 questions</div>
@@ -2331,7 +2331,7 @@ var selDiff = 'easy';
 var bankFilt = 'all';
 var bankFolder = 'all';
 var bankSubjFilt = 'all';
-var bankFolderSearch = '';
+var bankSearch = '';
 var sqSubjFilt = 'all';
 var sqFolderSearch = '';
 var sqSessionQCount = 0, sqSessionStartTime = null, sqSessionTotalScore = 0, sqSessionMaxScore = 0;
@@ -2342,7 +2342,8 @@ var aiPendingQs = null;
 var aiGenerating = false;
 var sqGenerating = false;
 var qzQs = [], qzIdx = 0, qzScore = 0, qzAnswered = false, lastCfg = null, qzStartTime = null, qzWrongInSession = [];
-var bankQSearch = '';
+
+
 var pomoType = null, pomoLeft = 0, pomoTotal = 0, pomoRunning = false, pomoTimer = null, pomoElapsed = 0;
 var POMO_T = { normal: 1800, plus: 2700, max: 3600 };
 var mode = localStorage.getItem('sp_mode') || 'chill';
@@ -2869,6 +2870,8 @@ function getFolders(){
 }
 function filterFolder(f){
   bankFolder = f;
+  bankSearch = '';
+  var si = document.getElementById('bank-search'); if (si) si.value = '';
   bankSelection.clear(); updateBulkBar();
   if (f !== 'all') {
     bankFilt = 'all';
@@ -2953,13 +2956,11 @@ function filterBank(f) {
 function bankSetSubj(s) {
   bankSubjFilt = s;
   renderBank();
-  var inp = document.getElementById('bank-folder-search');
-  if (inp) inp.focus();
 }
-function bankFolderSearchInput(v) {
-  bankFolderSearch = v;
+function bankSearchInput(v) {
+  bankSearch = v;
   renderBank();
-  var inp = document.getElementById('bank-folder-search');
+  var inp = document.getElementById('bank-search');
   if (inp) { inp.focus(); inp.setSelectionRange(v.length, v.length); }
 }
 function refreshFolderDatalist(){
@@ -2972,28 +2973,11 @@ function renderBank() {
   var fbar    = document.getElementById('bank-folder-bar');
   var list    = document.getElementById('bank-list');
   var diffBar = document.getElementById('bank-diff-bar');
-
-  // ── Global question search ──
-  if (bankQSearch.trim()) {
-    fbar.style.display = 'none'; fbar.innerHTML = ''; diffBar.style.display = 'none';
-    var statElS = document.getElementById('bank-stat'); statElS.className = 'bank-stat'; statElS.textContent = '';
-    var term = bankQSearch.toLowerCase();
-    var fScope = bankFolder === 'all' ? bank : bank.filter(function(q){ return (q.folder||'General') === bankFolder; });
-    var hits = fScope.filter(function(q){ return (q.stem||q.question||'').toLowerCase().indexOf(term) !== -1; });
-    if (!hits.length) { list.innerHTML = '<div class="bank-empty"><div class="ei">🔍</div><h3>No questions match</h3><p>Try a different search term.</p></div>'; return; }
-    statElS.textContent = hits.length + ' result' + (hits.length !== 1 ? 's' : '');
-    list.innerHTML = '';
-    hits.forEach(function(q, i) {
-      var c = document.createElement('div'); c.className = 'q-card';
-      c.innerHTML = '<div class="q-top"><div class="q-num">'+(i+1)+'</div><div class="q-stem-t">'+esc(q.stem||q.question||'')+'</div><div class="q-btns"><button class="q-btn edit" onclick="editQ('+q.id+')">Edit</button><button class="q-btn del" onclick="delQ('+q.id+')">Delete</button></div></div>'
-        + '<div class="q-meta"><span class="diff-badge '+q.difficulty+'">'+q.difficulty+'</span><span style="font-size:.7rem;color:#9333ea;margin-left:4px">📁 '+esc(q.folder||'General')+'</span>'+(q.hint?'<span style="font-size:.7rem;color:#5a4230">💡 '+esc(q.hint)+'</span>':'')+'</div>';
-      list.appendChild(c);
-    });
-    return;
-  }
+  var searchInp = document.getElementById('bank-search');
 
   if (bankFolder === 'all') {
     // ── Folder overview ──────────────────────────────────────────
+    if (searchInp) searchInp.placeholder = '🔍 Search folders…';
     fbar.style.display = 'none';
     fbar.innerHTML = '';
     diffBar.style.display = 'none';
@@ -3006,8 +2990,7 @@ function renderBank() {
     var statEl = document.getElementById('bank-stat');
     statEl.className = 'bank-stat bank-filter-mode';
     statEl.innerHTML =
-      '<input id="bank-folder-search" class="bank-folder-search" placeholder="Search folders…" value="' + esc(bankFolderSearch) + '" oninput="bankFolderSearchInput(this.value)" />'
-      + '<div class="bank-subj-chips">'
+      '<div class="bank-subj-chips">'
       + subjList.map(function(s) {
           var styleAttr = '';
           if (s !== 'all') { var sc = orgSubjectColor(s); styleAttr = ' style="background:' + sc.bg + ';color:' + sc.text + ';border-color:' + sc.border + '"'; }
@@ -3025,7 +3008,7 @@ function renderBank() {
 
     // Apply search + subject filter
     var visibleFolders = folders.filter(function(f) {
-      if (bankFolderSearch && f.toLowerCase().indexOf(bankFolderSearch.toLowerCase()) === -1) return false;
+      if (bankSearch && f.toLowerCase().indexOf(bankSearch.toLowerCase()) === -1) return false;
       if (bankSubjFilt !== 'all' && getFolderSubject(f) !== bankSubjFilt) return false;
       return true;
     });
@@ -3067,6 +3050,7 @@ function renderBank() {
 
   } else {
     // ── Inside a folder ──────────────────────────────────────────
+    if (searchInp) searchInp.placeholder = '🔍 Search questions…';
     fbar.style.display = 'flex';
     fbar.innerHTML = '<span class="folder-pill" onclick="filterFolder(\'all\')" style="font-size:.68rem">← All folders</span>'
       + '<span style="color:#5a4230;font-size:.78rem;padding:0 4px">›</span>'
@@ -3082,7 +3066,7 @@ function renderBank() {
     var filtered = bank.filter(function(q){
       if ((q.folder||'General') !== bankFolder) return false;
       if (bankFilt !== 'all' && q.difficulty !== bankFilt) return false;
-      if (bankQSearch.trim() && (q.stem||q.question||'').toLowerCase().indexOf(bankQSearch.toLowerCase()) === -1) return false;
+      if (bankSearch.trim() && (q.stem||q.question||'').toLowerCase().indexOf(bankSearch.toLowerCase()) === -1) return false;
       return true;
     });
     if (filtered.length === 0) {
@@ -3225,8 +3209,6 @@ function startQuiz() {
     setTimeout(function() { fireBolt(document.getElementById('elec-rp'), 72); }, 700);
   }, 1100);
 }
-
-function bankQSearchInput(v) { bankQSearch = v; renderBank(); }
 
 function drawSparkline(canvas, data) {
   var ctx = canvas.getContext('2d');
