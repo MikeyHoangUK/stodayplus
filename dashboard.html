@@ -998,6 +998,8 @@
     .org-empty-icon{font-size:2.4rem;margin-bottom:14px}
     .org-empty-title{font-size:1.05rem;font-weight:900;color:#1c1208;margin-bottom:8px}
     .org-empty-sub{font-size:.8rem;color:#6e5438;font-weight:500;line-height:1.6;max-width:320px;margin:0 auto}
+    #unsaved-warning{display:none;align-items:center;gap:10px;background:rgba(217,119,6,.1);border:1px solid rgba(217,119,6,.3);border-radius:10px;padding:9px 14px;margin-bottom:14px;font-size:.72rem;font-weight:700;color:#92400e;flex-wrap:wrap}
+    #unsaved-warning button{font-size:.68rem;font-weight:800;color:#fff;background:#d97706;border:none;border-radius:7px;padding:4px 10px;cursor:pointer;font-family:'Raleway',sans-serif;white-space:nowrap}
     .bot-lock-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 24px;min-height:calc(100vh - 200px);box-sizing:border-box}
     .bot-lock-icon{font-size:3rem;margin-bottom:18px;opacity:.7}
     .bot-lock-title{font-size:1.25rem;font-weight:900;color:#1c1208;margin-bottom:10px;letter-spacing:-.01em}
@@ -1520,6 +1522,11 @@
     </header>
 
     <div id="content">
+      <div id="unsaved-warning">
+        <span style="font-size:1rem">⚠</span>
+        <span style="flex:1">Not signed in — questions won't be saved if your browser clears storage.</span>
+        <button onclick="openAuthModal()">Connect &amp; Sync →</button>
+      </div>
 
       <!-- ELECTRIC PERIPHERALS (fullscreen quiz only) -->
       <svg id="elec-left" style="position:fixed;top:0;left:0;width:72px;height:100%;pointer-events:none;z-index:8500;overflow:visible">
@@ -7471,6 +7478,7 @@ function _updateSyncUI() {
   var btn    = document.getElementById('sp-sync-btn');
   var userEl = document.getElementById('sp-sync-user');
   var sta    = document.getElementById('sp-sync-status');
+  var warn   = document.getElementById('unsaved-warning');
   if (!btn) return;
   if (_spUser) {
     btn.textContent  = '☁ Disconnect';
@@ -7479,6 +7487,7 @@ function _updateSyncUI() {
     btn.style.color  = '#dc2626';
     if (userEl) { userEl.textContent = '✓ ' + _spUser.email; userEl.style.display = 'block'; }
     if (sta) sta.textContent = 'Cloud sync active';
+    if (warn) warn.style.display = 'none';
   } else {
     btn.textContent  = '☁ Connect & Sync';
     btn.onclick      = openAuthModal;
@@ -7486,6 +7495,7 @@ function _updateSyncUI() {
     btn.style.color  = '#fff';
     if (userEl) userEl.style.display = 'none';
     if (sta) sta.textContent = '';
+    if (warn) warn.style.display = 'flex';
   }
 }
 
