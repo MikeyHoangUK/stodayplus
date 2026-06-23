@@ -3928,6 +3928,15 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape' && document.fullscreenElement) {
     document.getElementById('fs-btn').textContent = '⛶ Fullscreen';
   }
+  if (e.key === ' ') {
+    var tag = document.activeElement && document.activeElement.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    var nextBtn = document.getElementById('next-btn');
+    if (nextBtn && nextBtn.style.display !== 'none' && !nextBtn.disabled && qzAnswered) {
+      e.preventDefault();
+      nextBtn.click();
+    }
+  }
 });
 document.addEventListener('fullscreenchange', function() {
   var btn = document.getElementById('fs-btn');
