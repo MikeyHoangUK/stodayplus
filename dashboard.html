@@ -3656,10 +3656,7 @@ function retryQuiz() {
   startQuiz();
 }
 function exitQuizToFolder() {
-  if (document.fullscreenElement) document.exitFullscreen();
-  var f = document.getElementById('qz-folder').value;
-  switchTab('bank');
-  if (f && f !== 'all') filterFolder(f);
+  returnToSetup();
 }
 
 // Nav
