@@ -1776,6 +1776,7 @@
             <div id="res-rp-banner" class="res-rp-banner" style="display:none"></div>
             <div class="res-btns">
               <button class="res-btn pri" onclick="retryQuiz()">Try Again</button>
+              <button class="res-btn sec" onclick="exitQuizToFolder()">Exit to Topic</button>
               <button class="res-btn sec" onclick="switchTab('bank')">Back to Bank</button>
             </div>
           </div>
@@ -2948,7 +2949,6 @@ function renderQuizSessionCard(folderName) {
   }
   if (suggested > 0 && !t.mcq_done) {
     html += '<span class="qsc-suggest">Suggested today: ' + suggested + ' questions</span>';
-    autoSelectQzCount(suggested);
   } else if (t.mcq_done && !t.saq_done) {
     html += '<span class="qsc-lock">MCQ done — switch to Sage for SAQs</span>';
   } else if (t.mcq_done && t.saq_done) {
@@ -3654,6 +3654,12 @@ function showResults() {
 function retryQuiz() {
   document.getElementById('quiz-results').style.display = 'none';
   startQuiz();
+}
+function exitQuizToFolder() {
+  if (document.fullscreenElement) document.exitFullscreen();
+  var f = document.getElementById('qz-folder').value;
+  switchTab('bank');
+  if (f && f !== 'all') filterFolder(f);
 }
 
 // Nav
