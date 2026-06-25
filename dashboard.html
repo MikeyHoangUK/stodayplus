@@ -231,6 +231,65 @@
     .diff-badge.hard{background:rgba(220,38,38,.12);color:#dc2626;border:1px solid rgba(220,38,38,.3)}
     .bank-empty{text-align:center;padding:72px 20px;color:#4a3824}
     .bank-empty .ei{font-size:2.8rem;margin-bottom:14px}
+    /* ── Create sub-tabs ── */
+    .create-sub-tabs{display:flex;gap:5px;margin-bottom:22px}
+    .create-sub-tab{padding:6px 18px;border-radius:20px;font-size:.7rem;font-weight:800;cursor:pointer;border:1.5px solid rgba(168,85,247,.15);color:#6e5438;background:transparent;transition:all .18s;letter-spacing:.03em}
+    .create-sub-tab.active{background:rgba(109,40,217,.12);border-color:rgba(109,40,217,.4);color:#6d28d9}
+    .create-sub-tab:not(.active):hover{background:rgba(168,85,247,.07)}
+    body.hc .create-sub-tab{border-color:rgba(168,85,247,.3);color:#c8b89a}
+    body.hc .create-sub-tab.active{background:rgba(109,40,217,.25);color:#c4b5fd}
+    /* ── Paste Import ── */
+    .paste-header{margin-bottom:22px}
+    .paste-title{font-size:1rem;font-weight:900;color:#1c1208;letter-spacing:-.01em;margin-bottom:6px}
+    .paste-sub{font-size:.78rem;color:#6e5438;font-weight:500;line-height:1.65}
+    .paste-ta{width:100%;min-height:200px;padding:16px;border:1.5px solid rgba(168,85,247,.18);border-radius:14px;font-family:'Raleway',sans-serif;font-size:.78rem;color:#3d2e1a;background:rgba(255,255,255,.7);resize:vertical;outline:none;box-sizing:border-box;line-height:1.65;transition:border-color .15s}
+    .paste-ta:focus{border-color:rgba(109,40,217,.4);background:#fff}
+    .paste-ta::placeholder{color:#b09880;white-space:pre-line}
+    .paste-detect-bar{display:flex;align-items:center;gap:8px;margin:10px 0 18px;min-height:20px}
+    .paste-detect-msg{font-size:.72rem;font-weight:700;color:#8a6e54;transition:color .15s}
+    .paste-detect-msg.has-q{color:#16a34a}
+    .paste-detect-msg.no-q{color:#dc2626}
+    .paste-config-row{display:flex;gap:14px;margin-bottom:22px;flex-wrap:wrap;align-items:flex-end}
+    .paste-cfg-group{display:flex;flex-direction:column;gap:5px}
+    .paste-cfg-lbl{font-size:.63rem;font-weight:800;color:#6e5438;text-transform:uppercase;letter-spacing:.07em}
+    .paste-folder-inp,.paste-diff-sel{padding:7px 12px;border:1.5px solid rgba(168,85,247,.18);border-radius:10px;font-family:'Raleway',sans-serif;font-size:.76rem;color:#3d2e1a;background:rgba(255,255,255,.7);outline:none;min-width:160px;transition:border-color .15s}
+    .paste-folder-inp:focus,.paste-diff-sel:focus{border-color:rgba(109,40,217,.4)}
+    .paste-preview-btn{padding:10px 26px;background:linear-gradient(135deg,#7c3aed,#6366f1);color:#fff;border:none;border-radius:11px;font-family:'Raleway',sans-serif;font-size:.8rem;font-weight:800;cursor:pointer;transition:opacity .18s;letter-spacing:.02em}
+    .paste-preview-btn:disabled{opacity:.35;cursor:not-allowed}
+    .paste-preview-btn:not(:disabled):hover{opacity:.86}
+    .paste-preview-bar{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(168,85,247,.07);flex-wrap:wrap}
+    .paste-back-btn{padding:6px 14px;border:1.5px solid rgba(168,85,247,.2);border-radius:9px;font-family:'Raleway',sans-serif;font-size:.72rem;font-weight:800;color:#6e5438;background:transparent;cursor:pointer;transition:all .15s;flex-shrink:0}
+    .paste-back-btn:hover{background:rgba(168,85,247,.06)}
+    #paste-preview-summary{flex:1;font-size:.73rem;font-weight:700;color:#6e5438}
+    .paste-import-btn{padding:8px 22px;background:linear-gradient(135deg,#7c3aed,#6366f1);color:#fff;border:none;border-radius:10px;font-family:'Raleway',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer;transition:opacity .18s;flex-shrink:0}
+    .paste-import-btn:hover{opacity:.86}
+    .paste-qcard{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.12);border-radius:14px;padding:16px 18px;margin-bottom:10px;transition:border-color .18s,opacity .18s}
+    .paste-qcard.pq-warn{background:rgba(251,191,36,.05);border-color:rgba(202,138,4,.3)}
+    .paste-qcard.pq-skipped{opacity:.35}
+    .paste-qcard-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+    .paste-qnum{min-width:24px;height:24px;background:rgba(109,40,217,.1);border:1px solid rgba(109,40,217,.25);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:900;color:#6d28d9;flex-shrink:0;margin-top:2px}
+    .paste-qstem{flex:1;font-size:.84rem;font-weight:600;color:#3d2e1a;line-height:1.55;border:none;background:transparent;font-family:'Raleway',sans-serif;width:100%;resize:none;padding:0;outline:none}
+    .paste-qstem:focus{color:#1c1208}
+    .paste-skip-btn{font-size:.58rem;font-weight:800;color:#9a8070;background:none;border:1px solid rgba(0,0,0,.1);border-radius:6px;padding:3px 8px;cursor:pointer;transition:all .15s;flex-shrink:0}
+    .paste-skip-btn.is-skipped{border-color:rgba(109,40,217,.25);color:#7c3aed}
+    .paste-qopts{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+    .paste-qopt{padding:6px 11px;border-radius:8px;font-size:.73rem;font-weight:600;color:#4a3820;background:rgba(255,255,255,.55);border:1px solid rgba(168,85,247,.1);cursor:pointer;transition:all .15s;text-align:left;font-family:'Raleway',sans-serif;line-height:1.4}
+    .paste-qopt.pqo-correct{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.4);color:#15803d;font-weight:800}
+    .paste-qopt:not(.pqo-correct):hover{background:rgba(109,40,217,.06);border-color:rgba(109,40,217,.2)}
+    .paste-warn-label{font-size:.63rem;font-weight:800;color:#b45309;background:rgba(251,191,36,.1);border:1px solid rgba(202,138,4,.22);border-radius:6px;padding:3px 9px;display:inline-block;margin-top:8px}
+    .paste-done{text-align:center;padding:64px 20px}
+    .paste-done-icon{font-size:2.4rem;margin-bottom:14px}
+    .paste-done-msg{font-size:1rem;font-weight:800;color:#1c1208;margin-bottom:26px;letter-spacing:-.01em}
+    .paste-done-bank-btn{padding:10px 24px;background:linear-gradient(135deg,#7c3aed,#6366f1);color:#fff;border:none;border-radius:11px;font-family:'Raleway',sans-serif;font-size:.8rem;font-weight:800;cursor:pointer;margin-right:10px;transition:opacity .18s}
+    .paste-done-bank-btn:hover{opacity:.86}
+    .paste-done-more-btn{padding:10px 20px;border:1.5px solid rgba(168,85,247,.22);border-radius:11px;font-family:'Raleway',sans-serif;font-size:.78rem;font-weight:700;color:#6e5438;background:transparent;cursor:pointer;transition:all .15s}
+    .paste-done-more-btn:hover{background:rgba(168,85,247,.06)}
+    body.hc .paste-ta{background:#0d0b1e!important;color:#e8dcc8!important;border-color:rgba(168,85,247,.35)!important}
+    body.hc .paste-folder-inp,body.hc .paste-diff-sel{background:#0d0b1e!important;color:#e8dcc8!important;border-color:rgba(168,85,247,.35)!important}
+    body.hc .paste-qcard{background:#0f0d22!important;border-color:rgba(168,85,247,.3)!important}
+    body.hc .paste-qstem{color:#e8dcc8!important}
+    body.hc .paste-qopt{background:rgba(255,255,255,.05)!important;color:#c8b89a!important}
+    body.hc .paste-qopt.pqo-correct{background:rgba(34,197,94,.12)!important;color:#4ade80!important}
     .bank-empty h3{font-size:1rem;font-weight:800;color:#5a4230;margin-bottom:6px}
     .bank-empty p{font-size:.8rem}
 
@@ -1570,6 +1629,15 @@
         <!-- CREATE -->
         <div id="sub-create" style="display:none">
 
+          <!-- Create sub-tabs -->
+          <div class="create-sub-tabs">
+            <div class="create-sub-tab active" id="create-tab-ai" onclick="createSubTab('ai')">✨ AI Generate</div>
+            <div class="create-sub-tab" id="create-tab-paste" onclick="createSubTab('paste')">📎 Paste &amp; Import</div>
+          </div>
+
+          <!-- AI tab -->
+          <div id="create-sub-ai">
+
           <!-- AI Generate -->
           <div class="ai-card">
             <div class="ai-header">
@@ -1679,7 +1747,71 @@
             <button class="add-btn" id="add-btn" onclick="submitQ()">Add Question to Bank</button>
             <div class="success-msg" id="q-ok">✓ Question added!</div>
           </div>
-        </div>
+          </div><!-- /create-sub-ai -->
+
+          <!-- Paste tab -->
+          <div id="create-sub-paste" style="display:none">
+            <!-- Step 1: Paste -->
+            <div id="paste-step-1">
+              <div class="paste-header">
+                <div class="paste-title">Paste &amp; Import</div>
+                <div class="paste-sub">Paste MCQs from ChatGPT, Claude, or any AI — we'll parse them automatically. Click the correct answer on any question the parser couldn't detect.</div>
+              </div>
+              <textarea id="paste-input" class="paste-ta" placeholder="Paste your questions here. Example:
+
+1. What is the powerhouse of the cell?
+A) Nucleus
+B) Mitochondria
+C) Ribosome
+D) Golgi apparatus
+Answer: B
+
+2. Which gas do plants absorb during photosynthesis?
+A) Oxygen
+B) Carbon dioxide *
+C) Nitrogen
+D) Hydrogen" oninput="pasteOnInput()"></textarea>
+              <div class="paste-detect-bar">
+                <span id="paste-detect-msg" class="paste-detect-msg">Paste questions above to get started</span>
+              </div>
+              <div class="paste-config-row">
+                <div class="paste-cfg-group">
+                  <label class="paste-cfg-lbl">Import to folder</label>
+                  <input id="paste-folder-inp" class="paste-folder-inp" list="paste-folder-list" placeholder="e.g. Cell Biology"/>
+                  <datalist id="paste-folder-list"></datalist>
+                </div>
+                <div class="paste-cfg-group">
+                  <label class="paste-cfg-lbl">Difficulty</label>
+                  <select id="paste-diff-sel" class="paste-diff-sel">
+                    <option value="medium">Medium</option>
+                    <option value="easy">Easy</option>
+                    <option value="hard">Hard</option>
+                  </select>
+                </div>
+              </div>
+              <button id="paste-preview-btn" class="paste-preview-btn" disabled onclick="pasteGoPreview()">Preview questions →</button>
+            </div>
+            <!-- Step 2: Preview -->
+            <div id="paste-step-2" style="display:none">
+              <div class="paste-preview-bar">
+                <button class="paste-back-btn" onclick="pasteGoBack()">← Back</button>
+                <span id="paste-preview-summary"></span>
+                <button class="paste-import-btn" onclick="pasteDoImport()">Import →</button>
+              </div>
+              <div id="paste-preview-list"></div>
+            </div>
+            <!-- Step 3: Done -->
+            <div id="paste-step-3" style="display:none">
+              <div class="paste-done">
+                <div class="paste-done-icon">✓</div>
+                <div id="paste-done-msg" class="paste-done-msg"></div>
+                <button class="paste-done-bank-btn" onclick="switchTab('bank')">Go to Bank →</button>
+                <button class="paste-done-more-btn" onclick="pasteReset()">Import more</button>
+              </div>
+            </div>
+          </div><!-- /create-sub-paste -->
+
+        </div><!-- /sub-create -->
 
         <!-- BANK -->
         <div id="sub-bank">
@@ -3707,6 +3839,191 @@ function switchTab(t) {
   });
   if (t === 'bank') renderBank();
   if (t === 'quiz') { populateFolderSelect(); updateAvail(); }
+  if (t === 'create') createSubTab('ai');
+}
+
+function createSubTab(t) {
+  ['ai','paste'].forEach(function(x) {
+    var el = document.getElementById('create-sub-' + x);
+    if (el) el.style.display = x === t ? 'block' : 'none';
+    var tab = document.getElementById('create-tab-' + x);
+    if (tab) tab.classList.toggle('active', x === t);
+  });
+  if (t === 'paste') pastePopulateFolders();
+}
+
+// ── Paste & Import ───────────────────────────────────────────────────────────
+var _pasteQs = [];
+var _pasteFolder = 'General';
+var _pasteDiff = 'medium';
+
+function pasteOnInput() {
+  var text = (document.getElementById('paste-input') || {}).value || '';
+  var res = parsePastedMCQs(text);
+  var count = res.questions.length;
+  var msg = document.getElementById('paste-detect-msg');
+  var btn = document.getElementById('paste-preview-btn');
+  if (!text.trim()) {
+    msg.textContent = 'Paste questions above to get started';
+    msg.className = 'paste-detect-msg';
+    btn.disabled = true;
+  } else if (count === 0) {
+    msg.textContent = 'No MCQs detected — check the format';
+    msg.className = 'paste-detect-msg no-q';
+    btn.disabled = true;
+  } else {
+    msg.textContent = count + ' question' + (count !== 1 ? 's' : '') + ' detected';
+    msg.className = 'paste-detect-msg has-q';
+    btn.disabled = false;
+  }
+  _pasteQs = res.questions;
+}
+
+function parsePastedMCQs(text) {
+  text = text.replace(/\*\*(.*?)\*\*/g, '$1').replace(/__(.*?)__/g, '$1');
+  var blocks = text.split(/\n[ \t]*\n+/);
+  var questions = [];
+  blocks.forEach(function(b) {
+    b = b.trim();
+    if (b) { var q = _parseOneBlock(b); if (q) questions.push(q); }
+  });
+  return { questions: questions };
+}
+
+function _parseOneBlock(block) {
+  var lines = block.split('\n').map(function(l) { return l.trim(); }).filter(Boolean);
+  if (lines.length < 3) return null;
+  var optPat = /^[A-Da-d][\.\)\s\-]/;
+  var ansPat = /^(answer|correct answer|ans|the answer is)[:\s]/i;
+  var numPat = /^(\d+[\.\)]\s*|q\.?\s*\d+[:\s]*|question\s*\d+[:\s]*)/i;
+  var optIdx = [], ansIdx = -1;
+  for (var i = 0; i < lines.length; i++) {
+    if (optPat.test(lines[i])) optIdx.push(i);
+    else if (ansPat.test(lines[i]) && ansIdx === -1) ansIdx = i;
+  }
+  if (optIdx.length < 2) return null;
+  var stem = lines.slice(0, optIdx[0]).join(' ').replace(numPat, '').trim();
+  if (!stem || stem.length < 4) return null;
+  var options = [], correct = -1;
+  optIdx.forEach(function(idx) {
+    if (ansIdx >= 0 && idx > ansIdx) return;
+    var line = lines[idx];
+    var isCorrect = /[\*✓]\s*$/.test(line) || /\(correct\)/i.test(line) || /\[answer\]/i.test(line);
+    var text = line.replace(/^[A-Da-d][\.\)\s\-]\s*/, '').replace(/[\*✓]\s*$/, '').replace(/\(correct\)/i, '').replace(/\[answer\]/i, '').trim();
+    if (!text) return;
+    if (isCorrect) correct = options.length;
+    options.push(text);
+  });
+  if (ansIdx >= 0 && correct === -1) {
+    var aLine = lines[ansIdx];
+    var m = aLine.match(/[A-Da-d]/);
+    if (m) correct = 'ABCDabcd'.indexOf(m[0]) % 4;
+    if (correct === -1) {
+      var aTxt = aLine.replace(ansPat, '').replace(/^[A-Da-d][\.\)]\s*/, '').trim().toLowerCase();
+      for (var k = 0; k < options.length; k++) {
+        if (options[k].toLowerCase().indexOf(aTxt) !== -1 || aTxt.indexOf(options[k].toLowerCase()) !== -1) { correct = k; break; }
+      }
+    }
+  }
+  while (options.length < 4) options.push('');
+  return { stem: stem, options: options.slice(0,4), correct: correct, needsAnswer: correct === -1 };
+}
+
+function pasteGoPreview() {
+  if (!_pasteQs.length) return;
+  _pasteFolder = ((document.getElementById('paste-folder-inp') || {}).value || '').trim() || 'General';
+  _pasteDiff = (document.getElementById('paste-diff-sel') || {}).value || 'medium';
+  var list = document.getElementById('paste-preview-list');
+  list.innerHTML = '';
+  _pasteQs.forEach(function(q, idx) {
+    var card = document.createElement('div');
+    card.className = 'paste-qcard' + (q.needsAnswer ? ' pq-warn' : '');
+    card.id = 'pqcard-' + idx;
+    var optsHtml = q.options.map(function(opt, oi) {
+      if (!opt) return '';
+      return '<button class="paste-qopt' + (oi === q.correct ? ' pqo-correct' : '') + '" onclick="pastePickAnswer(' + idx + ',' + oi + ')">' + esc(opt) + '</button>';
+    }).join('');
+    card.innerHTML = '<div class="paste-qcard-top"><div class="paste-qnum">' + (idx+1) + '</div>'
+      + '<textarea class="paste-qstem" rows="2" oninput="pasteEditStem(' + idx + ',this.value)">' + esc(q.stem) + '</textarea>'
+      + '<button class="paste-skip-btn" id="pqskip-' + idx + '" onclick="pasteToggleSkip(' + idx + ')">Skip</button></div>'
+      + '<div class="paste-qopts">' + optsHtml + '</div>'
+      + (q.needsAnswer ? '<div class="paste-warn-label">⚠ Click the correct answer above</div>' : '');
+    list.appendChild(card);
+  });
+  _pasteUpdateSummary();
+  document.getElementById('paste-step-1').style.display = 'none';
+  document.getElementById('paste-step-2').style.display = 'block';
+}
+
+function _pasteUpdateSummary() {
+  var active = _pasteQs.filter(function(q) { return !q.skipped; });
+  var needsReview = active.filter(function(q) { return q.needsAnswer; }).length;
+  document.getElementById('paste-preview-summary').textContent =
+    active.length + ' question' + (active.length !== 1 ? 's' : '')
+    + (needsReview ? ' · ' + needsReview + ' still need' + (needsReview !== 1 ? '' : 's') + ' an answer' : '')
+    + ' · folder: "' + _pasteFolder + '"';
+}
+
+function pastePickAnswer(qIdx, optIdx) {
+  _pasteQs[qIdx].correct = optIdx;
+  _pasteQs[qIdx].needsAnswer = false;
+  var card = document.getElementById('pqcard-' + qIdx);
+  if (!card) return;
+  card.classList.remove('pq-warn');
+  card.querySelectorAll('.paste-qopt').forEach(function(btn, i) { btn.classList.toggle('pqo-correct', i === optIdx); });
+  var warn = card.querySelector('.paste-warn-label');
+  if (warn) warn.remove();
+  _pasteUpdateSummary();
+}
+
+function pasteEditStem(qIdx, val) {
+  _pasteQs[qIdx].stem = val;
+}
+
+function pasteToggleSkip(qIdx) {
+  _pasteQs[qIdx].skipped = !_pasteQs[qIdx].skipped;
+  var card = document.getElementById('pqcard-' + qIdx);
+  var btn  = document.getElementById('pqskip-' + qIdx);
+  if (card) card.classList.toggle('pq-skipped', _pasteQs[qIdx].skipped);
+  if (btn)  { btn.textContent = _pasteQs[qIdx].skipped ? 'Restore' : 'Skip'; btn.classList.toggle('is-skipped', _pasteQs[qIdx].skipped); }
+  _pasteUpdateSummary();
+}
+
+function pasteGoBack() {
+  document.getElementById('paste-step-2').style.display = 'none';
+  document.getElementById('paste-step-1').style.display = 'block';
+}
+
+function pasteDoImport() {
+  var toImport = _pasteQs.filter(function(q) { return !q.skipped && q.correct !== -1; });
+  if (!toImport.length) { alert('No questions ready to import. Please pick correct answers for any flagged questions.'); return; }
+  var base = Date.now();
+  toImport.forEach(function(q, i) {
+    bank.push({ id: base + i, stem: q.stem, options: q.options, correct: q.correct, difficulty: _pasteDiff, folder: _pasteFolder, hint: '' });
+  });
+  saveBank();
+  renderBank();
+  updateAvail();
+  document.getElementById('paste-done-msg').textContent = toImport.length + ' question' + (toImport.length !== 1 ? 's' : '') + ' imported to "' + _pasteFolder + '"!';
+  document.getElementById('paste-step-2').style.display = 'none';
+  document.getElementById('paste-step-3').style.display = 'block';
+}
+
+function pasteReset() {
+  document.getElementById('paste-input').value = '';
+  _pasteQs = [];
+  var msg = document.getElementById('paste-detect-msg');
+  if (msg) { msg.textContent = 'Paste questions above to get started'; msg.className = 'paste-detect-msg'; }
+  var btn = document.getElementById('paste-preview-btn');
+  if (btn) btn.disabled = true;
+  document.getElementById('paste-step-3').style.display = 'none';
+  document.getElementById('paste-step-1').style.display = 'block';
+}
+
+function pastePopulateFolders() {
+  var dl = document.getElementById('paste-folder-list');
+  if (!dl) return;
+  dl.innerHTML = getFolders().map(function(f) { return '<option value="' + esc(f) + '">'; }).join('');
 }
 
 // Mascot
