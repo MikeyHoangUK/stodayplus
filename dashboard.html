@@ -1500,6 +1500,11 @@
     <button onclick="hideUndoToast()" style="background:transparent;color:#9ca3af;border:none;font-size:1.1rem;cursor:pointer;line-height:1;padding:0 2px">×</button>
   </div>
 
+  <!-- Search drop -->
+  <div id="search-drop" style="display:none;position:fixed;top:58px;left:0;right:0;z-index:150;background:rgba(238,224,192,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(168,85,247,.12);padding:12px 32px;box-shadow:0 4px 20px rgba(0,0,0,.08);box-sizing:border-box">
+    <input id="bank-search" class="org-search" style="width:100%;max-width:500px;box-sizing:border-box" placeholder="🔍 Search folders or questions…" oninput="bankSearchInput(this.value)"/>
+  </div>
+
   <!-- Main -->
   <div id="main">
     <header id="topbar">
@@ -1675,9 +1680,6 @@
         <!-- BANK -->
         <div id="sub-bank">
           <div class="folder-bar" id="bank-folder-bar"></div>
-          <div style="margin-bottom:8px;display:none">
-            <input id="bank-search" class="org-search" style="width:100%;box-sizing:border-box" placeholder="🔍 Search folders…" oninput="bankSearchInput(this.value)"/>
-          </div>
           <div class="bank-bar">
             <div class="bank-stat" id="bank-stat" style="flex:1">0 questions</div>
             <div id="bank-diff-bar" style="display:flex;gap:4px">
@@ -3910,6 +3912,18 @@ function toggleQuizFS() {
     document.getElementById('fs-btn').textContent = '⛶ Fullscreen';
   }
 }
+(function() {
+  var _sdTimer;
+  var drop = document.getElementById('search-drop');
+  var tb   = document.getElementById('topbar');
+  if (!tb || !drop) return;
+  function showSD() { clearTimeout(_sdTimer); drop.style.display = 'block'; }
+  function hideSD() { _sdTimer = setTimeout(function() { drop.style.display = 'none'; }, 280); }
+  tb.addEventListener('mouseenter', showSD);
+  tb.addEventListener('mouseleave', hideSD);
+  drop.addEventListener('mouseenter', function() { clearTimeout(_sdTimer); });
+  drop.addEventListener('mouseleave', hideSD);
+})();
 document.addEventListener('keydown', function(e) {
   if (e.key === 'F11') {
     var run = document.getElementById('quiz-run');
