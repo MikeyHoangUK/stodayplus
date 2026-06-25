@@ -130,7 +130,9 @@
     /* ── TOP BAR ── */
     #topbar{height:58px;min-height:58px;background:rgba(238,224,192,.96);backdrop-filter:blur(16px);border-bottom:1px solid rgba(168,85,247,.09);display:flex;align-items:center;padding:0 28px;gap:16px}
     #topbar-tabs{display:flex;align-items:center}
-    .tb-title{font-weight:900;font-size:.85rem;color:#1c1208;flex:1;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;display:flex;flex-direction:column;gap:1px;line-height:1;user-select:none}
+    #search-drop{position:fixed;top:58px;left:0;right:0;z-index:150;background:rgba(238,224,192,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(168,85,247,.12);padding:12px 32px;box-shadow:0 6px 24px rgba(0,0,0,.08);box-sizing:border-box;opacity:0;transform:translateY(-8px);pointer-events:none;transition:opacity .22s ease,transform .22s ease}
+    #search-drop.sd-open{opacity:1;transform:translateY(0);pointer-events:auto}
+    .tb-title{font-weight:900;font-size:.85rem;color:#1c1208;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;display:flex;flex-direction:column;gap:1px;line-height:1;user-select:none}
     .tb-title:hover{opacity:.75}
     .tb-sub{font-size:.52rem;font-weight:600;opacity:.5;letter-spacing:.05em;text-transform:uppercase;line-height:1}
 
@@ -1501,7 +1503,7 @@
   </div>
 
   <!-- Search drop -->
-  <div id="search-drop" style="display:none;position:fixed;top:58px;left:0;right:0;z-index:150;background:rgba(238,224,192,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(168,85,247,.12);padding:12px 32px;box-shadow:0 4px 20px rgba(0,0,0,.08);box-sizing:border-box">
+  <div id="search-drop">
     <input id="bank-search" class="org-search" style="width:100%;max-width:500px;box-sizing:border-box" placeholder="🔍 Search folders or questions…" oninput="bankSearchInput(this.value)"/>
   </div>
 
@@ -1531,6 +1533,7 @@
           <div class="mcq-tab" id="finley-tab-hist" onclick="finleyTab('hist')">📋 History</div>
         </div>
       </div>
+      <div style="flex:1"></div>
       <div style="display:flex;align-items:center;gap:6px">
         <div id="pomo-display" onclick="openPomo()" title="Start a focus session">
           <span>⏱</span>
@@ -3917,8 +3920,8 @@ function toggleQuizFS() {
   var drop = document.getElementById('search-drop');
   var tb   = document.getElementById('topbar');
   if (!tb || !drop) return;
-  function showSD() { clearTimeout(_sdTimer); drop.style.display = 'block'; }
-  function hideSD() { _sdTimer = setTimeout(function() { drop.style.display = 'none'; }, 280); }
+  function showSD() { clearTimeout(_sdTimer); drop.classList.add('sd-open'); }
+  function hideSD() { _sdTimer = setTimeout(function() { drop.classList.remove('sd-open'); }, 280); }
   tb.addEventListener('mouseenter', showSD);
   tb.addEventListener('mouseleave', hideSD);
   drop.addEventListener('mouseenter', function() { clearTimeout(_sdTimer); });
