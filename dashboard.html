@@ -130,7 +130,7 @@
     /* ── TOP BAR ── */
     #topbar{height:58px;min-height:58px;background:rgba(238,224,192,.96);backdrop-filter:blur(16px);border-bottom:1px solid rgba(168,85,247,.09);display:flex;align-items:center;padding:0 28px;gap:16px}
     #topbar-tabs{display:flex;align-items:center}
-    #search-drop{position:fixed;top:58px;left:0;right:0;z-index:150;background:rgba(238,224,192,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(168,85,247,.12);padding:12px 32px;box-shadow:0 6px 24px rgba(0,0,0,.08);box-sizing:border-box;opacity:0;transform:translateY(-8px);pointer-events:none;transition:opacity .22s ease,transform .22s ease}
+    #search-drop{position:fixed;top:58px;left:28px;z-index:150;background:rgba(238,224,192,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(168,85,247,.12);border-top:none;border-radius:0 0 12px 12px;padding:8px 12px;box-shadow:0 6px 24px rgba(0,0,0,.08);box-sizing:border-box;opacity:0;transform:translateY(-6px);pointer-events:none;transition:opacity .22s ease,transform .22s ease}
     #search-drop.sd-open{opacity:1;transform:translateY(0);pointer-events:auto}
     .tb-title{font-weight:900;font-size:.85rem;color:#1c1208;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;display:flex;flex-direction:column;gap:1px;line-height:1;user-select:none}
     .tb-title:hover{opacity:.75}
@@ -1504,7 +1504,7 @@
 
   <!-- Search drop -->
   <div id="search-drop">
-    <input id="bank-search" class="org-search" style="width:100%;max-width:500px;box-sizing:border-box" placeholder="🔍 Search folders or questions…" oninput="bankSearchInput(this.value)"/>
+    <input id="bank-search" class="org-search" style="width:220px;max-width:220px;font-size:.72rem" placeholder="🔍 Search…" oninput="bankSearchInput(this.value)"/>
   </div>
 
   <!-- Main -->
