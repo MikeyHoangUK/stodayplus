@@ -163,7 +163,7 @@
     .mcq-h1{font-size:1.7rem;font-weight:900;background:linear-gradient(135deg,#6d28d9,#4338ca);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.01em}
     .mcq-sub{color:#6e5438;font-size:.85rem;margin-top:6px;margin-bottom:32px;font-weight:500;letter-spacing:.02em}
 
-    .mcq-tabs{display:flex;gap:2px;background:rgba(255,255,255,.7);border:1px solid rgba(168,85,247,.1);border-radius:12px;padding:4px;width:fit-content;margin-bottom:32px}
+    .mcq-tabs{display:flex;gap:2px;background:rgba(240,228,198,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(168,85,247,.1);border-radius:12px;padding:4px;width:fit-content;margin-bottom:24px;position:sticky;top:0;z-index:20}
     .mcq-tab{padding:8px 22px;border-radius:9px;font-size:.75rem;font-weight:800;cursor:pointer;transition:all .18s;color:#6e5438;letter-spacing:.04em}
     .mcq-tab.active{background:rgba(109,40,217,.14);color:#6d28d9;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
     .mcq-tab:hover:not(.active){color:#b09880;background:rgba(255,255,255,.7)}
@@ -372,7 +372,7 @@
     body.hc .qopt .ot{color:#c8b89a!important}
     body.hc .hint-txt{background:rgba(168,85,247,.07)!important}
     body.hc .ai-folder-pick{background:rgba(168,85,247,.06)!important}
-    body.hc .mcq-tabs{background:#0d0b1e!important;border-color:rgba(168,85,247,.38)!important}
+    body.hc .mcq-tabs{background:rgba(6,6,15,.97)!important;border-color:rgba(168,85,247,.38)!important}
     body.hc .bank-bar .filt-btn{border-color:rgba(255,255,255,.07)!important;color:#a08878!important}
     body.hc .bank-bar .filt-btn.active{background:rgba(168,85,247,.14)!important;color:#c084fc!important}
     /* Restore light purples on dark hc background */
@@ -1268,9 +1268,6 @@
       .mcq-tabs { overflow-x: auto; white-space: nowrap; width: 100%; box-sizing: border-box; -webkit-overflow-scrolling: touch; }
       .mcq-tab  { padding: 7px 13px; font-size: .7rem; display: inline-block; }
 
-      /* Quiz title + sub */
-      .mcq-h1 { font-size: 1.5rem; }
-      .mcq-sub { font-size: .78rem; margin-bottom: 20px; }
       .qs-h   { font-size: 1.2rem; }
       .qs-p   { font-size: .78rem; margin-bottom: 20px; }
 
@@ -1538,9 +1535,6 @@
 
       <!-- MCQ Panel -->
       <div id="panel-mcq" class="panel anim">
-        <h1 class="mcq-h1">Poppy</h1>
-        <p class="mcq-sub">Build your question bank from your study materials, then quiz yourself.</p>
-
         <div class="mcq-tabs">
           <div class="mcq-tab active" id="tab-bank" onclick="switchTab('bank')">📋 Bank</div>
           <div class="mcq-tab" id="tab-quiz" onclick="switchTab('quiz')">▶ Quiz</div>
@@ -1886,9 +1880,6 @@
           <div class="bot-lock-hint">Progress is tracked in the Revision Planner</div>
         </div>
         <div id="saqs-main-content">
-        <h1 class="mcq-h1">Sage <span style="font-size:.55em;font-weight:700;opacity:.55;letter-spacing:.01em">SAQs Maker</span></h1>
-        <p class="mcq-sub">Generate short answer questions focused on deep understanding.</p>
-
         <div class="mcq-tabs">
           <div class="mcq-tab active" id="sq-tab-bank" onclick="sqTab('bank')">📋 Bank</div>
           <div class="mcq-tab" id="sq-tab-prac" onclick="sqTab('prac')">▶ Practice</div>
@@ -2032,10 +2023,7 @@
           <div class="bot-lock-hint">Progress is tracked in the Revision Planner</div>
         </div>
         <div id="blurto-main-content">
-        <h1 class="mcq-h1">Blurto <span style="font-size:.55em;font-weight:700;opacity:.55;letter-spacing:.01em">Blurting Machine</span></h1>
-        <p class="mcq-sub">Fade your notes, write from memory, see what you missed.</p>
-
-        <div class="mcq-tabs" style="margin-bottom:16px">
+        <div class="mcq-tabs">
           <div class="mcq-tab active" id="blurto-tab-bank" onclick="blurtoTabSwitch('bank')">📋 Bank</div>
           <div class="mcq-tab" id="blurto-tab-session" onclick="blurtoTabSwitch('session')">📝 Practice</div>
           <div class="mcq-tab" id="blurto-tab-notes" onclick="blurtoTabSwitch('notes')">📄 Notes</div>
@@ -2230,9 +2218,6 @@
           <div class="bot-lock-hint">Progress is tracked in the Revision Planner</div>
         </div>
         <div id="finley-main-content">
-        <h1 class="mcq-h1">Finley <span style="font-size:.55em;font-weight:700;opacity:.55;letter-spacing:.01em">Feynman Teaching</span></h1>
-        <p class="mcq-sub">Teach a confused student. If you can explain it, you understand it.</p>
-
         <div class="mcq-tabs">
           <div class="mcq-tab active" id="finley-tab-teach" onclick="finleyTab('teach')">🎓 Teach</div>
           <div class="mcq-tab" id="finley-tab-hist" onclick="finleyTab('hist')">📋 History</div>
