@@ -163,7 +163,8 @@
     .mcq-h1{font-size:1.7rem;font-weight:900;background:linear-gradient(135deg,#6d28d9,#4338ca);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.01em}
     .mcq-sub{color:#6e5438;font-size:.85rem;margin-top:6px;margin-bottom:32px;font-weight:500;letter-spacing:.02em}
 
-    .mcq-tabs{display:flex;gap:2px;background:rgba(240,228,198,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(168,85,247,.1);border-radius:12px;padding:4px;width:fit-content;margin-bottom:24px;position:sticky;top:0;z-index:20}
+    .mcq-tabs{display:flex;gap:2px;background:rgba(240,228,198,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(168,85,247,.1);border-radius:12px;padding:4px;width:fit-content;margin-bottom:24px;position:sticky;top:-80px;z-index:20;transition:top .22s cubic-bezier(.4,0,.2,1)}
+    body.tab-reveal .mcq-tabs{top:0}
     .mcq-tab{padding:8px 22px;border-radius:9px;font-size:.75rem;font-weight:800;cursor:pointer;transition:all .18s;color:#6e5438;letter-spacing:.04em}
     .mcq-tab.active{background:rgba(109,40,217,.14);color:#6d28d9;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
     .mcq-tab:hover:not(.active){color:#b09880;background:rgba(255,255,255,.7)}
@@ -3902,6 +3903,24 @@ function toggleQuizFS() {
     document.getElementById('fs-btn').textContent = '⛶ Fullscreen';
   }
 }
+(function() {
+  var _tabTimer;
+  function _revealTabs() { clearTimeout(_tabTimer); document.body.classList.add('tab-reveal'); }
+  function _hideTabs() {
+    _tabTimer = setTimeout(function() { document.body.classList.remove('tab-reveal'); }, 280);
+  }
+  var tb = document.getElementById('topbar');
+  if (tb) { tb.addEventListener('mouseenter', _revealTabs); tb.addEventListener('mouseleave', _hideTabs); }
+  document.addEventListener('mouseover', function(e) {
+    if (e.target && e.target.closest && e.target.closest('.mcq-tabs')) clearTimeout(_tabTimer);
+  });
+  document.addEventListener('mouseout', function(e) {
+    var fromTabs = e.target && e.target.closest && e.target.closest('.mcq-tabs');
+    var toTabs = e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.mcq-tabs');
+    var toBar  = e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('#topbar');
+    if (fromTabs && !toTabs && !toBar) _hideTabs();
+  });
+})();
 document.addEventListener('keydown', function(e) {
   if (e.key === 'F11') {
     var run = document.getElementById('quiz-run');
