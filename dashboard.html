@@ -198,32 +198,33 @@
     .success-msg{text-align:center;color:#4ade80;font-size:.78rem;font-weight:800;margin-top:12px;display:none;animation:fadeUp .3s ease}
 
     /* Bank */
-    .bank-bar{display:flex;gap:8px;align-items:center;margin-bottom:24px;flex-wrap:wrap}
+    .bank-bar{display:flex;gap:8px;align-items:flex-start;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(168,85,247,.07);flex-wrap:wrap}
     .bank-stat{background:rgba(109,40,217,.08);border:1px solid rgba(109,40,217,.2);border-radius:8px;padding:6px 14px;font-size:.72rem;font-weight:800;color:#6d28d9;letter-spacing:.04em}
     .bank-stat.bank-filter-mode{background:none;border:none;padding:0;flex:1;display:flex;flex-direction:column;gap:6px}
     .bank-folder-search{border:1.5px solid rgba(109,40,217,.22);border-radius:8px;padding:6px 11px;font-size:.74rem;color:#4a2c1a;background:#fffdf7;outline:none;width:100%;box-sizing:border-box;transition:border-color .15s}
     .bank-folder-search:focus{border-color:#7c3aed}
     .bank-folder-search::placeholder{color:#b09880}
     .bank-subj-chips{display:flex;flex-wrap:wrap;gap:4px}
-    .bsc-chip{font-size:.53rem;font-weight:800;padding:2px 7px;border-radius:20px;border:1.5px solid rgba(109,40,217,.2);background:rgba(109,40,217,.06);color:#6d28d9;cursor:pointer;transition:all .12s;letter-spacing:.04em;text-transform:uppercase}
+    .bsc-chip{font-size:.6rem;font-weight:800;padding:3px 10px;border-radius:20px;border:1.5px solid rgba(109,40,217,.2);background:rgba(109,40,217,.06);color:#6d28d9;cursor:pointer;transition:all .12s;letter-spacing:.04em;text-transform:uppercase}
     .bsc-chip.bsc-active{background:rgba(109,40,217,.16);border-color:#7c3aed;color:#5b21b6}
     body.hc .bank-folder-search{background:#1a1a1a!important;color:#e2cfc0!important;border-color:rgba(168,85,247,.3)!important}
     body.hc .bsc-chip{color:#c084fc!important;border-color:rgba(168,85,247,.3)!important;background:rgba(168,85,247,.06)!important}
     body.hc .bsc-chip.bsc-active{background:rgba(168,85,247,.18)!important;border-color:#c084fc!important}
-    .filt-btn{padding:5px 14px;border-radius:8px;font-size:.68rem;font-weight:800;cursor:pointer;border:1px solid rgba(0,0,0,.08);transition:all .18s;color:#5a4230;background:transparent;letter-spacing:.03em}
-    .filt-btn.active{background:rgba(109,40,217,.12);border-color:rgba(109,40,217,.35);color:#6d28d9}
+    .filt-btn{padding:5px 14px;border-radius:20px;font-size:.68rem;font-weight:800;cursor:pointer;border:1.5px solid rgba(168,85,247,.15);transition:all .18s;color:#6e5438;background:transparent;letter-spacing:.03em}
+    .filt-btn.active{background:rgba(109,40,217,.12);border-color:rgba(109,40,217,.4);color:#6d28d9}
     .q-card{background:rgba(250,243,224,.65);border:1px solid rgba(168,85,247,.1);border-radius:16px;padding:18px 20px;margin-bottom:10px;transition:border-color .18s,box-shadow .18s}
     .q-card:hover{border-color:rgba(168,85,247,.24);box-shadow:0 4px 24px rgba(168,85,247,.07)}
-    .q-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+    .q-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
     .q-num{min-width:26px;height:26px;background:rgba(109,40,217,.12);border:1px solid rgba(109,40,217,.3);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:900;color:#6d28d9}
     .q-stem-t{flex:1;font-size:.85rem;color:#4a3820;font-weight:600;line-height:1.6}
-    .q-btns{display:flex;gap:5px;flex-shrink:0}
+    .q-btns{display:flex;gap:5px;flex-shrink:0;opacity:0;transition:opacity .15s}
+    .q-card:hover .q-btns{opacity:1}
     .q-btn{padding:4px 10px;border-radius:7px;font-size:.62rem;font-weight:800;cursor:pointer;border:1px solid;transition:all .15s}
     .q-btn.edit{border-color:rgba(129,140,248,.25);color:#818cf8;background:rgba(129,140,248,.07)}
     .q-btn.edit:hover{background:rgba(129,140,248,.16)}
     .q-btn.del{border-color:rgba(248,113,113,.25);color:#f87171;background:rgba(248,113,113,.06)}
     .q-btn.del:hover{background:rgba(248,113,113,.16)}
-    .q-meta{display:flex;gap:8px;align-items:center}
+    .q-meta{display:flex;gap:8px;align-items:center;padding-top:8px;border-top:1px solid rgba(168,85,247,.07)}
     .diff-badge{font-size:.58rem;font-weight:800;padding:3px 8px;border-radius:6px;text-transform:uppercase;letter-spacing:.06em}
     .diff-badge.easy{background:rgba(34,197,94,.15);color:#16a34a;border:1px solid rgba(34,197,94,.35)}
     .diff-badge.medium{background:rgba(202,138,4,.15);color:#b45309;border:1px solid rgba(202,138,4,.35)}
@@ -503,24 +504,24 @@
     .ai-pill:hover:not(.sel){border-color:rgba(168,85,247,.3);color:#b09880}
     .ai-pill.sel{background:rgba(109,40,217,.14);border-color:rgba(109,40,217,.45);color:#6d28d9}
     /* folder system */
-    .folder-bar{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
-    .folder-pill{padding:4px 13px;border-radius:16px;font-size:.71rem;font-weight:800;cursor:pointer;border:1px solid rgba(255,255,255,.07);color:#5a4230;background:transparent;transition:all .15s;user-select:none}
+    .folder-bar{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(168,85,247,.07)}
+    .folder-pill{padding:4px 13px;border-radius:20px;font-size:.71rem;font-weight:800;cursor:pointer;border:1px solid rgba(168,85,247,.18);color:#6e5438;background:rgba(109,40,217,.04);transition:all .15s;user-select:none}
     .folder-pill:hover:not(.active){background:rgba(168,85,247,.08);color:#b09880;border-color:rgba(168,85,247,.2)}
     .folder-pill.active{background:rgba(109,40,217,.14);border-color:rgba(109,40,217,.4);color:#6d28d9}
     .folder-badge{font-size:.58rem;font-weight:800;padding:2px 7px;border-radius:6px;background:rgba(109,40,217,.1);border:1px solid rgba(109,40,217,.25);color:#6d28d9;letter-spacing:.03em}
     .q-move-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:0;max-height:0;overflow:hidden;transition:max-height .2s ease,margin-top .2s ease}
     .q-move-row:not(:empty){max-height:60px;margin-top:8px}
     /* folder grid */
-    .folder-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;padding:4px 0}
-    .folder-card{position:relative;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.12);border-radius:18px;padding:34px 16px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:border-color .2s,background .2s,box-shadow .2s;text-align:center;min-height:96px}
+    .folder-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;padding:4px 0}
+    .folder-card{position:relative;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.12);border-radius:16px;padding:22px 14px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:border-color .2s,background .2s,box-shadow .2s;text-align:center;min-height:88px}
     .folder-card:hover{border-color:rgba(168,85,247,.32);background:rgba(168,85,247,.05);box-shadow:0 8px 32px rgba(168,85,247,.08)}
     .fc-icon{display:none}
     .fc-name{font-size:.84rem;font-weight:800;color:#1c1208;word-break:break-word;letter-spacing:.01em;line-height:1.35;margin-top:auto;margin-bottom:auto;transition:margin .22s ease}
     .folder-card:hover .fc-name{margin-top:4px;margin-bottom:0}
     .fc-confidence{font-size:.62rem;font-weight:800;letter-spacing:.02em;max-height:0;opacity:0;overflow:hidden;transition:max-height .2s ease,opacity .18s ease}
-    .fc-count{font-size:.61rem;font-weight:700;color:#8a6e54;letter-spacing:.03em;max-height:0;opacity:0;overflow:hidden;transition:max-height .2s ease,opacity .18s ease}
+    .fc-count{font-size:.61rem;font-weight:700;color:#8a6e54;letter-spacing:.03em;max-height:24px;opacity:.6;overflow:hidden;transition:opacity .18s ease}
     .folder-card:hover .fc-confidence{max-height:24px;opacity:1;margin-top:2px}
-    .folder-card:hover .fc-count{max-height:24px;opacity:1;margin-top:3px}
+    .folder-card:hover .fc-count{opacity:1}
     .fc-actions{display:flex;gap:5px;max-height:0;opacity:0;overflow:hidden;transition:max-height .22s ease,opacity .18s ease}
     .folder-card:hover .fc-actions{max-height:36px;opacity:1;margin-top:6px}
     .fc-edit-top{position:absolute;top:7px;right:8px;font-size:.52rem;font-weight:700;color:#aaa098;background:none!important;border:none!important;cursor:pointer;padding:2px 4px;opacity:0;transition:opacity .18s;border-radius:4px;letter-spacing:.02em;box-shadow:none!important}
