@@ -1553,6 +1553,7 @@
       <div id="sp-sync-area" style="margin-top:10px;border-top:1px solid rgba(168,85,247,.1);padding-top:10px">
         <div id="sp-sync-user" style="font-size:.68rem;color:#5a4230;margin-bottom:5px;display:none"></div>
         <button id="sp-sync-btn" onclick="openAuthModal()" style="width:100%;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;border:none;border-radius:8px;padding:7px 8px;font-size:.68rem;font-weight:700;cursor:pointer;font-family:'Raleway',sans-serif">☁ Connect &amp; Sync</button>
+        <button id="sp-reset-btn" onclick="spResetAccount()" style="display:none;width:100%;margin-top:5px;background:none;color:#dc2626;border:1px solid rgba(220,38,38,.25);border-radius:8px;padding:5px 8px;font-size:.63rem;font-weight:700;cursor:pointer;font-family:'Raleway',sans-serif">⚠ Reset my account data</button>
         <div id="sp-sync-status" style="font-size:.62rem;color:#888;margin-top:4px;text-align:center"></div>
       </div>
     </div>
@@ -7831,16 +7832,18 @@ var _authMode  = 'signin';
 })();
 
 function _updateSyncUI() {
-  var btn    = document.getElementById('sp-sync-btn');
-  var userEl = document.getElementById('sp-sync-user');
-  var sta    = document.getElementById('sp-sync-status');
-  var warn   = document.getElementById('unsaved-warning');
+  var btn      = document.getElementById('sp-sync-btn');
+  var resetBtn = document.getElementById('sp-reset-btn');
+  var userEl   = document.getElementById('sp-sync-user');
+  var sta      = document.getElementById('sp-sync-status');
+  var warn     = document.getElementById('unsaved-warning');
   if (!btn) return;
   if (_spUser) {
     btn.textContent  = '☁ Disconnect';
     btn.onclick      = _spSignOut;
     btn.style.background = 'rgba(239,68,68,.12)';
     btn.style.color  = '#dc2626';
+    if (resetBtn) resetBtn.style.display = 'block';
     if (userEl) { userEl.textContent = '✓ ' + _spUser.email; userEl.style.display = 'block'; }
     if (sta) sta.textContent = 'Cloud sync active';
     if (warn) warn.style.display = 'none';
@@ -7849,10 +7852,31 @@ function _updateSyncUI() {
     btn.onclick      = openAuthModal;
     btn.style.background = 'linear-gradient(135deg,#7c3aed,#4f46e5)';
     btn.style.color  = '#fff';
+    if (resetBtn) resetBtn.style.display = 'none';
     if (userEl) userEl.style.display = 'none';
     if (sta) sta.textContent = '';
     if (warn) warn.style.display = 'flex';
   }
+}
+
+async function spResetAccount() {
+  if (!_spUser) return;
+  if (!confirm('This will permanently delete ALL your study data (questions, topics, sessions). Are you sure?')) return;
+  var uid = _spUser.id;
+  _USER_DATA_KEYS.forEach(function(k) { localStorage.removeItem(k); });
+  localStorage.removeItem('sp_bank_cache_' + uid);
+  localStorage.removeItem('sp_saqs_cache_' + uid);
+  await _spClient.from('user_data').upsert({
+    user_id: uid, bank: [], sq_bank: [], updated_at: new Date().toISOString()
+  }, { onConflict: 'user_id' });
+  bank = []; sqBank = [];
+  if (typeof orgLoadData  === 'function') orgLoadData();
+  if (typeof blurtoLoad   === 'function') blurtoLoad();
+  if (typeof rpLoad       === 'function') rpLoad();
+  if (typeof rpExamLoad   === 'function') rpExamLoad();
+  if (typeof renderBank   === 'function') renderBank();
+  if (typeof renderSqBank === 'function') renderSqBank();
+  _setSyncStatus('✓ Account reset');
 }
 
 // Keys that store per-user data — cleared when a different user signs in
