@@ -130,8 +130,10 @@
     /* ── TOP BAR ── */
     #topbar{height:58px;min-height:58px;background:rgba(238,224,192,.96);backdrop-filter:blur(16px);border-bottom:1px solid rgba(168,85,247,.09);display:flex;align-items:center;padding:0 28px;gap:16px}
     #topbar-tabs{display:flex;align-items:center}
-    #search-drop{position:fixed;top:58px;left:28px;z-index:150;background:rgba(238,224,192,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(168,85,247,.12);border-top:none;border-radius:0 0 12px 12px;padding:8px 12px;box-shadow:0 6px 24px rgba(0,0,0,.08);box-sizing:border-box;opacity:0;transform:translateY(-6px);pointer-events:none;transition:opacity .22s ease,transform .22s ease}
-    #search-drop.sd-open{opacity:1;transform:translateY(0);pointer-events:auto}
+    .bank-search-inline{padding:5px 14px;border:1.5px solid rgba(168,85,247,.15);border-radius:20px;font-family:'Raleway',sans-serif;font-size:.72rem;color:#3d2e1a;background:rgba(255,255,255,.6);outline:none;width:150px;transition:border-color .2s,width .2s,background .2s}
+    .bank-search-inline:focus{border-color:rgba(109,40,217,.35);background:#fff;width:190px}
+    .bank-search-inline::placeholder{color:#b09880}
+    body.hc .bank-search-inline{background:rgba(255,255,255,.05)!important;border-color:rgba(168,85,247,.3)!important;color:#e8dcc8!important}
     .tb-title{font-weight:900;font-size:.85rem;color:#1c1208;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;display:flex;flex-direction:column;gap:1px;line-height:1;user-select:none}
     .tb-title:hover{opacity:.75}
     .tb-sub{font-size:.52rem;font-weight:600;opacity:.5;letter-spacing:.05em;text-transform:uppercase;line-height:1}
@@ -1568,10 +1570,6 @@
     <button onclick="hideUndoToast()" style="background:transparent;color:#9ca3af;border:none;font-size:1.1rem;cursor:pointer;line-height:1;padding:0 2px">×</button>
   </div>
 
-  <!-- Search drop -->
-  <div id="search-drop">
-    <input id="bank-search" class="org-search" style="width:220px;max-width:220px;font-size:.72rem" placeholder="🔍 Search…" oninput="bankSearchInput(this.value)"/>
-  </div>
 
   <!-- Main -->
   <div id="main">
@@ -1833,6 +1831,7 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
               <button class="filt-btn" data-f="medium" onclick="filterBank('medium')">Medium</button>
               <button class="filt-btn" data-f="hard" onclick="filterBank('hard')">Hard</button>
             </div>
+            <input id="bank-search" class="bank-search-inline" placeholder="🔍 Search…" oninput="bankSearchInput(this.value)"/>
           </div>
           <div id="bank-list"></div>
         </div>
@@ -4245,18 +4244,6 @@ function toggleQuizFS() {
     document.getElementById('fs-btn').textContent = '⛶ Fullscreen';
   }
 }
-(function() {
-  var _sdTimer;
-  var drop = document.getElementById('search-drop');
-  var tb   = document.getElementById('topbar');
-  if (!tb || !drop) return;
-  function showSD() { clearTimeout(_sdTimer); drop.classList.add('sd-open'); }
-  function hideSD() { _sdTimer = setTimeout(function() { drop.classList.remove('sd-open'); }, 280); }
-  tb.addEventListener('mouseenter', showSD);
-  tb.addEventListener('mouseleave', hideSD);
-  drop.addEventListener('mouseenter', function() { clearTimeout(_sdTimer); });
-  drop.addEventListener('mouseleave', hideSD);
-})();
 (function() {
   var _nhTimer;
   var title  = document.getElementById('tb-title');
