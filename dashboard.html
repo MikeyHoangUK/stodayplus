@@ -2955,7 +2955,10 @@ function loadBank() {
 }
 function saveBank() {
   if (!_spUser) localStorage.setItem(STORAGE_KEY, JSON.stringify(bank));
-  else localStorage.setItem('sp_bank_cache_' + _spUser.id, JSON.stringify({ data: bank, ts: Date.now() }));
+  else {
+    localStorage.setItem('sp_bank_cache_' + _spUser.id, JSON.stringify({ data: bank, ts: Date.now() }));
+    localStorage.setItem('sp_bank_local_' + _spUser.id, JSON.stringify(bank));
+  }
   _scheduleSyncToSupabase();
 }
 
@@ -5985,7 +5988,10 @@ var sqCurrentFolder = null;
 function sqLoad() { try { sqBank = JSON.parse(localStorage.getItem('sp_saqs') || '[]'); } catch(e) { sqBank = []; } }
 function sqSave() {
   if (!_spUser) localStorage.setItem('sp_saqs', JSON.stringify(sqBank));
-  else localStorage.setItem('sp_saqs_cache_' + _spUser.id, JSON.stringify({ data: sqBank, ts: Date.now() }));
+  else {
+    localStorage.setItem('sp_saqs_cache_' + _spUser.id, JSON.stringify({ data: sqBank, ts: Date.now() }));
+    localStorage.setItem('sp_saqs_local_' + _spUser.id, JSON.stringify(sqBank));
+  }
   _scheduleSyncToSupabase();
 }
 
@@ -7875,6 +7881,8 @@ async function spResetAccount() {
   _USER_DATA_KEYS.forEach(function(k) { localStorage.removeItem(k); });
   localStorage.removeItem('sp_bank_cache_' + uid);
   localStorage.removeItem('sp_saqs_cache_' + uid);
+  localStorage.removeItem('sp_bank_local_' + uid);
+  localStorage.removeItem('sp_saqs_local_' + uid);
   await _spClient.from('user_data').upsert({
     user_id: uid, bank: [], sq_bank: [], updated_at: new Date().toISOString()
   }, { onConflict: 'user_id' });
@@ -7906,6 +7914,8 @@ async function _loadFromSupabase() {
     _USER_DATA_KEYS.forEach(function(k) { localStorage.removeItem(k); });
     localStorage.removeItem('sp_bank_cache_' + lastUid);
     localStorage.removeItem('sp_saqs_cache_' + lastUid);
+    localStorage.removeItem('sp_bank_local_' + lastUid);
+    localStorage.removeItem('sp_saqs_local_' + lastUid);
     // Reload now-empty stores so UI doesn't show stale data
     if (typeof orgLoadData    === 'function') orgLoadData();
     if (typeof blurtoLoad     === 'function') blurtoLoad();
@@ -7916,7 +7926,24 @@ async function _loadFromSupabase() {
   localStorage.setItem('sp_last_user_id', uid);
 
   var r = await _spClient.from('user_data').select('bank, sq_bank').eq('user_id', uid).maybeSingle();
-  if (r.error) { console.warn('Supabase load:', r.error.message); return; }
+  if (r.error) {
+    console.warn('Supabase load:', r.error.message);
+    // Fall back to sync cache, then persistent local backup
+    try {
+      var eb = JSON.parse(localStorage.getItem('sp_bank_cache_' + uid) || 'null');
+      if (eb) { bank = eb.data; }
+      else { var lb = JSON.parse(localStorage.getItem('sp_bank_local_' + uid) || 'null'); if (lb) bank = lb; }
+    } catch(e) {}
+    try {
+      var es = JSON.parse(localStorage.getItem('sp_saqs_cache_' + uid) || 'null');
+      if (es) { sqBank = es.data; }
+      else { var ls = JSON.parse(localStorage.getItem('sp_saqs_local_' + uid) || 'null'); if (ls) sqBank = ls; }
+    } catch(e) {}
+    if (typeof renderBank   === 'function') renderBank();
+    if (typeof renderSqBank === 'function') renderSqBank();
+    _setSyncStatus('⚠ Offline — using local backup');
+    return;
+  }
   if (!r.data) {
     // First sign-in — create empty cloud row
     await _spClient.from('user_data').upsert({
@@ -7982,6 +8009,8 @@ async function _spSignOut() {
   if (uid) {
     localStorage.removeItem('sp_bank_cache_' + uid);
     localStorage.removeItem('sp_saqs_cache_' + uid);
+    localStorage.removeItem('sp_bank_local_' + uid);
+    localStorage.removeItem('sp_saqs_local_' + uid);
   }
   // Restore anonymous demo data from localStorage
   if (typeof loadBank  === 'function') loadBank();
