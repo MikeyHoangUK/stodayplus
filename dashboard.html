@@ -4260,20 +4260,16 @@ function toggleQuizFS() {
 (function() {
   var _nhTimer;
   var title = document.getElementById('tb-title');
+  var tabs  = document.getElementById('topbar-tabs');
   if (!title) return;
   function showTabs() { clearTimeout(_nhTimer); document.body.classList.add('name-hover'); }
   function hideTabs() { _nhTimer = setTimeout(function() { document.body.classList.remove('name-hover'); }, 280); }
   title.addEventListener('mouseenter', showTabs);
   title.addEventListener('mouseleave', hideTabs);
-  document.addEventListener('mouseover', function(e) {
-    if (e.target && e.target.closest && e.target.closest('.mcq-tabs')) clearTimeout(_nhTimer);
-  });
-  document.addEventListener('mouseout', function(e) {
-    var fromTabs  = e.target && e.target.closest && e.target.closest('.mcq-tabs');
-    var toTabs    = e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.mcq-tabs');
-    var toTitle   = e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('#tb-title');
-    if (fromTabs && !toTabs && !toTitle) hideTabs();
-  });
+  if (tabs) {
+    tabs.addEventListener('mouseenter', showTabs);
+    tabs.addEventListener('mouseleave', hideTabs);
+  }
 })();
 document.addEventListener('keydown', function(e) {
   if (e.key === 'F11') {
