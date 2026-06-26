@@ -4267,8 +4267,10 @@ function toggleQuizFS() {
   title.addEventListener('mouseenter', showTabs);
   title.addEventListener('mouseleave', hideTabs);
   if (tabs) {
-    tabs.addEventListener('mouseenter', showTabs);
-    tabs.addEventListener('mouseleave', hideTabs);
+    tabs.addEventListener('mouseover', showTabs);
+    tabs.addEventListener('mouseout', function(e) {
+      if (!tabs.contains(e.relatedTarget)) hideTabs();
+    });
   }
 })();
 document.addEventListener('keydown', function(e) {
