@@ -7377,6 +7377,7 @@ function orgIncrementMCQ(folder, questions, score) {
   var newCount = newIds.length;
   t.mcq_sessions.push({ date: today, count: newCount });
   t.mcq_count = (t.mcq_count || 0) + newCount;
+  if (typeof score === 'number') t.mcq_best_score = Math.max(t.mcq_best_score || 0, score);
   if (t.mcq_count >= ORG_MCQ_THRESHOLD && !t.mcq_done) {
     t.mcq_done = true;
     if (t.last_revised !== today) {
@@ -7524,9 +7525,11 @@ function orgPopulateSubjSel() {
 function orgToggleField(id, field) {
   var t = orgTopics.find(function(x) { return x.id === id; });
   if (!t) return;
-  // Block manually ticking ON for MCQ/SAQ if threshold not reached
-  if (field === 'mcq_done' && !t.mcq_done && (t.mcq_count || 0) < ORG_MCQ_THRESHOLD) return;
-  if (field === 'saq_done' && !t.saq_done && (t.saq_count || 0) < ORG_SAQ_THRESHOLD) return;
+  // Block manually ticking ON if requirements not met
+  if (field === 'mcq_done'      && !t.mcq_done      && (t.mcq_count || 0) < ORG_MCQ_THRESHOLD) return;
+  if (field === 'saq_done'      && !t.saq_done      && (t.saq_count || 0) < ORG_SAQ_THRESHOLD) return;
+  if (field === 'blurting_done' && !t.blurting_done && !((t.mcq_best_score || 0) >= 60)) return;
+  if (field === 'feynman_done'  && !t.feynman_done  && !t.blurto_low_peek_done) return;
   t[field] = !t[field];
   // On any revision task ticked ON, advance spaced rep (once per day)
   var revFields = ['mcq_done', 'saq_done', 'blurting_done'];
@@ -7692,29 +7695,33 @@ function orgRenderBanner() {
 }
 
 function orgProgressCell(t, type) {
-  var done, count, threshold, field, locked;
+  var done, count, threshold, field, locked, lockMsg;
   if (type === 'mcq') {
     done = t.mcq_done; count = t.mcq_count || 0; threshold = ORG_MCQ_THRESHOLD; field = 'mcq_done'; locked = true;
+    lockMsg = 'Complete ' + threshold + ' MCQs to unlock';
   } else if (type === 'saq') {
     done = t.saq_done; count = t.saq_count || 0; threshold = ORG_SAQ_THRESHOLD; field = 'saq_done'; locked = true;
+    lockMsg = 'Complete ' + threshold + ' SAQs to unlock';
   } else {
-    done = t.blurting_done; count = t.blurting_count || 0; threshold = ORG_BLURT_THRESHOLD; field = 'blurting_done'; locked = false;
+    done = t.blurting_done; count = t.blurting_count || 0; threshold = ORG_BLURT_THRESHOLD; field = 'blurting_done';
+    locked = !((t.mcq_best_score || 0) >= 60);
+    lockMsg = locked ? ('Score 60%+ in Sage to unlock Blurting' + (t.mcq_best_score ? ' (best: ' + t.mcq_best_score + '%)' : '')) : '';
   }
   if (done) {
     return '<button class="org-toggle on" onclick="orgToggleField(\'' + t.id + '\',\'' + field + '\')" title="' + type + ' done — click to untick">✓</button>';
   }
+  if (locked) {
+    return '<button class="org-toggle" style="cursor:not-allowed;opacity:.35" title="' + lockMsg + '" disabled></button>';
+  }
   var belowThreshold = count < threshold;
   if (count > 0) {
     var pct = Math.min(Math.round(count / threshold * 100), 100);
-    var clickAttr = (!locked || !belowThreshold) ? ' onclick="orgToggleField(\'' + t.id + '\',\'' + field + '\')" style="cursor:pointer"' : ' title="' + count + '/' + threshold + ' — reach the threshold to unlock" style="cursor:not-allowed"';
+    var clickAttr = !belowThreshold ? ' onclick="orgToggleField(\'' + t.id + '\',\'' + field + '\')" style="cursor:pointer"' : ' title="' + count + '/' + threshold + ' — reach the threshold to unlock" style="cursor:not-allowed"';
     return '<div style="display:inline-flex;flex-direction:column;align-items:center;gap:2px"' + clickAttr + '>'
       + '<span style="font-size:.58rem;font-weight:800;color:#7c3aed">' + count + '/' + threshold + '</span>'
       + '<div style="width:38px;height:5px;background:rgba(124,58,237,.12);border-radius:99px;overflow:hidden">'
       + '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#7c3aed,#4338ca);border-radius:99px"></div></div>'
       + '</div>';
-  }
-  if (locked) {
-    return '<button class="org-toggle" style="cursor:not-allowed;opacity:.35" title="Complete ' + threshold + ' ' + type.toUpperCase() + 's to unlock" disabled></button>';
   }
   return '<button class="org-toggle" onclick="orgToggleField(\'' + t.id + '\',\'' + field + '\')" title="' + type + ' (tap to tick)"></button>';
 }
@@ -7790,7 +7797,9 @@ function orgRenderTable() {
       + '<td class="org-td" style="text-align:center">'
         + (t.feynman_done
             ? '<button class="org-toggle on" onclick="orgToggleField(\'' + t.id + '\',\'feynman_done\')" title="Feynman done — click to untick">✓</button>'
-            : '<button class="org-toggle" onclick="orgToggleField(\'' + t.id + '\',\'feynman_done\')" title="Feynman (tap to tick)"></button>')
+            : t.blurto_low_peek_done
+              ? '<button class="org-toggle" onclick="orgToggleField(\'' + t.id + '\',\'feynman_done\')" title="Feynman (tap to tick)"></button>'
+              : '<button class="org-toggle" style="cursor:not-allowed;opacity:.35" title="Complete a Blurto session with fewer than 30 peeks to unlock Feynman" disabled></button>')
         + '</td>'
       + '<td class="org-td" style="text-align:center">'
         + '<button class="org-conf" onclick="orgSetConf(\'' + t.id + '\',' + confArg + ')" title="Tap to change confidence">'
