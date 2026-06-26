@@ -7859,7 +7859,8 @@ function _updateSyncUI() {
 var _USER_DATA_KEYS = [
   'sp_questions','sp_saqs','sp_blurto','sp_org_topics','sp_org_subjects',
   'sp_folder_scores','sp_folder_meta','sp_topic_content','sp_notes_cache',
-  'sp_blurto_cache','sp_finley_draft'
+  'sp_blurto_cache','sp_finley_draft',
+  'sp_wrong_ids','sp_folders','finley_sessions','sp_revplan','sp_exams'
 ];
 
 async function _loadFromSupabase() {
@@ -7875,6 +7876,8 @@ async function _loadFromSupabase() {
     // Reload now-empty stores so UI doesn't show stale data
     if (typeof orgLoadData    === 'function') orgLoadData();
     if (typeof blurtoLoad     === 'function') blurtoLoad();
+    if (typeof rpLoad         === 'function') rpLoad();
+    if (typeof rpExamLoad     === 'function') rpExamLoad();
     bank = []; sqBank = [];
   }
   localStorage.setItem('sp_last_user_id', uid);
