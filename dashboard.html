@@ -1945,7 +1945,7 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
       <!-- PLANNER Panel -->
       <div id="panel-planner" class="panel active anim">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
-          <div class="mcq-tabs" style="margin-bottom:0">
+          <div class="mcq-tabs" id="rp-tabs" style="margin-bottom:0">
             <div class="mcq-tab active" id="rp-tab-today"  onclick="rpTab('today')">📅 Today</div>
             <div class="mcq-tab" id="rp-tab-topics" onclick="rpTab('topics')">🗂 Topics</div>
             <div class="mcq-tab" id="rp-tab-cal"    onclick="rpTab('cal')">🗓 Calendar</div>
@@ -4259,19 +4259,20 @@ function toggleQuizFS() {
 })();
 (function() {
   var _nhTimer;
-  var title = document.getElementById('tb-title');
-  var tabs  = document.getElementById('topbar-tabs');
+  var title  = document.getElementById('tb-title');
+  var tabs   = document.getElementById('topbar-tabs');
+  var rpTabs = document.getElementById('rp-tabs');
   if (!title) return;
   function showTabs() { clearTimeout(_nhTimer); document.body.classList.add('name-hover'); }
   function hideTabs() { _nhTimer = setTimeout(function() { document.body.classList.remove('name-hover'); }, 280); }
+  function bindHover(el) {
+    el.addEventListener('mouseover', showTabs);
+    el.addEventListener('mouseout', function(e) { if (!el.contains(e.relatedTarget)) hideTabs(); });
+  }
   title.addEventListener('mouseenter', showTabs);
   title.addEventListener('mouseleave', hideTabs);
-  if (tabs) {
-    tabs.addEventListener('mouseover', showTabs);
-    tabs.addEventListener('mouseout', function(e) {
-      if (!tabs.contains(e.relatedTarget)) hideTabs();
-    });
-  }
+  if (tabs)   bindHover(tabs);
+  if (rpTabs) bindHover(rpTabs);
 })();
 document.addEventListener('keydown', function(e) {
   if (e.key === 'F11') {
