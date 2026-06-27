@@ -7109,7 +7109,7 @@ async function blurtoExtractFile(file) {
   } catch(e) { st.textContent = 'Could not extract. Paste notes manually.'; }
 }
 
-// ── AI Simplify (one-shot only) ──
+// ── AI Simplify ──
 var blurtoSimplified = false;
 async function blurtoSimplify() {
   if (blurtoSimplified) return;
@@ -7120,39 +7120,91 @@ async function blurtoSimplify() {
   var btn = document.getElementById('blurto-simplify-btn');
   btn.disabled = true; btn.textContent = 'Simplifying…';
   var st = document.getElementById('blurto-extract-status');
-  st.textContent = 'AI is formatting your notes…';
-  try {
-    // Bypass condenseForAI entirely — it was designed for MCQ/SAQ and loses too much content.
-    // The model accepts 128k tokens of input, so we chunk large notes and process sequentially.
-    var BLURTO_CHUNK = 14000; // ~3,500 tokens per chunk, leaves plenty of room for output
-    var chunks = [];
-    if (notes.length <= BLURTO_CHUNK) {
-      chunks = [notes];
-    } else {
-      var remaining = notes;
-      while (remaining.length > 0) {
-        if (remaining.length <= BLURTO_CHUNK) { chunks.push(remaining); break; }
-        // Cut at a paragraph break near the chunk boundary
-        var cut = remaining.lastIndexOf('\n\n', BLURTO_CHUNK);
-        if (cut < BLURTO_CHUNK * 0.5) cut = remaining.lastIndexOf('\n', BLURTO_CHUNK);
-        if (cut < 1) cut = BLURTO_CHUNK;
-        chunks.push(remaining.slice(0, cut));
-        remaining = remaining.slice(cut).trim();
-      }
+  st.textContent = 'AI is reading your notes…';
+
+  // Split a block of text at paragraph boundaries without exceeding maxSize
+  function chunkText(text, maxSize) {
+    if (text.length <= maxSize) return [text];
+    var result = [], remaining = text;
+    while (remaining.length > 0) {
+      if (remaining.length <= maxSize) { result.push(remaining); break; }
+      var cut = remaining.lastIndexOf('\n\n', maxSize);
+      if (cut < maxSize * 0.4) cut = remaining.lastIndexOf('\n', maxSize);
+      if (cut < 1) cut = maxSize;
+      result.push(remaining.slice(0, cut));
+      remaining = remaining.slice(cut).trim();
     }
-    var basePrompt = 'You are a study revision sheet writer. A student has given you their lecture slides or notes.\n\nYour job:\nStep 1 — Find the learning objectives. These are usually listed at the start of the slides as "By the end of this lecture you should be able to..." or "Learning outcomes:" or similar. If they are not explicitly stated, infer them from the main section headings.\nStep 2 — For each learning objective, write a concise summary of only the key points a student must know to achieve it. Ignore supporting examples, repeated explanations, and elaboration unless the example IS the key point (e.g. a named case study or named mechanism).\n\nOutput format (HTML only):\n\n- Topic title (first chunk only): <h1 style="text-align:center;">TOPIC NAME</h1>\n- Each learning objective as a heading: <h2><strong>Learning objective or key theme</strong></h2>\n- Key points as bullets: <ul style="padding-left:2rem;"><li>concise key point</li></ul>\n- 3–6 bullets per section is usually right. Add more only if the objective genuinely requires it.\n- Each bullet should be one clear fact, definition, or mechanism — no filler, no repetition.\n- Rewrite in plain language a 16-year-old would understand, but keep all technical terms and named concepts.\n- Ignore slide numbers, URLs, logos, and admin text.\n- Do not add anything not in the original notes.\n- Return ONLY the HTML. No commentary, no markdown fences.';
+    return result;
+  }
+
+  // Return array of per-file sections when multi-file format (=== name ===) is detected
+  function getFileSections(text) {
+    var re = /^=== .+ ===\r?\n?/gm, positions = [], m;
+    while ((m = re.exec(text)) !== null) positions.push(m.index);
+    if (positions.length < 2) return null;
+    return positions.map(function(start, i) {
+      return text.slice(start, i + 1 < positions.length ? positions[i + 1] : text.length).trim();
+    });
+  }
+
+  try {
+    // 40k chars ≈ 10k tokens — big enough to keep a whole lecture together,
+    // small enough to stay well within the 128k context window.
+    var BLURTO_CHUNK = 40000;
+    var chunks = [];
+    var fileSections = getFileSections(notes);
+    var isMultiFile = !!fileSections;
+
+    if (fileSections) {
+      // Group file sections into chunks; sub-chunk any single file that is itself too large
+      var currentGroup = '';
+      for (var s = 0; s < fileSections.length; s++) {
+        var sec = fileSections[s];
+        if (sec.length > BLURTO_CHUNK) {
+          if (currentGroup) { chunks.push(currentGroup); currentGroup = ''; }
+          chunks = chunks.concat(chunkText(sec, BLURTO_CHUNK));
+        } else if (currentGroup.length + sec.length + 2 > BLURTO_CHUNK) {
+          chunks.push(currentGroup); currentGroup = sec;
+        } else {
+          currentGroup += (currentGroup ? '\n\n' : '') + sec;
+        }
+      }
+      if (currentGroup) chunks.push(currentGroup);
+    } else {
+      chunks = chunkText(notes, BLURTO_CHUNK);
+    }
+
+    var basePrompt = 'You are a study revision sheet writer. A student has given you their lecture notes'
+      + (isMultiFile ? ' from multiple files' : '') + '.\n\n'
+      + 'Your task:\n'
+      + '1. Identify all learning objectives or key themes (look for "By the end you should be able to…", "Learning outcomes:", or infer from main headings).\n'
+      + '2. For each objective or theme, extract EVERY key fact, definition, mechanism, named concept, drug name, condition, case study, and numeric value. Write as many bullets as the content requires — completeness matters more than brevity.\n'
+      + (isMultiFile
+          ? '3. Organise content across all files into unified topic sections. If two files cover the same theme, merge them under one heading — do not duplicate.\n\n'
+          : '\n')
+      + 'Output format — return ONLY valid HTML, no commentary, no markdown fences:\n'
+      + '• Title (first part only): <h1 style="text-align:center;">TOPIC NAME</h1>\n'
+      + '• Each objective or theme: <h2><strong>Objective / theme</strong></h2>\n'
+      + '• Key points: <ul style="padding-left:2rem;"><li>one fact, definition, step, or mechanism per bullet</li></ul>\n\n'
+      + 'Rules:\n'
+      + '• Keep all technical terms, drug names, numeric values, and named concepts exactly as written.\n'
+      + '• Rewrite everything else in clear plain English — but do not drop any distinct piece of information.\n'
+      + '• Ignore slide numbers, page headers, footers, URLs, logos, and admin/housekeeping text.\n'
+      + '• Do not invent anything not present in the notes.';
+
     var htmlParts = [];
     for (var ci = 0; ci < chunks.length; ci++) {
       if (chunks.length > 1) st.textContent = 'Simplifying part ' + (ci + 1) + ' of ' + chunks.length + '…';
       var sysPrompt = ci === 0 ? basePrompt
-        : basePrompt + '\n\nIMPORTANT: This is a continuation (part ' + (ci + 1) + ' of ' + chunks.length + '). Do NOT output the H1 title — start directly with <h2> section headings for this section\'s content.';
+        : basePrompt + '\n\nCONTINUATION — part ' + (ci + 1) + ' of ' + chunks.length + ': do NOT output the H1 title. Begin directly with <h2> headings for this section\'s content.';
       var r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
         body: JSON.stringify({
           model: 'llama-3.3-70b-versatile',
           messages: [{ role: 'system', content: sysPrompt }, { role: 'user', content: chunks[ci] }],
-          temperature: 0.3, max_tokens: 4000
+          temperature: 0.2,
+          max_tokens: 8000
         })
       });
       if (!r.ok) { var eb = await r.json(); throw new Error((eb.error && eb.error.message) || ('HTTP ' + r.status)); }
@@ -7166,7 +7218,7 @@ async function blurtoSimplify() {
     blurtoSimplified = true;
     btn.textContent = '✓ Simplified';
     btn.title = 'Already simplified — editing notes directly is the next step';
-    st.textContent = chunks.length > 1 ? 'Done! All ' + chunks.length + ' sections simplified.' : 'Done! Review and edit before blurting.';
+    st.textContent = chunks.length > 1 ? 'Done! All ' + chunks.length + ' parts simplified.' : 'Done! Review and edit before blurting.';
     var blurtoFolderForCache = ((document.getElementById('blurto-topic') || {}).value || '').trim();
     if (blurtoFolderForCache) { blurtoCacheSet(blurtoFolderForCache, simplifiedOut, ''); updateBlurtoCacheUI(blurtoFolderForCache); }
   } catch(e) {
