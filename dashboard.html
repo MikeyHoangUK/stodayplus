@@ -350,6 +350,11 @@
     .next-btn{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;font-weight:900;font-size:.85rem;padding:13px 32px;border-radius:12px;cursor:pointer;border:none;font-family:'Raleway',sans-serif;display:none;margin-top:6px;transition:all .22s;letter-spacing:.03em}
     .next-btn.show{display:inline-block;animation:fadeUp .3s ease}
     .next-btn:hover{opacity:.88;transform:translateY(-1px)}
+    .quiz-nav-row{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:6px}
+    .prev-btn{background:transparent;color:#7c3aed;border:1.5px solid rgba(124,58,237,.3);font-weight:800;font-size:.82rem;padding:12px 22px;border-radius:12px;cursor:pointer;font-family:'Raleway',sans-serif;display:none;transition:all .22s;letter-spacing:.02em}
+    .prev-btn.show{display:inline-block}
+    .prev-btn:hover{background:rgba(124,58,237,.07);border-color:rgba(124,58,237,.55)}
+    .qcard-num{font-size:.62rem;font-weight:800;color:rgba(109,40,217,.38);letter-spacing:.07em;text-transform:uppercase;margin-bottom:14px}
 
     /* Results */
     .results-wrap{text-align:center;max-width:480px;margin:0 auto;padding:48px 0;display:none}
@@ -1924,6 +1929,7 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
               <span></span><span></span>
             </div>
             <div class="quiz-card" id="qcard">
+              <div class="qcard-num" id="qcard-num">1 / 1</div>
               <div class="quiz-stem" id="qstem"></div>
               <div class="quiz-opts" id="qopts"></div>
               <div class="hint-area">
@@ -1931,7 +1937,10 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
                 <div class="hint-txt" id="hint-txt"></div>
               </div>
             </div>
-            <button class="next-btn" id="next-btn" onclick="nextQ()">Next →</button>
+            <div class="quiz-nav-row">
+              <button class="prev-btn" id="prev-btn" onclick="prevQ()">← Prev</button>
+              <button class="next-btn" id="next-btn" onclick="nextQ()">Next →</button>
+            </div>
           </div>
 
           <div class="results-wrap" id="quiz-results">
@@ -2493,7 +2502,7 @@ var editId = null;
 var aiPendingQs = null;
 var aiGenerating = false;
 var sqGenerating = false;
-var qzQs = [], qzIdx = 0, qzScore = 0, qzAnswered = false, lastCfg = null, qzStartTime = null, qzWrongInSession = [];
+var qzQs = [], qzIdx = 0, qzScore = 0, qzAnswered = false, qzAnswers = [], lastCfg = null, qzStartTime = null, qzWrongInSession = [];
 
 
 var pomoType = null, pomoLeft = 0, pomoTotal = 0, pomoRunning = false, pomoTimer = null, pomoElapsed = 0;
@@ -3351,7 +3360,7 @@ function startQuiz() {
   }
   for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random()*(i+1)); var t=pool[i]; pool[i]=pool[j]; pool[j]=t; }
   var n = cv === 'all' ? pool.length : Math.min(parseInt(cv), pool.length);
-  qzQs = pool.slice(0, n); qzIdx = 0; qzScore = 0; qzAnswered = false; lastCfg = { d: d, cv: cv }; qzStartTime = Date.now(); qzWrongInSession = [];
+  qzQs = pool.slice(0, n); qzIdx = 0; qzScore = 0; qzAnswered = false; qzAnswers = []; lastCfg = { d: d, cv: cv }; qzStartTime = Date.now(); qzWrongInSession = [];
   document.getElementById('quiz-setup').style.display = 'none';
   document.getElementById('quiz-run').style.display = 'block';
   document.getElementById('quiz-results').style.display = 'none';
@@ -3395,10 +3404,14 @@ function drawSparkline(canvas, data) {
 }
 
 function showQ() {
-  var q = qzQs[qzIdx]; qzAnswered = false;
-  document.getElementById('qprog').style.width = (qzIdx / qzQs.length * 100) + '%';
+  var q = qzQs[qzIdx];
+  var prior = qzAnswers[qzIdx] || null;
+  qzAnswered = !!prior;
+  var answeredCount = qzAnswers.filter(Boolean).length;
+  document.getElementById('qprog').style.width = (answeredCount / qzQs.length * 100) + '%';
   document.getElementById('qcount').textContent = 'Q '+(qzIdx+1)+' / '+qzQs.length;
-  document.getElementById('qscore').textContent = '✓ '+qzScore+' / '+qzIdx;
+  document.getElementById('qscore').textContent = '✓ '+qzScore+' / '+answeredCount;
+  document.getElementById('qcard-num').textContent = (qzIdx+1)+' / '+qzQs.length;
   document.getElementById('qcard').className = 'quiz-card anim';
   document.getElementById('qstem').textContent = q.stem;
   var opts = document.getElementById('qopts'); opts.innerHTML = '';
@@ -3406,15 +3419,23 @@ function showQ() {
     var d = document.createElement('div');
     d.className = 'qopt'; d.id = 'qo'+i;
     d.innerHTML = '<div class="ol">'+LTRS[i]+'</div><div class="ot">'+esc(o)+'</div>';
-    d.addEventListener('click', function() { answerQ(i); });
+    if (!prior) d.addEventListener('click', function() { answerQ(i); });
     opts.appendChild(d);
   });
   document.getElementById('hint-txt').textContent = q.hint || 'No hint available.';
   document.getElementById('hint-txt').classList.remove('show');
   document.getElementById('hint-tog').textContent = '💡 Show hint';
+  if (prior) {
+    document.querySelectorAll('.qopt').forEach(function(o) { o.classList.add('locked'); });
+    document.getElementById('qcard').classList.add(prior.chosen === q.correct ? 'c-flash' : 'w-flash');
+    document.getElementById('qo'+q.correct).classList.add('c-opt');
+    if (prior.chosen !== q.correct) document.getElementById('qo'+prior.chosen).classList.add('w-opt');
+  }
   var nb = document.getElementById('next-btn');
-  nb.className = 'next-btn';
+  nb.className = prior ? 'next-btn show' : 'next-btn';
   nb.textContent = qzIdx < qzQs.length - 1 ? 'Next →' : 'See results →';
+  var pb = document.getElementById('prev-btn');
+  if (pb) pb.className = qzIdx > 0 ? 'prev-btn show' : 'prev-btn';
 }
 
 function answerQ(idx) {
@@ -3427,7 +3448,10 @@ function answerQ(idx) {
   if (!ok) document.getElementById('qo'+idx).classList.add('w-opt');
   if (ok) { qzScore++; if (Math.random() < .3) setTimeout(mascotPeek, 400); }
   else { qzWrongInSession.push(q.id); }
-  document.getElementById('qscore').textContent = '✓ '+qzScore+' / '+(qzIdx+1);
+  qzAnswers[qzIdx] = { chosen: idx };
+  var answeredCount = qzAnswers.filter(Boolean).length;
+  document.getElementById('qscore').textContent = '✓ '+qzScore+' / '+answeredCount;
+  document.getElementById('qprog').style.width = (answeredCount / qzQs.length * 100) + '%';
   document.getElementById('next-btn').className = 'next-btn show';
 }
 
@@ -3440,6 +3464,9 @@ function toggleHint() {
 function nextQ() {
   qzIdx++;
   if (qzIdx >= qzQs.length) showResults(); else showQ();
+}
+function prevQ() {
+  if (qzIdx > 0) { qzIdx--; showQ(); }
 }
 
 // ── Folder confidence scores ──────────────────────────────────────────
