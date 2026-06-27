@@ -3504,6 +3504,21 @@ function saveFolderScore(folder, pct) {
   localStorage.setItem('sp_folder_scores', JSON.stringify(scores));
 }
 
+function getSaqFolderScores() {
+  try { return JSON.parse(localStorage.getItem('sp_saq_folder_scores') || '{}'); } catch(e) { return {}; }
+}
+function saveSaqFolderScore(folder, pct) {
+  var scores = getSaqFolderScores();
+  var s = scores[folder] || { best: -1, sessions: 0 };
+  s.best = Math.max(s.best, pct);
+  s.sessions = (s.sessions || 0) + 1;
+  s.last = pct;
+  if (!s.history) s.history = [];
+  s.history.push(pct); if (s.history.length > 20) s.history = s.history.slice(-20);
+  scores[folder] = s;
+  localStorage.setItem('sp_saq_folder_scores', JSON.stringify(scores));
+}
+
 // ── Wrong-answer tracker ──────────────────────────────────────────────────────
 function getWrongIds() { try { return JSON.parse(localStorage.getItem('sp_wrong_ids') || '{}'); } catch(e) { return {}; } }
 function updateWrongIds(folder, wrongSessionIds, allSessionIds) {
@@ -3679,6 +3694,7 @@ function saveFolderEdit() {
       sqBank.forEach(function(q){ if((q.folder||'General')===oldName) q.folder=newName; }); sqSave();
       blurtoSessions.forEach(function(s){ if(s.topic===oldName) s.topic=newName; }); blurtoSave();
       var sc=getFolderScores(); if(sc[oldName]!==undefined){sc[newName]=sc[oldName];delete sc[oldName];localStorage.setItem('sp_folder_scores',JSON.stringify(sc));}
+      var sqsc=getSaqFolderScores(); if(sqsc[oldName]!==undefined){sqsc[newName]=sqsc[oldName];delete sqsc[oldName];localStorage.setItem('sp_saq_folder_scores',JSON.stringify(sqsc));}
       var tc=JSON.parse(localStorage.getItem('sp_topic_content')||'{}'); if(tc[oldName.toLowerCase()]){tc[newName.toLowerCase()]=tc[oldName.toLowerCase()];delete tc[oldName.toLowerCase()];localStorage.setItem('sp_topic_content',JSON.stringify(tc));}
       var nc=JSON.parse(localStorage.getItem('sp_notes_cache')||'{}'); if(nc[oldName]){nc[newName]=nc[oldName];delete nc[oldName];localStorage.setItem('sp_notes_cache',JSON.stringify(nc));}
       var bc=JSON.parse(localStorage.getItem('sp_blurto_cache')||'{}'); if(bc[oldName]){bc[newName]=bc[oldName];delete bc[oldName];localStorage.setItem('sp_blurto_cache',JSON.stringify(bc));}
@@ -6426,9 +6442,17 @@ function renderSqBank() {
     var card = document.createElement('div');
     card.className = 'folder-card' + (count === 0 ? ' fc-empty' : '');
     (function(folder, isLocked){ card.onclick = function(e){ if(!e.target.classList.contains('fc-quiz')&&!e.target.classList.contains('fc-del')&&!e.target.classList.contains('fc-edit-top')&&!e.target.classList.contains('fc-create')&&count>0&&!isLocked) sqPracFolder(folder); }; })(f, locked);
+    var sqsc = getSaqFolderScores()[f];
+    var sqConfBadge = '';
+    if (sqsc && sqsc.best >= 0) {
+      var sbCol = sqsc.best >= 75 ? '#16a34a' : sqsc.best >= 50 ? '#b45309' : '#dc2626';
+      var sbIcon = sqsc.best >= 75 ? '🟢' : sqsc.best >= 50 ? '🟡' : '🔴';
+      sqConfBadge = '<div class="fc-confidence" style="color:' + sbCol + '">' + sbIcon + ' ' + sqsc.best + '%</div>';
+    }
     card.innerHTML = '<button class="fc-edit-top" onclick="openFolderEdit(\'' + jsq(f) + '\')" title="Rename">✎ Edit</button>'
       + folderSubjChip(f)
       + '<div class="fc-name">' + rpEsc(f) + '</div>'
+      + sqConfBadge
       + '<div class="fc-count">' + (count === 0 ? 'No SAQs yet' : count + ' SAQ' + (count !== 1 ? 's' : '')) + (locked ? '<br><span class="fc-lock-badge">🔒 ' + mcqProg + '/100 MCQs done</span>' : '') + '</div>'
       + '<div class="fc-actions">'
       + (count > 0 && !locked ? '<button class="fc-quiz" onclick="sqPracFolder(\'' + jsq(f) + '\')">▶ Practice</button>' : '')
@@ -6449,6 +6473,7 @@ function sqDeleteFolder(folder) {
   if (!confirm('Delete all SAQs in "' + folder + '"?')) return;
   var snap = JSON.stringify(sqBank);
   sqBank = sqBank.filter(function(q) { return (q.folder || 'General') !== folder; });
+  var sqsc = getSaqFolderScores(); delete sqsc[folder]; localStorage.setItem('sp_saq_folder_scores', JSON.stringify(sqsc));
   sqSave(); renderSqBank();
   pushUndo('"' + folder + '" SAQs', function() { sqBank = JSON.parse(snap); sqSave(); renderSqBank(); });
 }
@@ -6634,6 +6659,10 @@ function sqShowResults() {
   document.getElementById('sq-res-title').style.color = color;
   document.getElementById('sq-res-title').textContent = title;
   document.getElementById('sq-res-sub').textContent = sub + ' (' + sqSessionTotalScore + '/' + sqSessionMaxScore + ' marks across ' + sqSessionQCount + ' questions)';
+  if (sqCurrentFolder && sqSessionMaxScore > 0) {
+    saveSaqFolderScore(sqCurrentFolder, pct);
+    renderSqBank();
+  }
   var res = document.getElementById('sq-results');
   res.style.display = 'block'; res.style.animation = 'fadeIn .4s ease';
   mascotPeek();
@@ -8030,7 +8059,7 @@ async function spResetAccount() {
 // Keys that store per-user data — cleared when a different user signs in
 var _USER_DATA_KEYS = [
   'sp_questions','sp_saqs','sp_blurto','sp_org_topics','sp_org_subjects',
-  'sp_folder_scores','sp_folder_meta','sp_topic_content','sp_notes_cache',
+  'sp_folder_scores','sp_saq_folder_scores','sp_folder_meta','sp_topic_content','sp_notes_cache',
   'sp_blurto_cache','sp_finley_draft',
   'sp_wrong_ids','sp_folders','finley_sessions','sp_revplan','sp_exams'
 ];
