@@ -350,11 +350,10 @@
     .next-btn{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;font-weight:900;font-size:.85rem;padding:13px 32px;border-radius:12px;cursor:pointer;border:none;font-family:'Raleway',sans-serif;display:none;margin-top:6px;transition:all .22s;letter-spacing:.03em}
     .next-btn.show{display:inline-block;animation:fadeUp .3s ease}
     .next-btn:hover{opacity:.88;transform:translateY(-1px)}
-    .quiz-nav-row{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:6px}
-    .prev-btn{background:transparent;color:#7c3aed;border:1.5px solid rgba(124,58,237,.3);font-weight:800;font-size:.82rem;padding:12px 22px;border-radius:12px;cursor:pointer;font-family:'Raleway',sans-serif;display:none;transition:all .22s;letter-spacing:.02em}
-    .prev-btn.show{display:inline-block}
-    .prev-btn:hover{background:rgba(124,58,237,.07);border-color:rgba(124,58,237,.55)}
     .qcard-num{font-size:.62rem;font-weight:800;color:rgba(109,40,217,.38);letter-spacing:.07em;text-transform:uppercase;margin-bottom:14px}
+    .qnav-btn{width:26px;height:26px;border-radius:7px;font-size:1rem;font-weight:900;cursor:pointer;border:1px solid rgba(109,40,217,.2);color:#6e5438;background:transparent;transition:all .15s;font-family:'Raleway',sans-serif;display:flex;align-items:center;justify-content:center;padding:0}
+    .qnav-btn:hover:not(:disabled){border-color:rgba(109,40,217,.45);color:#6d28d9}
+    .qnav-btn:disabled{opacity:.28;cursor:default}
 
     /* Results */
     .results-wrap{text-align:center;max-width:480px;margin:0 auto;padding:48px 0;display:none}
@@ -1922,14 +1921,18 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
                 <span class="q-counter" id="qcount">Q 1 / 1</span>
                 <span class="q-score-lbl" id="qscore">✓ 0</span>
               </div>
-              <button class="fs-btn" onclick="toggleQuizFS()" id="fs-btn">⛶ Fullscreen</button>
+              <div style="display:flex;align-items:center;gap:6px">
+                <button class="qnav-btn" id="qnav-prev" onclick="prevQ()" disabled>‹</button>
+                <button class="qnav-btn" id="qnav-next" onclick="nextQ()" disabled>›</button>
+                <button class="fs-btn" onclick="toggleQuizFS()" id="fs-btn">⛶ Fullscreen</button>
+              </div>
             </div>
             <div class="q-prog-bar"><div class="q-prog-fill" id="qprog" style="width:0%"></div></div>
             <div class="q-meta-row" style="display:none">
               <span></span><span></span>
             </div>
             <div class="quiz-card" id="qcard">
-              <div class="qcard-num" id="qcard-num">1 / 1</div>
+              <div class="qcard-num" id="qcard-num">1</div>
               <div class="quiz-stem" id="qstem"></div>
               <div class="quiz-opts" id="qopts"></div>
               <div class="hint-area">
@@ -1937,8 +1940,7 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
                 <div class="hint-txt" id="hint-txt"></div>
               </div>
             </div>
-            <div class="quiz-nav-row">
-              <button class="prev-btn" id="prev-btn" onclick="prevQ()">← Prev</button>
+            <div style="margin-top:6px">
               <button class="next-btn" id="next-btn" onclick="nextQ()">Next →</button>
             </div>
           </div>
@@ -3411,7 +3413,7 @@ function showQ() {
   document.getElementById('qprog').style.width = (answeredCount / qzQs.length * 100) + '%';
   document.getElementById('qcount').textContent = 'Q '+(qzIdx+1)+' / '+qzQs.length;
   document.getElementById('qscore').textContent = '✓ '+qzScore+' / '+answeredCount;
-  document.getElementById('qcard-num').textContent = (qzIdx+1)+' / '+qzQs.length;
+  document.getElementById('qcard-num').textContent = (qzIdx+1);
   document.getElementById('qcard').className = 'quiz-card anim';
   document.getElementById('qstem').textContent = q.stem;
   var opts = document.getElementById('qopts'); opts.innerHTML = '';
@@ -3434,8 +3436,10 @@ function showQ() {
   var nb = document.getElementById('next-btn');
   nb.className = prior ? 'next-btn show' : 'next-btn';
   nb.textContent = qzIdx < qzQs.length - 1 ? 'Next →' : 'See results →';
-  var pb = document.getElementById('prev-btn');
-  if (pb) pb.className = qzIdx > 0 ? 'prev-btn show' : 'prev-btn';
+  var navPrev = document.getElementById('qnav-prev');
+  var navNext = document.getElementById('qnav-next');
+  if (navPrev) navPrev.disabled = (qzIdx === 0);
+  if (navNext) navNext.disabled = !prior;
 }
 
 function answerQ(idx) {
@@ -3453,6 +3457,7 @@ function answerQ(idx) {
   document.getElementById('qscore').textContent = '✓ '+qzScore+' / '+answeredCount;
   document.getElementById('qprog').style.width = (answeredCount / qzQs.length * 100) + '%';
   document.getElementById('next-btn').className = 'next-btn show';
+  var nn = document.getElementById('qnav-next'); if (nn) nn.disabled = false;
 }
 
 function toggleHint() {
