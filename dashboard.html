@@ -1741,8 +1741,13 @@
             </div>
             <div class="f-grp">
               <label class="f-lbl">Folder</label>
-              <input type="text" id="q-folder" class="f-input" placeholder="e.g. Week 1, Cardiology, Revision…" list="folder-datalist" autocomplete="off"/>
+              <input type="text" id="q-folder" class="f-input" placeholder="e.g. Week 1, Cardiology, Revision…" list="folder-datalist" autocomplete="off" oninput="manualFolderInput()"/>
               <datalist id="folder-datalist"></datalist>
+            </div>
+            <div class="f-grp">
+              <label class="f-lbl">Subject</label>
+              <input type="text" id="q-subject" class="f-input" list="manual-subj-list" placeholder="e.g. Medicine, Biology…" autocomplete="off"/>
+              <datalist id="manual-subj-list"></datalist>
             </div>
             <div class="f-grp">
               <label class="f-lbl">Difficulty</label>
@@ -1785,8 +1790,13 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
               <div class="paste-config-row">
                 <div class="paste-cfg-group">
                   <label class="paste-cfg-lbl">Import to folder</label>
-                  <input id="paste-folder-inp" class="paste-folder-inp" list="paste-folder-list" placeholder="e.g. Cell Biology"/>
+                  <input id="paste-folder-inp" class="paste-folder-inp" list="paste-folder-list" placeholder="e.g. Cell Biology" oninput="pasteFolderInput()"/>
                   <datalist id="paste-folder-list"></datalist>
+                </div>
+                <div class="paste-cfg-group">
+                  <label class="paste-cfg-lbl">Subject</label>
+                  <input id="paste-subj-inp" class="paste-folder-inp" list="paste-subj-list" placeholder="e.g. Biology"/>
+                  <datalist id="paste-subj-list"></datalist>
                 </div>
                 <div class="paste-cfg-group">
                   <label class="paste-cfg-lbl">Difficulty</label>
@@ -2986,6 +2996,7 @@ function submitQ() {
   if (opts.some(function(o) { return !o; })) { alert('Please fill in all 5 options.'); return; }
   if (!cr) { alert('Please tick the correct answer.'); return; }
   var folderVal = (document.getElementById('q-folder').value.trim() || 'General');
+  var subjectVal = (document.getElementById('q-subject').value || '').trim();
   var q = { id: editId || Date.now(), stem: stem, options: opts, correct: parseInt(cr.value), hint: hint, difficulty: selDiff, folder: folderVal };
   if (editId) {
     var ix = bank.findIndex(function(x) { return x.id === editId; });
@@ -2993,6 +3004,9 @@ function submitQ() {
     editId = null;
     document.getElementById('add-btn').textContent = 'Add Question to Bank';
   } else { bank.push(q); }
+  saveFolderMeta(folderVal, subjectVal);
+  ensureFolder(folderVal, subjectVal);
+  orgEnsureTopic(folderVal, subjectVal);
   saveBank(); clearForm();
   var ok = document.getElementById('q-ok');
   ok.style.display = 'block';
@@ -3005,6 +3019,7 @@ function clearForm() {
   document.querySelectorAll('input[name="cans"]').forEach(function(r) { r.checked = false; });
   document.getElementById('q-hint').value = '';
   document.getElementById('q-folder').value = '';
+  document.getElementById('q-subject').value = '';
   setDiff('easy'); editId = null;
 }
 
@@ -3254,6 +3269,7 @@ function editQ(id) {
   document.getElementById('r'+q.correct).checked = true;
   document.getElementById('q-hint').value = q.hint || '';
   document.getElementById('q-folder').value = q.folder || 'General';
+  document.getElementById('q-subject').value = getSubjectForFolder(q.folder || 'General');
   setDiff(q.difficulty);
   editId = q.id;
   document.getElementById('add-btn').textContent = 'Update Question';
@@ -3748,7 +3764,7 @@ async function suggestTopicName(text, key) {
 
 // ── Subject datalist population ───────────────────────────────────────────────
 function populateSubjectDatalist() {
-  ['ai-subj-list','sq-subj-list','blurto-subj-list'].forEach(function(id) {
+  ['ai-subj-list','sq-subj-list','blurto-subj-list','manual-subj-list','paste-subj-list'].forEach(function(id) {
     var dl = document.getElementById(id);
     if (!dl) return;
     dl.innerHTML = orgSubjects.map(function(s) { return '<option value="' + rpEsc(s) + '">'; }).join('');
@@ -4012,10 +4028,14 @@ function pasteGoBack() {
 function pasteDoImport() {
   var toImport = _pasteQs.filter(function(q) { return !q.skipped && q.correct !== -1; });
   if (!toImport.length) { alert('No questions ready to import. Please pick correct answers for any flagged questions.'); return; }
+  var pasteSubj = ((document.getElementById('paste-subj-inp') || {}).value || '').trim();
   var base = Date.now();
   toImport.forEach(function(q, i) {
     bank.push({ id: base + i, stem: q.stem, options: q.options, correct: q.correct, difficulty: _pasteDiff, folder: _pasteFolder, hint: '' });
   });
+  saveFolderMeta(_pasteFolder, pasteSubj);
+  ensureFolder(_pasteFolder, pasteSubj);
+  orgEnsureTopic(_pasteFolder, pasteSubj);
   saveBank();
   renderBank();
   updateAvail();
@@ -4037,8 +4057,25 @@ function pasteReset() {
 
 function pastePopulateFolders() {
   var dl = document.getElementById('paste-folder-list');
-  if (!dl) return;
-  dl.innerHTML = getFolders().map(function(f) { return '<option value="' + esc(f) + '">'; }).join('');
+  if (dl) dl.innerHTML = getFolders().map(function(f) { return '<option value="' + esc(f) + '">'; }).join('');
+  var sl = document.getElementById('paste-subj-list');
+  if (sl) sl.innerHTML = orgSubjects.map(function(s) { return '<option value="' + esc(s) + '">'; }).join('');
+}
+function pasteFolderInput() {
+  var folderVal = ((document.getElementById('paste-folder-inp') || {}).value || '').trim();
+  var subjInp = document.getElementById('paste-subj-inp');
+  if (subjInp && !subjInp.value.trim() && folderVal) {
+    var knownSubj = getSubjectForFolder(folderVal);
+    if (knownSubj) subjInp.value = knownSubj;
+  }
+}
+function manualFolderInput() {
+  var folderVal = ((document.getElementById('q-folder') || {}).value || '').trim();
+  var subjInp = document.getElementById('q-subject');
+  if (subjInp && !subjInp.value.trim() && folderVal) {
+    var knownSubj = getSubjectForFolder(folderVal);
+    if (knownSubj) subjInp.value = knownSubj;
+  }
 }
 
 // Mascot
@@ -4882,7 +4919,13 @@ async function condenseForAI(text, key, onProgress) {
 
 function aiTopicInput() {
   var btn = document.getElementById('ai-btn');
-  if (btn) btn.disabled = !(document.getElementById('ai-folder-new').value || '').trim();
+  var topicVal = (document.getElementById('ai-folder-new').value || '').trim();
+  if (btn) btn.disabled = !topicVal;
+  var subjInp = document.getElementById('ai-folder-subj');
+  if (subjInp && !subjInp.value.trim() && topicVal) {
+    var knownSubj = getSubjectForFolder(topicVal);
+    if (knownSubj) subjInp.value = knownSubj;
+  }
   updateNotesCacheUI();
 }
 
