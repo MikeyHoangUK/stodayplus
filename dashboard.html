@@ -6780,6 +6780,13 @@ function blurtoTabSwitch(tab) {
     if (panel) panel.style.display = t === tab ? '' : 'none';
     if (tabEl)  tabEl.classList.toggle('active', t === tab);
   });
+  // Phase panels are siblings of blurto-setup, not children — hide them when leaving the session
+  if (tab !== 'session') {
+    ['blurto-countdown','blurto-active','blurto-review'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+  }
   if (tab === 'bank')  renderBlurtoBank();
   if (tab === 'notes') renderBlurtoNotes();
 }
@@ -6936,6 +6943,8 @@ function blurtoOpenFolder(name, subject) {
   }
   updateBlurtoCacheUI(name);
   blurtoTabSwitch('session');
+  blurtoShowPhase('blurto-setup');
+  blurtoPhase = 'setup';
 }
 
 function blurtoLoad() {
@@ -7032,6 +7041,9 @@ function blurtoFileChange(e) {
 async function blurtoExtractFiles(files) {
   if (files.length === 1) { blurtoExtractFile(files[0]); return; }
   var st = document.getElementById('blurto-extract-status');
+  blurtoSimplified = false;
+  var sBtn = document.getElementById('blurto-simplify-btn');
+  if (sBtn) { sBtn.disabled = false; sBtn.textContent = '✨ Simplify'; sBtn.title = 'AI strips notes to key points'; }
   var key = getAIKey();
   var combined = '', fileNames = [];
   for (var i = 0; i < files.length; i++) {
@@ -7039,8 +7051,7 @@ async function blurtoExtractFiles(files) {
     var ext = file.name.split('.').pop().toLowerCase();
     if (ext !== 'pdf' && ext !== 'pptx') { st.textContent = 'Skipping ' + file.name + ' — only PDF/PPTX'; continue; }
     if (!(await checkFileMagic(file, ext))) { st.textContent = 'Skipping ' + file.name + ' — format mismatch'; continue; }
-    var idx = i;
-    function bProg(msg) { st.textContent = '(' + (idx + 1) + '/' + files.length + ') ' + msg; }
+    var bProg = (function(ii, total) { return function(msg) { st.textContent = '(' + (ii + 1) + '/' + total + ') ' + msg; }; })(i, files.length);
     try {
       var text = ext === 'pdf' ? await extractPdf(file, key, bProg) : await extractPptx(file, key, bProg);
       if (text.length > 80000) text = text.slice(0, 80000) + '\n[…truncated]';
@@ -7075,6 +7086,9 @@ async function blurtoExtractFiles(files) {
 async function blurtoExtractFile(file) {
   var st = document.getElementById('blurto-extract-status');
   st.textContent = 'Extracting…';
+  blurtoSimplified = false;
+  var sBtn = document.getElementById('blurto-simplify-btn');
+  if (sBtn) { sBtn.disabled = false; sBtn.textContent = '✨ Simplify'; sBtn.title = 'AI strips notes to key points'; }
   var name = file.name.toLowerCase();
   var ext = name.split('.').pop();
   if (ext !== 'pdf' && ext !== 'pptx') { st.textContent = 'Only PDF or PPTX supported.'; return; }
@@ -7407,7 +7421,10 @@ function blurtoGrade() {
   var btn = document.getElementById('blurto-grade-btn');
   btn.disabled = true; btn.textContent = 'Grading…';
   document.getElementById('blurto-grade-status').textContent = 'AI is comparing your blurt…';
-  var prompt = 'You are a study coach grading a "blurting" exercise.\n\nOriginal notes:\n' + notes + '\n\nStudent\'s blurt (written from memory):\n' + blurt + '\n\nCompare the blurt to the notes. Identify key points in the notes. For each, decide if the student covered it (covered), partially covered it (partial), or missed it (missed).\n\nRespond ONLY with valid JSON, no markdown:\n{\n  "score": 72,\n  "covered": ["key point text"],\n  "partial": ["key point text"],\n  "missed": ["key point text"],\n  "comment": "One encouraging sentence of feedback."\n}';
+  // Truncate to avoid rate-limit failures on large unsimplified notes
+  var notesForGrade = notes.length > 18000 ? notes.slice(0, 18000) + '\n[…truncated]' : notes;
+  var blurtForGrade = blurt.length > 8000  ? blurt.slice(0, 8000)   + '\n[…truncated]' : blurt;
+  var prompt = 'You are a study coach grading a "blurting" exercise.\n\nOriginal notes:\n' + notesForGrade + '\n\nStudent\'s blurt (written from memory):\n' + blurtForGrade + '\n\nCompare the blurt to the notes. Identify key points in the notes. For each, decide if the student covered it (covered), partially covered it (partial), or missed it (missed).\n\nRespond ONLY with valid JSON, no markdown:\n{\n  "score": 72,\n  "covered": ["key point text"],\n  "partial": ["key point text"],\n  "missed": ["key point text"],\n  "comment": "One encouraging sentence of feedback."\n}';
   fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
