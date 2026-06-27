@@ -2152,13 +2152,18 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
         <!-- Practice -->
         <div id="sq-prac" style="display:none">
           <div id="sq-prac-setup">
-            <div id="sq-phase-warn" style="display:none;margin-bottom:12px;padding:10px 14px;background:rgba(180,83,9,.08);border:1.5px solid rgba(180,83,9,.25);border-radius:10px;font-size:.7rem;font-weight:800;color:#92400e"></div>
-            <div class="form-card" style="max-width:420px">
-              <div class="f-grp">
-                <label class="f-lbl">Folder</label>
-                <select id="sq-prac-folder" class="cfg-sel"></select>
+            <div id="sq-phase-warn" style="display:none;max-width:600px;margin:0 auto 14px;padding:10px 14px;background:rgba(180,83,9,.08);border:1.5px solid rgba(180,83,9,.25);border-radius:10px;font-size:.7rem;font-weight:800;color:#92400e"></div>
+            <div style="max-width:600px;margin:0 auto;text-align:center">
+              <p class="qs-h">Start a practice session</p>
+              <p class="qs-p">Write out your answers — Sage will mark them for you using AI.</p>
+              <div class="cfg-grid" style="grid-template-columns:1fr;max-width:340px;margin:0 auto 16px">
+                <div class="cfg-card">
+                  <label class="cfg-lbl">Topic</label>
+                  <select id="sq-prac-folder" class="cfg-sel" onchange="sqUpdateAvail()"></select>
+                </div>
               </div>
-              <button class="add-btn" onclick="sqStartPrac()">Start Practice →</button>
+              <div class="avail-msg" id="sq-avail-msg" style="margin-bottom:24px"></div>
+              <button class="start-btn" onclick="sqStartPrac()">Start Practice →</button>
             </div>
           </div>
           <div id="sq-results" class="results-wrap">
@@ -6510,16 +6515,24 @@ function sqTab(t) {
   if (t === 'prac') { sqPopulatePracFolder(); document.getElementById('sq-prac-setup').style.display = 'block'; document.getElementById('sq-prac-run').style.display = 'none'; }
 }
 
+function sqUpdateAvail() {
+  var folder = (document.getElementById('sq-prac-folder') || {}).value || 'all';
+  var count = folder === 'all'
+    ? sqBank.length
+    : sqBank.filter(function(q) { return (q.folder || 'General') === folder; }).length;
+  var el = document.getElementById('sq-avail-msg');
+  if (el) el.textContent = count > 0 ? count + ' SAQ' + (count !== 1 ? 's' : '') + ' available' : 'No SAQs in this folder yet';
+  var warn = document.getElementById('sq-phase-warn');
+  if (warn) warn.style.display = 'none';
+}
+
 function sqPopulatePracFolder() {
   var sel = document.getElementById('sq-prac-folder');
   if (!sel) return;
   var folders = sqGetFolders();
   sel.innerHTML = '<option value="all">All folders</option>'
     + folders.map(function(f) { return '<option value="' + rpEsc(f) + '">' + rpEsc(f) + '</option>'; }).join('');
-  sel.onchange = function() {
-    var warn = document.getElementById('sq-phase-warn');
-    if (warn) warn.style.display = 'none';
-  };
+  sqUpdateAvail();
 }
 
 function sqStartPrac() {
