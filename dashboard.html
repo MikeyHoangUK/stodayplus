@@ -2247,9 +2247,9 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
               <div class="blurto-col-hd">
                 <span class="blurto-col-title">Your Notes</span>
                 <div class="blurto-ai-row">
-                  <label class="blurto-drop-mini" id="blurto-drop-zone" ondragover="blurtoDragOver(event)" ondragleave="blurtoDragLeave(event)" ondrop="blurtoDrop(event)" title="Drop a PDF or PPTX here">
+                  <label class="blurto-drop-mini" id="blurto-drop-zone" ondragover="blurtoDragOver(event)" ondragleave="blurtoDragLeave(event)" ondrop="blurtoDrop(event)" title="Drop one or more PDFs / PPTXs here">
                     <span>📎</span> Drop PDF/PPTX
-                    <input type="file" accept=".pdf,.pptx" style="display:none" id="blurto-file-input" onchange="blurtoFileChange(event)">
+                    <input type="file" accept=".pdf,.pptx" multiple style="display:none" id="blurto-file-input" onchange="blurtoFileChange(event)">
                   </label>
                   <button class="blurto-ai-btn" id="blurto-simplify-btn" onclick="blurtoSimplify()" title="AI strips notes to key points">✨ Simplify</button>
                 </div>
@@ -7021,12 +7021,55 @@ function blurtoDragLeave(e) {
 function blurtoDrop(e) {
   e.preventDefault();
   document.getElementById('blurto-drop-zone').classList.remove('over');
-  var file = e.dataTransfer.files[0];
-  if (file) blurtoExtractFile(file);
+  var files = Array.from(e.dataTransfer.files);
+  if (files.length) blurtoExtractFiles(files);
 }
 function blurtoFileChange(e) {
-  var file = e.target.files[0];
-  if (file) blurtoExtractFile(file);
+  var files = Array.from(e.target.files);
+  if (files.length) blurtoExtractFiles(files);
+}
+
+async function blurtoExtractFiles(files) {
+  if (files.length === 1) { blurtoExtractFile(files[0]); return; }
+  var st = document.getElementById('blurto-extract-status');
+  var key = getAIKey();
+  var combined = '', fileNames = [];
+  for (var i = 0; i < files.length; i++) {
+    var file = files[i];
+    var ext = file.name.split('.').pop().toLowerCase();
+    if (ext !== 'pdf' && ext !== 'pptx') { st.textContent = 'Skipping ' + file.name + ' — only PDF/PPTX'; continue; }
+    if (!(await checkFileMagic(file, ext))) { st.textContent = 'Skipping ' + file.name + ' — format mismatch'; continue; }
+    var idx = i;
+    function bProg(msg) { st.textContent = '(' + (idx + 1) + '/' + files.length + ') ' + msg; }
+    try {
+      var text = ext === 'pdf' ? await extractPdf(file, key, bProg) : await extractPptx(file, key, bProg);
+      if (text.length > 80000) text = text.slice(0, 80000) + '\n[…truncated]';
+      combined += (combined ? '\n\n' : '') + '=== ' + file.name + ' ===\n' + text;
+      fileNames.push(file.name);
+    } catch(ex) { st.textContent = 'Could not extract ' + file.name + ' — skipping'; }
+  }
+  if (!combined) { st.textContent = 'No text could be extracted.'; return; }
+  document.getElementById('blurto-notes-area').innerText = combined;
+  var combinedName = fileNames.join(', ');
+  if (orgLastTopicId) {
+    var ot = orgTopics.find(function(x) { return x.id === orgLastTopicId; });
+    if (ot) orgStoreContent(ot.topic_name, combined, combinedName);
+  }
+  var topicEl = document.getElementById('blurto-topic');
+  if (topicEl && topicEl.value.trim()) {
+    notesCacheSet(topicEl.value.trim(), combined, combinedName);
+  } else if (topicEl && !topicEl.value.trim()) {
+    suggestTopicName(combined.slice(0, 5000), key).then(function(suggested) {
+      if (suggested && !topicEl.value.trim()) {
+        topicEl.value = suggested;
+        notesCacheSet(suggested, combined, combinedName);
+        var existSubj = getSubjectForFolder(suggested);
+        var subjEl = document.getElementById('blurto-subj');
+        if (existSubj && subjEl && !subjEl.value) subjEl.value = existSubj;
+      }
+    });
+  }
+  st.textContent = '✓ Extracted ' + fileNames.length + ' files: ' + combinedName;
 }
 
 async function blurtoExtractFile(file) {
