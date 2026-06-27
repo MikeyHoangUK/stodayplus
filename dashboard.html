@@ -7904,8 +7904,11 @@ var _USER_DATA_KEYS = [
   'sp_wrong_ids','sp_folders','finley_sessions','sp_revplan','sp_exams'
 ];
 
+var _supabaseLoading = false;
 async function _loadFromSupabase() {
   if (!_spClient || !_spUser) return;
+  if (_supabaseLoading) return;
+  _supabaseLoading = true;
   var uid = _spUser.id;
 
   // If a different user was here before, wipe all local user data to prevent cross-account leakage
@@ -7925,7 +7928,7 @@ async function _loadFromSupabase() {
   }
   localStorage.setItem('sp_last_user_id', uid);
 
-  var r = await _spClient.from('user_data').select('bank, sq_bank').eq('user_id', uid).maybeSingle();
+  var r = await _spClient.from('user_data').select('bank, sq_bank, updated_at').eq('user_id', uid).maybeSingle();
   if (r.error) {
     console.warn('Supabase load:', r.error.message);
     // Fall back to sync cache, then persistent local backup
@@ -7942,6 +7945,7 @@ async function _loadFromSupabase() {
     if (typeof renderBank   === 'function') renderBank();
     if (typeof renderSqBank === 'function') renderSqBank();
     _setSyncStatus('⚠ Offline — using local backup');
+    _supabaseLoading = false;
     return;
   }
   if (!r.data) {
@@ -7972,6 +7976,7 @@ async function _loadFromSupabase() {
     if (typeof renderSqBank === 'function') renderSqBank();
     _setSyncStatus('☁ Loaded from cloud');
   }
+  _supabaseLoading = false;
 }
 
 async function _syncToSupabase() {
@@ -8006,6 +8011,7 @@ async function _spSignOut() {
   var uid = _spUser && _spUser.id;
   await _spClient.auth.signOut();
   _spUser = null;
+  _supabaseLoading = false;
   if (uid) {
     localStorage.removeItem('sp_bank_cache_' + uid);
     localStorage.removeItem('sp_saqs_cache_' + uid);
