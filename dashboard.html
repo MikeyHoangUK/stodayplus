@@ -4345,13 +4345,22 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape' && document.fullscreenElement) {
     document.getElementById('fs-btn').textContent = '⛶ Fullscreen';
   }
-  if (e.key === ' ') {
+  if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
     var tag = document.activeElement && document.activeElement.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-    var nextBtn = document.getElementById('next-btn');
-    if (nextBtn && nextBtn.style.display !== 'none' && !nextBtn.disabled && qzAnswered) {
+    var run = document.getElementById('quiz-run');
+    if (!run || run.style.display === 'none') return;
+    if (e.key === 'ArrowLeft') {
       e.preventDefault();
-      nextBtn.click();
+      var np = document.getElementById('qnav-prev');
+      if (np && !np.disabled) prevQ();
+    } else if (e.key === 'ArrowRight' || e.key === ' ') {
+      var nn = document.getElementById('qnav-next');
+      if (nn && !nn.disabled) { e.preventDefault(); nextQ(); }
+      else if (e.key === ' ') {
+        var nextBtn = document.getElementById('next-btn');
+        if (nextBtn && nextBtn.classList.contains('show') && qzAnswered) { e.preventDefault(); nextBtn.click(); }
+      }
     }
   }
 });
