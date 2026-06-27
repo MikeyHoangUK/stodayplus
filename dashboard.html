@@ -2169,7 +2169,8 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
             <div class="res-sub" id="sq-res-sub"></div>
             <div class="res-btns">
               <button class="res-btn pri" onclick="sqRetry()">Try Again</button>
-              <button class="res-btn sec" onclick="sqPracEnd()">Back to SAQs</button>
+              <button class="res-btn sec" onclick="sqPracEnd()">Back to Topic</button>
+              <button class="res-btn sec" onclick="sqBackToBank()">Back to Bank</button>
             </div>
           </div>
 
@@ -6666,6 +6667,12 @@ function sqShowResults() {
   var res = document.getElementById('sq-results');
   res.style.display = 'block'; res.style.animation = 'fadeIn .4s ease';
   mascotPeek();
+}
+function sqBackToBank() {
+  if (document.fullscreenElement) document.exitFullscreen();
+  document.getElementById('sq-results').style.display = 'none';
+  sqSessionQCount = 0; sqSessionTotalScore = 0; sqSessionMaxScore = 0; sqSessionStartTime = null;
+  sqTab('bank');
 }
 function sqRetry() {
   document.getElementById('sq-results').style.display = 'none';
