@@ -1183,11 +1183,12 @@
     body.hc .sq-prac-next{background:rgba(168,85,247,.08)!important;border-color:rgba(168,85,247,.2)!important;color:#c084fc!important}
     body.hc .sq-prac-end{background:rgba(255,255,255,.03)!important;border-color:rgba(168,85,247,.1)!important;color:#a08878!important}
     body.hc .sq-prac-counter{color:#a08878!important}
-    .sq-prac-input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(168,85,247,.14);border-radius:12px;padding:14px 16px;color:#1c1208;font-family:'Raleway',sans-serif;font-size:.88rem;min-height:130px;resize:vertical;outline:none;transition:border-color .18s,box-shadow .18s;display:block;box-sizing:border-box;margin-bottom:12px}
+    .sq-ans-lbl{font-size:.63rem;font-weight:800;color:#6d28d9;text-transform:uppercase;letter-spacing:.09em;margin-bottom:7px}
+    .sq-prac-input{width:100%;background:rgba(255,255,255,.7);border:1px solid rgba(168,85,247,.14);border-radius:12px;padding:14px 16px;color:#1c1208;font-family:'Raleway',sans-serif;font-size:.88rem;min-height:130px;resize:vertical;outline:none;transition:border-color .18s,box-shadow .18s;display:block;box-sizing:border-box;margin-bottom:14px}
     .sq-prac-input:focus{border-color:rgba(168,85,247,.5);box-shadow:0 0 0 3px rgba(147,51,234,.1)}
-    .sq-prac-submit{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:12px;padding:12px 28px;font-size:.85rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;width:100%;transition:opacity .15s}
-    .sq-prac-submit:hover{opacity:.85}
-    .sq-prac-submit:disabled{opacity:.45;cursor:default}
+    .sq-prac-submit{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:12px;padding:13px 32px;font-size:.85rem;font-weight:900;cursor:pointer;font-family:'Raleway',sans-serif;display:block;margin-left:auto;transition:all .22s;letter-spacing:.03em}
+    .sq-prac-submit:hover{opacity:.88;transform:translateY(-1px)}
+    .sq-prac-submit:disabled{opacity:.45;cursor:default;transform:none}
     .sq-mark-result{background:rgba(250,243,224,.6);border:1px solid rgba(168,85,247,.15);border-radius:16px;padding:20px 22px;margin-top:4px}
     .sq-mark-score-row{display:flex;align-items:baseline;gap:10px;margin-bottom:16px}
     .sq-mark-score{font-size:2rem;font-weight:900;line-height:1}
@@ -2183,22 +2184,26 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
               <div class="quiz-topbar">
                 <button class="fs-btn" onclick="sqPracEnd()">← End</button>
                 <div class="quiz-topbar-mid">
-                  <span class="sq-prac-counter" id="sq-prac-counter">1 / 5</span>
+                  <span class="q-counter" id="sq-prac-counter">1 / 5</span>
+                  <span class="q-score-lbl" id="sq-prac-score"></span>
                 </div>
                 <button class="fs-btn" onclick="sqToggleFS()" id="sq-fs-btn">⛶ Fullscreen</button>
               </div>
-              <div class="sq-prac-card">
+              <div class="q-prog-bar"><div class="q-prog-fill" id="sq-prac-prog" style="width:0%"></div></div>
+              <div class="quiz-card" id="sq-prac-card">
+                <div class="qcard-num" id="sq-prac-num">1</div>
                 <div class="sq-prac-q" id="sq-prac-q"></div>
               </div>
               <div id="sq-prac-answer-area">
+                <div class="sq-ans-lbl">Your answer</div>
                 <textarea id="sq-prac-input" class="sq-prac-input" placeholder="Write your answer here…"></textarea>
                 <button class="sq-prac-submit" id="sq-prac-submit-btn" onclick="sqPracSubmit()">Submit for marking →</button>
                 <div class="ai-status" id="sq-prac-status" style="display:none"></div>
               </div>
               <div id="sq-prac-result" style="display:none">
                 <div class="sq-mark-result" id="sq-mark-result-inner"></div>
-                <div class="sq-prac-next-row">
-                  <button class="sq-prac-next" onclick="sqPracNext()">Next →</button>
+                <div style="margin-top:14px">
+                  <button class="next-btn show" onclick="sqPracNext()" id="sq-prac-next-btn">Next →</button>
                 </div>
               </div>
             </div>
@@ -6548,6 +6553,8 @@ function sqStartPrac() {
 function sqShowPracQ() {
   var q = sqPracQs[sqPracIdx];
   document.getElementById('sq-prac-counter').textContent = (sqPracIdx + 1) + ' / ' + sqPracQs.length;
+  document.getElementById('sq-prac-num').textContent = sqPracIdx + 1;
+  document.getElementById('sq-prac-prog').style.width = (sqPracIdx / sqPracQs.length * 100) + '%';
   document.getElementById('sq-prac-q').textContent = q.question;
   document.getElementById('sq-prac-input').value = '';
   document.getElementById('sq-prac-submit-btn').disabled = false;
@@ -6555,6 +6562,8 @@ function sqShowPracQ() {
   st.style.display = 'none'; st.textContent = '';
   document.getElementById('sq-prac-answer-area').style.display = 'block';
   document.getElementById('sq-prac-result').style.display = 'none';
+  var scoreEl = document.getElementById('sq-prac-score');
+  if (scoreEl) scoreEl.textContent = sqSessionQCount > 0 ? '✓ ' + sqSessionTotalScore + ' pts' : '';
 }
 
 async function sqPracSubmit() {
@@ -6606,10 +6615,15 @@ async function sqPracSubmit() {
     document.getElementById('sq-prac-answer-area').style.display = 'none';
     sqShowMarkResult(result, q.modelAnswer);
     document.getElementById('sq-prac-result').style.display = 'block';
+    var nxtBtn = document.getElementById('sq-prac-next-btn');
+    if (nxtBtn) nxtBtn.textContent = sqPracIdx < sqPracQs.length - 1 ? 'Next →' : 'See results →';
     if (sqCurrentFolder) orgIncrementSAQ(sqCurrentFolder, q.id);
     sqSessionQCount++;
     sqSessionTotalScore += (typeof result.score === 'number' ? result.score : 0);
     sqSessionMaxScore   += (result.total || (result.feedback ? result.feedback.length : 0));
+    var scoreEl = document.getElementById('sq-prac-score');
+    if (scoreEl) scoreEl.textContent = '✓ ' + sqSessionTotalScore + ' pts';
+    document.getElementById('sq-prac-prog').style.width = (sqSessionQCount / sqPracQs.length * 100) + '%';
   } catch(e) {
     st.textContent = 'Marking failed: ' + e.message;
     st.className = 'ai-status serr';
