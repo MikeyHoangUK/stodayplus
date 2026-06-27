@@ -2160,6 +2160,19 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
               <button class="add-btn" onclick="sqStartPrac()">Start Practice →</button>
             </div>
           </div>
+          <div id="sq-results" class="results-wrap">
+            <div class="score-circle" id="sq-res-circle">
+              <div class="score-pct" id="sq-res-pct"></div>
+              <div class="score-lbl">score</div>
+            </div>
+            <div class="res-title" id="sq-res-title"></div>
+            <div class="res-sub" id="sq-res-sub"></div>
+            <div class="res-btns">
+              <button class="res-btn pri" onclick="sqRetry()">Try Again</button>
+              <button class="res-btn sec" onclick="sqPracEnd()">Back to SAQs</button>
+            </div>
+          </div>
+
           <div id="sq-prac-run" style="display:none">
             <div id="sq-prac-fs-wrap">
               <div id="sq-pomo">
@@ -6600,12 +6613,46 @@ function sqShowMarkResult(result, markscheme) {
 
 function sqPracNext() {
   sqPracIdx++;
-  if (sqPracIdx >= sqPracQs.length) { sqPracEnd(); return; }
+  if (sqPracIdx >= sqPracQs.length) { sqShowResults(); return; }
   sqShowPracQ();
 }
 
+function sqShowResults() {
+  if (document.fullscreenElement) document.exitFullscreen();
+  document.getElementById('sq-prac-run').style.display = 'none';
+  var pct = sqSessionMaxScore > 0 ? Math.round(sqSessionTotalScore / sqSessionMaxScore * 100) : 0;
+  var hc = document.body.classList.contains('hc');
+  var color, title, sub;
+  if (pct >= 90) { color = hc ? '#60a5fa' : '#2563eb'; title = 'Outstanding! 🎯'; sub = 'You nailed it. Ready for the real exam.'; }
+  else if (pct >= 75) { color = hc ? '#a855f7' : '#6d28d9'; title = 'Strong performance!'; sub = 'A few gaps to close — review the ones you missed.'; }
+  else if (pct >= 50) { color = hc ? '#fbbf24' : '#b45309'; title = 'Good effort'; sub = 'Halfway there. Another pass will lock these in.'; }
+  else { color = hc ? '#f87171' : '#dc2626'; title = 'Keep going'; sub = 'These need another review before you try again.'; }
+  var circle = document.getElementById('sq-res-circle');
+  circle.style.borderColor = color;
+  document.getElementById('sq-res-pct').style.color = color;
+  document.getElementById('sq-res-pct').textContent = pct + '%';
+  document.getElementById('sq-res-title').style.color = color;
+  document.getElementById('sq-res-title').textContent = title;
+  document.getElementById('sq-res-sub').textContent = sub + ' (' + sqSessionTotalScore + '/' + sqSessionMaxScore + ' marks across ' + sqSessionQCount + ' questions)';
+  var res = document.getElementById('sq-results');
+  res.style.display = 'block'; res.style.animation = 'fadeIn .4s ease';
+  mascotPeek();
+}
+function sqRetry() {
+  document.getElementById('sq-results').style.display = 'none';
+  for (var i = sqPracQs.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = sqPracQs[i]; sqPracQs[i] = sqPracQs[j]; sqPracQs[j] = tmp;
+  }
+  sqPracIdx = 0;
+  sqSessionQCount = 0; sqSessionTotalScore = 0; sqSessionMaxScore = 0; sqSessionStartTime = Date.now();
+  document.getElementById('sq-prac-run').style.display = 'block';
+  sqShowPracQ();
+  sqEnterFS();
+}
 function sqPracEnd() {
   if (document.fullscreenElement) document.exitFullscreen();
+  document.getElementById('sq-results').style.display = 'none';
   // Log the SAQ session if any questions were answered
   if (sqSessionQCount > 0 && sqCurrentFolder) {
     var saqT = orgMatchTopic(sqCurrentFolder);
