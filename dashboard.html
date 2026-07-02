@@ -1714,16 +1714,6 @@
               <datalist id="shared-folder-list"></datalist>
             </div>
             <button class="ai-btn" id="ai-btn" onclick="generateWithAI()" style="width:100%" disabled>Generate →</button>
-            <div class="ai-key-row" id="ai-key-row">
-              <span class="ai-key-lbl">Groq key:</span>
-              <input type="password" id="ai-key-inp" class="ai-key-inp" placeholder="Paste your free key from console.groq.com…"/>
-              <button class="ai-key-save" onclick="saveAIKey()">Save key</button>
-            </div>
-            <div class="ai-key-row" id="ai-key-set" style="display:none">
-              <span class="ai-key-ok">✓ API key saved</span>
-              <span class="ai-key-change" onclick="clearAIKey()">change</span>
-            </div>
-            <div style="font-size:.63rem;color:#9ca3af;margin-top:2px;">🔒 Key stored locally in your browser — never sent to our servers. Keep this device private.</div>
             <div class="ai-status" id="ai-status"></div>
             <div class="ai-folder-pick" id="ai-folder-pick" style="display:none">
               <button class="ai-folder-confirm" onclick="confirmAIAdd()">Save to Bank →</button>
@@ -2105,16 +2095,6 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
             </div>
             <div class="sq-type-note">All questions focus on <span style="color:#6d28d9;font-weight:800">deep understanding</span> — answers formatted as markscheme bullet points</div>
             <button class="ai-btn" id="sq-btn" onclick="sqGenerateWithAI(false)" style="width:100%">Generate SAQs →</button>
-            <div class="ai-key-row" id="sq-key-row">
-              <span class="ai-key-lbl">Groq key:</span>
-              <input type="password" id="sq-key-inp" class="ai-key-inp" placeholder="Paste your free key from console.groq.com…"/>
-              <button class="ai-key-save" onclick="sqSaveAIKey()">Save key</button>
-            </div>
-            <div class="ai-key-row" id="sq-key-set" style="display:none">
-              <span class="ai-key-ok">✓ API key saved</span>
-              <span class="ai-key-change" onclick="sqClearAIKey()">change</span>
-            </div>
-            <div style="font-size:.63rem;color:#9ca3af;margin-top:2px;">🔒 Key stored locally in your browser — never sent to our servers. Keep this device private.</div>
             <div class="ai-status" id="sq-status"></div>
             <div class="ai-folder-pick" id="sq-folder-pick" style="display:none">
               <span class="ai-folder-lbl">Topic:</span>
@@ -2543,7 +2523,6 @@ window.addEventListener('DOMContentLoaded', function() {
   buildOpts();
   loadBank();
   applyMode(mode);
-  initAIKeyUI();
   startMarvelIntro();
   scheduleMascot();
   scheduleElectric();
@@ -3813,22 +3792,15 @@ function folderSubjChip(name) {
 })();
 
 // ── AI topic name suggestion ──────────────────────────────────────────────────
-async function suggestTopicName(text, key) {
-  if (!key || !text) return '';
+async function suggestTopicName(text) {
+  if (!text) return '';
   try {
     var sample = text.slice(0, 600).replace(/\n+/g, ' ');
-    var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [{ role: 'user', content: 'Based on this content, suggest a short topic name (max 5 words, title case, no quotes). Return only the topic name:\n\n' + sample }],
-        temperature: 0.2,
-        max_tokens: 20
-      })
+    var d = await callAI({
+      messages: [{ role: 'user', content: 'Based on this content, suggest a short topic name (max 5 words, title case, no quotes). Return only the topic name:\n\n' + sample }],
+      temperature: 0.2,
+      max_tokens: 20
     });
-    if (!res.ok) return '';
-    var d = await res.json();
     var name = ((d.choices || [])[0] || {}).message ? d.choices[0].message.content.trim() : '';
     return name.replace(/^["']|["']$/g, '').trim().slice(0, 60);
   } catch(e) { return ''; }
@@ -3915,7 +3887,7 @@ function showPanel(id, el) {
   if (el) el.classList.add('active');
   document.getElementById('tb-title').innerHTML = PANEL_TITLES[id] || 'Stoday Plus<span class="tb-sub">Dashboard</span>';
   if (id === 'planner') rpRenderToday();
-  if (id === 'saqs') { sqInitAIKeyUI(); renderSqBank(); }
+  if (id === 'saqs') { renderSqBank(); }
   if (id === 'blurto') { blurtoInit(); if (!blurtoPhase || blurtoPhase === 'setup') renderBlurtoBank(); }
   if (id === 'finley') finleyInit();
   if (id === 'saqs' || id === 'blurto' || id === 'finley') updateBotLockScreens();
@@ -4586,22 +4558,34 @@ function checkStorageUsage() {
   }
 }
 
-// ── AI GENERATE (Groq) ──
-function getAIKey(){ return localStorage.getItem('sp_groq_key') || ''; }
-function saveAIKey(){
-  var k = document.getElementById('ai-key-inp').value.trim();
-  if(!k){ setAIStatus('Please paste a key first.','serr'); return; }
-  localStorage.setItem('sp_groq_key', k);
-  document.getElementById('ai-key-row').style.display = 'none';
-  document.getElementById('ai-key-set').style.display = 'none';
-  setAIStatus('✓ Key saved.','sok');
-  setTimeout(function(){ setAIStatus('',''); }, 2000);
-}
-function clearAIKey(){
-  localStorage.removeItem('sp_groq_key');
-  document.getElementById('ai-key-inp').value = '';
-  document.getElementById('ai-key-set').style.display = 'none';
-  document.getElementById('ai-key-row').style.display = 'flex';
+// ── AI proxy ──────────────────────────────────────────────────────────────────
+async function callAI(payload) {
+  var session = null;
+  if (_spClient) {
+    var s = await _spClient.auth.getSession();
+    session = s && s.data && s.data.session;
+  }
+  if (!session) {
+    var authErr = new Error('Sign in to use AI features.');
+    authErr.status = 401;
+    throw authErr;
+  }
+  var res = await fetch('https://zdmnwykumprntbpfyour.supabase.co/functions/v1/ai-proxy', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + session.access_token,
+    },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) {
+    var errData = await res.json().catch(function() { return {}; });
+    var msg = (errData.error && (errData.error.message || errData.error)) || ('HTTP ' + res.status);
+    var apiErr = new Error(msg);
+    apiErr.status = res.status;
+    throw apiErr;
+  }
+  return res.json();
 }
 function setAIStatus(msg, cls){
   var el = document.getElementById('ai-status');
@@ -4651,10 +4635,6 @@ function aiPick(el){
   el.classList.add('sel');
 }
 function aiGetOpt(g){ var s = document.querySelector('.ai-pill.sel[data-g="'+g+'"]'); return s ? s.dataset.v : null; }
-function initAIKeyUI(){
-  document.getElementById('ai-key-row').style.display = 'none';
-  document.getElementById('ai-key-set').style.display = 'none';
-}
 
 // ── FILE DROP (multi-file) ──
 var aiLoadedFiles = []; // [{name, text}]
@@ -4696,7 +4676,6 @@ function aiRenderFileList(){
   }).join('');
 }
 async function processAIFiles(files){
-  var aiKey = getAIKey();
   var loadingEl = document.getElementById('ai-drop-loading');
   var loadingMsg = document.getElementById('ai-drop-loading-msg');
   var idleEl = document.getElementById('ai-drop-idle');
@@ -4725,13 +4704,13 @@ async function processAIFiles(files){
     try {
       function mkProg(fname){ return function(msg){ loadingMsg.textContent = fname + ': ' + msg; }; }
       var text = ext === 'pdf'
-        ? await extractPdf(file, aiKey, mkProg(file.name))
-        : await extractPptx(file, aiKey, mkProg(file.name));
+        ? await extractPdf(file, mkProg(file.name))
+        : await extractPptx(file, mkProg(file.name));
       if (!text.replace(/\s+/g,'').trim()) { errors.push(file.name + ': no readable text found'); continue; }
-      if (text.length > CONDENSE_CHARS && aiKey) {
+      if (text.length > CONDENSE_CHARS) {
         try {
           loadingMsg.textContent = 'Condensing ' + file.name + '…';
-          text = await condenseForAI(text, aiKey, mkProg(file.name));
+          text = await condenseForAI(text, mkProg(file.name));
           anyCondensed = true;
         } catch(e) { text = text.slice(0, 8000); }
       } else if (text.length > 8000) { text = text.slice(0, 8000); }
@@ -4765,7 +4744,7 @@ async function processAIFiles(files){
     }
     populateSubjectDatalist();
     var firstText = aiLoadedFiles[0].text, firstName = aiLoadedFiles[0].name;
-    suggestTopicName(firstText, aiKey).then(function(suggested){
+    suggestTopicName(firstText).then(function(suggested){
       if (suggested && !document.getElementById('ai-folder-new').value.trim()) {
         document.getElementById('ai-folder-new').value = suggested;
         var meta = getFolderMeta();
@@ -4791,21 +4770,14 @@ function ab2b64(ab) {
   return btoa(out);
 }
 
-async function groqVisionSlide(dataUrl, key) {
-  var r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-    body: JSON.stringify({
-      model: 'llama-3.2-90b-vision-preview',
-      messages: [{ role: 'user', content: [
-        { type: 'image_url', image_url: { url: dataUrl } },
-        { type: 'text', text: 'Extract all visible text, headings, and bullet points from this slide. Return only the content, no commentary.' }
-      ]}],
-      temperature: 0.1, max_tokens: 800
-    })
+async function groqVisionSlide(dataUrl) {
+  var d = await callAI({
+    messages: [{ role: 'user', content: [
+      { type: 'image_url', image_url: { url: dataUrl } },
+      { type: 'text', text: 'Extract all visible text, headings, and bullet points from this slide. Return only the content, no commentary.' }
+    ]}],
+    temperature: 0.1, max_tokens: 800
   });
-  if (!r.ok) throw new Error('Vision API ' + r.status);
-  var d = await r.json();
   return (d.choices && d.choices[0] && d.choices[0].message.content) || '';
 }
 
@@ -4843,7 +4815,7 @@ async function checkFileMagic(file, expectedExt) {
   return false;
 }
 
-async function extractPdf(file, key, onProgress) {
+async function extractPdf(file, onProgress) {
   if(typeof pdfjsLib === 'undefined') throw new Error('PDF library not loaded.');
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
   var ab = await file.arrayBuffer();
@@ -4854,7 +4826,7 @@ async function extractPdf(file, key, onProgress) {
     var page = await pdf.getPage(i);
     var content = await page.getTextContent();
     var text = content.items.map(function(it){ return it.str; }).join(' ').replace(/\s+/g,' ').trim();
-    if(text.length < VISION_THRESHOLD && key){
+    if(text.length < VISION_THRESHOLD){
       if(onProgress) onProgress('Page ' + i + ': image-based — reading with AI…');
       try{
         var vp = page.getViewport({scale:1});
@@ -4863,7 +4835,7 @@ async function extractPdf(file, key, onProgress) {
         var canvas = document.createElement('canvas');
         canvas.width = Math.round(svp.width); canvas.height = Math.round(svp.height);
         await page.render({canvasContext:canvas.getContext('2d'),viewport:svp}).promise;
-        text = await groqVisionSlide(canvas.toDataURL('image/jpeg',0.8), key);
+        text = await groqVisionSlide(canvas.toDataURL('image/jpeg',0.8));
         vCount++;
       } catch(e){ text = '[image slide — could not read]'; }
     }
@@ -4873,7 +4845,7 @@ async function extractPdf(file, key, onProgress) {
   return parts.join('\n\n');
 }
 
-async function extractPptx(file, key, onProgress){
+async function extractPptx(file, onProgress){
   if(typeof JSZip === 'undefined') throw new Error('JSZip library not loaded.');
   var zip = await JSZip.loadAsync(file);
 
@@ -4908,11 +4880,11 @@ async function extractPptx(file, key, onProgress){
     if(onProgress) onProgress('Reading slide ' + sNum + ' of ' + total + '…');
     var sXml  = await zip.files[slideKeys[i]].async('text');
     var sText = getXmlText(sXml);
-    if(sText.length < VISION_THRESHOLD && key){
+    if(sText.length < VISION_THRESHOLD){
       if(onProgress) onProgress('Slide ' + sNum + ': image-based — reading with AI…');
       try{
         var imgUrl = await getPptxSlideImage(zip, sNum);
-        if(imgUrl){ sText = await groqVisionSlide(imgUrl, key); vCount++; }
+        if(imgUrl){ sText = await groqVisionSlide(imgUrl); vCount++; }
       } catch(e){ /* keep text as-is */ }
     }
     var line = 'Slide ' + sNum + ': ' + (sText || '[visual only]');
@@ -4971,28 +4943,18 @@ function aiCountdown(secs, onDone, attempt, isFinal) {
 // Generation call uses condensed output (~800 tokens) + 3,000 max = 4,300 tokens.
 // Worst-case same minute: 9,100 tokens — safely under Groq free 12,000 TPM.
 var CONDENSE_CHARS = 10000; // auto-condense during extraction above this
-async function condenseForAI(text, key, onProgress) {
+async function condenseForAI(text, onProgress) {
   var input = text.length > 16000 ? text.slice(0, 16000) : text;
   if (onProgress) onProgress('Extracting key facts…');
-  var r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-    body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
-      messages: [{ role: 'user', content:
-        'You are a study notes compressor for university exam preparation.\n\n'
-        + 'Extract EVERY distinct examinable fact from the notes below as a numbered list.\n'
-        + 'Include: definitions, key concepts, mechanisms, processes, names, dates, causes, effects, examples, relationships, and specific numbers.\n'
-        + 'Rules:\n- One fact per line\n- Max 15 words per line\n- Preserve specific terms, figures, and technical vocabulary exactly\n- Do NOT omit any distinct, testable point\n- Max 80 items total\n- IMPORTANT: if the source text contains slide or page markers (e.g. "Slide 3:" or "Page 2:"), prefix each extracted fact with [Slide N] or [Page N] to indicate its source\n\nNotes:\n' + input
-      }],
-      temperature: 0.1, max_tokens: 800
-    })
+  var d = await callAI({
+    messages: [{ role: 'user', content:
+      'You are a study notes compressor for university exam preparation.\n\n'
+      + 'Extract EVERY distinct examinable fact from the notes below as a numbered list.\n'
+      + 'Include: definitions, key concepts, mechanisms, processes, names, dates, causes, effects, examples, relationships, and specific numbers.\n'
+      + 'Rules:\n- One fact per line\n- Max 15 words per line\n- Preserve specific terms, figures, and technical vocabulary exactly\n- Do NOT omit any distinct, testable point\n- Max 80 items total\n- IMPORTANT: if the source text contains slide or page markers (e.g. "Slide 3:" or "Page 2:"), prefix each extracted fact with [Slide N] or [Page N] to indicate its source\n\nNotes:\n' + input
+    }],
+    temperature: 0.1, max_tokens: 800
   });
-  if (!r.ok) {
-    var eb = await r.json().catch(function(){ return {}; });
-    throw new Error((eb.error && eb.error.message) || 'Condense failed: HTTP ' + r.status);
-  }
-  var d = await r.json();
   var condensed = ((d.choices || [])[0] || {}).message ? d.choices[0].message.content.trim() : '';
   if (!condensed) throw new Error('Condense returned empty.');
   return condensed;
@@ -5014,8 +4976,6 @@ async function generateWithAI(isRetry, retryCount){
   retryCount = retryCount || 0;
   if (!isRetry && aiGenerating) return;
   aiGenerating = true;
-  var key = getAIKey();
-  if(!key){ aiGenerating = false; setAIStatus('Save your Groq API key first — free at console.groq.com (no card needed).','serr'); document.getElementById('ai-key-row').style.display='flex'; return; }
   var folderName = (document.getElementById('ai-folder-new').value || '').trim();
   if(!folderName){ aiGenerating = false; setAIStatus('Select a topic first.','serr'); return; }
   // --- Cache check ---
@@ -5054,36 +5014,12 @@ async function generateWithAI(isRetry, retryCount){
     : '';
   var prompt = 'You are an expert educator writing exam questions for university students.\n\nGenerate ' + n + ' multiple choice questions based on the following topic or notes:\n\n' + topic + '\n\nSettings:\n- Question type: ' + typeDesc + '\n- Difficulty: ' + diffDesc + '\n\nSTRICT RULES — follow every rule exactly:\n1. Each question must have EXACTLY 5 options (A B C D E)\n2. Exactly one option is correct; all others must be plausible — no obvious wrong answers\n3. Label the correct option by its 0-based index (0=A, 1=B, 2=C, 3=D, 4=E)\n4. ALL questions must match the difficulty definition above — wrong difficulty = invalid\n5. Hint — write TWO things in the hint field:\n   a) Explain WHY the correct answer is correct (the underlying mechanism or reason), WITHOUT naming or identifying the correct option\n   b) Add "📌 Slide N" or "📌 Page N" with the exact source reference from the notes — only include this if the notes contain slide/page markers; omit if not\n   Example hint: "This pathway is responsible for reward-motivated behaviour and is disrupted in addiction. 📌 Slide 4"\n6. Every question in this batch must test a DIFFERENT concept — no overlapping ideas within the batch\n7. CRITICAL: Before outputting each question, verify it does not appear in the existing list below. If it tests the same concept as any existing question, replace it with a completely different one.' + existingBlock + '\n\nCRITICAL — options format: each option must be plain answer text only. Do NOT prefix with A / B / C / D / E or any letter label — the app adds labels automatically. Wrong: "A The nucleus". Correct: "The nucleus".\n\nRespond with ONLY a valid JSON array. No markdown, no code fences, no explanation:\n[\n  {\n    "question": "...",\n    "options": ["first option text","second option text","third option text","fourth option text","fifth option text"],\n    "correct": 0,\n    "difficulty": "' + diff + '",\n    "hint": "..."\n  }\n]';
   try {
-    var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json', 'Authorization':'Bearer ' + key},
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [{role:'user', content: prompt}],
-        temperature: 0.5,
-        max_tokens: 3000
-      })
+    var data = await callAI({
+      messages: [{role:'user', content: prompt}],
+      temperature: 0.5,
+      max_tokens: 3000
     });
-    if(!res.ok){
-      var errBody = await res.json().catch(function(){return {};});
-      var rawMsg = (errBody.error && errBody.error.message) || ('HTTP ' + res.status);
-      if(res.status === 429){
-        pendingRetry = true;
-        var wait = parseRetryAfter(rawMsg, res);
-        if(retryCount < 3){
-          aiCountdown(wait, function(){ generateWithAI(true, retryCount + 1); }, retryCount + 1, false);
-        } else {
-          aiCountdown(wait, function() {
-            aiGenerating = false;
-            btn.disabled = false;
-            setAIStatus('Rate limit cleared — click Generate to try again.', 'sok');
-          }, 0, true);
-        }
-        return;
-      }
-      throw new Error(rawMsg);
-    }
-    var data = await res.json();
+    if (data.error) throw new Error(data.error.message || 'AI error');
     var raw = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || '').trim();
     if(!raw) throw new Error('Empty response from model.');
     raw = raw.replace(/^```(?:json)?\n?/,'').replace(/\n?```$/,'').trim();
@@ -5194,18 +5130,11 @@ function finleyBuildSystemPrompt(topic, concepts) {
 }
 
 async function finleyExtractConcepts(topic, notes) {
-  var key = getAIKey();
-  if (!key) return '(No API key — Finley will ask general questions)';
   var prompt = 'Extract exactly 5-8 key concepts a student must understand about "' + topic + '".' +
     (notes ? ' Based on these notes:\n' + notes.slice(0, 4000) : '') +
     '\nReturn as a numbered list. One concept per line. No explanations. Just short concept names/phrases.';
   try {
-    var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','Authorization':'Bearer ' + key},
-      body: JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:prompt}],temperature:0.3,max_tokens:300})
-    });
-    var data = await res.json();
+    var data = await callAI({messages:[{role:'user',content:prompt}],temperature:0.3,max_tokens:300});
     return (data.choices && data.choices[0] && data.choices[0].message.content || '').trim();
   } catch(e) { return '1. Core concepts\n2. Key processes\n3. Main applications'; }
 }
@@ -5318,15 +5247,8 @@ async function finleySend() {
   finleyShowTyping();
 
   try {
-    var key = getAIKey();
-    if (!key) throw new Error('No API key saved.');
     var messages = [{role:'system', content: finleySession.systemPrompt}].concat(finleySession.history);
-    var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','Authorization':'Bearer ' + key},
-      body: JSON.stringify({model:'llama-3.3-70b-versatile', messages: messages, temperature: 0.72, max_tokens: 400})
-    });
-    var data = await res.json();
+    var data = await callAI({messages: messages, temperature: 0.72, max_tokens: 400});
     var reply = (data.choices && data.choices[0] && data.choices[0].message.content || '').trim();
     finleyRemoveTyping();
 
@@ -6137,26 +6059,6 @@ function sqSetStatus(msg, cls) {
   el.style.display = msg ? 'block' : 'none';
 }
 
-function sqInitAIKeyUI() {
-  document.getElementById('sq-key-row').style.display = 'none';
-  document.getElementById('sq-key-set').style.display = 'none';
-}
-function sqSaveAIKey() {
-  var k = (document.getElementById('sq-key-inp').value || '').trim();
-  if (!k) { sqSetStatus('Please paste a key first.', 'serr'); return; }
-  localStorage.setItem('sp_groq_key', k);
-  document.getElementById('sq-key-row').style.display = 'none';
-  document.getElementById('sq-key-set').style.display = 'none';
-  sqSetStatus('✓ Key saved.', 'sok');
-  setTimeout(function() { sqSetStatus('', ''); }, 2000);
-}
-function sqClearAIKey() {
-  localStorage.removeItem('sp_groq_key');
-  document.getElementById('sq-key-inp').value = '';
-  document.getElementById('sq-key-set').style.display = 'none';
-  document.getElementById('sq-key-row').style.display = 'flex';
-}
-
 // ── Sage file drop (multi-file) ──
 var sqLoadedFiles = []; // [{name, text}]
 
@@ -6186,7 +6088,6 @@ function sqResetDropZone() {
   sqSetStatus('', '');
 }
 async function sqProcessFiles(files) {
-  var sqKey = getAIKey();
   var loadingEl = document.getElementById('sq-drop-loading');
   var loadingMsg = document.getElementById('sq-drop-loading-msg');
   var idleEl = document.getElementById('sq-drop-idle');
@@ -6208,13 +6109,13 @@ async function sqProcessFiles(files) {
     try {
       function mkSqProg(fname){ return function(msg){ loadingMsg.textContent = fname + ': ' + msg; }; }
       var text = ext === 'pdf'
-        ? await extractPdf(file, sqKey, mkSqProg(file.name))
-        : await extractPptx(file, sqKey, mkSqProg(file.name));
+        ? await extractPdf(file, mkSqProg(file.name))
+        : await extractPptx(file, mkSqProg(file.name));
       if (!text.replace(/\s+/g,'').trim()) { errors.push(file.name + ': no readable text found'); continue; }
-      if (text.length > CONDENSE_CHARS && sqKey) {
+      if (text.length > CONDENSE_CHARS) {
         try {
           loadingMsg.textContent = 'Condensing ' + file.name + '…';
-          text = await condenseForAI(text, sqKey, mkSqProg(file.name));
+          text = await condenseForAI(text, mkSqProg(file.name));
           anyCondensed = true;
         } catch(e) { text = text.slice(0, 8000); }
       } else if (text.length > 8000) { text = text.slice(0, 8000); }
@@ -6282,8 +6183,6 @@ async function sqGenerateWithAI(isRetry, retryCount) {
   retryCount = retryCount || 0;
   if (!isRetry && sqGenerating) return;
   sqGenerating = true;
-  var key = getAIKey();
-  if (!key) { sqGenerating = false; sqSetStatus('Save your Groq API key first — free at console.groq.com.', 'serr'); document.getElementById('sq-key-row').style.display='flex'; return; }
   var sqFolderName = ((document.getElementById('sq-folder-new') || {}).value || '').trim();
   var sqCachedNotes = sqFolderName ? notesCacheGet(sqFolderName) : null;
   var topic = sqCachedNotes ? sqCachedNotes.text : (document.getElementById('sq-topic').value || '').trim();
@@ -6298,31 +6197,8 @@ async function sqGenerateWithAI(isRetry, retryCount) {
   document.getElementById('sq-folder-pick').style.display = 'none';
   var prompt = 'You are an expert educator writing exam short answer questions for university students.\n\nGenerate exactly ' + n + ' deep understanding questions from the content below. Questions must require application, analysis, evaluation, or explanation — not simple recall. Use stems like "Explain why…", "How does…", "Compare and contrast…", "Evaluate the role of…", "To what extent…"\n\nFor each question write a markscheme-style model answer as bullet points. Each bullet is a distinct examinable point worth credit. Aim for 3–6 bullets. Use "•" as the bullet character and put each point on its own line.\n\nRespond with ONLY a valid JSON array — no markdown fences, no extra text:\n[\n  {"question":"...","modelAnswer":"• Point one\\n• Point two\\n• Point three"}\n]\n\nContent:\n' + topic;
   try {
-    var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-      body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages: [{ role: 'user', content: prompt }], temperature: 0.7, max_tokens: 4096 })
-    });
-    if (!res.ok) {
-      var errBody = await res.json().catch(function() { return {}; });
-      var rawMsg = (errBody.error && errBody.error.message) || ('HTTP ' + res.status);
-      if (res.status === 429) {
-        pendingRetry = true;
-        var wait = parseRetryAfter(rawMsg, res);
-        if (retryCount < 3) {
-          sqCountdown(wait, function() { sqGenerateWithAI(true, retryCount + 1); }, retryCount + 1, false);
-        } else {
-          sqCountdown(wait, function() {
-            sqGenerating = false;
-            btn.disabled = false;
-            sqSetStatus('Rate limit cleared — click Generate to try again.', 'sok');
-          }, 0, true);
-        }
-        return;
-      }
-      throw new Error(rawMsg);
-    }
-    var data = await res.json();
+    var data = await callAI({ messages: [{ role: 'user', content: prompt }], temperature: 0.7, max_tokens: 4096 });
+    if (data.error) throw new Error(data.error.message || 'AI error');
     var raw = ((data.choices || [])[0] || {}).message ? data.choices[0].message.content.trim() : '';
     if (!raw) throw new Error('Empty response from model.');
     raw = raw.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '').trim();
@@ -6580,12 +6456,7 @@ function sqShowPracQ() {
 }
 
 async function sqPracSubmit() {
-  var key = getAIKey();
   var st = document.getElementById('sq-prac-status');
-  if (!key) {
-    st.textContent = 'No API key — save your Groq key in the Generate tab first.';
-    st.className = 'ai-status serr'; st.style.display = 'block'; return;
-  }
   var answer = (document.getElementById('sq-prac-input').value || '').trim();
   if (!answer) {
     st.textContent = 'Write your answer before submitting.';
@@ -6596,30 +6467,11 @@ async function sqPracSubmit() {
   btn.disabled = true;
   st.textContent = 'Marking your answer…';
   st.className = 'ai-status sload'; st.style.display = 'block';
-  // Cap answer length to keep marking call under TPM limit
   var answerInput = answer.length > 2000 ? answer.slice(0, 2000) + '…' : answer;
   var prompt = 'You are an exam marker. Mark the student\'s answer strictly against the markscheme.\n\nQuestion: ' + q.question + '\n\nMarkscheme:\n' + q.modelAnswer + '\n\nStudent\'s answer: ' + answerInput + '\n\nFor each bullet point in the markscheme, decide whether the student earned that mark (true = yes, false = no). Count the total score. Write a one-sentence comment.\n\nRespond with ONLY valid JSON — no markdown fences:\n{\n  "score": 3,\n  "total": 5,\n  "feedback": [\n    {"point": "• The point text", "hit": true},\n    {"point": "• Another point", "hit": false}\n  ],\n  "comment": "Short feedback sentence."\n}';
   try {
-    var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-      body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages: [{ role: 'user', content: prompt }], temperature: 0.2, max_tokens: 800 })
-    });
-    if (!res.ok) {
-      var errBody = await res.json().catch(function(){ return {}; });
-      if (res.status === 429) {
-        var secs = 30;
-        st.textContent = 'Rate limited — retrying in ' + secs + 's…';
-        var ivl = setInterval(function(){
-          secs--;
-          st.textContent = 'Rate limited — retrying in ' + secs + 's…';
-          if (secs <= 0) { clearInterval(ivl); sqPracSubmit(); }
-        }, 1000);
-        return;
-      }
-      throw new Error((errBody.error && errBody.error.message) || 'HTTP ' + res.status);
-    }
-    var data = await res.json();
+    var data = await callAI({ messages: [{ role: 'user', content: prompt }], temperature: 0.2, max_tokens: 800 });
+    if (data.error) throw new Error(data.error.message || 'AI error');
     var raw = ((data.choices || [])[0] || {}).message ? data.choices[0].message.content.trim() : '';
     if (!raw) throw new Error('Empty response.');
     raw = raw.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '').trim();
@@ -7044,7 +6896,6 @@ async function blurtoExtractFiles(files) {
   blurtoSimplified = false;
   var sBtn = document.getElementById('blurto-simplify-btn');
   if (sBtn) { sBtn.disabled = false; sBtn.textContent = '✨ Simplify'; sBtn.title = 'AI strips notes to key points'; }
-  var key = getAIKey();
   var combined = '', fileNames = [];
   for (var i = 0; i < files.length; i++) {
     var file = files[i];
@@ -7053,7 +6904,7 @@ async function blurtoExtractFiles(files) {
     if (!(await checkFileMagic(file, ext))) { st.textContent = 'Skipping ' + file.name + ' — format mismatch'; continue; }
     var bProg = (function(ii, total) { return function(msg) { st.textContent = '(' + (ii + 1) + '/' + total + ') ' + msg; }; })(i, files.length);
     try {
-      var text = ext === 'pdf' ? await extractPdf(file, key, bProg) : await extractPptx(file, key, bProg);
+      var text = ext === 'pdf' ? await extractPdf(file, bProg) : await extractPptx(file, bProg);
       if (text.length > 80000) text = text.slice(0, 80000) + '\n[…truncated]';
       combined += (combined ? '\n\n' : '') + '=== ' + file.name + ' ===\n' + text;
       fileNames.push(file.name);
@@ -7070,7 +6921,7 @@ async function blurtoExtractFiles(files) {
   if (topicEl && topicEl.value.trim()) {
     notesCacheSet(topicEl.value.trim(), combined, combinedName);
   } else if (topicEl && !topicEl.value.trim()) {
-    suggestTopicName(combined.slice(0, 5000), key).then(function(suggested) {
+    suggestTopicName(combined.slice(0, 5000)).then(function(suggested) {
       if (suggested && !topicEl.value.trim()) {
         topicEl.value = suggested;
         notesCacheSet(suggested, combined, combinedName);
@@ -7093,10 +6944,9 @@ async function blurtoExtractFile(file) {
   var ext = name.split('.').pop();
   if (ext !== 'pdf' && ext !== 'pptx') { st.textContent = 'Only PDF or PPTX supported.'; return; }
   if (!(await checkFileMagic(file, ext))) { st.textContent = 'File content does not match .' + ext + ' format — please check the file.'; return; }
-  var key = getAIKey();
   function bProg(msg){ st.textContent = msg; }
   try {
-    var text = ext === 'pdf' ? await extractPdf(file, key, bProg) : await extractPptx(file, key, bProg);
+    var text = ext === 'pdf' ? await extractPdf(file, bProg) : await extractPptx(file, bProg);
     if (text.length > 80000) text = text.slice(0, 80000) + '\n[…truncated]';
     document.getElementById('blurto-notes-area').innerText = text;
     if (orgLastTopicId) {
@@ -7110,7 +6960,7 @@ async function blurtoExtractFile(file) {
       notesCacheSet(topicEl.value.trim(), rawText, rawFileName);
     }
     if (topicEl && !topicEl.value.trim()) {
-      suggestTopicName(rawText, key).then(function(suggested) {
+      suggestTopicName(rawText).then(function(suggested) {
         if (suggested && !topicEl.value.trim()) {
           topicEl.value = suggested;
           notesCacheSet(suggested, rawText, rawFileName);
@@ -7129,8 +6979,6 @@ async function blurtoSimplify() {
   if (blurtoSimplified) return;
   var notes = document.getElementById('blurto-notes-area').innerText.trim();
   if (!notes) { document.getElementById('blurto-extract-status').textContent = 'Add notes first.'; return; }
-  var key = getAIKey();
-  if (!key) { document.getElementById('blurto-extract-status').textContent = 'Set your AI key first.'; return; }
   var btn = document.getElementById('blurto-simplify-btn');
   btn.disabled = true; btn.textContent = 'Simplifying…';
   var st = document.getElementById('blurto-extract-status');
@@ -7211,18 +7059,12 @@ async function blurtoSimplify() {
       if (chunks.length > 1) st.textContent = 'Simplifying part ' + (ci + 1) + ' of ' + chunks.length + '…';
       var sysPrompt = ci === 0 ? basePrompt
         : basePrompt + '\n\nCONTINUATION — part ' + (ci + 1) + ' of ' + chunks.length + ': do NOT output the H1 title. Begin directly with <h2> headings for this section\'s content.';
-      var r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-        body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
-          messages: [{ role: 'system', content: sysPrompt }, { role: 'user', content: chunks[ci] }],
-          temperature: 0.2,
-          max_tokens: 8000
-        })
+      var d = await callAI({
+        messages: [{ role: 'system', content: sysPrompt }, { role: 'user', content: chunks[ci] }],
+        temperature: 0.2,
+        max_tokens: 8000
       });
-      if (!r.ok) { var eb = await r.json(); throw new Error((eb.error && eb.error.message) || ('HTTP ' + r.status)); }
-      var d = await r.json();
+      if (d.error) throw new Error(d.error.message || 'AI error');
       var out = d.choices && d.choices[0] && d.choices[0].message.content;
       if (!out) throw new Error('No response from AI on part ' + (ci + 1));
       htmlParts.push(out.replace(/```html|```/g, '').trim());
@@ -7416,24 +7258,16 @@ function blurtoGrade() {
   var notes = document.getElementById('blurto-notes-area').innerText.trim();
   var blurt = document.getElementById('blurto-write-area').innerText.trim();
   if (!notes || !blurt) { document.getElementById('blurto-grade-status').textContent = 'Need notes and a blurt first.'; return; }
-  var key = getAIKey();
-  if (!key) { document.getElementById('blurto-grade-status').textContent = 'Set your AI key first.'; return; }
   var btn = document.getElementById('blurto-grade-btn');
   btn.disabled = true; btn.textContent = 'Grading…';
   document.getElementById('blurto-grade-status').textContent = 'AI is comparing your blurt…';
-  // Truncate to avoid rate-limit failures on large unsimplified notes
   var notesForGrade = notes.length > 18000 ? notes.slice(0, 18000) + '\n[…truncated]' : notes;
   var blurtForGrade = blurt.length > 8000  ? blurt.slice(0, 8000)   + '\n[…truncated]' : blurt;
   var prompt = 'You are a study coach grading a "blurting" exercise.\n\nOriginal notes:\n' + notesForGrade + '\n\nStudent\'s blurt (written from memory):\n' + blurtForGrade + '\n\nCompare the blurt to the notes. Identify key points in the notes. For each, decide if the student covered it (covered), partially covered it (partial), or missed it (missed).\n\nRespond ONLY with valid JSON, no markdown:\n{\n  "score": 72,\n  "covered": ["key point text"],\n  "partial": ["key point text"],\n  "missed": ["key point text"],\n  "comment": "One encouraging sentence of feedback."\n}';
-  fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-    body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.3, max_tokens: 1200
-    })
-  }).then(function(r) { return r.json(); }).then(function(d) {
+  callAI({
+    messages: [{ role: 'user', content: prompt }],
+    temperature: 0.3, max_tokens: 1200
+  }).then(function(d) {
     var raw = d.choices && d.choices[0] && d.choices[0].message.content;
     if (!raw) throw new Error('No content');
     var j = JSON.parse(raw.replace(/```json|```/g,'').trim());
