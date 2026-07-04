@@ -3443,6 +3443,7 @@ function showQ() {
   var navNext = document.getElementById('qnav-next');
   if (navPrev) navPrev.disabled = (qzIdx === 0);
   if (navNext) navNext.disabled = !prior;
+  document.getElementById('qcard').scrollIntoView({behavior:'smooth', block:'center'});
 }
 
 function answerQ(idx) {
