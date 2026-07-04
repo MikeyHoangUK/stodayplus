@@ -328,11 +328,11 @@
     @keyframes fsBtnShake{0%,100%{transform:translate(0,0) rotate(0)}20%{transform:translate(-3px,-1px) rotate(-3deg)}40%{transform:translate(3px,1px) rotate(3deg)}60%{transform:translate(-2px,0) rotate(-2deg)}80%{transform:translate(1px,-1px) rotate(1deg)}}
     .fs-btn.shake{animation:fsBtnShake .48s ease}
     .quiz-topbar-mid{display:flex;align-items:center;gap:14px}
-    .quiz-card{background:rgba(250,243,224,.8);border:1px solid rgba(168,85,247,.14);border-radius:22px;padding:36px;margin-bottom:20px;transition:border-color .3s,box-shadow .3s}
+    .quiz-card{background:rgba(250,243,224,.8);border:1px solid rgba(168,85,247,.14);border-radius:22px;padding:36px;margin-bottom:20px;transition:border-color .3s,box-shadow .3s;text-align:center}
     .quiz-card.c-flash{border-color:rgba(99,102,241,.6);box-shadow:0 0 36px rgba(99,102,241,.16)}
     .quiz-card.w-flash{border-color:rgba(248,113,113,.5);box-shadow:0 0 36px rgba(248,113,113,.14)}
-    .quiz-stem{font-size:1.05rem;font-weight:700;color:#1c1208;line-height:1.75;margin-bottom:26px}
-    .quiz-opts{display:grid;gap:10px}
+    .quiz-stem{font-size:1.05rem;font-weight:700;color:#1c1208;line-height:1.75;margin-bottom:26px;text-align:center}
+    .quiz-opts{display:grid;gap:10px;text-align:left}
     .qopt{display:flex;align-items:center;gap:13px;background:rgba(255,255,255,.62);border:1px solid rgba(109,40,217,.14);border-radius:13px;padding:13px 16px;cursor:pointer;transition:all .2s}
     .qopt:hover:not(.locked){background:rgba(109,40,217,.07);border-color:rgba(109,40,217,.28)}
     .qopt.locked{cursor:default}
@@ -1931,7 +1931,7 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
                 <div class="hint-txt" id="hint-txt"></div>
               </div>
             </div>
-            <div style="margin-top:6px">
+            <div style="margin-top:6px;text-align:center">
               <button class="next-btn" id="next-btn" onclick="nextQ()">Next →</button>
             </div>
           </div>
