@@ -10,6 +10,66 @@ const cors = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
+type ContentPart =
+  | { type: 'text'; text: string }
+  | { type: 'image_url'; image_url: { url: string } }
+
+type Message = {
+  role: string
+  content: string | ContentPart[]
+}
+
+// Convert OpenAI messages → Gemini native format
+function toGeminiRequest(messages: Message[], temperature?: number, max_tokens?: number) {
+  const systemParts: string[] = []
+  const contents: unknown[] = []
+
+  for (const m of messages) {
+    if (m.role === 'system') {
+      systemParts.push(typeof m.content === 'string' ? m.content : '')
+      continue
+    }
+    const role = m.role === 'assistant' ? 'model' : 'user'
+    const parts: unknown[] = typeof m.content === 'string'
+      ? [{ text: m.content }]
+      : (m.content as ContentPart[]).map(c => {
+          if (c.type === 'text') return { text: c.text }
+          if (c.type === 'image_url') {
+            const url = c.image_url.url
+            if (url.startsWith('data:')) {
+              const [header, data] = url.split(',')
+              const mimeType = header.split(':')[1].split(';')[0]
+              return { inlineData: { mimeType, data } }
+            }
+            return { fileData: { fileUri: url } }
+          }
+          return { text: '' }
+        })
+    contents.push({ role, parts })
+  }
+
+  const req: Record<string, unknown> = {
+    contents,
+    generationConfig: {
+      temperature: temperature ?? 0.7,
+      maxOutputTokens: max_tokens ?? 2048,
+    },
+  }
+  if (systemParts.length > 0) {
+    req.systemInstruction = { parts: [{ text: systemParts.join('\n') }] }
+  }
+  return req
+}
+
+// Convert Gemini response → OpenAI format
+function toOpenAIResponse(data: Record<string, unknown>) {
+  const candidates = data?.candidates as Array<{ content?: { parts?: Array<{ text?: string }> } }> | undefined
+  const text = candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+  return {
+    choices: [{ message: { role: 'assistant', content: text }, finish_reason: 'stop', index: 0 }],
+  }
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: cors })
@@ -36,40 +96,38 @@ Deno.serve(async (req: Request) => {
 
   if (!GEMINI_API_KEY) {
     return new Response(
-      JSON.stringify({ error: { message: 'GEMINI_API_KEY secret is not set in Supabase.' } }),
+      JSON.stringify({ error: { message: 'GEMINI_API_KEY secret is not set.' } }),
       { status: 500, headers: { ...cors, 'Content-Type': 'application/json' } }
     )
   }
 
   try {
     const payload = await req.json()
-    payload.model = 'gemini-2.0-flash'
+    const geminiBody = toGeminiRequest(payload.messages, payload.temperature, payload.max_tokens)
 
     const resp = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + GEMINI_API_KEY,
-        },
-        body: JSON.stringify(payload),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(geminiBody),
       }
     )
 
     const rawText = await resp.text()
-    let data: unknown
+    let data: Record<string, unknown>
     try { data = JSON.parse(rawText) } catch { data = { error: { message: rawText } } }
 
     if (!resp.ok) {
-      const errMsg = (data as { error?: { message?: string } })?.error?.message || `Gemini error ${resp.status}: ${rawText.slice(0, 200)}`
+      const errMsg = (data?.error as { message?: string })?.message
+        || `Gemini error ${resp.status}: ${rawText.slice(0, 300)}`
       return new Response(
         JSON.stringify({ error: { message: errMsg } }),
         { status: resp.status, headers: { ...cors, 'Content-Type': 'application/json' } }
       )
     }
 
-    return new Response(JSON.stringify(data), {
+    return new Response(JSON.stringify(toOpenAIResponse(data)), {
       status: 200,
       headers: { ...cors, 'Content-Type': 'application/json' },
     })
