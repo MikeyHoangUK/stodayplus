@@ -34,6 +34,13 @@ Deno.serve(async (req: Request) => {
     )
   }
 
+  if (!GEMINI_API_KEY) {
+    return new Response(
+      JSON.stringify({ error: { message: 'GEMINI_API_KEY secret is not set in Supabase.' } }),
+      { status: 500, headers: { ...cors, 'Content-Type': 'application/json' } }
+    )
+  }
+
   try {
     const payload = await req.json()
     payload.model = 'gemini-2.0-flash'
@@ -50,9 +57,20 @@ Deno.serve(async (req: Request) => {
       }
     )
 
-    const data = await resp.json()
+    const rawText = await resp.text()
+    let data: unknown
+    try { data = JSON.parse(rawText) } catch { data = { error: { message: rawText } } }
+
+    if (!resp.ok) {
+      const errMsg = (data as { error?: { message?: string } })?.error?.message || `Gemini error ${resp.status}: ${rawText.slice(0, 200)}`
+      return new Response(
+        JSON.stringify({ error: { message: errMsg } }),
+        { status: resp.status, headers: { ...cors, 'Content-Type': 'application/json' } }
+      )
+    }
+
     return new Response(JSON.stringify(data), {
-      status: resp.status,
+      status: 200,
       headers: { ...cors, 'Content-Type': 'application/json' },
     })
   } catch (err: unknown) {

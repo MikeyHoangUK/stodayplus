@@ -6146,7 +6146,7 @@ async function sqProcessFiles(files) {
     }
     populateSubjectDatalist();
     var firstText = sqLoadedFiles[0].text, firstName = sqLoadedFiles[0].name;
-    suggestTopicName(firstText, sqKey).then(function(suggested){
+    suggestTopicName(firstText).then(function(suggested){
       if (suggested && !document.getElementById('sq-folder-new').value.trim()) {
         document.getElementById('sq-folder-new').value = suggested;
         var existSubj = getSubjectForFolder(suggested);
