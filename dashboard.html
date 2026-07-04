@@ -4924,17 +4924,38 @@ function aiCountdown(secs, onDone, attempt, isFinal) {
   var remaining = secs;
   function label() {
     return isFinal
-      ? 'Quota reached — unlocking in ' + remaining + 's…'
+      ? 'Rate limited — retrying in ' + remaining + 's…'
       : 'Rate limited — retrying in ' + remaining + 's (attempt ' + attempt + '/3)…';
   }
-  setAIStatus(label(), isFinal ? 'serr' : 'sload');
+  setAIStatus(label(), 'sload');
   aiCountdownTimer = setInterval(function() {
     remaining--;
     if (remaining <= 0) {
       clearInterval(aiCountdownTimer); aiCountdownTimer = null;
       onDone();
     } else {
-      setAIStatus(label(), isFinal ? 'serr' : 'sload');
+      setAIStatus(label(), 'sload');
+    }
+  }, 1000);
+}
+
+var sqCountdownTimer = null;
+function sqCountdown(secs, onDone, attempt, isFinal) {
+  if (sqCountdownTimer) { clearInterval(sqCountdownTimer); sqCountdownTimer = null; }
+  var remaining = secs;
+  function label() {
+    return isFinal
+      ? 'Rate limited — retrying in ' + remaining + 's…'
+      : 'Rate limited — retrying in ' + remaining + 's (attempt ' + attempt + '/3)…';
+  }
+  sqSetStatus(label(), 'sload');
+  sqCountdownTimer = setInterval(function() {
+    remaining--;
+    if (remaining <= 0) {
+      clearInterval(sqCountdownTimer); sqCountdownTimer = null;
+      onDone();
+    } else {
+      sqSetStatus(label(), 'sload');
     }
   }, 1000);
 }
@@ -5039,7 +5060,13 @@ async function generateWithAI(isRetry, retryCount){
     document.getElementById('ai-folder-pick').style.display = 'flex';
     setAIStatus('✓ ' + qs.length + ' questions ready — confirm topic & subject below.','sok');
   } catch(e) {
-    setAIStatus('Error: ' + e.message,'serr');
+    if (e.status === 429 && retryCount < 3) {
+      pendingRetry = true;
+      var secs = parseRetryAfter(e.message, null);
+      aiCountdown(secs, function() { generateWithAI(true, retryCount + 1); }, retryCount + 1, retryCount >= 2);
+    } else {
+      setAIStatus('Error: ' + e.message,'serr');
+    }
   } finally {
     if(!pendingRetry) { aiGenerating = false; btn.disabled = false; }
   }
@@ -6211,7 +6238,13 @@ async function sqGenerateWithAI(isRetry, retryCount) {
     document.getElementById('sq-folder-pick').style.display = 'flex';
     sqSetStatus('✓ ' + qs.length + ' SAQs ready — confirm topic & subject below.', 'sok');
   } catch(e) {
-    sqSetStatus('Error: ' + e.message, 'serr');
+    if (e.status === 429 && retryCount < 3) {
+      pendingRetry = true;
+      var secs = parseRetryAfter(e.message, null);
+      sqCountdown(secs, function() { sqGenerateWithAI(true, retryCount + 1); }, retryCount + 1, retryCount >= 2);
+    } else {
+      sqSetStatus('Error: ' + e.message, 'serr');
+    }
   } finally {
     if (!pendingRetry) { sqGenerating = false; btn.disabled = false; }
   }
