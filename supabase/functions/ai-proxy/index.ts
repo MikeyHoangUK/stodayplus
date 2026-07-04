@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')!
+const GROQ_API_KEY = Deno.env.get('GROQ_API_KEY')!
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!
 
@@ -8,66 +8,6 @@ const cors = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-}
-
-type ContentPart =
-  | { type: 'text'; text: string }
-  | { type: 'image_url'; image_url: { url: string } }
-
-type Message = {
-  role: string
-  content: string | ContentPart[]
-}
-
-// Convert OpenAI messages → Gemini native format
-function toGeminiRequest(messages: Message[], temperature?: number, max_tokens?: number) {
-  const systemParts: string[] = []
-  const contents: unknown[] = []
-
-  for (const m of messages) {
-    if (m.role === 'system') {
-      systemParts.push(typeof m.content === 'string' ? m.content : '')
-      continue
-    }
-    const role = m.role === 'assistant' ? 'model' : 'user'
-    const parts: unknown[] = typeof m.content === 'string'
-      ? [{ text: m.content }]
-      : (m.content as ContentPart[]).map(c => {
-          if (c.type === 'text') return { text: c.text }
-          if (c.type === 'image_url') {
-            const url = c.image_url.url
-            if (url.startsWith('data:')) {
-              const [header, data] = url.split(',')
-              const mimeType = header.split(':')[1].split(';')[0]
-              return { inlineData: { mimeType, data } }
-            }
-            return { fileData: { fileUri: url } }
-          }
-          return { text: '' }
-        })
-    contents.push({ role, parts })
-  }
-
-  const req: Record<string, unknown> = {
-    contents,
-    generationConfig: {
-      temperature: temperature ?? 0.7,
-      maxOutputTokens: max_tokens ?? 2048,
-    },
-  }
-  if (systemParts.length > 0) {
-    req.systemInstruction = { parts: [{ text: systemParts.join('\n') }] }
-  }
-  return req
-}
-
-// Convert Gemini response → OpenAI format
-function toOpenAIResponse(data: Record<string, unknown>) {
-  const candidates = data?.candidates as Array<{ content?: { parts?: Array<{ text?: string }> } }> | undefined
-  const text = candidates?.[0]?.content?.parts?.[0]?.text ?? ''
-  return {
-    choices: [{ message: { role: 'assistant', content: text }, finish_reason: 'stop', index: 0 }],
-  }
 }
 
 Deno.serve(async (req: Request) => {
@@ -94,49 +34,40 @@ Deno.serve(async (req: Request) => {
     )
   }
 
-  if (!GEMINI_API_KEY) {
+  if (!GROQ_API_KEY) {
     return new Response(
-      JSON.stringify({ error: { message: 'GEMINI_API_KEY secret is not set.' } }),
+      JSON.stringify({ error: { message: 'GROQ_API_KEY secret is not set in Supabase.' } }),
       { status: 500, headers: { ...cors, 'Content-Type': 'application/json' } }
     )
   }
 
   try {
     const payload = await req.json()
-    const geminiBody = toGeminiRequest(payload.messages, payload.temperature, payload.max_tokens)
+    payload.model = 'llama-3.3-70b-versatile'
 
-    const resp = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(geminiBody),
-      }
-    )
+    const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + GROQ_API_KEY,
+      },
+      body: JSON.stringify(payload),
+    })
 
     const rawText = await resp.text()
-    let data: Record<string, unknown>
+    let data: unknown
     try { data = JSON.parse(rawText) } catch { data = { error: { message: rawText } } }
 
     if (!resp.ok) {
-      const errMsg = (data?.error as { message?: string })?.message
-        || `Gemini error ${resp.status}: ${rawText.slice(0, 300)}`
+      const errMsg = (data as { error?: { message?: string } })?.error?.message
+        || `Groq error ${resp.status}: ${rawText.slice(0, 300)}`
       return new Response(
         JSON.stringify({ error: { message: errMsg } }),
         { status: resp.status, headers: { ...cors, 'Content-Type': 'application/json' } }
       )
     }
 
-    const openaiResp = toOpenAIResponse(data)
-    if (!openaiResp.choices[0].message.content) {
-      const feedback = (data as { promptFeedback?: { blockReason?: string } })?.promptFeedback
-      const reason = feedback?.blockReason || 'empty response from model'
-      return new Response(
-        JSON.stringify({ error: { message: `Gemini returned no content: ${reason}` } }),
-        { status: 500, headers: { ...cors, 'Content-Type': 'application/json' } }
-      )
-    }
-    return new Response(JSON.stringify(openaiResp), {
+    return new Response(JSON.stringify(data), {
       status: 200,
       headers: { ...cors, 'Content-Type': 'application/json' },
     })
