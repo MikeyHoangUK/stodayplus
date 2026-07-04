@@ -5022,8 +5022,9 @@ async function generateWithAI(isRetry, retryCount){
     if (data.error) throw new Error(data.error.message || 'AI error');
     var raw = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || '').trim();
     if(!raw) throw new Error('Empty response from model.');
-    raw = raw.replace(/^```(?:json)?\n?/,'').replace(/\n?```$/,'').trim();
-    var qs = JSON.parse(raw);
+    var jsonMatch = raw.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) throw new Error('Model did not return JSON. Got: ' + raw.slice(0, 120));
+    var qs = JSON.parse(jsonMatch[0]);
     if(!Array.isArray(qs) || !qs.length) throw new Error('No questions returned.');
     // Strip any A/B/C/D/E prefixes the model added despite instructions
     qs.forEach(function(q) {
@@ -6201,8 +6202,9 @@ async function sqGenerateWithAI(isRetry, retryCount) {
     if (data.error) throw new Error(data.error.message || 'AI error');
     var raw = ((data.choices || [])[0] || {}).message ? data.choices[0].message.content.trim() : '';
     if (!raw) throw new Error('Empty response from model.');
-    raw = raw.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '').trim();
-    var qs = JSON.parse(raw);
+    var jsonMatch = raw.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) throw new Error('Model did not return JSON. Got: ' + raw.slice(0, 120));
+    var qs = JSON.parse(jsonMatch[0]);
     if (!Array.isArray(qs) || !qs.length) throw new Error('No SAQs returned.');
     sqPendingQs = qs;
     populateSubjectDatalist();
@@ -6474,8 +6476,9 @@ async function sqPracSubmit() {
     if (data.error) throw new Error(data.error.message || 'AI error');
     var raw = ((data.choices || [])[0] || {}).message ? data.choices[0].message.content.trim() : '';
     if (!raw) throw new Error('Empty response.');
-    raw = raw.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '').trim();
-    var result = JSON.parse(raw);
+    var jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('Model did not return JSON.');
+    var result = JSON.parse(jsonMatch[0]);
     st.style.display = 'none';
     document.getElementById('sq-prac-answer-area').style.display = 'none';
     sqShowMarkResult(result, q.modelAnswer);

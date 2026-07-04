@@ -127,7 +127,16 @@ Deno.serve(async (req: Request) => {
       )
     }
 
-    return new Response(JSON.stringify(toOpenAIResponse(data)), {
+    const openaiResp = toOpenAIResponse(data)
+    if (!openaiResp.choices[0].message.content) {
+      const feedback = (data as { promptFeedback?: { blockReason?: string } })?.promptFeedback
+      const reason = feedback?.blockReason || 'empty response from model'
+      return new Response(
+        JSON.stringify({ error: { message: `Gemini returned no content: ${reason}` } }),
+        { status: 500, headers: { ...cors, 'Content-Type': 'application/json' } }
+      )
+    }
+    return new Response(JSON.stringify(openaiResp), {
       status: 200,
       headers: { ...cors, 'Content-Type': 'application/json' },
     })
