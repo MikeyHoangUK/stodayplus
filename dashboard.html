@@ -5083,7 +5083,11 @@ async function generateWithAI(isRetry, retryCount){
     + '2. Exactly one option is correct; all others must be plausible distractors — no obviously wrong answers\n'
     + '3. Label the correct option by its 0-based index (0=first, 1=second, 2=third, 3=fourth, 4=fifth)\n'
     + '4. ALL questions must match the requested difficulty — wrong difficulty = invalid\n'
-    + '5. Every question in the batch must test a DIFFERENT niche or sub-concept — no concept overlap within the batch\n'
+    + '5. MANDATORY TOPIC SPREAD — scan ALL content in the notes first, then pick a DIFFERENT top-level concept for each question:\n'
+    + '   • No drug class, mechanism, condition, or sub-topic may appear in more than ONE question per batch\n'
+    + '   • Example: if the notes cover ACE inhibitors, ARBs, CCBs, beta-blockers, diuretics, BP definitions, risk factors, and lifestyle advice — a 5-question batch must pick 5 DIFFERENT categories from that list\n'
+    + '   • Actively seek UNDER-REPRESENTED topics: definitions, epidemiology, risk factors, pathophysiology, non-pharmacological management, monitoring parameters, guideline targets, adverse effects\n'
+    + '   • If you catch yourself choosing the same drug class or mechanism twice, STOP and pick a different concept instead\n'
     + '6. Hint field: explain WHY the correct answer is right (the underlying mechanism/reason) WITHOUT naming the correct option. If the notes contain slide/page markers, append the source reference e.g. "📌 Slide 4"\n'
     + '7. Options format: plain answer text only — do NOT prefix with A / B / C / D / E. The app adds labels automatically.\n'
     + '8. Respond with ONLY a valid JSON array. No markdown, no code fences, no explanation.\n\n'
@@ -5092,11 +5096,12 @@ async function generateWithAI(isRetry, retryCount){
   var userPrompt = 'Generate ' + n + ' MCQs from the notes below.\n'
     + 'Question type: ' + typeDesc + '\n'
     + 'Difficulty: ' + diffDesc + '\n\n'
+    + 'IMPORTANT: Before writing any question, mentally list every distinct concept area in the notes, then choose one UNIQUE concept per question. Do not cluster around the most text-heavy section.\n\n'
     + 'Notes:\n' + topic;
   try {
     var data = await callAI({
       messages: [{role:'system', content: sysPrompt}, {role:'user', content: userPrompt}],
-      temperature: 0.7,
+      temperature: 0.85,
       max_tokens: 4000
     });
     if (data.error) throw new Error(data.error.message || 'AI error');
