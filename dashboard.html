@@ -4713,8 +4713,8 @@ async function processAIFiles(files){
           loadingMsg.textContent = 'Condensing ' + file.name + '…';
           text = await condenseForAI(text, mkProg(file.name));
           anyCondensed = true;
-        } catch(e) { text = text.slice(0, 8000); }
-      } else if (text.length > 8000) { text = text.slice(0, 8000); }
+        } catch(e) { text = text.slice(0, 30000); }
+      }
       aiLoadedFiles.push({ name: file.name, text: text });
     } catch(err) {
       errors.push(file.name + ': ' + err.message);
@@ -4985,23 +4985,29 @@ function sqCountdown(secs, onDone, attempt, isFinal) {
 // ── Shared condenser ─────────────────────────────────────────────
 // Budget: 4,000 tokens input + 800 tokens output = 4,800 tokens per call.
 // Generation call uses condensed output (~800 tokens) + 3,000 max = 4,300 tokens.
-// Worst-case same minute: 9,100 tokens — safely under Groq free 12,000 TPM.
 var CONDENSE_CHARS = 10000; // auto-condense during extraction above this
+var CONDENSE_CHUNK = 30000; // chars per condensation pass — fits comfortably in Llama 3.3 70B context
 async function condenseForAI(text, onProgress) {
-  var input = text.length > 16000 ? text.slice(0, 16000) : text;
-  if (onProgress) onProgress('Extracting key facts…');
-  var d = await callAI({
-    messages: [{ role: 'user', content:
-      'You are a study notes compressor for university exam preparation.\n\n'
-      + 'Extract EVERY distinct examinable fact from the notes below as a numbered list.\n'
-      + 'Include: definitions, key concepts, mechanisms, processes, names, dates, causes, effects, examples, relationships, and specific numbers.\n'
-      + 'Rules:\n- One fact per line\n- Max 15 words per line\n- Preserve specific terms, figures, and technical vocabulary exactly\n- Do NOT omit any distinct, testable point\n- Max 80 items total\n- IMPORTANT: if the source text contains slide or page markers (e.g. "Slide 3:" or "Page 2:"), prefix each extracted fact with [Slide N] or [Page N] to indicate its source\n\nNotes:\n' + input
-    }],
-    temperature: 0.1, max_tokens: 800
-  });
-  var condensed = ((d.choices || [])[0] || {}).message ? d.choices[0].message.content.trim() : '';
-  if (!condensed) throw new Error('Condense returned empty.');
-  return condensed;
+  // Split into chunks so long PDFs don't get their later pages silently dropped
+  var chunks = [];
+  for (var i = 0; i < text.length; i += CONDENSE_CHUNK) chunks.push(text.slice(i, i + CONDENSE_CHUNK));
+  var allParts = [];
+  for (var ci = 0; ci < chunks.length; ci++) {
+    if (onProgress) onProgress('Extracting key facts' + (chunks.length > 1 ? ' (part ' + (ci+1) + '/' + chunks.length + ')' : '') + '…');
+    var d = await callAI({
+      messages: [{ role: 'user', content:
+        'You are a study notes compressor for university exam preparation.\n\n'
+        + 'Extract EVERY distinct examinable fact from the notes below as a numbered list.\n'
+        + 'Include: definitions, key concepts, mechanisms, processes, names, dates, causes, effects, examples, relationships, and specific numbers.\n'
+        + 'Rules:\n- One fact per line\n- Max 15 words per line\n- Preserve specific terms, figures, and technical vocabulary exactly\n- Do NOT omit any distinct, testable point\n- No item limit — capture everything examinable\n- IMPORTANT: if the source text contains slide or page markers (e.g. "Slide 3:" or "Page 2:"), prefix each extracted fact with [Slide N] or [Page N] to indicate its source\n\nNotes:\n' + chunks[ci]
+      }],
+      temperature: 0.1, max_tokens: 2000
+    });
+    var out = ((d.choices || [])[0] || {}).message ? d.choices[0].message.content.trim() : '';
+    if (out) allParts.push(out);
+  }
+  if (!allParts.length) throw new Error('Condense returned empty.');
+  return allParts.join('\n');
 }
 
 function aiTopicInput() {
@@ -6184,8 +6190,8 @@ async function sqProcessFiles(files) {
           loadingMsg.textContent = 'Condensing ' + file.name + '…';
           text = await condenseForAI(text, mkSqProg(file.name));
           anyCondensed = true;
-        } catch(e) { text = text.slice(0, 8000); }
-      } else if (text.length > 8000) { text = text.slice(0, 8000); }
+        } catch(e) { text = text.slice(0, 30000); }
+      }
       sqLoadedFiles.push({ name: file.name, text: text });
     } catch(err) {
       errors.push(file.name + ': ' + err.message);
