@@ -4826,7 +4826,29 @@ async function extractPdf(file, onProgress) {
     if(onProgress) onProgress('Reading page ' + i + ' of ' + total + '…');
     var page = await pdf.getPage(i);
     var content = await page.getTextContent();
-    var text = content.items.map(function(it){ return it.str; }).join(' ').replace(/\s+/g,' ').trim();
+    // Sort items top→bottom, left→right using their transform coordinates.
+    // pdf.js returns items in PDF storage order which is not reading order.
+    var items = content.items.filter(function(it){ return it.str && it.str.trim(); });
+    items.sort(function(a, b){
+      var dy = b.transform[5] - a.transform[5]; // y descending (top of page = high y in PDF coords)
+      if (Math.abs(dy) > 5) return dy;
+      return a.transform[4] - b.transform[4];   // x ascending within same line
+    });
+    // Group into lines: items within 5 units of y are on the same line
+    var lines = [], curLine = [], curY = null;
+    items.forEach(function(it){
+      var y = it.transform[5];
+      if (curY === null || Math.abs(y - curY) > 5) {
+        if (curLine.length) lines.push(curLine);
+        curLine = [it]; curY = y;
+      } else {
+        curLine.push(it);
+      }
+    });
+    if (curLine.length) lines.push(curLine);
+    var text = lines.map(function(line){
+      return line.map(function(it){ return it.str; }).join(' ').replace(/\s+/g,' ').trim();
+    }).filter(Boolean).join('\n').replace(/\n{3,}/g,'\n\n').trim();
     if(text.length < VISION_THRESHOLD){
       if(onProgress) onProgress('Page ' + i + ': image-based — reading with AI…');
       try{
@@ -4838,7 +4860,7 @@ async function extractPdf(file, onProgress) {
         await page.render({canvasContext:canvas.getContext('2d'),viewport:svp}).promise;
         text = await groqVisionSlide(canvas.toDataURL('image/jpeg',0.8));
         vCount++;
-      } catch(e){ text = '[image slide — could not read]'; }
+      } catch(e){ text = '[image page — could not read]'; }
     }
     if(text.trim()) parts.push('Page ' + i + ':\n' + text);
   }
