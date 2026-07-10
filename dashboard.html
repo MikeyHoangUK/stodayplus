@@ -280,10 +280,16 @@
     .paste-qstem:focus{color:#1c1208}
     .paste-skip-btn{font-size:.58rem;font-weight:800;color:#9a8070;background:none;border:1px solid rgba(0,0,0,.1);border-radius:6px;padding:3px 8px;cursor:pointer;transition:all .15s;flex-shrink:0}
     .paste-skip-btn.is-skipped{border-color:rgba(109,40,217,.25);color:#7c3aed}
-    .paste-qopts{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-    .paste-qopt{padding:6px 11px;border-radius:8px;font-size:.73rem;font-weight:600;color:#4a3820;background:rgba(255,255,255,.55);border:1px solid rgba(168,85,247,.1);cursor:pointer;transition:all .15s;text-align:left;font-family:'Raleway',sans-serif;line-height:1.4}
-    .paste-qopt.pqo-correct{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.4);color:#15803d;font-weight:800}
-    .paste-qopt:not(.pqo-correct):hover{background:rgba(109,40,217,.06);border-color:rgba(109,40,217,.2)}
+    .paste-qopts-list{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+    .paste-qopt-row{display:flex;align-items:center;gap:9px;padding:7px 11px;border-radius:9px;border:1px solid rgba(168,85,247,.12);background:rgba(255,255,255,.55);cursor:pointer;transition:all .15s}
+    .paste-qopt-row.pqo-correct{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.4)}
+    .paste-qopt-row:hover:not(.pqo-correct){background:rgba(109,40,217,.04);border-color:rgba(109,40,217,.2)}
+    .paste-qopt-radio{width:13px;height:13px;border-radius:50%;border:2px solid rgba(109,40,217,.25);flex-shrink:0;transition:all .15s}
+    .paste-qopt-row.pqo-correct .paste-qopt-radio{background:#16a34a;border-color:#16a34a}
+    .paste-qopt-txt{flex:1;border:none;background:transparent;font-family:'Raleway',sans-serif;font-size:.73rem;font-weight:600;color:#4a3820;outline:none;min-width:0}
+    .paste-qopt-row.pqo-correct .paste-qopt-txt{color:#15803d;font-weight:800}
+    .paste-hint-inp{width:100%;box-sizing:border-box;border:none;border-top:1px dashed rgba(168,85,247,.15);background:transparent;font-family:'Raleway',sans-serif;font-size:.7rem;color:#8a6e54;outline:none;padding:8px 0 2px;margin-top:8px;display:block}
+    .paste-hint-inp::placeholder{color:#c4aa94;font-style:italic}
     .paste-warn-label{font-size:.63rem;font-weight:800;color:#b45309;background:rgba(251,191,36,.1);border:1px solid rgba(202,138,4,.22);border-radius:6px;padding:3px 9px;display:inline-block;margin-top:8px}
     .paste-done{text-align:center;padding:64px 20px}
     .paste-done-icon{font-size:2.4rem;margin-bottom:14px}
@@ -296,8 +302,11 @@
     body.hc .paste-folder-inp,body.hc .paste-diff-sel{background:#0d0b1e!important;color:#e8dcc8!important;border-color:rgba(168,85,247,.35)!important}
     body.hc .paste-qcard{background:#0f0d22!important;border-color:rgba(168,85,247,.3)!important}
     body.hc .paste-qstem{color:#e8dcc8!important}
-    body.hc .paste-qopt{background:rgba(255,255,255,.05)!important;color:#c8b89a!important}
-    body.hc .paste-qopt.pqo-correct{background:rgba(34,197,94,.12)!important;color:#4ade80!important}
+    body.hc .paste-qopt-row{background:rgba(255,255,255,.04)!important;border-color:rgba(168,85,247,.2)!important}
+    body.hc .paste-qopt-row.pqo-correct{background:rgba(34,197,94,.1)!important;border-color:rgba(34,197,94,.35)!important}
+    body.hc .paste-qopt-txt{color:#c8b89a!important}
+    body.hc .paste-qopt-row.pqo-correct .paste-qopt-txt{color:#4ade80!important}
+    body.hc .paste-hint-inp{color:#9a8570!important;border-color:rgba(168,85,247,.2)!important}
     .bank-empty h3{font-size:1rem;font-weight:800;color:#5a4230;margin-bottom:6px}
     .bank-empty p{font-size:.8rem}
 
@@ -1765,13 +1774,14 @@
                 <div class="paste-title">Paste &amp; Import</div>
                 <div class="paste-sub">Paste MCQs from ChatGPT, Claude, or any AI — we'll parse them automatically. Click the correct answer on any question the parser couldn't detect.</div>
               </div>
-              <textarea id="paste-input" class="paste-ta" placeholder="Paste your questions here. Example:
+              <textarea id="paste-input" class="paste-ta" placeholder="Paste questions from ChatGPT, Claude, or any source. Supported formats:
 
 1. What is the powerhouse of the cell?
 A) Nucleus
 B) Mitochondria
 C) Ribosome
 D) Golgi apparatus
+E) Lysosome
 Answer: B
 
 2. Which gas do plants absorb during photosynthesis?
@@ -3937,6 +3947,7 @@ function pasteOnInput() {
   var text = (document.getElementById('paste-input') || {}).value || '';
   var res = parsePastedMCQs(text);
   var count = res.questions.length;
+  var needsReview = res.questions.filter(function(q) { return q.needsAnswer; }).length;
   var msg = document.getElementById('paste-detect-msg');
   var btn = document.getElementById('paste-preview-btn');
   if (!text.trim()) {
@@ -3944,11 +3955,13 @@ function pasteOnInput() {
     msg.className = 'paste-detect-msg';
     btn.disabled = true;
   } else if (count === 0) {
-    msg.textContent = 'No MCQs detected — check the format';
+    msg.textContent = 'No questions detected — check the format below';
     msg.className = 'paste-detect-msg no-q';
     btn.disabled = true;
   } else {
-    msg.textContent = count + ' question' + (count !== 1 ? 's' : '') + ' detected';
+    var detail = count + ' question' + (count !== 1 ? 's' : '') + ' detected';
+    if (needsReview) detail += ' · ' + needsReview + ' need' + (needsReview !== 1 ? '' : 's') + ' answer selected';
+    msg.textContent = detail;
     msg.className = 'paste-detect-msg has-q';
     btn.disabled = false;
   }
@@ -3956,53 +3969,95 @@ function pasteOnInput() {
 }
 
 function parsePastedMCQs(text) {
-  text = text.replace(/\*\*(.*?)\*\*/g, '$1').replace(/__(.*?)__/g, '$1');
-  var blocks = text.split(/\n[ \t]*\n+/);
+  // Strip markdown bold/italic
+  text = text.replace(/\*\*(.*?)\*\*/g, '$1').replace(/__(.*?)__/g, '$1').replace(/_(.*?)_/g, '$1');
   var questions = [];
+
+  // Primary: split on blank lines
+  var blocks = text.split(/\n[ \t]*\n+/).map(function(b){ return b.trim(); }).filter(Boolean);
   blocks.forEach(function(b) {
-    b = b.trim();
-    if (b) { var q = _parseOneBlock(b); if (q) questions.push(q); }
+    var q = _parseOneBlock(b);
+    if (q) { questions.push(q); return; }
+    // Secondary: block had no blank lines between questions — split on numbered starts
+    var subs = b.split(/\n(?=\d+[\.\)]\s)/).map(function(s){ return s.trim(); }).filter(Boolean);
+    if (subs.length > 1) subs.forEach(function(s){ var q2 = _parseOneBlock(s); if (q2) questions.push(q2); });
   });
+
+  // Fallback: entire text as one big block split on question numbers
+  if (!questions.length) {
+    var fallback = text.split(/\n(?=\d+[\.\)]\s)/).map(function(b){ return b.trim(); }).filter(Boolean);
+    fallback.forEach(function(b){ var q = _parseOneBlock(b); if (q) questions.push(q); });
+  }
+
   return { questions: questions };
 }
 
 function _parseOneBlock(block) {
-  var lines = block.split('\n').map(function(l) { return l.trim(); }).filter(Boolean);
+  var lines = block.split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
   if (lines.length < 3) return null;
-  var optPat = /^[A-Da-d][\.\)\s\-]/;
-  var ansPat = /^(answer|correct answer|ans|the answer is)[:\s]/i;
-  var numPat = /^(\d+[\.\)]\s*|q\.?\s*\d+[:\s]*|question\s*\d+[:\s]*)/i;
+
+  var letterOptPat = /^[A-Ea-e][\.\)\s\-]/;
+  var numOptPat    = /^\d+[\.\)]\s+\S/;
+  var ansPat       = /^(answer|correct answer|ans|correct|the answer is)[:\s]/i;
+  var qNumPat      = /^(\d+[\.\)]\s*|q\.?\s*\d+[:\s]*|question\s*\d+[:\s]*)/i;
+
+  // Decide whether this block uses letter options or numbered options
+  var letterCount = 0, numCount = 0;
+  for (var i = 1; i < lines.length; i++) {
+    if (letterOptPat.test(lines[i])) letterCount++;
+    if (numOptPat.test(lines[i])) numCount++;
+  }
+  var useNumOpts = numCount >= 2 && numCount > letterCount;
+  var optPat = useNumOpts ? numOptPat : letterOptPat;
+
   var optIdx = [], ansIdx = -1;
   for (var i = 0; i < lines.length; i++) {
-    if (optPat.test(lines[i])) optIdx.push(i);
+    var isOpt = useNumOpts ? (i > 0 && numOptPat.test(lines[i])) : letterOptPat.test(lines[i]);
+    if (isOpt) optIdx.push(i);
     else if (ansPat.test(lines[i]) && ansIdx === -1) ansIdx = i;
   }
   if (optIdx.length < 2) return null;
-  var stem = lines.slice(0, optIdx[0]).join(' ').replace(numPat, '').trim();
+
+  var stem = lines.slice(0, optIdx[0]).join(' ').replace(qNumPat, '').trim();
   if (!stem || stem.length < 4) return null;
+
   var options = [], correct = -1;
   optIdx.forEach(function(idx) {
     if (ansIdx >= 0 && idx > ansIdx) return;
     var line = lines[idx];
     var isCorrect = /[\*✓]\s*$/.test(line) || /\(correct\)/i.test(line) || /\[answer\]/i.test(line);
-    var text = line.replace(/^[A-Da-d][\.\)\s\-]\s*/, '').replace(/[\*✓]\s*$/, '').replace(/\(correct\)/i, '').replace(/\[answer\]/i, '').trim();
-    if (!text) return;
+    var txt = useNumOpts
+      ? line.replace(/^\d+[\.\)]\s*/, '')
+      : line.replace(/^[A-Ea-e][\.\)\s\-]\s*/, '');
+    txt = txt.replace(/[\*✓]\s*$/, '').replace(/\(correct\)/i, '').replace(/\[answer\]/i, '').trim();
+    if (!txt) return;
     if (isCorrect) correct = options.length;
-    options.push(text);
+    options.push(txt);
   });
+
+  // Parse answer line
   if (ansIdx >= 0 && correct === -1) {
     var aLine = lines[ansIdx];
-    var m = aLine.match(/[A-Da-d]/);
-    if (m) correct = 'ABCDabcd'.indexOf(m[0]) % 4;
-    if (correct === -1) {
-      var aTxt = aLine.replace(ansPat, '').replace(/^[A-Da-d][\.\)]\s*/, '').trim().toLowerCase();
+    if (useNumOpts) {
+      var nm = aLine.match(/\b(\d+)\b/);
+      if (nm) correct = parseInt(nm[1]) - 1;
+    } else {
+      var lm = aLine.match(/[A-Ea-e]/);
+      if (lm) correct = 'ABCDEabcde'.indexOf(lm[0]) % 5;
+    }
+    // Text match fallback
+    if (correct < 0 || correct >= options.length) {
+      var aTxt = aLine.replace(ansPat, '').replace(/^[A-Ea-e\d][\.\)]\s*/, '').trim().toLowerCase();
+      correct = -1;
       for (var k = 0; k < options.length; k++) {
-        if (options[k].toLowerCase().indexOf(aTxt) !== -1 || aTxt.indexOf(options[k].toLowerCase()) !== -1) { correct = k; break; }
+        if (aTxt && (options[k].toLowerCase().indexOf(aTxt) !== -1 || aTxt.indexOf(options[k].toLowerCase()) !== -1)) { correct = k; break; }
       }
     }
   }
+
+  // Pad to minimum 4 options so bank is consistent
   while (options.length < 4) options.push('');
-  return { stem: stem, options: options.slice(0,4), correct: correct, needsAnswer: correct === -1 };
+  return { stem: stem, options: options.slice(0, 5), correct: correct, needsAnswer: correct === -1, hint: '' };
 }
 
 function pasteGoPreview() {
@@ -4016,13 +4071,16 @@ function pasteGoPreview() {
     card.className = 'paste-qcard' + (q.needsAnswer ? ' pq-warn' : '');
     card.id = 'pqcard-' + idx;
     var optsHtml = q.options.map(function(opt, oi) {
-      if (!opt) return '';
-      return '<button class="paste-qopt' + (oi === q.correct ? ' pqo-correct' : '') + '" onclick="pastePickAnswer(' + idx + ',' + oi + ')">' + esc(opt) + '</button>';
+      return '<div class="paste-qopt-row' + (oi === q.correct ? ' pqo-correct' : '') + '" id="pqoptrow-' + idx + '-' + oi + '" onclick="pastePickAnswer(' + idx + ',' + oi + ')">'
+        + '<div class="paste-qopt-radio"></div>'
+        + '<input class="paste-qopt-txt" value="' + esc(opt) + '" placeholder="Option ' + (oi+1) + '" oninput="pasteEditOption(' + idx + ',' + oi + ',this.value)" onclick="event.stopPropagation()"/>'
+        + '</div>';
     }).join('');
     card.innerHTML = '<div class="paste-qcard-top"><div class="paste-qnum">' + (idx+1) + '</div>'
       + '<textarea class="paste-qstem" rows="2" oninput="pasteEditStem(' + idx + ',this.value)">' + esc(q.stem) + '</textarea>'
       + '<button class="paste-skip-btn" id="pqskip-' + idx + '" onclick="pasteToggleSkip(' + idx + ')">Skip</button></div>'
-      + '<div class="paste-qopts">' + optsHtml + '</div>'
+      + '<div class="paste-qopts-list">' + optsHtml + '</div>'
+      + '<input class="paste-hint-inp" placeholder="Hint — explain why the correct answer is right (optional)…" value="' + esc(q.hint||'') + '" oninput="pasteEditHint(' + idx + ',this.value)"/>'
       + (q.needsAnswer ? '<div class="paste-warn-label">⚠ Click the correct answer above</div>' : '');
     list.appendChild(card);
   });
@@ -4046,7 +4104,7 @@ function pastePickAnswer(qIdx, optIdx) {
   var card = document.getElementById('pqcard-' + qIdx);
   if (!card) return;
   card.classList.remove('pq-warn');
-  card.querySelectorAll('.paste-qopt').forEach(function(btn, i) { btn.classList.toggle('pqo-correct', i === optIdx); });
+  card.querySelectorAll('.paste-qopt-row').forEach(function(row, i) { row.classList.toggle('pqo-correct', i === optIdx); });
   var warn = card.querySelector('.paste-warn-label');
   if (warn) warn.remove();
   _pasteUpdateSummary();
@@ -4054,6 +4112,14 @@ function pastePickAnswer(qIdx, optIdx) {
 
 function pasteEditStem(qIdx, val) {
   _pasteQs[qIdx].stem = val;
+}
+
+function pasteEditOption(qIdx, optIdx, val) {
+  _pasteQs[qIdx].options[optIdx] = val;
+}
+
+function pasteEditHint(qIdx, val) {
+  _pasteQs[qIdx].hint = val;
 }
 
 function pasteToggleSkip(qIdx) {
@@ -4076,7 +4142,10 @@ function pasteDoImport() {
   var pasteSubj = ((document.getElementById('paste-subj-inp') || {}).value || '').trim();
   var base = Date.now();
   toImport.forEach(function(q, i) {
-    bank.push({ id: base + i, stem: q.stem, options: q.options, correct: q.correct, difficulty: _pasteDiff, folder: _pasteFolder, hint: '' });
+    // Drop trailing empty option slots before saving
+    var opts = q.options.filter(function(o){ return o.trim(); });
+    while (opts.length < 4) opts.push('');
+    bank.push({ id: base + i, stem: q.stem, options: opts, correct: q.correct, difficulty: _pasteDiff, folder: _pasteFolder, hint: q.hint || '' });
   });
   saveFolderMeta(_pasteFolder, pasteSubj);
   ensureFolder(_pasteFolder, pasteSubj);
