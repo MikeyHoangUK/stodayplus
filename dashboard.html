@@ -4478,10 +4478,14 @@ document.addEventListener('fullscreenchange', function() {
   }
 });
 
-function logout() {
+async function logout() {
   sessionStorage.removeItem('sp_user');
   sessionStorage.removeItem('sp_role');
-  if (_spClient) { _spClient.auth.signOut(); }
+  if (_spClient) {
+    try { await _spClient.auth.signOut(); } catch(e) {}
+  }
+  // Belt-and-suspenders: wipe stored token so login.html doesn't auto-redirect back
+  try { localStorage.removeItem('sb-zdmnwykumprntbpfyour-auth-token'); } catch(e) {}
   window.location.href = 'login.html';
 }
 function toggleSidebar() {
@@ -8159,6 +8163,8 @@ var _authMode  = 'signin';
 
 (function initSupabase() {
   if (!window.supabase || !window.supabase.createClient) return;
+  // Demo users are local-only — never touch Supabase
+  if (user === 'demo@stoday.plus') { _updateSyncUI(); return; }
   _spClient = window.supabase.createClient(
     'https://zdmnwykumprntbpfyour.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkbW53eWt1bXBybnRicGZ5b3VyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDc0MjAsImV4cCI6MjA5NzM4MzQyMH0.QBZ-4KR5da4O5YoOpErC_HLmYlL953YKIB50g52HkEg'
