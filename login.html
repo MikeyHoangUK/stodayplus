@@ -7,6 +7,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" />
   <title>Log In — Stoday Plus</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -58,71 +59,50 @@
         <span class="font-extrabold text-navy-dark text-lg">Stoday <span class="text-purple-DEFAULT">Plus</span></span>
       </a>
 
-      <h1 class="text-2xl font-extrabold text-navy-dark mb-1">Welcome back</h1>
-      <p class="text-gray-500 text-sm mb-8">Log in to access your resources.</p>
+      <!-- Tab toggle -->
+      <div class="flex gap-1 mb-7 bg-gray-100 rounded-xl p-1">
+        <button id="tab-signin" onclick="setTab('signin')"
+                class="flex-1 py-2 rounded-lg text-sm font-bold transition-all bg-white shadow-sm text-navy-dark">
+          Sign in
+        </button>
+        <button id="tab-signup" onclick="setTab('signup')"
+                class="flex-1 py-2 rounded-lg text-sm font-bold transition-all text-gray-400">
+          Create account
+        </button>
+      </div>
 
       <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
-        <form class="space-y-5" onsubmit="handleLogin(event)">
+        <!-- Heading changes with tab -->
+        <h1 id="auth-heading" class="text-2xl font-extrabold text-navy-dark mb-1">Welcome back</h1>
+        <p id="auth-sub" class="text-gray-500 text-sm mb-6">Sign in to access your study space.</p>
+
+        <div class="space-y-4">
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1.5">Email address</label>
-            <input id="login-email" type="email" placeholder="you@example.com"
+            <input id="auth-email" type="email" placeholder="you@example.com" autocomplete="email"
                    class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT focus:border-transparent transition" />
           </div>
           <div>
             <div class="flex justify-between items-center mb-1.5">
               <label class="text-sm font-semibold text-gray-700">Password</label>
-              <a href="#" class="text-xs text-purple-DEFAULT hover:underline">Forgot password?</a>
+              <button id="forgot-link" type="button" onclick="handleForgot()"
+                      class="text-xs text-purple-DEFAULT hover:underline">Forgot password?</button>
             </div>
-            <input id="login-password" type="password" placeholder="Your password"
+            <input id="auth-password" type="password" placeholder="Your password"
                    class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT focus:border-transparent transition" />
           </div>
-          <p id="login-error" class="text-red-500 text-xs hidden">Incorrect email or password.</p>
-          <button type="submit"
+          <div id="confirm-wrap" style="display:none">
+            <label class="block text-sm font-semibold text-gray-700 mb-1.5">Confirm password</label>
+            <input id="auth-confirm" type="password" placeholder="Repeat password"
+                   class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT focus:border-transparent transition" />
+          </div>
+          <p id="auth-error" class="text-red-500 text-xs min-h-[16px]"></p>
+          <p id="auth-success" class="text-green-600 text-xs min-h-[16px] hidden"></p>
+          <button id="auth-submit" type="button" onclick="handleAuthSubmit()"
                   class="w-full gradient-brand text-white font-bold py-3.5 rounded-xl hover:opacity-90 transition-opacity text-sm">
-            Log in →
+            Sign in →
           </button>
-        </form>
-        <script>
-          // Owner accounts — add any admin email here
-          var OWNER_EMAILS = ['mikey@stoday.plus', 'haianhverynice@gmail.com'];
-          var OWNER_PASSWORD = '1234';
-          var DEMO_EMAIL = 'demo@stoday.plus';
-          var DEMO_PASSWORD = 'demo';
-          function tryDemo() {
-            sessionStorage.setItem('sp_user', DEMO_EMAIL);
-            sessionStorage.setItem('sp_role', 'customer');
-            window.location.href = 'dashboard.html';
-          }
-          function handleLogin(e) {
-            e.preventDefault();
-            var email = document.getElementById('login-email').value.trim().toLowerCase();
-            var pass  = document.getElementById('login-password').value;
-            if (!email || !pass) {
-              document.getElementById('login-error').classList.remove('hidden');
-              return;
-            }
-            document.getElementById('login-error').classList.add('hidden');
-            if (email === DEMO_EMAIL && pass === DEMO_PASSWORD) {
-              sessionStorage.setItem('sp_user', DEMO_EMAIL);
-              sessionStorage.setItem('sp_role', 'customer');
-              window.location.href = 'dashboard.html';
-              return;
-            }
-            if (OWNER_EMAILS.indexOf(email) !== -1) {
-              if (pass === OWNER_PASSWORD) {
-                sessionStorage.setItem('sp_user', email);
-                sessionStorage.setItem('sp_role', 'owner');
-                window.location.href = 'admin.html';
-              } else {
-                document.getElementById('login-error').classList.remove('hidden');
-              }
-            } else {
-              sessionStorage.setItem('sp_user', email);
-              sessionStorage.setItem('sp_role', 'customer');
-              window.location.href = 'dashboard.html';
-            }
-          }
-        </script>
+        </div>
       </div>
 
       <div class="mt-5">
@@ -134,16 +114,109 @@
                 class="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-xl py-3 text-sm font-bold text-gray-600 hover:bg-gray-100 transition bg-white shadow-sm">
           <span>👀</span> Try the demo
         </button>
-        <p class="text-center text-gray-400 text-xs mt-2">demo@stoday.plus · no sign-up needed</p>
+        <p class="text-center text-gray-400 text-xs mt-2">No account needed · data stays local only</p>
       </div>
 
-      <p class="text-center text-gray-500 text-sm mt-5">
-        Don't have an account?
-        <a href="join.html" class="text-purple-DEFAULT font-semibold hover:underline">Get started →</a>
-      </p>
-      <p class="text-center mt-2">
+      <p class="text-center mt-4">
         <a href="index.html" class="text-gray-400 text-xs hover:text-gray-600 transition-colors">← Back to site</a>
       </p>
+
+      <script>
+        var SUPABASE_URL  = 'https://zdmnwykumprntbpfyour.supabase.co';
+        var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkbW53eWt1bXBybnRicGZ5b3VyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDc0MjAsImV4cCI6MjA5NzM4MzQyMH0.QBZ-4KR5da4O5YoOpErC_HLmYlL953YKIB50g52HkEg';
+        var OWNER_EMAILS  = ['mikey@stoday.plus', 'haianhverynice@gmail.com'];
+        var _sb = null;
+        var _authTab = 'signin';
+
+        // Init Supabase and auto-redirect if session already exists
+        (function() {
+          if (!window.supabase) return;
+          _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+          _sb.auth.getSession().then(function(r) {
+            var session = r && r.data && r.data.session;
+            if (session && session.user) {
+              _redirectAfterLogin(session.user.email);
+            }
+          });
+        })();
+
+        function _redirectAfterLogin(email) {
+          sessionStorage.setItem('sp_user', email);
+          var role = OWNER_EMAILS.indexOf(email.toLowerCase()) !== -1 ? 'owner' : 'customer';
+          sessionStorage.setItem('sp_role', role);
+          window.location.href = role === 'owner' ? 'admin.html' : 'dashboard.html';
+        }
+
+        function setTab(t) {
+          _authTab = t;
+          var isSignup = t === 'signup';
+          document.getElementById('tab-signin').className  = 'flex-1 py-2 rounded-lg text-sm font-bold transition-all ' + (isSignup ? 'text-gray-400' : 'bg-white shadow-sm text-navy-dark');
+          document.getElementById('tab-signup').className  = 'flex-1 py-2 rounded-lg text-sm font-bold transition-all ' + (isSignup ? 'bg-white shadow-sm text-navy-dark' : 'text-gray-400');
+          document.getElementById('auth-heading').textContent = isSignup ? 'Create your account' : 'Welcome back';
+          document.getElementById('auth-sub').textContent     = isSignup ? 'Your questions sync across all your devices.' : 'Sign in to access your study space.';
+          document.getElementById('auth-submit').textContent  = isSignup ? 'Create account →' : 'Sign in →';
+          document.getElementById('confirm-wrap').style.display = isSignup ? 'block' : 'none';
+          document.getElementById('forgot-link').style.display  = isSignup ? 'none'  : 'inline';
+          document.getElementById('auth-error').textContent   = '';
+          document.getElementById('auth-success').classList.add('hidden');
+        }
+
+        async function handleAuthSubmit() {
+          if (!_sb) { document.getElementById('auth-error').textContent = 'Connection error — please refresh.'; return; }
+          var email = (document.getElementById('auth-email').value || '').trim().toLowerCase();
+          var pass  = (document.getElementById('auth-password').value || '');
+          var conf  = (document.getElementById('auth-confirm').value || '');
+          var errEl = document.getElementById('auth-error');
+          var btn   = document.getElementById('auth-submit');
+          errEl.textContent = '';
+          if (!email || !pass) { errEl.textContent = 'Please fill in all fields.'; return; }
+          if (_authTab === 'signup' && pass !== conf) { errEl.textContent = 'Passwords do not match.'; return; }
+          if (pass.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; return; }
+          btn.disabled = true; btn.textContent = 'Please wait…';
+          var r = _authTab === 'signup'
+            ? await _sb.auth.signUp({ email: email, password: pass })
+            : await _sb.auth.signInWithPassword({ email: email, password: pass });
+          btn.disabled = false;
+          btn.textContent = _authTab === 'signup' ? 'Create account →' : 'Sign in →';
+          if (r.error) {
+            errEl.textContent = r.error.message;
+            return;
+          }
+          if (_authTab === 'signup') {
+            var confirmed = r.data && r.data.user && r.data.user.email_confirmed_at;
+            if (!confirmed) {
+              document.getElementById('auth-success').textContent = '✓ Account created! Check your email to confirm, then sign in.';
+              document.getElementById('auth-success').classList.remove('hidden');
+              setTab('signin');
+              return;
+            }
+          }
+          // Sign-in success (or sign-up with email confirmation disabled)
+          if (r.data && r.data.user) {
+            _redirectAfterLogin(r.data.user.email);
+          }
+        }
+
+        async function handleForgot() {
+          if (!_sb) return;
+          var email = (document.getElementById('auth-email').value || '').trim().toLowerCase();
+          if (!email) { document.getElementById('auth-error').textContent = 'Enter your email above first.'; return; }
+          await _sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/dashboard.html' });
+          document.getElementById('auth-success').textContent = '✓ Password reset email sent — check your inbox.';
+          document.getElementById('auth-success').classList.remove('hidden');
+        }
+
+        function tryDemo() {
+          sessionStorage.setItem('sp_user', 'demo@stoday.plus');
+          sessionStorage.setItem('sp_role', 'customer');
+          window.location.href = 'dashboard.html';
+        }
+
+        // Allow Enter key to submit
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') handleAuthSubmit();
+        });
+      </script>
     </div>
   </div>
 

@@ -1566,9 +1566,10 @@
       <div class="logout-link" onclick="logout()">Log out →</div>
       <div id="sp-sync-area" style="margin-top:10px;border-top:1px solid rgba(168,85,247,.1);padding-top:10px">
         <div id="sp-sync-user" style="font-size:.68rem;color:#5a4230;margin-bottom:5px;display:none"></div>
-        <button id="sp-sync-btn" onclick="openAuthModal()" style="width:100%;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;border:none;border-radius:8px;padding:7px 8px;font-size:.68rem;font-weight:700;cursor:pointer;font-family:'Raleway',sans-serif">☁ Connect &amp; Sync</button>
+        <div id="sp-sync-status" style="font-size:.62rem;color:#888;margin-top:0;margin-bottom:5px;text-align:center"></div>
+        <!-- Shown only in demo/guest mode (no Supabase session) -->
+        <button id="sp-sync-btn" onclick="window.location.href='login.html'" style="display:none;width:100%;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;border:none;border-radius:8px;padding:7px 8px;font-size:.68rem;font-weight:700;cursor:pointer;font-family:'Raleway',sans-serif">☁ Sign in to save to cloud</button>
         <button id="sp-reset-btn" onclick="spResetAccount()" style="display:none;width:100%;margin-top:5px;background:none;color:#dc2626;border:1px solid rgba(220,38,38,.25);border-radius:8px;padding:5px 8px;font-size:.63rem;font-weight:700;cursor:pointer;font-family:'Raleway',sans-serif">⚠ Reset my account data</button>
-        <div id="sp-sync-status" style="font-size:.62rem;color:#888;margin-top:4px;text-align:center"></div>
       </div>
     </div>
   </nav>
@@ -1634,7 +1635,7 @@
       <div id="unsaved-warning">
         <span style="font-size:1rem">⚠</span>
         <span style="flex:1">Not signed in — questions won't be saved if your browser clears storage.</span>
-        <button onclick="openAuthModal()">Connect &amp; Sync →</button>
+        <button onclick="window.location.href='login.html'">Sign in to save →</button>
       </div>
 
       <!-- ELECTRIC PERIPHERALS (fullscreen quiz only) -->
@@ -2497,8 +2498,22 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
 <div id="mascot"><img src="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" alt=""/></div>
 
 <script>
-// Session gate
+// Session gate — check sessionStorage first, then fall back to Supabase stored session
 var user = sessionStorage.getItem('sp_user');
+if (!user) {
+  try {
+    var _sbRaw = localStorage.getItem('sb-zdmnwykumprntbpfyour-auth-token');
+    if (_sbRaw) {
+      var _sbTok = JSON.parse(_sbRaw);
+      var _sbEmail = _sbTok && _sbTok.user && _sbTok.user.email;
+      var _sbExp   = _sbTok && _sbTok.expires_at;
+      if (_sbEmail && _sbExp && Date.now() / 1000 < _sbExp) {
+        sessionStorage.setItem('sp_user', _sbEmail);
+        user = _sbEmail;
+      }
+    }
+  } catch(e) {}
+}
 if (!user) { window.location.href = 'login.html'; }
 
 var LTRS = ['A','B','C','D','E'];
@@ -4463,7 +4478,12 @@ document.addEventListener('fullscreenchange', function() {
   }
 });
 
-function logout() { sessionStorage.removeItem('sp_user'); sessionStorage.removeItem('sp_role'); window.location.href='login.html'; }
+function logout() {
+  sessionStorage.removeItem('sp_user');
+  sessionStorage.removeItem('sp_role');
+  if (_spClient) { _spClient.auth.signOut(); }
+  window.location.href = 'login.html';
+}
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('open');
   document.getElementById('sb-overlay').classList.toggle('show');
@@ -8156,30 +8176,25 @@ var _authMode  = 'signin';
 })();
 
 function _updateSyncUI() {
-  var btn      = document.getElementById('sp-sync-btn');
+  var syncBtn  = document.getElementById('sp-sync-btn');
   var resetBtn = document.getElementById('sp-reset-btn');
   var userEl   = document.getElementById('sp-sync-user');
   var sta      = document.getElementById('sp-sync-status');
   var warn     = document.getElementById('unsaved-warning');
-  if (!btn) return;
   if (_spUser) {
-    btn.textContent  = '☁ Disconnect';
-    btn.onclick      = _spSignOut;
-    btn.style.background = 'rgba(239,68,68,.12)';
-    btn.style.color  = '#dc2626';
+    // Signed in via Supabase — show account info, hide guest prompt
+    if (syncBtn)  syncBtn.style.display  = 'none';
     if (resetBtn) resetBtn.style.display = 'block';
-    if (userEl) { userEl.textContent = '✓ ' + _spUser.email; userEl.style.display = 'block'; }
-    if (sta) sta.textContent = 'Cloud sync active';
-    if (warn) warn.style.display = 'none';
+    if (userEl)   { userEl.textContent = '☁ ' + _spUser.email; userEl.style.display = 'block'; }
+    if (sta)      sta.textContent = 'Cloud sync active';
+    if (warn)     warn.style.display = 'none';
   } else {
-    btn.textContent  = '☁ Connect & Sync';
-    btn.onclick      = openAuthModal;
-    btn.style.background = 'linear-gradient(135deg,#7c3aed,#4f46e5)';
-    btn.style.color  = '#fff';
+    // Demo / guest mode — offer sign-in
+    if (syncBtn)  syncBtn.style.display  = 'block';
     if (resetBtn) resetBtn.style.display = 'none';
-    if (userEl) userEl.style.display = 'none';
-    if (sta) sta.textContent = '';
-    if (warn) warn.style.display = 'flex';
+    if (userEl)   userEl.style.display   = 'none';
+    if (sta)      sta.textContent = '';
+    if (warn)     warn.style.display = 'flex';
   }
 }
 
