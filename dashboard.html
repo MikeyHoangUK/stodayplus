@@ -321,6 +321,20 @@
     /* ── Quiz highlight ── */
     .quiz-hl{background:#fef08a;border-radius:2px;color:inherit}
     body.hc .quiz-hl{background:#713f12;color:#fef9c3}
+    /* ── Quiz resume banner ── */
+    #qz-resume-banner{margin-bottom:12px}
+    .qzr-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(135deg,rgba(109,40,217,.08),rgba(124,58,237,.04));border:1.5px solid rgba(109,40,217,.2);border-radius:14px;padding:12px 16px}
+    .qzr-info{display:flex;flex-direction:column;gap:2px}
+    .qzr-label{font-size:.72rem;font-weight:900;color:#6d28d9;text-transform:uppercase;letter-spacing:.08em}
+    .qzr-meta{font-size:.82rem;font-weight:700;color:#3d2e1a}
+    .qzr-btns{display:flex;gap:8px;flex-shrink:0;align-items:center}
+    .qzr-btn-pri{background:#6d28d9;color:#fff;border:none;border-radius:9px;padding:8px 16px;font-size:.78rem;font-weight:800;cursor:pointer;font-family:inherit;transition:opacity .15s}
+    .qzr-btn-pri:hover{opacity:.85}
+    .qzr-btn-sec{background:transparent;color:#9ca3af;border:1.5px solid rgba(0,0,0,.1);border-radius:9px;padding:8px 10px;font-size:.78rem;cursor:pointer;font-family:inherit;transition:all .15s}
+    .qzr-btn-sec:hover{color:#6b7280;border-color:rgba(0,0,0,.2)}
+    body.hc .qzr-inner{background:rgba(109,40,217,.15)!important;border-color:rgba(109,40,217,.35)!important}
+    body.hc .qzr-label{color:#c084fc!important}
+    body.hc .qzr-meta{color:#c8b89a!important}
 
     /* ── Excel Import ── */
     .import-dz{border:2px dashed rgba(168,85,247,.22);border-radius:14px;padding:36px 24px;text-align:center;cursor:pointer;transition:all .18s;background:rgba(168,85,247,.02);margin-bottom:10px}
@@ -1987,6 +2001,7 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
                 </select>
               </div>
             </div>
+            <div id="qz-resume-banner" style="display:none"></div>
             <div id="quiz-session-card" style="display:none"></div>
             <div class="avail-msg" id="avail-msg"></div>
             <div id="retry-wrong-row" style="display:none;margin-bottom:10px">
@@ -3486,7 +3501,7 @@ function startQuiz() {
   }
   for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random()*(i+1)); var t=pool[i]; pool[i]=pool[j]; pool[j]=t; }
   var n = cv === 'all' ? pool.length : Math.min(parseInt(cv), pool.length);
-  qzQs = pool.slice(0, n); qzIdx = 0; qzScore = 0; qzAnswered = false; qzAnswers = []; lastCfg = { d: d, cv: cv }; qzStartTime = Date.now(); qzWrongInSession = [];
+  qzQs = pool.slice(0, n); qzIdx = 0; qzScore = 0; qzAnswered = false; qzAnswers = []; lastCfg = { d: d, cv: cv }; qzStartTime = Date.now(); qzWrongInSession = []; qzClearSession();
   document.getElementById('quiz-setup').style.display = 'none';
   document.getElementById('quiz-run').style.display = 'block';
   document.getElementById('quiz-results').style.display = 'none';
@@ -3586,6 +3601,7 @@ function answerQ(idx) {
   document.getElementById('qprog').style.width = (answeredCount / qzQs.length * 100) + '%';
   document.getElementById('next-btn').className = 'next-btn show';
   var nn = document.getElementById('qnav-next'); if (nn) nn.disabled = false;
+  qzSaveSession();
 }
 
 function toggleHint() {
@@ -3596,10 +3612,10 @@ function toggleHint() {
 
 function nextQ() {
   qzIdx++;
-  if (qzIdx >= qzQs.length) showResults(); else showQ();
+  if (qzIdx >= qzQs.length) { qzClearSession(); showResults(); } else { showQ(); qzSaveSession(); }
 }
 function prevQ() {
-  if (qzIdx > 0) { qzIdx--; showQ(); }
+  if (qzIdx > 0) { qzIdx--; showQ(); qzSaveSession(); }
 }
 
 // ── Folder confidence scores ──────────────────────────────────────────
@@ -4035,7 +4051,7 @@ function switchTab(t) {
     document.getElementById('tab-'+x).classList.toggle('active', x === t);
   });
   if (t === 'bank') renderBank();
-  if (t === 'quiz') { populateFolderSelect(); updateAvail(); }
+  if (t === 'quiz') { populateFolderSelect(); updateAvail(); qzShowResumeBanner(); }
   if (t === 'create') { document.body.classList.add('on-create'); createSubTab('ai'); }
   else document.body.classList.remove('on-create');
 }
@@ -4805,6 +4821,69 @@ function toggleQuizFS() {
   if (tabs)   bindHover(tabs);
   if (rpTabs) bindHover(rpTabs);
 })();
+
+/* ── Quiz session save / resume ── */
+var QZ_SESSION_KEY = 'sp_quiz_session';
+
+function qzSaveSession() {
+  if (!qzQs || !qzQs.length) return;
+  var f = document.getElementById('qz-folder');
+  var session = {
+    qzQs: qzQs, qzIdx: qzIdx, qzScore: qzScore,
+    qzAnswers: qzAnswers, qzWrongInSession: qzWrongInSession,
+    folder: f ? f.value : '', savedAt: Date.now()
+  };
+  localStorage.setItem(QZ_SESSION_KEY, JSON.stringify(session));
+  // Cloud save (requires quiz_session JSONB column in user_data table)
+  if (_spClient && _spUser) {
+    _spClient.from('user_data').update({ quiz_session: session }).eq('user_id', _spUser.id).then(function(){});
+  }
+}
+
+function qzClearSession() {
+  localStorage.removeItem(QZ_SESSION_KEY);
+  if (_spClient && _spUser) {
+    _spClient.from('user_data').update({ quiz_session: null }).eq('user_id', _spUser.id).then(function(){});
+  }
+  var b = document.getElementById('qz-resume-banner'); if (b) b.style.display = 'none';
+}
+
+function qzShowResumeBanner() {
+  var banner = document.getElementById('qz-resume-banner');
+  if (!banner) return;
+  var raw = localStorage.getItem(QZ_SESSION_KEY);
+  if (!raw) { banner.style.display = 'none'; return; }
+  try {
+    var s = JSON.parse(raw);
+    if (!s || !Array.isArray(s.qzQs) || !s.qzQs.length) { banner.style.display = 'none'; return; }
+    var folderLabel = s.folder && s.folder !== 'all' ? ' · ' + esc(s.folder) : '';
+    banner.innerHTML =
+      '<div class="qzr-inner">' +
+      '<div class="qzr-info"><span class="qzr-label">📖 Resume quiz</span>' +
+      '<span class="qzr-meta">Q ' + (s.qzIdx + 1) + ' of ' + s.qzQs.length +
+      ' · ' + s.qzScore + ' correct' + folderLabel + '</span></div>' +
+      '<div class="qzr-btns">' +
+      '<button class="qzr-btn-pri" onclick="qzResumeSession()">▶ Continue</button>' +
+      '<button class="qzr-btn-sec" onclick="qzClearSession()" title="Discard">✕</button>' +
+      '</div></div>';
+    banner.style.display = 'block';
+  } catch(e) { banner.style.display = 'none'; }
+}
+
+function qzResumeSession() {
+  var raw = localStorage.getItem(QZ_SESSION_KEY);
+  if (!raw) return;
+  try {
+    var s = JSON.parse(raw);
+    qzQs = s.qzQs; qzIdx = s.qzIdx; qzScore = s.qzScore;
+    qzAnswers = s.qzAnswers || []; qzWrongInSession = s.qzWrongInSession || [];
+    qzAnswered = !!(qzAnswers[qzIdx]);
+    document.getElementById('quiz-setup').style.display = 'none';
+    document.getElementById('quiz-run').style.display = 'block';
+    document.getElementById('quiz-results').style.display = 'none';
+    showQ();
+  } catch(e) { qzClearSession(); }
+}
 
 /* ── Quiz yellow-highlight on selection (toggle) + right-click clear ── */
 (function() {
@@ -8746,6 +8825,19 @@ async function _loadFromSupabase() {
     if (typeof renderBank   === 'function') renderBank();
     if (typeof renderSqBank === 'function') renderSqBank();
     _setSyncStatus('☁ Loaded from cloud');
+    // Load quiz session from cloud (requires quiz_session JSONB column — see comment below)
+    try {
+      var qsr = await _spClient.from('user_data').select('quiz_session').eq('user_id', uid).maybeSingle();
+      if (!qsr.error && qsr.data && qsr.data.quiz_session) {
+        var cloudQs = qsr.data.quiz_session;
+        var localQs = null;
+        try { localQs = JSON.parse(localStorage.getItem(QZ_SESSION_KEY) || 'null'); } catch(_e) {}
+        if (!localQs || ((cloudQs.savedAt || 0) > (localQs.savedAt || 0))) {
+          localStorage.setItem(QZ_SESSION_KEY, JSON.stringify(cloudQs));
+        }
+        if (typeof qzShowResumeBanner === 'function') qzShowResumeBanner();
+      }
+    } catch(_e) { /* quiz_session column not yet added — local-only session save still works */ }
   }
   _supabaseLoading = false;
 }
