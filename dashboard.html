@@ -318,15 +318,9 @@
     .import-help:hover .import-help-tip{visibility:visible;opacity:1}
     body.hc .import-help{background:rgba(168,85,247,.15)!important;border-color:rgba(168,85,247,.4)!important;color:#c084fc!important}
     body.hc .import-help-tip{background:#0d0b1e!important;color:#e8dcc8!important}
-    /* ── Poppy text-format toolbar ── */
-    #poppy-fmt-bar{position:fixed;background:#1c1208;border-radius:9px;padding:3px 6px;display:none;align-items:center;gap:2px;z-index:600;box-shadow:0 4px 18px rgba(0,0,0,.35);transform:translateX(-50%);pointer-events:auto}
-    #poppy-fmt-bar::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#1c1208}
-    .pfmt-btn{background:transparent;border:none;color:#f5ede0;cursor:pointer;font-size:.72rem;font-weight:900;padding:4px 9px;border-radius:5px;font-family:inherit;letter-spacing:.03em;transition:background .12s;line-height:1}
-    .pfmt-btn:hover{background:rgba(255,255,255,.14)}
-    .pfmt-btn-b{font-style:normal;font-size:.8rem}
-    .pfmt-sep{width:1px;height:14px;background:rgba(255,255,255,.15);flex-shrink:0;margin:0 2px}
-    body.hc #poppy-fmt-bar{background:#0d0b1e}
-    body.hc #poppy-fmt-bar::after{border-top-color:#0d0b1e}
+    /* ── Quiz highlight ── */
+    .quiz-hl{background:#fef08a;border-radius:2px;color:inherit}
+    body.hc .quiz-hl{background:#713f12;color:#fef9c3}
     /* ── Excel Import ── */
     .import-dz{border:2px dashed rgba(168,85,247,.22);border-radius:14px;padding:36px 24px;text-align:center;cursor:pointer;transition:all .18s;background:rgba(168,85,247,.02);margin-bottom:10px}
     .import-dz:hover,.import-dz.drag-over{border-color:rgba(109,40,217,.45);background:rgba(109,40,217,.05)}
@@ -4808,65 +4802,51 @@ function toggleQuizFS() {
   if (rpTabs) bindHover(rpTabs);
 })();
 
-/* ── Poppy text-format floating toolbar ── */
+/* ── Quiz yellow-highlight on selection (toggle) ── */
 (function() {
-  var bar = document.createElement('div');
-  bar.id = 'poppy-fmt-bar';
-  bar.innerHTML =
-    '<button class="pfmt-btn pfmt-btn-b" title="Bold · Ctrl+B" onclick="_pFmt(\'b\')"><b>B</b></button>' +
-    '<span class="pfmt-sep"></span>' +
-    '<button class="pfmt-btn" title="Highlight" onclick="_pFmt(\'h\')">🖊 HL</button>';
-  document.body.appendChild(bar);
+  var quizRun = document.getElementById('quiz-run');
+  if (!quizRun) return;
 
-  var _ta = null;
-
-  function showBar(x, y) {
-    bar.style.left = x + 'px';
-    bar.style.top  = (y - 48) + 'px';
-    bar.style.display = 'flex';
+  function hlAncestor(node) {
+    for (var n = node; n && n !== quizRun; n = n.parentNode) {
+      if (n.nodeType === 1 && n.tagName === 'MARK' && n.classList.contains('quiz-hl')) return n;
+    }
+    return null;
   }
-  function hideBar() { bar.style.display = 'none'; _ta = null; }
 
-  ['ai-topic', 'paste-input'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    el.addEventListener('mouseup', function(e) {
-      if (el.selectionStart === el.selectionEnd) { hideBar(); return; }
-      _ta = el;
-      showBar(e.clientX, e.clientY);
-    });
-    el.addEventListener('keyup', function() {
-      if (el.selectionStart === el.selectionEnd) { hideBar(); return; }
-      _ta = el;
-      var r = el.getBoundingClientRect();
-      showBar(r.left + r.width / 2, r.top + 20);
-    });
-    el.addEventListener('keydown', function(e) {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
-        e.preventDefault();
-        _ta = el;
-        window._pFmt('b');
-      }
-    });
+  quizRun.addEventListener('mouseup', function() {
+    var sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !sel.rangeCount) return;
+    var range = sel.getRangeAt(0);
+    if (!range || range.collapsed) return;
+    if (!quizRun.contains(range.commonAncestorContainer)) return;
+
+    // Toggle off if selection is inside an existing highlight
+    var existing = hlAncestor(range.startContainer) || hlAncestor(range.commonAncestorContainer);
+    if (existing) {
+      var frag = document.createDocumentFragment();
+      while (existing.firstChild) frag.appendChild(existing.firstChild);
+      existing.parentNode.replaceChild(frag, existing);
+      sel.removeAllRanges();
+      return;
+    }
+
+    // Apply yellow highlight
+    try {
+      var mark = document.createElement('mark');
+      mark.className = 'quiz-hl';
+      range.surroundContents(mark);
+    } catch (_) {
+      try {
+        var frag2 = range.extractContents();
+        var mark2 = document.createElement('mark');
+        mark2.className = 'quiz-hl';
+        mark2.appendChild(frag2);
+        range.insertNode(mark2);
+      } catch (_2) {}
+    }
+    sel.removeAllRanges();
   });
-
-  document.addEventListener('mousedown', function(e) {
-    if (!bar.contains(e.target)) hideBar();
-  });
-
-  window._pFmt = function(type) {
-    var ta = _ta;
-    if (!ta) return;
-    var s = ta.selectionStart, en = ta.selectionEnd;
-    if (s === en) return;
-    var sel = ta.value.substring(s, en);
-    var wrap = type === 'b' ? '**' : '==';
-    var repl = wrap + sel + wrap;
-    ta.value = ta.value.substring(0, s) + repl + ta.value.substring(en);
-    ta.focus();
-    ta.setSelectionRange(s + wrap.length, s + wrap.length + sel.length);
-    hideBar();
-  };
 })();
 
 document.addEventListener('keydown', function(e) {
