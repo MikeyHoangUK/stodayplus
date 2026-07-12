@@ -308,6 +308,16 @@
     body.hc .paste-qopt-txt{color:#c8b89a!important}
     body.hc .paste-qopt-row.pqo-correct .paste-qopt-txt{color:#4ade80!important}
     body.hc .paste-hint-inp{color:#9a8570!important;border-color:rgba(168,85,247,.2)!important}
+    /* ── Import helper tooltip ── */
+    .import-help{position:relative;display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:rgba(109,40,217,.12);border:1.5px solid rgba(109,40,217,.25);font-size:.6rem;font-weight:900;color:#6d28d9;cursor:default;vertical-align:middle;margin-left:7px;flex-shrink:0;user-select:none}
+    .import-help-tip{visibility:hidden;opacity:0;position:absolute;left:50%;top:calc(100% + 10px);transform:translateX(-50%);width:280px;background:#1c1208;color:#f5ede0;font-size:.72rem;font-weight:500;line-height:1.65;padding:14px 16px;border-radius:12px;z-index:300;pointer-events:none;transition:opacity .18s;box-shadow:0 8px 28px rgba(0,0,0,.28)}
+    .import-help-tip::before{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-bottom-color:#1c1208}
+    .import-help-tip strong{color:#c084fc;display:block;margin-bottom:4px}
+    .import-help-tip ol{margin:6px 0 0 14px;padding:0}
+    .import-help-tip ol li{margin-bottom:3px}
+    .import-help:hover .import-help-tip{visibility:visible;opacity:1}
+    body.hc .import-help{background:rgba(168,85,247,.15)!important;border-color:rgba(168,85,247,.4)!important;color:#c084fc!important}
+    body.hc .import-help-tip{background:#0d0b1e!important;color:#e8dcc8!important}
     /* ── Excel Import ── */
     .import-dz{border:2px dashed rgba(168,85,247,.22);border-radius:14px;padding:36px 24px;text-align:center;cursor:pointer;transition:all .18s;background:rgba(168,85,247,.02);margin-bottom:10px}
     .import-dz:hover,.import-dz.drag-over{border-color:rgba(109,40,217,.45);background:rgba(109,40,217,.05)}
@@ -1856,7 +1866,7 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
             <!-- Step 1: Upload -->
             <div id="import-step-1">
               <div class="paste-header">
-                <div class="paste-title">Import from Excel</div>
+                <div class="paste-title" style="display:flex;align-items:center">Import from Excel<span class="import-help">?<span class="import-help-tip"><strong>How to make questions with AI</strong><ol><li>Click <em>↓ Download Template</em> below to get the Excel file</li><li>Open ChatGPT, Claude, or any AI tool</li><li>Paste your study notes into the chat</li><li>Ask: <em>"Fill in this Excel table with MCQs based on my notes — include Question, Option A–E, Answer, Hint, and Difficulty"</em></li><li>Copy the AI's output into the template and save as .xlsx</li><li>Upload it here and click Import</li></ol></span></span></div>
                 <div class="paste-sub">Upload an <strong>.xlsx</strong> or <strong>.csv</strong> file with your questions. Download the template below to see the required columns.</div>
               </div>
               <!-- input lives outside the clickable div to avoid click-bubble loop -->
