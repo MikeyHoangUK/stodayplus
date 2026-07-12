@@ -321,10 +321,7 @@
     /* ── Quiz highlight ── */
     .quiz-hl{background:#fef08a;border-radius:2px;color:inherit}
     body.hc .quiz-hl{background:#713f12;color:#fef9c3}
-    #quiz-ctx-menu{position:fixed;background:#1c1208;border-radius:9px;padding:5px;z-index:700;display:none;box-shadow:0 6px 20px rgba(0,0,0,.32);min-width:170px}
-    .quiz-ctx-item{padding:8px 14px;border-radius:6px;font-size:.75rem;font-weight:700;color:#f5ede0;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .12s}
-    .quiz-ctx-item:hover{background:rgba(255,255,255,.12)}
-    body.hc #quiz-ctx-menu{background:#0d0b1e}
+
     /* ── Excel Import ── */
     .import-dz{border:2px dashed rgba(168,85,247,.22);border-radius:14px;padding:36px 24px;text-align:center;cursor:pointer;transition:all .18s;background:rgba(168,85,247,.02);margin-bottom:10px}
     .import-dz:hover,.import-dz.drag-over{border-color:rgba(109,40,217,.45);background:rgba(109,40,217,.05)}
@@ -4829,30 +4826,10 @@ function toggleQuizFS() {
     });
   }
 
-  // ── Context menu ──
-  var menu = document.createElement('div');
-  menu.id = 'quiz-ctx-menu';
-  menu.innerHTML = '<div class="quiz-ctx-item" id="quiz-ctx-clear">🧹 Clear all highlights</div>';
-  document.body.appendChild(menu);
-
-  function hideMenu() { menu.style.display = 'none'; }
-
-  menu.querySelector('#quiz-ctx-clear').addEventListener('click', function() {
-    clearAllHL();
-    hideMenu();
-  });
-
   quizRun.addEventListener('contextmenu', function(e) {
     e.preventDefault();
-    menu.style.display = 'block';
-    var x = Math.min(e.clientX, window.innerWidth  - menu.offsetWidth  - 8);
-    var y = Math.min(e.clientY, window.innerHeight - menu.offsetHeight - 8);
-    menu.style.left = x + 'px';
-    menu.style.top  = y + 'px';
+    clearAllHL();
   });
-
-  document.addEventListener('mousedown', function(e) { if (!menu.contains(e.target)) hideMenu(); });
-  document.addEventListener('scroll',    hideMenu, true);
 
   // ── Highlight on selection ──
   quizRun.addEventListener('mouseup', function() {
