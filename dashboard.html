@@ -1860,12 +1860,12 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
                 <div class="paste-sub">Upload an <strong>.xlsx</strong> or <strong>.csv</strong> file with your questions. Download the template below to see the required columns.</div>
               </div>
               <div id="import-dz" class="import-dz"
-                   onclick="document.getElementById('import-file-inp').click()"
+                   onclick="document.getElementById('excel-file-inp').click()"
                    ondragover="importDragOver(event)" ondragleave="importDragLeave(event)" ondrop="importDrop(event)">
-                <input type="file" id="import-file-inp" accept=".xlsx,.xls,.csv" style="display:none" onchange="importFileSelected(this)"/>
+                <input type="file" id="excel-file-inp" accept=".xlsx,.xls,.xlsm,.xlsb,.ods,.csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.oasis.opendocument.spreadsheet,text/csv" style="display:none" onchange="importFileSelected(this)"/>
                 <div class="import-dz-icon">📂</div>
                 <div class="import-dz-label">Click to upload or drag &amp; drop</div>
-                <div class="import-dz-sub">.xlsx · .xls · .csv &nbsp;·&nbsp; Row 1 must be headers</div>
+                <div class="import-dz-sub">.xlsx · .xls · .xlsm · .xlsb · .ods · .csv &nbsp;·&nbsp; Row 1 must be headers</div>
                 <div id="import-dz-file" class="import-dz-file" style="display:none"></div>
               </div>
               <div class="paste-detect-bar">
@@ -4493,7 +4493,7 @@ function importDoImport() {
 }
 
 function importReset() {
-  var inp = document.getElementById('import-file-inp');
+  var inp = document.getElementById('excel-file-inp');
   if (inp) inp.value = '';
   _importQs = [];
   var msg = document.getElementById('import-detect-msg');
