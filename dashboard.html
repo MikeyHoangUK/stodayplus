@@ -3540,11 +3540,14 @@ function showQ() {
   document.getElementById('qcard').className = 'quiz-card anim';
   document.getElementById('qstem').textContent = q.stem;
   var opts = document.getElementById('qopts'); opts.innerHTML = '';
-  q.options.forEach(function(o, i) {
+  var displayOpts = q.options
+    .map(function(o, i) { return { text: o, idx: i }; })
+    .filter(function(o) { return o.text && o.text.trim() && o.text !== '—'; });
+  displayOpts.forEach(function(opt, di) {
     var d = document.createElement('div');
-    d.className = 'qopt'; d.id = 'qo'+i;
-    d.innerHTML = '<div class="ol">'+LTRS[i]+'</div><div class="ot">'+esc(o)+'</div>';
-    if (!prior) d.addEventListener('click', function() { answerQ(i); });
+    d.className = 'qopt'; d.id = 'qo'+opt.idx;
+    d.innerHTML = '<div class="ol">'+LTRS[di]+'</div><div class="ot">'+esc(opt.text)+'</div>';
+    if (!prior) d.addEventListener('click', function() { answerQ(opt.idx); });
     opts.appendChild(d);
   });
   document.getElementById('hint-txt').textContent = q.hint || 'No hint available.';
