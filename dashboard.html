@@ -4832,6 +4832,14 @@ function toggleQuizFS() {
   });
 
   // ── Highlight on selection ──
+  // Only allowed within #qstem or a single .ot (option text) to avoid DOM corruption
+  function hlContainer(node) {
+    for (var n = node.nodeType === 3 ? node.parentNode : node; n && n !== quizRun; n = n.parentNode) {
+      if (n.id === 'qstem' || (n.classList && n.classList.contains('ot'))) return n;
+    }
+    return null;
+  }
+
   quizRun.addEventListener('mouseup', function() {
     var sel = window.getSelection();
     if (!sel || sel.isCollapsed || !sel.rangeCount) return;
@@ -4839,6 +4847,12 @@ function toggleQuizFS() {
     if (!range || range.collapsed) return;
     if (!quizRun.contains(range.commonAncestorContainer)) return;
 
+    // Abort if selection crosses out of a safe container
+    var c1 = hlContainer(range.startContainer);
+    var c2 = hlContainer(range.endContainer);
+    if (!c1 || c1 !== c2) { sel.removeAllRanges(); return; }
+
+    // Toggle off existing highlight
     var existing = hlAncestor(range.startContainer) || hlAncestor(range.commonAncestorContainer);
     if (existing) {
       var frag = document.createDocumentFragment();
@@ -4848,19 +4862,12 @@ function toggleQuizFS() {
       return;
     }
 
+    // Safe to surroundContents — selection is within a single text container
     try {
       var mark = document.createElement('mark');
       mark.className = 'quiz-hl';
       range.surroundContents(mark);
-    } catch (_) {
-      try {
-        var frag2 = range.extractContents();
-        var mark2 = document.createElement('mark');
-        mark2.className = 'quiz-hl';
-        mark2.appendChild(frag2);
-        range.insertNode(mark2);
-      } catch (_2) {}
-    }
+    } catch (_) {}
     sel.removeAllRanges();
   });
 })();
