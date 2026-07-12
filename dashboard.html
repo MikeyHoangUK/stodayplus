@@ -10,7 +10,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Raleway','system-ui','sans-serif']}}}}</script>
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <style>
@@ -1859,10 +1859,11 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
                 <div class="paste-title">Import from Excel</div>
                 <div class="paste-sub">Upload an <strong>.xlsx</strong> or <strong>.csv</strong> file with your questions. Download the template below to see the required columns.</div>
               </div>
+              <!-- input lives outside the clickable div to avoid click-bubble loop -->
+              <input type="file" id="excel-file-inp" accept=".xlsx,.xls,.xlsm,.xlsb,.ods,.csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.oasis.opendocument.spreadsheet,text/csv" style="display:none" onchange="importFileSelected(this)"/>
               <div id="import-dz" class="import-dz"
                    onclick="document.getElementById('excel-file-inp').click()"
                    ondragover="importDragOver(event)" ondragleave="importDragLeave(event)" ondrop="importDrop(event)">
-                <input type="file" id="excel-file-inp" accept=".xlsx,.xls,.xlsm,.xlsb,.ods,.csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.oasis.opendocument.spreadsheet,text/csv" style="display:none" onchange="importFileSelected(this)"/>
                 <div class="import-dz-icon">📂</div>
                 <div class="import-dz-label">Click to upload or drag &amp; drop</div>
                 <div class="import-dz-sub">.xlsx · .xls · .xlsm · .xlsb · .ods · .csv &nbsp;·&nbsp; Row 1 must be headers</div>
@@ -4329,29 +4330,40 @@ function importFileSelected(input) {
 }
 
 function importReadFile(file) {
+  var msgEl  = document.getElementById('import-detect-msg');
+  var fileEl = document.getElementById('import-dz-file');
+  var btnEl  = document.getElementById('import-preview-btn');
+
+  function showErr(txt) {
+    fileEl.style.display = 'none';
+    msgEl.textContent = txt;
+    msgEl.className = 'paste-detect-msg no-q';
+    if (btnEl) btnEl.disabled = true;
+  }
+
   if (!window.XLSX) {
-    var m = document.getElementById('import-detect-msg');
-    m.textContent = 'Excel library not loaded — please refresh the page.';
-    m.className = 'paste-detect-msg no-q';
+    showErr('Excel library failed to load — please refresh the page and try again.');
     return;
   }
-  var fileEl = document.getElementById('import-dz-file');
   fileEl.textContent = '⏳ Reading ' + file.name + '…';
   fileEl.style.display = 'block';
+  msgEl.textContent = '';
+  msgEl.className = 'paste-detect-msg';
+
   var reader = new FileReader();
+  reader.onerror = function() { showErr('FileReader error — could not read the file.'); };
   reader.onload = function(e) {
     try {
       var data = new Uint8Array(e.target.result);
-      var wb   = XLSX.read(data, { type: 'uint8array' });
+      var wb   = XLSX.read(data, { type: 'uint8array', cellText: false, cellDates: true });
+      if (!wb.SheetNames.length) { showErr('No sheets found in this workbook.'); return; }
       var ws   = wb.Sheets[wb.SheetNames[0]];
-      var rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
-      fileEl.textContent = '✓ ' + file.name;
+      var rows = XLSX.utils.sheet_to_json(ws, { defval: '', raw: false });
+      fileEl.textContent = '✓ ' + file.name + ' (' + rows.length + ' row' + (rows.length !== 1 ? 's' : '') + ')';
+      if (!rows.length) { showErr('Sheet appears empty — make sure row 1 is headers and row 2+ is data.'); return; }
       importProcessRows(rows);
     } catch(err) {
-      fileEl.style.display = 'none';
-      var m = document.getElementById('import-detect-msg');
-      m.textContent = 'Could not read file: ' + err.message;
-      m.className = 'paste-detect-msg no-q';
+      showErr('Parse error: ' + err.message);
     }
   };
   reader.readAsArrayBuffer(file);
@@ -4391,7 +4403,8 @@ function importProcessRows(rows) {
   var msg = document.getElementById('import-detect-msg');
   var btn = document.getElementById('import-preview-btn');
   if (!qs.length) {
-    msg.textContent = 'No questions found — check column headers match the template';
+    var colsFound = rows.length ? Object.keys(rows[0]).join(', ') : 'none';
+    msg.textContent = 'No questions found. Columns detected: ' + colsFound + '. Expected a "Question" column.';
     msg.className = 'paste-detect-msg no-q';
     btn.disabled = true;
   } else {
