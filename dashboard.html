@@ -4355,7 +4355,7 @@ function importReadFile(file) {
   reader.onload = function(e) {
     try {
       var data = new Uint8Array(e.target.result);
-      var wb   = XLSX.read(data, { type: 'uint8array', cellText: false, cellDates: true });
+      var wb   = XLSX.read(data, { type: 'array', cellText: false, cellDates: true });
       if (!wb.SheetNames.length) { showErr('No sheets found in this workbook.'); return; }
       var ws   = wb.Sheets[wb.SheetNames[0]];
       var rows = XLSX.utils.sheet_to_json(ws, { defval: '', raw: false });
