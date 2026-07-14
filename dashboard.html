@@ -3066,9 +3066,27 @@ function togglePomo() {
   }
 }
 
+function pomoRing() {
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    function ding(startTime) {
+      [[523.25, 0.38], [1046.5, 0.14], [1318.5, 0.07]].forEach(function(p) {
+        var osc = ctx.createOscillator(), g = ctx.createGain();
+        osc.connect(g); g.connect(ctx.destination);
+        osc.type = 'sine'; osc.frequency.value = p[0];
+        g.gain.setValueAtTime(p[1], startTime);
+        g.gain.exponentialRampToValueAtTime(0.001, startTime + 2);
+        osc.start(startTime); osc.stop(startTime + 2);
+      });
+    }
+    var t = ctx.currentTime;
+    ding(t); ding(t + 0.65); ding(t + 1.3);
+  } catch(e) {}
+}
+
 function pomoTick() {
   if (pomoLeft > 0) { pomoLeft--; pomoElapsed++; updatePomoDisplay(); }
-  else { clearInterval(pomoTimer); pomoRunning = false; document.getElementById('pomo-play').textContent = '▶'; mascotPeek(); }
+  else { clearInterval(pomoTimer); pomoRunning = false; document.getElementById('pomo-play').textContent = '▶'; pomoRing(); mascotPeek(); }
 }
 
 function resetPomo() {
