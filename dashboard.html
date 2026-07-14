@@ -3120,10 +3120,22 @@ function updatePomoDisplay() {
 function pad(n) { return n < 10 ? '0'+n : ''+n; }
 
 window.addEventListener('beforeunload', function(e) {
+  // Flush any pending bank sync immediately on close (bypasses 1-second debounce)
+  if (_spClient && _spUser && _syncTimer) {
+    clearTimeout(_syncTimer); _syncTimer = null;
+    _syncToSupabase();
+  }
   if (pomoRunning || (pomoElapsed > 0 && pomoElapsed < 1800)) {
     e.preventDefault();
     e.returnValue = 'Your study session is still running. Are you sure you want to leave?';
     return e.returnValue;
+  }
+});
+// Also sync when tab is hidden (phone switching apps, laptop switching tabs)
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'hidden' && _spClient && _spUser) {
+    clearTimeout(_syncTimer); _syncTimer = null;
+    _syncToSupabase();
   }
 });
 
@@ -8866,8 +8878,10 @@ async function _syncToSupabase() {
   var r = await _spClient.from('user_data').upsert({
     user_id: uid, bank: bank, sq_bank: sqBank, updated_at: new Date().toISOString()
   }, { onConflict: 'user_id' });
-  if (r.error) console.warn('Supabase save:', r.error.message);
-  else {
+  if (r.error) {
+    console.warn('Supabase save:', r.error.message);
+    _setSyncStatus('⚠ Sync failed — ' + r.error.message);
+  } else {
     localStorage.removeItem('sp_bank_cache_' + uid);
     localStorage.removeItem('sp_saqs_cache_' + uid);
     _setSyncStatus('☁ Saved');
