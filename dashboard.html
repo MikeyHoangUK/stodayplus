@@ -640,9 +640,8 @@
     .fc-icon{display:none}
     .fc-name{font-size:.84rem;font-weight:800;color:#1c1208;word-break:break-word;letter-spacing:.01em;line-height:1.35;margin-top:auto;margin-bottom:auto;transition:margin .22s ease}
     .folder-card:hover .fc-name{margin-top:4px;margin-bottom:0}
-    .fc-confidence{font-size:.62rem;font-weight:800;letter-spacing:.02em;max-height:0;opacity:0;overflow:hidden;transition:max-height .2s ease,opacity .18s ease}
+    .fc-confidence{font-size:.62rem;font-weight:800;letter-spacing:.02em;max-height:24px;opacity:1;overflow:hidden;margin-top:2px}
     .fc-count{font-size:.61rem;font-weight:700;color:#8a6e54;letter-spacing:.03em;max-height:0;opacity:0;overflow:hidden;transition:max-height .2s ease,opacity .18s ease}
-    .folder-card:hover .fc-confidence{max-height:24px;opacity:1;margin-top:2px}
     .folder-card:hover .fc-count{max-height:24px;opacity:1;margin-top:3px}
     .fc-actions{display:flex;gap:5px;max-height:0;opacity:0;overflow:hidden;transition:max-height .22s ease,opacity .18s ease}
     .folder-card:hover .fc-actions{max-height:36px;opacity:1;margin-top:6px}
@@ -4017,6 +4016,7 @@ function showResults() {
   if (trackEl && trackEl.checked) {
     if (f && f !== 'all') rpAddFromQuiz(f);
   }
+  renderBank();
 }
 
 function retryQuiz() {
