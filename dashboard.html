@@ -1368,130 +1368,149 @@
       .panel.active { max-width: 100%; }
     }
 
-    /* ── Phone ─────────────────────────────────────────────────────────── */
+    /* ════════════════════════════════════════════════════════════
+       PHONE  ≤ 560 px
+       Design rule: generous space, clear hierarchy, 44 px tap targets
+       ════════════════════════════════════════════════════════════ */
     @media (max-width: 560px) {
 
-      /* iOS: prevent page-zoom when tapping inputs */
+      /* iOS: stops page zooming when user taps an input */
       input, select, textarea, [contenteditable] { font-size: 16px !important; }
 
-      /* ── Layout ── */
-      #content { padding: 16px 12px 48px; }
+      /* ── Outer layout ── */
+      #content { padding: 20px 16px 60px; }
+      .panel.active { max-width: 100%; }
 
-      /* ── Topbar ── same structure, just tighter */
-      #topbar          { padding: 0 10px; gap: 6px; height: 50px; min-height: 50px; }
-      .tb-title        { font-size: .75rem; letter-spacing: .03em; }
-      .tb-sub          { font-size: .48rem; }
-      .mcq-tab         { padding: 5px 11px; font-size: .67rem; }
-      .ctab-in-topbar  { padding: 5px 11px; font-size: .67rem; }
-      #mode-toggle     { gap: 3px; }
-      .mode-btn        { font-size: .6rem; padding: 4px 7px; }
+      /* ── Topbar ── */
+      #topbar         { padding: 0 14px; gap: 8px; height: 52px; min-height: 52px; }
+      .tb-title       { font-size: .78rem; letter-spacing: .04em; }
+      .tb-sub         { font-size: .5rem; letter-spacing: .03em; }
+      .mcq-tab        { padding: 6px 13px; font-size: .69rem; border-radius: 8px; }
+      .ctab-in-topbar { padding: 6px 13px; font-size: .69rem; border-radius: 8px; }
+      #mode-toggle    { gap: 4px; }
+      .mode-btn       { font-size: .62rem; padding: 5px 8px; border-radius: 7px; }
 
-      /* ── Folder grid (2 col, same as desktop but scaled) ── */
-      .folder-grid { grid-template-columns: 1fr 1fr !important; gap: 9px !important; }
-      .folder-card { padding: 28px 12px 12px !important; border-radius: 13px !important; min-height: 96px !important; }
-      .fc-name     { font-size: .82rem; }
-      .fc-quiz     { font-size: .68rem; padding: 4px 9px; }
-      .fc-edit-top { font-size: .6rem; }
+      /* ── Folder grid — 2 col, roomy cards ── */
+      .folder-grid { grid-template-columns: 1fr 1fr !important; gap: 11px !important; }
+      .folder-card {
+        padding: 32px 14px 16px !important;
+        border-radius: 18px !important;
+        min-height: 110px !important;
+        gap: 5px !important;
+      }
+      .fc-name     { font-size: .86rem; font-weight: 800; }
+      .fc-count    { font-size: .68rem; }
+      .fc-quiz     { font-size: .71rem; padding: 5px 11px; border-radius: 9px; }
+      .fc-edit-top { font-size: .62rem; top: 8px; right: 8px; }
+      .fc-del      { font-size: .75rem; }
 
       /* ── Quiz setup ── */
-      .cfg-grid   { grid-template-columns: 1fr; gap: 9px; margin-bottom: 16px; }
-      .cfg-card   { padding: 12px 13px; border-radius: 11px; }
-      .cfg-lbl    { font-size: .72rem; }
-      .qs-h       { font-size: 1.15rem; }
-      .qs-p       { font-size: .8rem; margin-bottom: 18px; }
-      .start-btn  { padding: 12px 16px; font-size: .85rem; }
+      #quiz-setup     { padding: 0; }
+      .qs-h           { font-size: 1.25rem; font-weight: 900; margin-bottom: 6px; }
+      .qs-p           { font-size: .83rem; line-height: 1.6; margin-bottom: 22px; }
+      .cfg-grid       { grid-template-columns: 1fr; gap: 10px; margin-bottom: 20px; }
+      .cfg-card       { padding: 14px 16px; border-radius: 14px; }
+      .cfg-lbl        { font-size: .74rem; font-weight: 800; margin-bottom: 7px; }
+      .start-btn      { padding: 15px 20px; font-size: .9rem; border-radius: 14px; }
+      .avail-msg      { font-size: .78rem; }
 
-      /* ── Active quiz (compact — show more on screen) ── */
-      .quiz-card     { padding: 16px 13px; border-radius: 14px; }
-      #qstem         { font-size: .88rem; line-height: 1.6; }
-      .qopt          { padding: 9px 11px; border-radius: 10px; gap: 10px; margin-bottom: 6px; }
-      .qopt .ol      { width: 26px; height: 26px; min-width: 26px; font-size: .67rem; }
-      .qopt .ot      { font-size: .84rem; line-height: 1.45; }
-
-      /* ── Results ── */
-      .results-wrap { padding: 24px 0; }
-      .score-circle { width: 108px; height: 108px; }
-      .score-pct    { font-size: 1.9rem; }
-      .res-btn      { padding: 11px 16px; font-size: .84rem; border-radius: 11px; }
-
-      /* ── Bank filter bar ── */
-      .bank-bar      { flex-wrap: wrap; gap: 6px; }
-      #bank-diff-bar { flex-wrap: wrap; gap: 4px; }
-      .filt-btn      { font-size: .68rem; padding: 4px 10px; }
-
-      /* ── Bank Q cards — collapsed by default on mobile ──
-           .q-scroll-active is added by JS when card is near screen centre */
-      .q-card        { padding: 12px 13px; border-radius: 12px; margin-bottom: 7px; }
-      .q-stem-t      { font-size: .84rem; line-height: 1.5; }
-      .q-num         { min-width: 24px; height: 24px; font-size: .63rem; }
-      .q-meta,
-      .q-btns        { max-height: 0; opacity: 0; overflow: hidden;
-                       transition: max-height .22s ease, opacity .18s ease; }
-      .q-card.q-scroll-active .q-meta,
-      .q-card.q-scroll-active .q-btns { max-height: 60px; opacity: 1; }
-      /* Checkbox stays visible so bulk-select still works */
-
-      /* ── Create sub-tabs — compact after a tab is picked ── */
-      .create-sub-tabs.ctab-picked .create-sub-tab {
-        padding: 4px 11px; font-size: .63rem;
+      /* ── Active quiz ── */
+      #quiz-run       { padding: 0; }
+      .quiz-card      { padding: 22px 18px; border-radius: 18px; margin-bottom: 14px; }
+      #qstem          { font-size: .95rem; line-height: 1.7; }
+      .qopt           {
+        padding: 13px 14px; border-radius: 13px;
+        gap: 12px; margin-bottom: 9px; min-height: 44px;
       }
+      .qopt .ol       { width: 30px; height: 30px; min-width: 30px; font-size: .72rem; }
+      .qopt .ot       { font-size: .9rem; line-height: 1.5; }
 
-      /* ── Form cards ── */
-      .form-card { padding: 17px 13px; border-radius: 14px; }
-      .ai-card   { padding: 13px 11px; border-radius: 12px; }
+      /* ── Quiz results ── */
+      .results-wrap   { padding: 32px 0; }
+      .score-circle   { width: 120px; height: 120px; }
+      .score-pct      { font-size: 2.1rem; }
+      .res-title      { font-size: 1.15rem; }
+      .res-sub        { font-size: .83rem; line-height: 1.55; }
+      .res-btn        { padding: 13px 20px; font-size: .86rem; border-radius: 13px; }
 
-      /* ── AI generate ── */
-      .ai-folder-pick { flex-wrap: wrap; gap: 6px; }
-      .ai-folder-new  { min-width: 0; width: 100%; }
-      .ai-folder-sel  { max-width: 100%; }
-      .ai-drop        { padding: 18px 12px; border-radius: 12px; }
+      /* ── Bank ── */
+      .bank-bar         { flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+      #bank-search      { flex: 1; min-width: 0; border-radius: 11px; }
+      #bank-diff-bar    { flex-wrap: wrap; gap: 5px; }
+      .filt-btn         { font-size: .71rem; padding: 6px 12px; border-radius: 20px; }
+      .q-card           { padding: 16px 16px; border-radius: 15px; margin-bottom: 10px; }
+      .q-top            { gap: 10px; }
+      .q-stem-t         { font-size: .9rem; line-height: 1.6; }
+      .q-num            { min-width: 26px; height: 26px; font-size: .66rem; }
+      .q-btn            { padding: 5px 11px; font-size: .7rem; border-radius: 8px; }
+      .diff-badge       { font-size: .66rem; padding: 3px 8px; }
 
-      /* ── SAQ ── */
-      .sq-prac-card  { padding: 17px 13px; border-radius: 14px; }
-      .sq-prac-q     { font-size: .88rem; line-height: 1.6; }
-      .sq-prac-input { min-height: 100px; padding: 12px 13px; border-radius: 11px; }
-      .sq-mark-result { padding: 13px 12px; border-radius: 12px; }
+      /* ── Create sub-tabs ── */
+      .create-sub-tabs  { gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+      .create-sub-tab   { padding: 7px 16px; font-size: .72rem; border-radius: 20px; }
+      .create-sub-tabs.ctab-picked { margin-bottom: 14px; }
+      .create-sub-tabs.ctab-picked .create-sub-tab { padding: 5px 13px; font-size: .67rem; }
 
-      /* ── Finley ── */
+      /* ── Form & AI cards ── */
+      .form-card        { padding: 20px 16px; border-radius: 18px; }
+      .ai-card          { padding: 16px 14px; border-radius: 15px; }
+      .ai-drop          { padding: 22px 16px; border-radius: 15px; }
+      .ai-folder-pick   { flex-wrap: wrap; gap: 8px; }
+      .ai-folder-new    { min-width: 0; width: 100%; }
+      .ai-folder-sel    { max-width: 100%; }
+
+      /* ── SAQ (Sage) ── */
+      .sq-prac-card     { padding: 22px 18px; border-radius: 18px; }
+      .sq-prac-q        { font-size: .93rem; line-height: 1.65; }
+      .sq-prac-input    { min-height: 120px; padding: 14px 16px; border-radius: 13px; }
+      .sq-mark-result   { padding: 16px 16px; border-radius: 15px; }
+
+      /* ── Finley chat ── */
       .finley-setup       { max-width: 100%; }
-      .finley-chat-wrap   { height: calc(100svh - 155px); min-height: 280px; }
-      .finley-bubble-wrap { max-width: 93%; }
-      .finley-type-row    { gap: 5px; }
-      .finley-type-btn    { font-size: .68rem; padding: 6px 10px; }
+      .finley-chat-wrap   { height: calc(100svh - 152px); min-height: 300px; }
+      .finley-bubble-wrap { max-width: 92%; }
+      .finley-type-row    { gap: 7px; }
+      .finley-type-btn    { font-size: .71rem; padding: 8px 13px; border-radius: 10px; }
 
-      /* ── Blurto ── */
-      .blurto-layout        { gap: 12px; }
-      .blurto-area          { min-height: 180px; padding: 12px 13px; }
-      .blurto-cfg-card      { padding: 13px 12px; }
-      .blurto-active-layout { gap: 10px; }
-      .blurto-timer-disp    { font-size: 1.2rem; }
-      .blurto-toolbar       { gap: 3px; padding: 4px 6px; flex-wrap: wrap; }
-      .blurto-tb-btn        { font-size: .68rem; padding: 3px 7px; }
+      /* ── Blurto (Finley notes) ── */
+      .blurto-layout        { gap: 16px; }
+      .blurto-area          { min-height: 200px; padding: 14px 16px; border-radius: 14px; }
+      .blurto-cfg-card      { padding: 16px 14px; border-radius: 14px; }
+      .blurto-active-layout { gap: 14px; }
+      .blurto-timer-disp    { font-size: 1.35rem; }
+      .blurto-toolbar       { gap: 4px; padding: 6px 8px; flex-wrap: wrap; border-radius: 11px; }
+      .blurto-tb-btn        { font-size: .71rem; padding: 4px 9px; border-radius: 7px; }
 
       /* ── Organiser ── */
-      .org-actions        { gap: 6px; flex-wrap: wrap; }
-      .org-search         { min-width: 0; max-width: 100%; flex: 1; }
-      .org-table-wrap     { border-radius: 11px; }
-      .org-tracker-banner { padding: 13px 12px; }
+      .org-actions        { gap: 8px; flex-wrap: wrap; }
+      .org-search         { min-width: 0; max-width: 100%; flex: 1; border-radius: 11px; }
+      .org-table-wrap     { border-radius: 13px; }
+      .org-tracker-banner { padding: 16px 14px; border-radius: 14px; }
+      .org-tracker-items  { gap: 8px; }
 
-      /* ── Planner ── */
-      .rp-topic-card   { padding: 13px 12px; border-radius: 12px; }
-      .rp-card-top     { flex-wrap: wrap; gap: 7px; }
-      .rp-method-row   { flex-wrap: wrap; gap: 5px; }
-      .rp-shortcuts    { gap: 6px; }
-      .rp-shortcut-btn { flex: 1 1 calc(50% - 3px); min-width: 0; padding: 9px 8px; font-size: .7rem; gap: 5px; }
-      .rp-sched-chain  { overflow-x: auto; padding-bottom: 4px; }
-      .rp-empty        { padding: 36px 14px; }
+      /* ── Revision Planner ── */
+      .rp-topic-card    { padding: 16px 15px; border-radius: 15px; }
+      .rp-card-top      { flex-wrap: wrap; gap: 9px; }
+      .rp-method-row    { flex-wrap: wrap; gap: 7px; }
+      .rp-shortcuts     { gap: 8px; }
+      .rp-shortcut-btn  {
+        flex: 1 1 calc(50% - 4px); min-width: 0;
+        padding: 12px 10px; font-size: .74rem;
+        gap: 6px; border-radius: 13px;
+      }
+      .rp-shortcut-btn .rp-sc-emoji { font-size: 1.1rem; }
+      .rp-sched-chain   { overflow-x: auto; padding-bottom: 6px; }
+      .rp-empty         { padding: 44px 18px; }
+      .rp-topic-card .rp-method-pill { font-size: .73rem; }
     }
 
-    /* ── Very small phones (iPhone SE, Galaxy A series) ── */
+    /* ── Compact phones (iPhone SE / small Androids) ── */
     @media (max-width: 375px) {
-      #content        { padding: 12px 10px 44px; }
-      .folder-grid    { grid-template-columns: 1fr 1fr !important; gap: 7px !important; }
-      .folder-card    { padding: 24px 10px 10px !important; min-height: 88px !important; }
-      #qstem          { font-size: .84rem; }
-      .qopt .ot       { font-size: .8rem; }
-      .rp-shortcut-btn { flex: 1 1 calc(50% - 3px); }
+      #content     { padding: 16px 13px 56px; }
+      .folder-grid { gap: 8px !important; }
+      .folder-card { padding: 28px 12px 13px !important; min-height: 100px !important; }
+      .qopt        { padding: 11px 12px; }
+      .rp-shortcut-btn { padding: 10px 8px; font-size: .7rem; }
     }
   </style>
 </head>
@@ -3453,24 +3472,7 @@ function renderBank() {
       list.appendChild(c);
     });
     refreshFolderDatalist();
-    _initMobileCardObserver();
   }
-}
-
-// ── Mobile: expand bank card when it crosses the screen centre ────────────
-var _mobileCardObserver = null;
-function _initMobileCardObserver() {
-  if (window.innerWidth > 560) return;
-  if (_mobileCardObserver) _mobileCardObserver.disconnect();
-  // rootMargin '-38% 0px -38% 0px' creates a band in the centre 24% of the viewport
-  _mobileCardObserver = new IntersectionObserver(function(entries) {
-    entries.forEach(function(e) {
-      e.target.classList.toggle('q-scroll-active', e.isIntersecting);
-    });
-  }, { rootMargin: '-38% 0px -38% 0px', threshold: 0 });
-  document.querySelectorAll('.q-card').forEach(function(c) {
-    _mobileCardObserver.observe(c);
-  });
 }
 
 function delQ(id) {
