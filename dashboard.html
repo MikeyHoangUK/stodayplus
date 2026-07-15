@@ -8851,35 +8851,31 @@ async function _loadFromSupabase() {
     if (typeof renderSqBank === 'function') renderSqBank();
     _setSyncStatus(bank.length ? '☁ Local data uploaded to cloud' : '☁ Account ready');
   } else {
-    // Merge cloud + local: combine by id so neither device loses questions
-    function _mergeById(cloud, local) {
-      var map = {};
-      (cloud || []).forEach(function(q) { if (q && q.id) map[String(q.id)] = q; });
-      (local || []).forEach(function(q) {
-        if (!q || !q.id) return;
-        var key = String(q.id);
-        if (!map[key]) map[key] = q; // local-only question — add it
-      });
-      return Object.values(map);
-    }
+    // Cloud is the source of truth. Local cache is only used if cloud is empty.
     var cloudBank   = r.data.bank    || [];
     var cloudSqBank = r.data.sq_bank || [];
-    var localBank = [], localSqBank = [];
-    try { var _bc = JSON.parse(localStorage.getItem('sp_bank_cache_' + uid) || 'null'); if (_bc) localBank = _bc.data || []; } catch(e) {}
-    try { var _sc = JSON.parse(localStorage.getItem('sp_saqs_cache_' + uid) || 'null'); if (_sc) localSqBank = _sc.data || []; } catch(e) {}
-    // Also check the non-user-scoped key for unauthenticated data
-    try { if (!localBank.length) { var _gb = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); if (_gb.length) localBank = _gb; } } catch(e) {}
-    bank   = _mergeById(cloudBank, localBank);
-    sqBank = _mergeById(cloudSqBank, localSqBank);
-    // Clear stale caches now that we have the merged truth
+    if (cloudBank.length > 0) {
+      bank = cloudBank;
+    } else {
+      // Cloud empty — pull up local data and push it to cloud
+      try { var _bc = JSON.parse(localStorage.getItem('sp_bank_cache_' + uid) || 'null'); if (_bc && _bc.data && _bc.data.length) bank = _bc.data; } catch(e) {}
+      try { if (!bank.length) { var _lb = JSON.parse(localStorage.getItem('sp_bank_local_' + uid) || 'null'); if (_lb && _lb.length) bank = _lb; } } catch(e) {}
+      try { if (!bank.length) { var _gb = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); if (_gb.length) bank = _gb; } } catch(e) {}
+      if (bank.length) setTimeout(_syncToSupabase, 500);
+    }
+    if (cloudSqBank.length > 0) {
+      sqBank = cloudSqBank;
+    } else {
+      try { var _sc = JSON.parse(localStorage.getItem('sp_saqs_cache_' + uid) || 'null'); if (_sc && _sc.data && _sc.data.length) sqBank = _sc.data; } catch(e) {}
+      try { if (!sqBank.length) { var _ls = JSON.parse(localStorage.getItem('sp_saqs_local_' + uid) || 'null'); if (_ls && _ls.length) sqBank = _ls; } } catch(e) {}
+      if (sqBank.length) setTimeout(_syncToSupabase, 500);
+    }
+    // Clear stale local caches — cloud is now the truth
     localStorage.removeItem('sp_bank_cache_' + uid);
     localStorage.removeItem('sp_saqs_cache_' + uid);
-    // Push merged result back to cloud so all devices stay in sync
-    var _mergedDiffersFromCloud = bank.length !== cloudBank.length || sqBank.length !== cloudSqBank.length;
-    if (_mergedDiffersFromCloud) { setTimeout(_syncToSupabase, 500); }
     if (typeof renderBank   === 'function') renderBank();
     if (typeof renderSqBank === 'function') renderSqBank();
-    _setSyncStatus(_mergedDiffersFromCloud ? '☁ Merging devices…' : '☁ Loaded from cloud');
+    _setSyncStatus('☁ Loaded from cloud');
     // Merge cloud folder_scores with local (keep best score per folder)
     try {
       var fsr = await _spClient.from('user_data').select('folder_scores').eq('user_id', uid).maybeSingle();
