@@ -8844,6 +8844,8 @@ async function _loadFromSupabase() {
     bank = localBank; sqBank = localSqBank;
     var _initPayload = { user_id: uid, bank: bank, sq_bank: sqBank, updated_at: new Date().toISOString() };
     try { _initPayload.folder_scores = getFolderScores(); } catch(e) {}
+    try { _initPayload.folders = getAllFolders(); } catch(e) {}
+    try { _initPayload.folder_meta = getFolderMeta(); } catch(e) {}
     await _spClient.from('user_data').upsert(_initPayload, { onConflict: 'user_id' });
     if (typeof renderBank   === 'function') renderBank();
     if (typeof renderSqBank === 'function') renderSqBank();
@@ -8882,7 +8884,32 @@ async function _loadFromSupabase() {
         localStorage.setItem('sp_folder_scores', JSON.stringify(merged));
         if (typeof renderBank === 'function') renderBank();
       }
-    } catch(_e) { /* folder_scores column not yet added — run: ALTER TABLE user_data ADD COLUMN IF NOT EXISTS folder_scores jsonb DEFAULT '{}'; */ }
+    } catch(_e) {}
+    // Load folders + folder_meta (subjects) from cloud
+    try {
+      var fmr = await _spClient.from('user_data').select('folders, folder_meta').eq('user_id', uid).maybeSingle();
+      if (!fmr.error && fmr.data) {
+        if (fmr.data.folders && fmr.data.folders.length) {
+          var cloudFolders = fmr.data.folders;
+          var localFolders = getAllFolders();
+          // Merge: keep all unique folder names, prefer cloud subject if local has none
+          var mergedMap = {};
+          localFolders.forEach(function(f) { mergedMap[f.name] = f; });
+          cloudFolders.forEach(function(f) {
+            if (!mergedMap[f.name]) mergedMap[f.name] = f;
+            else if (!mergedMap[f.name].subject && f.subject) mergedMap[f.name].subject = f.subject;
+          });
+          localStorage.setItem('sp_folders', JSON.stringify(Object.values(mergedMap)));
+        }
+        if (fmr.data.folder_meta && Object.keys(fmr.data.folder_meta).length) {
+          var cloudMeta = fmr.data.folder_meta;
+          var localMeta = getFolderMeta();
+          var mergedMeta = Object.assign({}, cloudMeta, localMeta);
+          localStorage.setItem('sp_folder_meta', JSON.stringify(mergedMeta));
+        }
+        if (typeof renderBank === 'function') renderBank();
+      }
+    } catch(_e) {}
     // Load quiz session from cloud (requires quiz_session JSONB column — see comment below)
     try {
       var qsr = await _spClient.from('user_data').select('quiz_session').eq('user_id', uid).maybeSingle();
@@ -8905,6 +8932,8 @@ async function _syncToSupabase() {
   var uid = _spUser.id;
   var payload = { user_id: uid, bank: bank, sq_bank: sqBank, updated_at: new Date().toISOString() };
   try { payload.folder_scores = getFolderScores(); } catch(_e) {}
+  try { payload.folders = getAllFolders(); } catch(_e) {}
+  try { payload.folder_meta = getFolderMeta(); } catch(_e) {}
   var r = await _spClient.from('user_data').upsert(payload, { onConflict: 'user_id' });
   if (r.error) {
     console.warn('Supabase save:', r.error.message);
