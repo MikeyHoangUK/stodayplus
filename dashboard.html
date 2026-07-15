@@ -8830,32 +8830,45 @@ async function _loadFromSupabase() {
     return;
   }
   if (!r.data) {
-    // First sign-in — create empty cloud row
-    await _spClient.from('user_data').upsert({
-      user_id: uid, bank: [], sq_bank: [], updated_at: new Date().toISOString()
-    }, { onConflict: 'user_id' });
-    bank = []; sqBank = [];
+    // First sign-in — migrate any local data up to cloud rather than overwriting with empty arrays
+    var localBank = [], localSqBank = [];
+    try {
+      var _lb = JSON.parse(localStorage.getItem('sp_bank_local_' + uid) || 'null');
+      if (_lb && _lb.length) localBank = _lb;
+      else { var _gb = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); if (_gb.length) localBank = _gb; }
+    } catch(e) {}
+    try {
+      var _ls = JSON.parse(localStorage.getItem('sp_saqs_local_' + uid) || 'null');
+      if (_ls && _ls.length) localSqBank = _ls;
+    } catch(e) {}
+    bank = localBank; sqBank = localSqBank;
+    var _initPayload = { user_id: uid, bank: bank, sq_bank: sqBank, updated_at: new Date().toISOString() };
+    try { _initPayload.folder_scores = getFolderScores(); } catch(e) {}
+    await _spClient.from('user_data').upsert(_initPayload, { onConflict: 'user_id' });
     if (typeof renderBank   === 'function') renderBank();
     if (typeof renderSqBank === 'function') renderSqBank();
-    _setSyncStatus('☁ Account ready');
+    _setSyncStatus(bank.length ? '☁ Local data uploaded to cloud' : '☁ Account ready');
   } else {
     bank   = r.data.bank    || [];
     sqBank = r.data.sq_bank || [];
     // Recover unsynced writes from user-scoped cache if newer than cloud
     var cloudTs = r.data.updated_at ? new Date(r.data.updated_at).getTime() : 0;
+    var _localNewer = false;
     try {
       var bc = JSON.parse(localStorage.getItem('sp_bank_cache_' + uid) || 'null');
-      if (bc && bc.ts > cloudTs) { bank = bc.data; }
+      if (bc && bc.ts > cloudTs) { bank = bc.data; _localNewer = true; }
       else localStorage.removeItem('sp_bank_cache_' + uid);
     } catch(e) { localStorage.removeItem('sp_bank_cache_' + uid); }
     try {
       var sc = JSON.parse(localStorage.getItem('sp_saqs_cache_' + uid) || 'null');
-      if (sc && sc.ts > cloudTs) { sqBank = sc.data; }
+      if (sc && sc.ts > cloudTs) { sqBank = sc.data; _localNewer = true; }
       else localStorage.removeItem('sp_saqs_cache_' + uid);
     } catch(e) { localStorage.removeItem('sp_saqs_cache_' + uid); }
+    // Push local data to cloud if it's newer (catches all previously failed syncs)
+    if (_localNewer) { setTimeout(_syncToSupabase, 500); }
     if (typeof renderBank   === 'function') renderBank();
     if (typeof renderSqBank === 'function') renderSqBank();
-    _setSyncStatus('☁ Loaded from cloud');
+    _setSyncStatus(_localNewer ? '☁ Syncing local data to cloud…' : '☁ Loaded from cloud');
     // Merge cloud folder_scores with local (keep best score per folder)
     try {
       var fsr = await _spClient.from('user_data').select('folder_scores').eq('user_id', uid).maybeSingle();
