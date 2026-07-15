@@ -640,8 +640,9 @@
     .fc-icon{display:none}
     .fc-name{font-size:.84rem;font-weight:800;color:#1c1208;word-break:break-word;letter-spacing:.01em;line-height:1.35;margin-top:auto;margin-bottom:auto;transition:margin .22s ease}
     .folder-card:hover .fc-name{margin-top:4px;margin-bottom:0}
-    .fc-confidence{font-size:.62rem;font-weight:800;letter-spacing:.02em;max-height:24px;opacity:1;overflow:hidden;margin-top:2px}
+    .fc-confidence{font-size:.62rem;font-weight:800;letter-spacing:.02em;max-height:0;opacity:0;overflow:hidden;transition:max-height .2s ease,opacity .18s ease}
     .fc-count{font-size:.61rem;font-weight:700;color:#8a6e54;letter-spacing:.03em;max-height:0;opacity:0;overflow:hidden;transition:max-height .2s ease,opacity .18s ease}
+    .folder-card:hover .fc-confidence{max-height:24px;opacity:1;margin-top:2px}
     .folder-card:hover .fc-count{max-height:24px;opacity:1;margin-top:3px}
     .fc-actions{display:flex;gap:5px;max-height:0;opacity:0;overflow:hidden;transition:max-height .22s ease,opacity .18s ease}
     .folder-card:hover .fc-actions{max-height:36px;opacity:1;margin-top:6px}
@@ -8855,6 +8856,20 @@ async function _loadFromSupabase() {
     if (typeof renderBank   === 'function') renderBank();
     if (typeof renderSqBank === 'function') renderSqBank();
     _setSyncStatus('☁ Loaded from cloud');
+    // Merge cloud folder_scores with local (keep best score per folder)
+    try {
+      var fsr = await _spClient.from('user_data').select('folder_scores').eq('user_id', uid).maybeSingle();
+      if (!fsr.error && fsr.data && fsr.data.folder_scores) {
+        var cloudFs = fsr.data.folder_scores;
+        var localFs = getFolderScores();
+        var merged = Object.assign({}, cloudFs);
+        Object.keys(localFs).forEach(function(k) {
+          if (!merged[k] || (localFs[k].best > merged[k].best)) merged[k] = localFs[k];
+        });
+        localStorage.setItem('sp_folder_scores', JSON.stringify(merged));
+        if (typeof renderBank === 'function') renderBank();
+      }
+    } catch(_e) { /* folder_scores column not yet added — run: ALTER TABLE user_data ADD COLUMN IF NOT EXISTS folder_scores jsonb DEFAULT '{}'; */ }
     // Load quiz session from cloud (requires quiz_session JSONB column — see comment below)
     try {
       var qsr = await _spClient.from('user_data').select('quiz_session').eq('user_id', uid).maybeSingle();
@@ -8875,9 +8890,9 @@ async function _loadFromSupabase() {
 async function _syncToSupabase() {
   if (!_spClient || !_spUser) return;
   var uid = _spUser.id;
-  var r = await _spClient.from('user_data').upsert({
-    user_id: uid, bank: bank, sq_bank: sqBank, updated_at: new Date().toISOString()
-  }, { onConflict: 'user_id' });
+  var payload = { user_id: uid, bank: bank, sq_bank: sqBank, updated_at: new Date().toISOString() };
+  try { payload.folder_scores = getFolderScores(); } catch(_e) {}
+  var r = await _spClient.from('user_data').upsert(payload, { onConflict: 'user_id' });
   if (r.error) {
     console.warn('Supabase save:', r.error.message);
     _setSyncStatus('⚠ Sync failed — ' + r.error.message);
