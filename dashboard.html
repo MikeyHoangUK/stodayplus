@@ -1368,107 +1368,140 @@
       .panel.active { max-width: 100%; }
     }
 
-    /* Phone: tighten everything */
+    /* Phone */
     @media (max-width: 560px) {
-      /* Layout */
-      #content { padding: 18px 12px; }
-      #topbar  { padding: 0 10px; gap: 7px; height: 52px; min-height: 52px; }
+      /* Prevent iOS auto-zoom on input focus — must be 16px+ */
+      input, select, textarea, [contenteditable] { font-size: 16px !important; }
 
-      /* Hide mode toggle text on very small screens; keep toggle compact */
+      /* Layout */
+      #content { padding: 20px 14px 40px; }
+      #topbar  { padding: 0 12px; gap: 8px; height: 54px; min-height: 54px; }
+
+      /* Mode toggle */
       #mode-toggle { gap: 3px; }
-      .mode-btn { font-size: .6rem; padding: 4px 7px; border-radius: 7px; }
+      .mode-btn { font-size: .62rem; padding: 5px 8px; border-radius: 8px; }
 
       /* Panel */
       .panel.active { max-width: 100%; }
 
       /* Cards */
-      .form-card  { padding: 18px 14px; border-radius: 14px; }
-      .ai-card    { padding: 14px 12px; border-radius: 12px; }
-      .cfg-card   { padding: 12px; border-radius: 10px; }
+      .form-card  { padding: 20px 16px; border-radius: 16px; }
+      .ai-card    { padding: 16px 14px; border-radius: 14px; }
+      .cfg-card   { padding: 14px; border-radius: 12px; }
+      .cfg-lbl    { font-size: .75rem; margin-bottom: 6px; }
+      .cfg-sel    { font-size: 1rem; padding: 10px 12px; border-radius: 10px; }
 
       /* Quiz config: single column */
-      .cfg-grid { grid-template-columns: 1fr; gap: 8px; margin-bottom: 14px; }
+      .cfg-grid { grid-template-columns: 1fr; gap: 10px; margin-bottom: 18px; }
 
-      /* Start + Create buttons */
-      #quiz-setup > div > .start-btn { padding: 13px 16px; font-size: .82rem; }
-      .start-btn { padding: 13px 16px; }
+      /* Quiz setup headings */
+      .qs-h { font-size: 1.35rem; margin-bottom: 6px; }
+      .qs-p { font-size: .88rem; margin-bottom: 22px; line-height: 1.55; }
 
-      .mcq-tab  { padding: 5px 10px; font-size: .65rem; }
+      /* Start + Create buttons — full width, easy to tap */
+      #quiz-setup > div { flex-direction: column; gap: 10px; }
+      .start-btn { padding: 15px 18px; font-size: .95rem; border-radius: 14px; }
 
-      .qs-h   { font-size: 1.2rem; }
-      .qs-p   { font-size: .78rem; margin-bottom: 20px; }
+      /* Tabs */
+      .mcq-tab { padding: 6px 12px; font-size: .7rem; border-radius: 9px; }
 
-      /* Active quiz */
-      .quiz-card  { padding: 18px 14px; border-radius: 14px; }
-      .qopt       { padding: 9px 11px; border-radius: 10px; }
-      .qopt .ot   { font-size: .82rem; }
+      /* Active quiz card */
+      .quiz-card  { padding: 22px 16px; border-radius: 16px; }
+      #qstem      { font-size: 1rem; line-height: 1.65; }
+      .qopt       { padding: 13px 14px; border-radius: 12px; gap: 12px; margin-bottom: 8px; }
+      .qopt .ol   { width: 32px; height: 32px; min-width: 32px; font-size: .78rem; }
+      .qopt .ot   { font-size: .95rem; line-height: 1.5; }
+      .q-nav      { gap: 10px; margin-top: 20px; }
+      .q-nav button { padding: 11px 18px; font-size: .82rem; border-radius: 10px; flex: 1; }
 
       /* Results */
-      .results-wrap { padding: 28px 0; }
-      .score-circle { width: 110px; height: 110px; }
+      .results-wrap { padding: 32px 0; }
+      .score-circle { width: 120px; height: 120px; }
+      .score-pct    { font-size: 2rem; }
+      .res-title    { font-size: 1.2rem; margin-bottom: 6px; }
+      .res-sub      { font-size: .88rem; line-height: 1.5; }
+      .res-btn      { padding: 12px 18px; font-size: .88rem; border-radius: 12px; }
 
-      /* Bank + filter bar */
-      .bank-bar { flex-wrap: wrap; gap: 6px; }
-      #bank-diff-bar { flex-wrap: wrap; gap: 4px; }
+      /* Bank filter bar */
+      .bank-bar    { flex-wrap: wrap; gap: 7px; }
+      #bank-search { font-size: 1rem; padding: 9px 12px; border-radius: 10px; }
+      #bank-diff-bar { flex-wrap: wrap; gap: 5px; }
+      .filt-btn    { font-size: .72rem; padding: 5px 11px; }
 
-      /* Q cards */
-      .q-card { padding: 14px 12px; border-radius: 12px; }
-      .q-stem-t { font-size: .8rem; }
+      /* Q cards in bank */
+      .q-card    { padding: 16px 14px; border-radius: 14px; gap: 10px; }
+      .q-stem-t  { font-size: .9rem; line-height: 1.55; }
+      .q-num     { min-width: 28px; height: 28px; font-size: .7rem; }
+      .q-btn     { padding: 5px 10px; font-size: .7rem; border-radius: 7px; }
 
-      /* AI generate card */
-      .ai-folder-pick { flex-wrap: wrap; gap: 6px; }
+      /* Folder cards: 2 col, finger-friendly */
+      .folder-grid { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+      .folder-card { padding: 14px 12px 12px !important; border-radius: 14px !important; min-height: 108px !important; }
+      .fc-name     { font-size: .88rem; }
+      .fc-count    { font-size: .68rem; }
+      .fc-quiz     { font-size: .7rem; padding: 5px 10px; border-radius: 8px; }
+
+      /* AI generate */
+      .ai-folder-pick { flex-wrap: wrap; gap: 7px; }
       .ai-folder-new  { min-width: 0; width: 100%; }
       .ai-folder-sel  { max-width: 100%; }
-      .ai-drop        { padding: 18px 12px; border-radius: 12px; }
+      .ai-drop        { padding: 22px 14px; border-radius: 14px; }
+      .ai-generate-btn { padding: 13px 18px; font-size: .9rem; border-radius: 12px; }
 
-      /* Blurto setup */
-      .blurto-layout          { gap: 14px; }
-      .blurto-area            { min-height: 200px; font-size: .85rem; padding: 12px 14px; }
-      .blurto-notes-ro        { min-height: 200px; }
-      .blurto-write-col .blurto-area { min-height: 200px; }
-      .blurto-cfg-card        { padding: 14px 12px; }
-      .blurto-active-layout   { gap: 12px; }
-      .blurto-timer-disp      { font-size: 1.2rem; }
-      .blurto-toolbar         { gap: 3px; padding: 4px 6px; }
-      .blurto-tb-btn          { font-size: .68rem; padding: 3px 6px; }
+      /* Blurto */
+      .blurto-layout        { gap: 14px; }
+      .blurto-area          { min-height: 200px; padding: 14px; }
+      .blurto-notes-ro      { min-height: 200px; }
+      .blurto-cfg-card      { padding: 14px 12px; }
+      .blurto-active-layout { gap: 12px; }
+      .blurto-timer-disp    { font-size: 1.3rem; }
+      .blurto-toolbar       { gap: 3px; padding: 5px 7px; flex-wrap: wrap; }
+      .blurto-tb-btn        { font-size: .72rem; padding: 4px 8px; }
 
-      /* SAQ practice */
-      .sq-prac-card   { padding: 18px 14px; min-height: 90px; border-radius: 14px; }
-      .sq-prac-q      { font-size: .9rem; }
-      .sq-prac-input  { min-height: 100px; font-size: .85rem; padding: 12px 14px; }
-      .sq-mark-result { padding: 14px 12px; border-radius: 12px; }
+      /* SAQ */
+      .sq-prac-card  { padding: 20px 16px; min-height: 100px; border-radius: 16px; }
+      .sq-prac-q     { font-size: .95rem; line-height: 1.6; }
+      .sq-prac-input { min-height: 110px; padding: 14px; border-radius: 12px; }
+      .sq-mark-result { padding: 16px 14px; border-radius: 14px; }
 
-      /* Finley */
-      .finley-setup         { max-width: 100%; }
-      .finley-chat-wrap     { height: calc(100svh - 150px); min-height: 300px; }
-      .finley-bubble-wrap   { max-width: 92%; }
-      .finley-type-row      { gap: 5px; }
-      .finley-type-btn      { font-size: .68rem; padding: 5px 10px; }
+      /* Finley chat */
+      .finley-setup       { max-width: 100%; }
+      .finley-chat-wrap   { height: calc(100svh - 160px); min-height: 300px; }
+      .finley-bubble-wrap { max-width: 94%; }
+      .finley-type-row    { gap: 6px; }
+      .finley-type-btn    { font-size: .72rem; padding: 7px 12px; border-radius: 9px; }
+      .finley-inp         { font-size: 1rem; padding: 10px 14px; border-radius: 12px; }
 
       /* Organiser */
-      .org-actions      { gap: 6px; }
-      .org-search       { min-width: 0; max-width: 100%; flex: 1; }
-      .org-table-wrap   { border-radius: 10px; }
-      .org-tracker-banner { padding: 14px 12px; }
-      .org-tracker-items  { gap: 6px; }
+      .org-actions        { gap: 7px; flex-wrap: wrap; }
+      .org-search         { min-width: 0; max-width: 100%; flex: 1; font-size: 1rem; }
+      .org-table-wrap     { border-radius: 12px; }
+      .org-tracker-banner { padding: 16px 14px; }
+      .org-tracker-items  { gap: 7px; }
 
       /* Planner */
-      .rp-topic-card    { padding: 14px 12px; border-radius: 12px; }
-      .rp-card-top      { flex-wrap: wrap; gap: 8px; }
-      .rp-method-row    { flex-wrap: wrap; gap: 6px; }
-      .rp-shortcuts     { gap: 6px; }
-      .rp-shortcut-btn  { flex: 1 1 calc(50% - 3px); min-width: 0; padding: 9px 8px; font-size: .7rem; gap: 5px; }
-      .rp-shortcut-btn .rp-sc-emoji { font-size: 1rem; }
-      .rp-sched-chain   { overflow-x: auto; padding-bottom: 4px; }
-      .rp-empty         { padding: 36px 16px; }
+      .rp-topic-card   { padding: 16px 14px; border-radius: 14px; }
+      .rp-card-top     { flex-wrap: wrap; gap: 8px; }
+      .rp-method-row   { flex-wrap: wrap; gap: 6px; }
+      .rp-shortcuts    { gap: 7px; }
+      .rp-shortcut-btn { flex: 1 1 calc(50% - 4px); min-width: 0; padding: 11px 10px; font-size: .76rem; gap: 6px; border-radius: 12px; }
+      .rp-shortcut-btn .rp-sc-emoji { font-size: 1.1rem; }
+      .rp-sched-chain  { overflow-x: auto; padding-bottom: 6px; }
+      .rp-empty        { padding: 40px 18px; }
 
-      /* Topbar title: smaller on phone */
-      .tb-title { font-size: .76rem; letter-spacing: .04em; }
-      .tb-sub   { font-size: .46rem; }
+      /* Topbar title */
+      .tb-title { font-size: .78rem; letter-spacing: .03em; }
+      .tb-sub   { font-size: .5rem; }
+    }
 
-      /* Folder cards grid */
-      .folder-grid { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
-      .folder-card { padding: 12px 10px !important; border-radius: 12px !important; }
+    /* Very small phones (iPhone SE etc.) */
+    @media (max-width: 380px) {
+      #content { padding: 16px 10px 36px; }
+      .folder-grid { grid-template-columns: 1fr !important; }
+      .cfg-grid    { gap: 8px; }
+      .qopt .ot    { font-size: .88rem; }
+      #qstem       { font-size: .95rem; }
+      .rp-shortcut-btn { flex: 1 1 100%; }
     }
   </style>
 </head>
