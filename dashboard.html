@@ -1368,140 +1368,130 @@
       .panel.active { max-width: 100%; }
     }
 
-    /* Phone */
+    /* ── Phone ─────────────────────────────────────────────────────────── */
     @media (max-width: 560px) {
-      /* Prevent iOS auto-zoom on input focus — must be 16px+ */
+
+      /* iOS: prevent page-zoom when tapping inputs */
       input, select, textarea, [contenteditable] { font-size: 16px !important; }
 
-      /* Layout */
-      #content { padding: 20px 14px 40px; }
-      #topbar  { padding: 0 12px; gap: 8px; height: 54px; min-height: 54px; }
+      /* ── Layout ── */
+      #content { padding: 16px 12px 48px; }
 
-      /* Mode toggle */
-      #mode-toggle { gap: 3px; }
-      .mode-btn { font-size: .62rem; padding: 5px 8px; border-radius: 8px; }
+      /* ── Topbar ── same structure, just tighter */
+      #topbar          { padding: 0 10px; gap: 6px; height: 50px; min-height: 50px; }
+      .tb-title        { font-size: .75rem; letter-spacing: .03em; }
+      .tb-sub          { font-size: .48rem; }
+      .mcq-tab         { padding: 5px 11px; font-size: .67rem; }
+      .ctab-in-topbar  { padding: 5px 11px; font-size: .67rem; }
+      #mode-toggle     { gap: 3px; }
+      .mode-btn        { font-size: .6rem; padding: 4px 7px; }
 
-      /* Panel */
-      .panel.active { max-width: 100%; }
+      /* ── Folder grid (2 col, same as desktop but scaled) ── */
+      .folder-grid { grid-template-columns: 1fr 1fr !important; gap: 9px !important; }
+      .folder-card { padding: 28px 12px 12px !important; border-radius: 13px !important; min-height: 96px !important; }
+      .fc-name     { font-size: .82rem; }
+      .fc-quiz     { font-size: .68rem; padding: 4px 9px; }
+      .fc-edit-top { font-size: .6rem; }
 
-      /* Cards */
-      .form-card  { padding: 20px 16px; border-radius: 16px; }
-      .ai-card    { padding: 16px 14px; border-radius: 14px; }
-      .cfg-card   { padding: 14px; border-radius: 12px; }
-      .cfg-lbl    { font-size: .75rem; margin-bottom: 6px; }
-      .cfg-sel    { font-size: 1rem; padding: 10px 12px; border-radius: 10px; }
+      /* ── Quiz setup ── */
+      .cfg-grid   { grid-template-columns: 1fr; gap: 9px; margin-bottom: 16px; }
+      .cfg-card   { padding: 12px 13px; border-radius: 11px; }
+      .cfg-lbl    { font-size: .72rem; }
+      .qs-h       { font-size: 1.15rem; }
+      .qs-p       { font-size: .8rem; margin-bottom: 18px; }
+      .start-btn  { padding: 12px 16px; font-size: .85rem; }
 
-      /* Quiz config: single column */
-      .cfg-grid { grid-template-columns: 1fr; gap: 10px; margin-bottom: 18px; }
+      /* ── Active quiz (compact — show more on screen) ── */
+      .quiz-card     { padding: 16px 13px; border-radius: 14px; }
+      #qstem         { font-size: .88rem; line-height: 1.6; }
+      .qopt          { padding: 9px 11px; border-radius: 10px; gap: 10px; margin-bottom: 6px; }
+      .qopt .ol      { width: 26px; height: 26px; min-width: 26px; font-size: .67rem; }
+      .qopt .ot      { font-size: .84rem; line-height: 1.45; }
 
-      /* Quiz setup headings */
-      .qs-h { font-size: 1.35rem; margin-bottom: 6px; }
-      .qs-p { font-size: .88rem; margin-bottom: 22px; line-height: 1.55; }
+      /* ── Results ── */
+      .results-wrap { padding: 24px 0; }
+      .score-circle { width: 108px; height: 108px; }
+      .score-pct    { font-size: 1.9rem; }
+      .res-btn      { padding: 11px 16px; font-size: .84rem; border-radius: 11px; }
 
-      /* Start + Create buttons — full width, easy to tap */
-      #quiz-setup > div { flex-direction: column; gap: 10px; }
-      .start-btn { padding: 15px 18px; font-size: .95rem; border-radius: 14px; }
+      /* ── Bank filter bar ── */
+      .bank-bar      { flex-wrap: wrap; gap: 6px; }
+      #bank-diff-bar { flex-wrap: wrap; gap: 4px; }
+      .filt-btn      { font-size: .68rem; padding: 4px 10px; }
 
-      /* Tabs */
-      .mcq-tab { padding: 6px 12px; font-size: .7rem; border-radius: 9px; }
+      /* ── Bank Q cards — collapsed by default on mobile ──
+           .q-scroll-active is added by JS when card is near screen centre */
+      .q-card        { padding: 12px 13px; border-radius: 12px; margin-bottom: 7px; }
+      .q-stem-t      { font-size: .84rem; line-height: 1.5; }
+      .q-num         { min-width: 24px; height: 24px; font-size: .63rem; }
+      .q-meta,
+      .q-btns        { max-height: 0; opacity: 0; overflow: hidden;
+                       transition: max-height .22s ease, opacity .18s ease; }
+      .q-card.q-scroll-active .q-meta,
+      .q-card.q-scroll-active .q-btns { max-height: 60px; opacity: 1; }
+      /* Checkbox stays visible so bulk-select still works */
 
-      /* Active quiz card */
-      .quiz-card  { padding: 22px 16px; border-radius: 16px; }
-      #qstem      { font-size: 1rem; line-height: 1.65; }
-      .qopt       { padding: 13px 14px; border-radius: 12px; gap: 12px; margin-bottom: 8px; }
-      .qopt .ol   { width: 32px; height: 32px; min-width: 32px; font-size: .78rem; }
-      .qopt .ot   { font-size: .95rem; line-height: 1.5; }
-      .q-nav      { gap: 10px; margin-top: 20px; }
-      .q-nav button { padding: 11px 18px; font-size: .82rem; border-radius: 10px; flex: 1; }
+      /* ── Create sub-tabs — compact after a tab is picked ── */
+      .create-sub-tabs.ctab-picked .create-sub-tab {
+        padding: 4px 11px; font-size: .63rem;
+      }
 
-      /* Results */
-      .results-wrap { padding: 32px 0; }
-      .score-circle { width: 120px; height: 120px; }
-      .score-pct    { font-size: 2rem; }
-      .res-title    { font-size: 1.2rem; margin-bottom: 6px; }
-      .res-sub      { font-size: .88rem; line-height: 1.5; }
-      .res-btn      { padding: 12px 18px; font-size: .88rem; border-radius: 12px; }
+      /* ── Form cards ── */
+      .form-card { padding: 17px 13px; border-radius: 14px; }
+      .ai-card   { padding: 13px 11px; border-radius: 12px; }
 
-      /* Bank filter bar */
-      .bank-bar    { flex-wrap: wrap; gap: 7px; }
-      #bank-search { font-size: 1rem; padding: 9px 12px; border-radius: 10px; }
-      #bank-diff-bar { flex-wrap: wrap; gap: 5px; }
-      .filt-btn    { font-size: .72rem; padding: 5px 11px; }
-
-      /* Q cards in bank */
-      .q-card    { padding: 16px 14px; border-radius: 14px; gap: 10px; }
-      .q-stem-t  { font-size: .9rem; line-height: 1.55; }
-      .q-num     { min-width: 28px; height: 28px; font-size: .7rem; }
-      .q-btn     { padding: 5px 10px; font-size: .7rem; border-radius: 7px; }
-
-      /* Folder cards: 2 col, finger-friendly */
-      .folder-grid { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
-      .folder-card { padding: 14px 12px 12px !important; border-radius: 14px !important; min-height: 108px !important; }
-      .fc-name     { font-size: .88rem; }
-      .fc-count    { font-size: .68rem; }
-      .fc-quiz     { font-size: .7rem; padding: 5px 10px; border-radius: 8px; }
-
-      /* AI generate */
-      .ai-folder-pick { flex-wrap: wrap; gap: 7px; }
+      /* ── AI generate ── */
+      .ai-folder-pick { flex-wrap: wrap; gap: 6px; }
       .ai-folder-new  { min-width: 0; width: 100%; }
       .ai-folder-sel  { max-width: 100%; }
-      .ai-drop        { padding: 22px 14px; border-radius: 14px; }
-      .ai-generate-btn { padding: 13px 18px; font-size: .9rem; border-radius: 12px; }
+      .ai-drop        { padding: 18px 12px; border-radius: 12px; }
 
-      /* Blurto */
-      .blurto-layout        { gap: 14px; }
-      .blurto-area          { min-height: 200px; padding: 14px; }
-      .blurto-notes-ro      { min-height: 200px; }
-      .blurto-cfg-card      { padding: 14px 12px; }
-      .blurto-active-layout { gap: 12px; }
-      .blurto-timer-disp    { font-size: 1.3rem; }
-      .blurto-toolbar       { gap: 3px; padding: 5px 7px; flex-wrap: wrap; }
-      .blurto-tb-btn        { font-size: .72rem; padding: 4px 8px; }
+      /* ── SAQ ── */
+      .sq-prac-card  { padding: 17px 13px; border-radius: 14px; }
+      .sq-prac-q     { font-size: .88rem; line-height: 1.6; }
+      .sq-prac-input { min-height: 100px; padding: 12px 13px; border-radius: 11px; }
+      .sq-mark-result { padding: 13px 12px; border-radius: 12px; }
 
-      /* SAQ */
-      .sq-prac-card  { padding: 20px 16px; min-height: 100px; border-radius: 16px; }
-      .sq-prac-q     { font-size: .95rem; line-height: 1.6; }
-      .sq-prac-input { min-height: 110px; padding: 14px; border-radius: 12px; }
-      .sq-mark-result { padding: 16px 14px; border-radius: 14px; }
-
-      /* Finley chat */
+      /* ── Finley ── */
       .finley-setup       { max-width: 100%; }
-      .finley-chat-wrap   { height: calc(100svh - 160px); min-height: 300px; }
-      .finley-bubble-wrap { max-width: 94%; }
-      .finley-type-row    { gap: 6px; }
-      .finley-type-btn    { font-size: .72rem; padding: 7px 12px; border-radius: 9px; }
-      .finley-inp         { font-size: 1rem; padding: 10px 14px; border-radius: 12px; }
+      .finley-chat-wrap   { height: calc(100svh - 155px); min-height: 280px; }
+      .finley-bubble-wrap { max-width: 93%; }
+      .finley-type-row    { gap: 5px; }
+      .finley-type-btn    { font-size: .68rem; padding: 6px 10px; }
 
-      /* Organiser */
-      .org-actions        { gap: 7px; flex-wrap: wrap; }
-      .org-search         { min-width: 0; max-width: 100%; flex: 1; font-size: 1rem; }
-      .org-table-wrap     { border-radius: 12px; }
-      .org-tracker-banner { padding: 16px 14px; }
-      .org-tracker-items  { gap: 7px; }
+      /* ── Blurto ── */
+      .blurto-layout        { gap: 12px; }
+      .blurto-area          { min-height: 180px; padding: 12px 13px; }
+      .blurto-cfg-card      { padding: 13px 12px; }
+      .blurto-active-layout { gap: 10px; }
+      .blurto-timer-disp    { font-size: 1.2rem; }
+      .blurto-toolbar       { gap: 3px; padding: 4px 6px; flex-wrap: wrap; }
+      .blurto-tb-btn        { font-size: .68rem; padding: 3px 7px; }
 
-      /* Planner */
-      .rp-topic-card   { padding: 16px 14px; border-radius: 14px; }
-      .rp-card-top     { flex-wrap: wrap; gap: 8px; }
-      .rp-method-row   { flex-wrap: wrap; gap: 6px; }
-      .rp-shortcuts    { gap: 7px; }
-      .rp-shortcut-btn { flex: 1 1 calc(50% - 4px); min-width: 0; padding: 11px 10px; font-size: .76rem; gap: 6px; border-radius: 12px; }
-      .rp-shortcut-btn .rp-sc-emoji { font-size: 1.1rem; }
-      .rp-sched-chain  { overflow-x: auto; padding-bottom: 6px; }
-      .rp-empty        { padding: 40px 18px; }
+      /* ── Organiser ── */
+      .org-actions        { gap: 6px; flex-wrap: wrap; }
+      .org-search         { min-width: 0; max-width: 100%; flex: 1; }
+      .org-table-wrap     { border-radius: 11px; }
+      .org-tracker-banner { padding: 13px 12px; }
 
-      /* Topbar title */
-      .tb-title { font-size: .78rem; letter-spacing: .03em; }
-      .tb-sub   { font-size: .5rem; }
+      /* ── Planner ── */
+      .rp-topic-card   { padding: 13px 12px; border-radius: 12px; }
+      .rp-card-top     { flex-wrap: wrap; gap: 7px; }
+      .rp-method-row   { flex-wrap: wrap; gap: 5px; }
+      .rp-shortcuts    { gap: 6px; }
+      .rp-shortcut-btn { flex: 1 1 calc(50% - 3px); min-width: 0; padding: 9px 8px; font-size: .7rem; gap: 5px; }
+      .rp-sched-chain  { overflow-x: auto; padding-bottom: 4px; }
+      .rp-empty        { padding: 36px 14px; }
     }
 
-    /* Very small phones (iPhone SE etc.) */
-    @media (max-width: 380px) {
-      #content { padding: 16px 10px 36px; }
-      .folder-grid { grid-template-columns: 1fr !important; }
-      .cfg-grid    { gap: 8px; }
-      .qopt .ot    { font-size: .88rem; }
-      #qstem       { font-size: .95rem; }
-      .rp-shortcut-btn { flex: 1 1 100%; }
+    /* ── Very small phones (iPhone SE, Galaxy A series) ── */
+    @media (max-width: 375px) {
+      #content        { padding: 12px 10px 44px; }
+      .folder-grid    { grid-template-columns: 1fr 1fr !important; gap: 7px !important; }
+      .folder-card    { padding: 24px 10px 10px !important; min-height: 88px !important; }
+      #qstem          { font-size: .84rem; }
+      .qopt .ot       { font-size: .8rem; }
+      .rp-shortcut-btn { flex: 1 1 calc(50% - 3px); }
     }
   </style>
 </head>
@@ -3463,7 +3453,24 @@ function renderBank() {
       list.appendChild(c);
     });
     refreshFolderDatalist();
+    _initMobileCardObserver();
   }
+}
+
+// ── Mobile: expand bank card when it crosses the screen centre ────────────
+var _mobileCardObserver = null;
+function _initMobileCardObserver() {
+  if (window.innerWidth > 560) return;
+  if (_mobileCardObserver) _mobileCardObserver.disconnect();
+  // rootMargin '-38% 0px -38% 0px' creates a band in the centre 24% of the viewport
+  _mobileCardObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      e.target.classList.toggle('q-scroll-active', e.isIntersecting);
+    });
+  }, { rootMargin: '-38% 0px -38% 0px', threshold: 0 });
+  document.querySelectorAll('.q-card').forEach(function(c) {
+    _mobileCardObserver.observe(c);
+  });
 }
 
 function delQ(id) {
@@ -4129,6 +4136,9 @@ function createSubTab(t) {
     var topbarTab = document.getElementById('topbar-ctab-' + x);
     if (topbarTab) topbarTab.classList.toggle('active', x === t);
   });
+  // On mobile: compact the tab bar after a tab is chosen
+  var tabBar = document.querySelector('.create-sub-tabs');
+  if (tabBar) tabBar.classList.add('ctab-picked');
   if (t === 'paste') pastePopulateFolders();
   if (t === 'import') importPopulateFolders();
 }
