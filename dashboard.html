@@ -4228,6 +4228,7 @@ function showPanel(id, el) {
   // Discard in-memory Finley session on panel switch (it's not persisted anyway)
   if (id !== 'finley' && finleySession) { finleySession = null; finleyStartTime = null; finleyMessageCount = 0; }
   document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+  if (id !== 'mcq') { var _qzrb = document.getElementById('qz-resume-banner'); if (_qzrb) _qzrb.style.display = 'none'; }
   var p = document.getElementById('panel-'+id);
   if (p) { p.classList.add('active'); p.classList.add('anim'); }
   document.querySelectorAll('.nav-item:not(.soon)').forEach(function(n) { n.classList.remove('active'); });
