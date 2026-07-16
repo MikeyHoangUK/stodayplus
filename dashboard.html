@@ -3354,10 +3354,18 @@ function autoSelectQzCount(n) {
 
 function renderQuizSessionCard(folderName) {
   var card = document.getElementById('quiz-session-card');
-  if (!card) return;
-  if (!folderName || folderName === 'all') { card.style.display = 'none'; card.innerHTML = ''; return; }
+  if (card) { card.style.display = 'none'; card.innerHTML = ''; }
+  // session card removed from UI — kept for data side-effects only
+  if (!folderName || folderName === 'all') return;
   var t = orgMatchTopic(folderName);
-  if (!t) { card.style.display = 'none'; return; }
+  if (!t) return;
+  // update done-count text under wizard folder name
+  var avEl = document.getElementById('qzw-avail-small');
+  if (avEl) {
+    var done = t.mcq_count || 0;
+    avEl.textContent = done + ' / ' + ORG_MCQ_THRESHOLD + ' done';
+  }
+  return; // rest of card rendering skipped
   var sessions = t.mcq_sessions || [];
   var count = t.mcq_count || 0;
   var suggested = orgSuggestCount(sessions, ORG_MCQ_THRESHOLD, count);
@@ -3591,12 +3599,6 @@ function _qzCycleUpdate() {
   if (btn) btn.textContent = 'Choose ' + _diffCycleLabels[d] + ' →';
   document.getElementById('qz-diff').value = d;
   updateAvail();
-  var f = document.getElementById('qz-folder').value;
-  var pool = bank.filter(function(q) {
-    return (f === 'all' || (q.folder||'General') === f) && (d === 'all' || q.difficulty === d);
-  });
-  var avEl = document.getElementById('qzw-avail-small');
-  if (avEl) avEl.textContent = pool.length + ' question' + (pool.length !== 1 ? 's' : '') + ' available';
 }
 
 function qzWizShow(step) {
@@ -3607,6 +3609,8 @@ function qzWizShow(step) {
   if (step === 'diff') {
     _diffCycleIdx = 0;
     _qzCycleUpdate();
+    var _f = document.getElementById('qz-folder').value;
+    renderQuizSessionCard(_f);
   }
 }
 function qzWizSetName(name) {
