@@ -321,9 +321,9 @@
     /* ── Quiz highlight ── */
     .quiz-hl{background:#fef08a;border-radius:2px;color:inherit}
     body.hc .quiz-hl{background:#713f12;color:#fef9c3}
-    /* ── Quiz resume banner — slim flat strip ── */
-    #qz-resume-banner{width:100%;max-width:600px;margin:0 auto 12px;box-sizing:border-box;flex-shrink:0}
-    .qzr-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(109,40,217,.06);border:1px solid rgba(109,40,217,.14);border-radius:10px;padding:9px 14px}
+    /* ── Quiz resume banner — full-width flat bar ── */
+    #qz-resume-banner{width:100%;margin:0 0 16px;box-sizing:border-box}
+    .qzr-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(109,40,217,.06);border:none;border-bottom:1px solid rgba(109,40,217,.14);padding:9px 0}
     .qzr-text{font-size:.8rem;font-weight:700;color:#3d2e1a;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .qzr-text strong{color:#4c1d95;font-weight:900}
     .qzr-btns{display:flex;gap:6px;flex-shrink:0;align-items:center}
@@ -351,13 +351,13 @@
     .bank-empty h3{font-size:1rem;font-weight:800;color:#5a4230;margin-bottom:6px}
     .bank-empty p{font-size:.8rem}
 
-    /* Quiz sub-panel — fixed height so it never scrolls */
-    #sub-quiz{display:flex;flex-direction:column;height:calc(100vh - 154px);overflow:hidden}
-    /* Quiz setup — fills remaining space below resume bar, centers wizard */
-    #quiz-setup{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;max-width:600px;margin:0 auto;text-align:center;width:100%;overflow:hidden}
+    /* Quiz sub-panel */
+    #sub-quiz{display:flex;flex-direction:column}
+    /* Quiz setup — centers wizard content */
+    #quiz-setup{display:flex;flex-direction:column;justify-content:center;align-items:center;max-width:600px;margin:0 auto;text-align:center;width:100%;min-height:calc(100vh - 220px)}
     /* ── Quiz wizard steps ── */
-    .qzw-step{padding:32px 24px 40px;animation:fadeIn .25s ease;display:flex;flex-direction:column;align-items:center;text-align:center;width:100%}
-    .qzw-back{background:none;border:none;font-family:'Raleway',sans-serif;font-size:.75rem;font-weight:800;color:#8a6e54;cursor:pointer;padding:0;letter-spacing:.04em;display:inline-flex;align-items:center;gap:5px;margin-bottom:44px;transition:color .15s;align-self:flex-start}
+    .qzw-step{padding:16px 0 40px;animation:fadeIn .25s ease;display:flex;flex-direction:column;align-items:center;text-align:center;width:100%;position:relative}
+    .qzw-back{position:absolute;top:16px;left:0;background:none;border:none;font-family:'Raleway',sans-serif;font-size:.75rem;font-weight:800;color:#8a6e54;cursor:pointer;padding:0;letter-spacing:.04em;display:inline-flex;align-items:center;gap:5px;transition:color .15s}
     .qzw-back:hover{color:#6d28d9}
     .qzw-eyebrow{font-size:.68rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#b09880;margin-bottom:10px}
     .qzw-hero{font-size:2.6rem;font-weight:900;color:#1c1208;line-height:1.15;margin-bottom:6px;word-break:break-word}
@@ -398,7 +398,7 @@
     .start-btn:disabled{opacity:.3;cursor:default;box-shadow:none;transform:none}
 
     /* Active quiz */
-    #quiz-run{max-width:660px;margin:0 auto;flex:1;overflow-y:auto}
+    #quiz-run{max-width:660px;margin:0 auto}
     .quiz-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
     .q-prog-bar{height:3px;background:rgba(109,40,217,.15);border-radius:2px;margin-bottom:28px;overflow:hidden}
     .q-prog-fill{height:100%;background:linear-gradient(90deg,#7c3aed,#6366f1);border-radius:2px;transition:width .4s ease}
@@ -1390,7 +1390,6 @@
     /* Tablet: collapse two-column layouts */
     @media (max-width: 800px) {
       #content { padding: 32px 24px; }
-      #sub-quiz { height: calc(100vh - 122px); }
       #topbar  { padding: 0 16px; gap: 10px; }
       .blurto-layout { grid-template-columns: 1fr; }
       .blurto-active-layout { grid-template-columns: 1fr; }
@@ -1411,7 +1410,6 @@
 
       /* ── Outer layout ── */
       #content { padding: 20px 16px 60px; }
-      #sub-quiz { height: calc(100vh - 132px); }
       .panel.active { max-width: 100%; }
 
       /* ── Topbar ── */
