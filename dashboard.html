@@ -5132,6 +5132,24 @@ function qzResumeSession() {
   quizRun.addEventListener('mouseup', function() {
     var sel = window.getSelection();
     if (!sel || sel.isCollapsed || !sel.rangeCount) return;
+
+    // Snap selection to whole-word boundaries
+    (function() {
+      var r = sel.getRangeAt(0).cloneRange();
+      var changed = false;
+      if (r.startContainer.nodeType === 3) {
+        var st = r.startContainer.textContent, so = r.startOffset;
+        while (so > 0 && /\S/.test(st[so - 1])) so--;
+        if (so !== r.startOffset) { r.setStart(r.startContainer, so); changed = true; }
+      }
+      if (r.endContainer.nodeType === 3) {
+        var et = r.endContainer.textContent, eo = r.endOffset;
+        while (eo < et.length && /\S/.test(et[eo])) eo++;
+        if (eo !== r.endOffset) { r.setEnd(r.endContainer, eo); changed = true; }
+      }
+      if (changed) { sel.removeAllRanges(); sel.addRange(r); }
+    })();
+
     var range = sel.getRangeAt(0);
     if (!range || range.collapsed) return;
     if (!quizRun.contains(range.commonAncestorContainer)) return;
