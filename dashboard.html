@@ -321,17 +321,17 @@
     /* ── Quiz highlight ── */
     .quiz-hl{background:#fef08a;border-radius:2px;color:inherit}
     body.hc .quiz-hl{background:#713f12;color:#fef9c3}
-    /* ── Quiz resume banner — full-width flat bar ── */
-    #qz-resume-banner{width:100%;margin:0 0 16px;box-sizing:border-box}
-    .qzr-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(109,40,217,.06);border:none;border-bottom:1px solid rgba(109,40,217,.14);padding:9px 0}
-    .qzr-text{font-size:.8rem;font-weight:700;color:#3d2e1a;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    /* ── Quiz resume banner — attached to topbar ── */
+    #qz-resume-banner{background:rgba(109,40,217,.05);border-bottom:1px solid rgba(109,40,217,.12)}
+    .qzr-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:5px 56px}
+    .qzr-text{font-size:.68rem;font-weight:700;color:#3d2e1a;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .qzr-text strong{color:#4c1d95;font-weight:900}
-    .qzr-btns{display:flex;gap:6px;flex-shrink:0;align-items:center}
-    .qzr-btn-pri{background:#6d28d9;color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:.76rem;font-weight:800;cursor:pointer;font-family:inherit;transition:opacity .15s}
+    .qzr-btns{display:flex;gap:5px;flex-shrink:0;align-items:center}
+    .qzr-btn-pri{background:#6d28d9;color:#fff;border:none;border-radius:6px;padding:3px 10px;font-size:.65rem;font-weight:800;cursor:pointer;font-family:inherit;transition:opacity .15s}
     .qzr-btn-pri:hover{opacity:.85}
-    .qzr-btn-sec{background:transparent;color:#9ca3af;border:1.5px solid rgba(0,0,0,.1);border-radius:8px;padding:6px 9px;font-size:.76rem;cursor:pointer;font-family:inherit;transition:all .15s}
+    .qzr-btn-sec{background:transparent;color:#b0a090;border:1px solid rgba(0,0,0,.1);border-radius:6px;padding:3px 7px;font-size:.65rem;cursor:pointer;font-family:inherit;transition:all .15s}
     .qzr-btn-sec:hover{color:#6b7280;border-color:rgba(0,0,0,.2)}
-    body.hc .qzr-inner{background:rgba(109,40,217,.14)!important;border-color:rgba(109,40,217,.32)!important}
+    body.hc .qzr-inner{background:rgba(109,40,217,.1)!important}
     body.hc .qzr-text{color:#c8b89a!important}
     body.hc .qzr-text strong{color:#c084fc!important}
 
@@ -1437,6 +1437,7 @@
 
       /* ── Quiz setup ── */
       #quiz-setup     { padding: 0; }
+      .qzr-inner      { padding: 5px 16px; }
       .qs-h           { font-size: 1.25rem; font-weight: 900; margin-bottom: 6px; }
       .qs-p           { font-size: .83rem; line-height: 1.6; margin-bottom: 22px; }
       .cfg-grid       { grid-template-columns: 1fr; gap: 10px; margin-bottom: 20px; }
@@ -1746,6 +1747,7 @@
         <div class="mode-btn" id="btn-hard" onclick="setMode('hardcore')">⚡ Hardcore</div>
       </div>
     </header>
+    <div id="qz-resume-banner" style="display:none"></div>
 
     <div id="content">
       <div id="unsaved-warning">
@@ -2039,8 +2041,6 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
         <!-- QUIZ -->
         <div id="sub-quiz" style="display:none">
 
-          <!-- resume bar — flat strip at top, collapses when no session -->
-          <div id="qz-resume-banner" style="display:none"></div>
           <div id="quiz-session-card" style="display:none"></div>
 
           <div id="quiz-setup">
@@ -4256,6 +4256,7 @@ function switchTab(t) {
     document.getElementById('sub-'+x).style.display = x === t ? 'block' : 'none';
     document.getElementById('tab-'+x).classList.toggle('active', x === t);
   });
+  if (t !== 'quiz') { var _rb = document.getElementById('qz-resume-banner'); if (_rb) _rb.style.display = 'none'; }
   if (t === 'bank') renderBank();
   if (t === 'quiz') { populateFolderSelect(); updateAvail(); qzShowResumeBanner(); qzWizInit(); }
   if (t === 'create') { document.body.classList.add('on-create'); createSubTab('ai'); }
