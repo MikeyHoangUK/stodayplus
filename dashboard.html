@@ -354,6 +354,28 @@
 
     /* Quiz setup */
     #quiz-setup{max-width:600px;margin:0 auto;text-align:center}
+    /* ── Quiz wizard steps ── */
+    .qzw-step{padding:56px 24px 40px;animation:fadeIn .25s ease}
+    .qzw-back{background:none;border:none;font-family:'Raleway',sans-serif;font-size:.75rem;font-weight:800;color:#8a6e54;cursor:pointer;padding:0;letter-spacing:.04em;display:inline-flex;align-items:center;gap:5px;margin-bottom:40px;transition:color .15s}
+    .qzw-back:hover{color:#6d28d9}
+    .qzw-eyebrow{font-size:.68rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#b09880;margin-bottom:10px}
+    .qzw-hero{font-size:2.6rem;font-weight:900;color:#1c1208;line-height:1.15;margin-bottom:8px;word-break:break-word}
+    .qzw-diff-pill{display:inline-block;background:rgba(109,40,217,.1);color:#6d28d9;border-radius:20px;padding:3px 14px;font-size:.72rem;font-weight:800;letter-spacing:.04em;margin-bottom:36px}
+    .qzw-prompt{font-size:.82rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#8a6e54;margin-bottom:20px}
+    .qzw-opts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:28px}
+    .qzw-opt{padding:16px 30px;border-radius:14px;font-size:.9rem;font-weight:800;font-family:'Raleway',sans-serif;background:rgba(250,243,224,.8);border:1.5px solid rgba(168,85,247,.18);color:#3d2e1a;cursor:pointer;transition:all .18s;letter-spacing:.02em;position:relative}
+    .qzw-opt:hover{background:rgba(109,40,217,.08);border-color:rgba(109,40,217,.4);color:#6d28d9;transform:translateY(-2px);box-shadow:0 6px 20px rgba(109,40,217,.12)}
+    .qzw-opt.qzw-active{background:rgba(109,40,217,.12);border-color:#7c3aed;color:#6d28d9}
+    .qzw-opt-rec{background:linear-gradient(135deg,rgba(109,40,217,.1),rgba(79,70,229,.07));border-color:rgba(109,40,217,.35);color:#5b21b6;padding-bottom:28px}
+    .qzw-opt-rec:hover{background:linear-gradient(135deg,rgba(109,40,217,.18),rgba(79,70,229,.12));border-color:#7c3aed}
+    .qzw-rec-badge{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);font-size:.6rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#7c3aed;white-space:nowrap}
+    .qzw-avail{font-size:.78rem;color:#8a6e54;font-weight:700;margin-bottom:16px}
+    /* Empty / no-folder step */
+    .qzw-empty-icon{font-size:3.2rem;margin-bottom:20px}
+    .qzw-empty-title{font-size:1.6rem;font-weight:900;color:#1c1208;margin-bottom:10px}
+    .qzw-empty-sub{font-size:.88rem;color:#6e5438;line-height:1.7;max-width:300px;margin:0 auto 32px}
+    .qzw-cta{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:14px;padding:15px 36px;font-size:.9rem;font-weight:900;font-family:'Raleway',sans-serif;cursor:pointer;transition:opacity .18s;letter-spacing:.03em}
+    .qzw-cta:hover{opacity:.88}
     .qs-h{font-size:1.5rem;font-weight:900;color:#1c1208;margin-bottom:8px;letter-spacing:-.01em}
     .qs-p{color:#6e5438;font-size:.85rem;margin-bottom:32px;font-weight:500}
     .cfg-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px}
@@ -2009,60 +2031,83 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
         <div id="sub-quiz" style="display:none">
 
           <div id="quiz-setup">
-            <p class="qs-h">Start a quiz session</p>
-            <p class="qs-p">Choose a folder, difficulty and how many questions to tackle.</p>
-            <div class="cfg-grid">
-              <div class="cfg-card">
-                <label class="cfg-lbl">Folder</label>
-                <select class="cfg-sel" id="qz-folder" onchange="updateAvail();rpUpdateTrackNote()">
-                  <option value="all">All folders</option>
-                </select>
-              </div>
-              <div class="cfg-card">
-                <label class="cfg-lbl">Difficulty</label>
-                <select class="cfg-sel" id="qz-diff" onchange="updateAvail()">
-                  <option value="all">All levels</option>
-                  <option value="easy">Easy only</option>
-                  <option value="medium">Medium only</option>
-                  <option value="hard">Hard only</option>
-                </select>
-              </div>
-              <div class="cfg-card">
-                <label class="cfg-lbl">Questions</label>
-                <select class="cfg-sel" id="qz-count">
-                  <option value="all">All available</option>
-                  <option value="5">5 questions</option>
-                  <option value="10">10 questions</option>
-                  <option value="15">15 questions</option>
-                  <option value="20">20 questions</option>
-                  <option value="25">25 questions</option>
-                  <option value="30">30 questions</option>
-                  <option value="40">40 questions</option>
-                  <option value="50">50 questions</option>
-                  <option value="75">75 questions</option>
-                </select>
-              </div>
+
+            <!-- hidden machinery — all existing JS reads these -->
+            <div style="display:none">
+              <select id="qz-folder" onchange="updateAvail();rpUpdateTrackNote()">
+                <option value="all">All folders</option>
+              </select>
+              <select id="qz-diff" onchange="updateAvail()">
+                <option value="all">All levels</option>
+                <option value="easy">Easy only</option>
+                <option value="medium">Medium only</option>
+                <option value="hard">Hard only</option>
+              </select>
+              <select id="qz-count">
+                <option value="all">All available</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+              <button id="start-btn" onclick="startQuiz()">Start</button>
             </div>
+
+            <!-- banners sit above the wizard -->
             <div id="qz-resume-banner" style="display:none"></div>
             <div id="quiz-session-card" style="display:none"></div>
-            <div class="avail-msg" id="avail-msg"></div>
-            <div id="retry-wrong-row" style="display:none;margin-bottom:10px">
-              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.82rem;color:#6d28d9;font-family:'Raleway',sans-serif;font-weight:700">
-                <input type="checkbox" id="qz-retry-wrong" onchange="updateAvail()" style="accent-color:#7c3aed;width:15px;height:15px"/>
-                🔁 Retry wrong answers only (<span id="wrong-count">0</span> pending)
-              </label>
+
+            <!-- STEP 0 — no folder chosen yet -->
+            <div id="qzw-pick" class="qzw-step">
+              <div class="qzw-empty-icon">📂</div>
+              <div class="qzw-empty-title">Pick a topic first</div>
+              <p class="qzw-empty-sub">Go to the Bank and tap <strong>▶ Quiz</strong> on any folder to begin your session.</p>
+              <button class="qzw-cta" onclick="switchTab('bank')">Go to Bank →</button>
             </div>
-            <div style="display:flex;gap:10px">
-              <button class="start-btn" id="start-btn" onclick="startQuiz()" style="flex:1">Start Quiz →</button>
-              <button onclick="quizGoCreate()" style="flex:1;background:rgba(124,58,237,.08);color:#6d28d9;font-weight:900;font-size:.9rem;padding:15px 20px;border-radius:14px;border:1.5px solid rgba(124,58,237,.25);cursor:pointer;font-family:'Raleway',sans-serif;transition:all .18s" onmouseover="this.style.background='rgba(124,58,237,.15)'" onmouseout="this.style.background='rgba(124,58,237,.08)'">➕ Create</button>
+
+            <!-- STEP 1 — choose difficulty -->
+            <div id="qzw-diff" class="qzw-step" style="display:none">
+              <button class="qzw-back" onclick="switchTab('bank')">← Bank</button>
+              <div class="qzw-eyebrow">Studying</div>
+              <div class="qzw-hero" id="qzw-name-diff">—</div>
+              <div class="qzw-prompt">How hard do you want it?</div>
+              <div class="qzw-opts">
+                <button class="qzw-opt" data-diff="easy"   onclick="qzWizDiff('easy')">Easy</button>
+                <button class="qzw-opt" data-diff="medium" onclick="qzWizDiff('medium')">Medium</button>
+                <button class="qzw-opt" data-diff="hard"   onclick="qzWizDiff('hard')">Hard</button>
+                <button class="qzw-opt" data-diff="all"    onclick="qzWizDiff('all')">All levels</button>
+              </div>
             </div>
-            <div class="rp-quiz-link">
-              <label class="rp-ql-lbl">
-                <input type="checkbox" id="qz-track-rp" class="rp-ql-check"/>
-                <span>📅 Add to Revision Planner on completion</span>
-              </label>
-              <span class="rp-ql-note" id="rp-ql-note">Pick a specific folder to enable</span>
+
+            <!-- STEP 2 — choose question count -->
+            <div id="qzw-count" class="qzw-step" style="display:none">
+              <button class="qzw-back" onclick="qzWizShow('diff')">← Difficulty</button>
+              <div class="qzw-eyebrow">Studying</div>
+              <div class="qzw-hero" id="qzw-name-count">—</div>
+              <div class="qzw-diff-pill" id="qzw-diff-pill">All levels</div>
+              <div class="qzw-prompt">How many questions?</div>
+              <div class="qzw-opts">
+                <button class="qzw-opt" onclick="qzWizStart(20)">20</button>
+                <button class="qzw-opt" onclick="qzWizStart(30)">30</button>
+                <button class="qzw-opt" onclick="qzWizStart(50)">50</button>
+                <button class="qzw-opt qzw-opt-rec" onclick="qzWizStart(100)">100<span class="qzw-rec-badge">Recommended</span></button>
+              </div>
+              <div class="qzw-avail" id="avail-msg"></div>
+              <div id="retry-wrong-row" style="display:none;margin-bottom:14px">
+                <label style="display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-size:.82rem;color:#6d28d9;font-family:'Raleway',sans-serif;font-weight:700">
+                  <input type="checkbox" id="qz-retry-wrong" onchange="updateAvail()" style="accent-color:#7c3aed;width:15px;height:15px"/>
+                  🔁 Retry wrong answers only (<span id="wrong-count">0</span> pending)
+                </label>
+              </div>
+              <div class="rp-quiz-link">
+                <label class="rp-ql-lbl">
+                  <input type="checkbox" id="qz-track-rp" class="rp-ql-check"/>
+                  <span>📅 Add to Revision Planner on completion</span>
+                </label>
+                <span class="rp-ql-note" id="rp-ql-note">Pick a specific folder to enable</span>
+              </div>
             </div>
+
           </div>
 
           <div id="quiz-run" style="display:none">
@@ -3513,6 +3558,52 @@ function quizFolder(folder) {
   switchTab('quiz');
   populateFolderSelect(folder);
   updateAvail();
+  qzWizShow('diff');
+  qzWizSetName(folder);
+}
+
+// ── Quiz wizard ───────────────────────────────────────────────────────────
+function qzWizShow(step) {
+  ['pick','diff','count'].forEach(function(s) {
+    var el = document.getElementById('qzw-' + s);
+    if (el) el.style.display = s === step ? 'block' : 'none';
+  });
+}
+function qzWizSetName(name) {
+  ['diff','count'].forEach(function(s) {
+    var el = document.getElementById('qzw-name-' + s);
+    if (el) el.textContent = name;
+  });
+}
+function qzWizInit() {
+  var f = document.getElementById('qz-folder').value;
+  if (f && f !== 'all') {
+    qzWizSetName(f);
+    qzWizShow('diff');
+  } else {
+    qzWizShow('pick');
+  }
+}
+function qzWizDiff(d) {
+  document.getElementById('qz-diff').value = d;
+  updateAvail();
+  document.querySelectorAll('.qzw-opt[data-diff]').forEach(function(b) {
+    b.classList.toggle('qzw-active', b.dataset.diff === d);
+  });
+  var labels = {easy:'Easy',medium:'Medium',hard:'Hard',all:'All levels'};
+  var pill = document.getElementById('qzw-diff-pill');
+  if (pill) pill.textContent = labels[d] || d;
+  qzWizShow('count');
+}
+function qzWizStart(n) {
+  var sel = document.getElementById('qz-count');
+  // ensure option exists, otherwise use 'all'
+  var found = false;
+  for (var i = 0; i < sel.options.length; i++) {
+    if (sel.options[i].value === String(n)) { sel.selectedIndex = i; found = true; break; }
+  }
+  if (!found) sel.value = 'all';
+  startQuiz();
 }
 
 function populateFolderSelect(preselect) {
@@ -4124,7 +4215,7 @@ function switchTab(t) {
     document.getElementById('tab-'+x).classList.toggle('active', x === t);
   });
   if (t === 'bank') renderBank();
-  if (t === 'quiz') { populateFolderSelect(); updateAvail(); qzShowResumeBanner(); }
+  if (t === 'quiz') { populateFolderSelect(); updateAvail(); qzShowResumeBanner(); qzWizInit(); }
   if (t === 'create') { document.body.classList.add('on-create'); createSubTab('ai'); }
   else document.body.classList.remove('on-create');
 }
@@ -4868,6 +4959,7 @@ function returnToSetup() {
   document.getElementById('quiz-run').style.display = 'none';
   document.getElementById('quiz-results').style.display = 'none';
   document.getElementById('quiz-setup').style.display = 'block';
+  qzWizInit();
 }
 
 function toggleQuizFS() {
