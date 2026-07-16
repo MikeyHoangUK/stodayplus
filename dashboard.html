@@ -353,14 +353,22 @@
     .bank-empty p{font-size:.8rem}
 
     /* Quiz setup */
-    #quiz-setup{max-width:600px;margin:0 auto;text-align:center}
+    #quiz-setup{max-width:600px;margin:0 auto;text-align:center;display:flex;flex-direction:column;justify-content:center;min-height:calc(100vh - 80px)}
     /* ── Quiz wizard steps ── */
-    .qzw-step{padding:56px 24px 40px;animation:fadeIn .25s ease}
-    .qzw-back{background:none;border:none;font-family:'Raleway',sans-serif;font-size:.75rem;font-weight:800;color:#8a6e54;cursor:pointer;padding:0;letter-spacing:.04em;display:inline-flex;align-items:center;gap:5px;margin-bottom:40px;transition:color .15s}
+    .qzw-step{padding:32px 24px 40px;animation:fadeIn .25s ease;display:flex;flex-direction:column;align-items:center;text-align:center;width:100%}
+    .qzw-back{background:none;border:none;font-family:'Raleway',sans-serif;font-size:.75rem;font-weight:800;color:#8a6e54;cursor:pointer;padding:0;letter-spacing:.04em;display:inline-flex;align-items:center;gap:5px;margin-bottom:44px;transition:color .15s;align-self:flex-start}
     .qzw-back:hover{color:#6d28d9}
     .qzw-eyebrow{font-size:.68rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#b09880;margin-bottom:10px}
-    .qzw-hero{font-size:2.6rem;font-weight:900;color:#1c1208;line-height:1.15;margin-bottom:8px;word-break:break-word}
-    .qzw-diff-pill{display:inline-block;background:rgba(109,40,217,.1);color:#6d28d9;border-radius:20px;padding:3px 14px;font-size:.72rem;font-weight:800;letter-spacing:.04em;margin-bottom:36px}
+    .qzw-hero{font-size:2.6rem;font-weight:900;color:#1c1208;line-height:1.15;margin-bottom:6px;word-break:break-word}
+    .qzw-avail-small{font-size:.72rem;font-weight:700;color:#b09880;letter-spacing:.03em;margin-bottom:44px;margin-top:0}
+    @keyframes qzwPop{0%{transform:scale(.7);opacity:0}65%{transform:scale(1.09)}100%{transform:scale(1);opacity:1}}
+    .qzw-diff-cycle{width:280px;height:188px;border-radius:28px;background:linear-gradient(145deg,rgba(109,40,217,.09),rgba(67,56,202,.05));border:2px solid rgba(109,40,217,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;margin:0 auto 28px;transition:border-color .22s,box-shadow .22s,background .22s;user-select:none;gap:10px}
+    .qzw-diff-cycle:hover{border-color:rgba(109,40,217,.44);box-shadow:0 12px 44px rgba(109,40,217,.13);background:linear-gradient(145deg,rgba(109,40,217,.13),rgba(67,56,202,.08))}
+    .qzw-diff-cycle:active{transform:scale(.97);transition:transform .08s}
+    .qzw-diff-cycle-val{font-size:3.6rem;font-weight:900;color:#4c1d95;line-height:1;letter-spacing:-.02em}
+    .qzw-diff-cycle-val.qzw-pop{animation:qzwPop .32s cubic-bezier(.34,1.56,.64,1)}
+    .qzw-diff-cycle-hint{font-size:.64rem;font-weight:800;color:#b09880;letter-spacing:.1em;text-transform:uppercase}
+    .qzw-diff-chosen{font-size:.72rem;font-weight:800;color:#7c3aed;letter-spacing:.05em;text-transform:uppercase;margin-bottom:28px}
     .qzw-prompt{font-size:.82rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#8a6e54;margin-bottom:20px}
     .qzw-opts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:28px}
     .qzw-opt{padding:16px 30px;border-radius:14px;font-size:.9rem;font-weight:800;font-family:'Raleway',sans-serif;background:rgba(250,243,224,.8);border:1.5px solid rgba(168,85,247,.18);color:#3d2e1a;cursor:pointer;transition:all .18s;letter-spacing:.02em;position:relative}
@@ -2070,13 +2078,12 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
               <button class="qzw-back" onclick="switchTab('bank')">← Bank</button>
               <div class="qzw-eyebrow">Studying</div>
               <div class="qzw-hero" id="qzw-name-diff">—</div>
-              <div class="qzw-prompt">How hard do you want it?</div>
-              <div class="qzw-opts">
-                <button class="qzw-opt" data-diff="easy"   onclick="qzWizDiff('easy')">Easy</button>
-                <button class="qzw-opt" data-diff="medium" onclick="qzWizDiff('medium')">Medium</button>
-                <button class="qzw-opt" data-diff="hard"   onclick="qzWizDiff('hard')">Hard</button>
-                <button class="qzw-opt" data-diff="all"    onclick="qzWizDiff('all')">All levels</button>
+              <div class="qzw-avail-small" id="qzw-avail-small">— questions available</div>
+              <div class="qzw-diff-cycle" id="qzw-diff-cycle" onclick="qzCycleNext()">
+                <div class="qzw-diff-cycle-val" id="qzw-diff-cycle-val">Easy</div>
+                <div class="qzw-diff-cycle-hint">tap to change</div>
               </div>
+              <button class="qzw-cta" id="qzw-diff-confirm" onclick="qzWizDiff(_diffCycleOpts[_diffCycleIdx])">Choose Easy →</button>
             </div>
 
             <!-- STEP 2 — choose question count -->
@@ -2084,7 +2091,7 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
               <button class="qzw-back" onclick="qzWizShow('diff')">← Difficulty</button>
               <div class="qzw-eyebrow">Studying</div>
               <div class="qzw-hero" id="qzw-name-count">—</div>
-              <div class="qzw-diff-pill" id="qzw-diff-pill">All levels</div>
+              <div class="qzw-diff-chosen" id="qzw-diff-pill">All levels</div>
               <div class="qzw-prompt">How many questions?</div>
               <div class="qzw-opts">
                 <button class="qzw-opt" onclick="qzWizStart(20)">20</button>
@@ -3563,11 +3570,44 @@ function quizFolder(folder) {
 }
 
 // ── Quiz wizard ───────────────────────────────────────────────────────────
+var _diffCycleOpts = ['easy','medium','hard','all'];
+var _diffCycleLabels = {easy:'Easy',medium:'Medium',hard:'Hard',all:'All levels'};
+var _diffCycleIdx = 0;
+
+function qzCycleNext() {
+  _diffCycleIdx = (_diffCycleIdx + 1) % _diffCycleOpts.length;
+  _qzCycleUpdate();
+}
+function _qzCycleUpdate() {
+  var d = _diffCycleOpts[_diffCycleIdx];
+  var valEl = document.getElementById('qzw-diff-cycle-val');
+  if (valEl) {
+    valEl.classList.remove('qzw-pop');
+    void valEl.offsetWidth;
+    valEl.classList.add('qzw-pop');
+    valEl.textContent = _diffCycleLabels[d];
+  }
+  var btn = document.getElementById('qzw-diff-confirm');
+  if (btn) btn.textContent = 'Choose ' + _diffCycleLabels[d] + ' →';
+  document.getElementById('qz-diff').value = d;
+  updateAvail();
+  var f = document.getElementById('qz-folder').value;
+  var pool = bank.filter(function(q) {
+    return (f === 'all' || (q.folder||'General') === f) && (d === 'all' || q.difficulty === d);
+  });
+  var avEl = document.getElementById('qzw-avail-small');
+  if (avEl) avEl.textContent = pool.length + ' question' + (pool.length !== 1 ? 's' : '') + ' available';
+}
+
 function qzWizShow(step) {
   ['pick','diff','count'].forEach(function(s) {
     var el = document.getElementById('qzw-' + s);
     if (el) el.style.display = s === step ? 'block' : 'none';
   });
+  if (step === 'diff') {
+    _diffCycleIdx = 0;
+    _qzCycleUpdate();
+  }
 }
 function qzWizSetName(name) {
   ['diff','count'].forEach(function(s) {
@@ -3587,9 +3627,6 @@ function qzWizInit() {
 function qzWizDiff(d) {
   document.getElementById('qz-diff').value = d;
   updateAvail();
-  document.querySelectorAll('.qzw-opt[data-diff]').forEach(function(b) {
-    b.classList.toggle('qzw-active', b.dataset.diff === d);
-  });
   var labels = {easy:'Easy',medium:'Medium',hard:'Hard',all:'All levels'};
   var pill = document.getElementById('qzw-diff-pill');
   if (pill) pill.textContent = labels[d] || d;
