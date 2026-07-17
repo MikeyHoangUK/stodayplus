@@ -8451,7 +8451,18 @@ function orgSuggestCount(sessions, threshold, currentCount) {
 
 function orgIncrementMCQ(folder, questions, score) {
   var t = orgMatchTopic(folder);
-  if (!t) return;
+  if (!t) {
+    // Auto-create org topic so MCQ progress is never silently dropped
+    var _td = new Date().toISOString().slice(0, 10);
+    t = {
+      id: Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+      subject: '', topic_name: folder, week_added: _td,
+      attended: false, mcq_done: false, saq_done: false, blurting_done: false,
+      mcq_count: 0, saq_count: 0, blurting_count: 0,
+      confidence: null, revision_count: 0, last_revised: null, next_due: null, notes: ''
+    };
+    orgTopics.unshift(t);
+  }
   var today = new Date().toISOString().slice(0, 10);
   if (!t.mcq_sessions) t.mcq_sessions = [];
   if (!t.mcq_seen_ids) t.mcq_seen_ids = [];
@@ -8471,6 +8482,18 @@ function orgIncrementMCQ(folder, questions, score) {
       t.revision_count = (t.revision_count || 0) + 1;
       t.last_revised = today;
       t.next_due = orgGetNextDue(t.revision_count, today);
+    }
+    // Auto-schedule D+1 revision if not already in the planner
+    if (!rpData.some(function(x) { return x.topic.toLowerCase() === folder.toLowerCase(); })) {
+      var _now = Date.now();
+      rpData.unshift({
+        id: _now + '-' + Math.random().toString(36).slice(2, 7),
+        topic: t.topic_name, subject: t.subject || '',
+        addedDate: _now, level: 0,
+        nextReview: _now + 86400000, // D+1 tomorrow
+        doneReviews: []
+      });
+      rpSave();
     }
   }
   orgSaveTopics();
