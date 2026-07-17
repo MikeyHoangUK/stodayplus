@@ -2759,13 +2759,13 @@ window.addEventListener('DOMContentLoaded', function() {
   scheduleElectric();
   initLofi();
   initHcm();
+  orgLoadData();
   rpLoad();
   rpRenderToday();
   rpExamLoad();
   rpStartClock();
   sqLoad();
   blurtoLoad();
-  orgLoadData(); // load organiser data early so sync can see existing topics
   syncFoldersFromBanks();
   // Banks are now the default tab — render them on load
   renderBank();
@@ -9039,7 +9039,7 @@ async function _loadFromSupabase() {
   }
   localStorage.setItem('sp_last_user_id', uid);
 
-  var r = await _spClient.from('user_data').select('bank, sq_bank, updated_at, org_topics, revplan, exams').eq('user_id', uid).maybeSingle();
+  var r = await _spClient.from('user_data').select('bank, sq_bank, updated_at').eq('user_id', uid).maybeSingle();
   if (r.error) {
     console.warn('Supabase load:', r.error.message);
     // Fall back to sync cache, then persistent local backup
@@ -9079,7 +9079,15 @@ async function _loadFromSupabase() {
     try { _initPayload.org_topics = JSON.parse(localStorage.getItem('sp_org_topics') || 'null') || []; } catch(e) {}
     try { _initPayload.revplan    = JSON.parse(localStorage.getItem('sp_revplan')    || 'null') || []; } catch(e) {}
     try { _initPayload.exams      = JSON.parse(localStorage.getItem('sp_exams')      || 'null') || []; } catch(e) {}
-    await _spClient.from('user_data').upsert(_initPayload, { onConflict: 'user_id' });
+    var _initR = await _spClient.from('user_data').upsert(_initPayload, { onConflict: 'user_id' });
+    if (_initR.error) {
+      // Retry without new columns in case they don't exist in the Supabase table yet
+      var _initFallback = { user_id: _initPayload.user_id, bank: _initPayload.bank, sq_bank: _initPayload.sq_bank, updated_at: _initPayload.updated_at };
+      try { _initFallback.folder_scores = _initPayload.folder_scores; } catch(e) {}
+      try { _initFallback.folders       = _initPayload.folders;       } catch(e) {}
+      try { _initFallback.folder_meta   = _initPayload.folder_meta;   } catch(e) {}
+      await _spClient.from('user_data').upsert(_initFallback, { onConflict: 'user_id' });
+    }
     if (typeof renderBank   === 'function') renderBank();
     if (typeof renderSqBank === 'function') renderSqBank();
     _setSyncStatus(bank.length ? '☁ Local data uploaded to cloud' : '☁ Account ready');
@@ -9161,35 +9169,43 @@ async function _loadFromSupabase() {
         if (typeof qzShowResumeBanner === 'function') qzShowResumeBanner();
       }
     } catch(_e) {}
-    // Load org_topics, revplan, exams from cloud (cloud wins if non-empty, else push local)
+    // Load org_topics, revplan, exams from a separate query (columns may not exist yet — fails gracefully)
     try {
-      var cloudOT = r.data.org_topics;
-      if (cloudOT && cloudOT.length) {
-        localStorage.setItem('sp_org_topics', JSON.stringify(cloudOT));
-        if (typeof orgLoadData === 'function') orgLoadData();
-        if (typeof orgRenderTable === 'function') orgRenderTable();
+      var r2 = await _spClient.from('user_data').select('org_topics, revplan, exams').eq('user_id', uid).maybeSingle();
+      if (!r2.error && r2.data) {
+        var cloudOT = r2.data.org_topics;
+        if (cloudOT && cloudOT.length) {
+          localStorage.setItem('sp_org_topics', JSON.stringify(cloudOT));
+          if (typeof orgLoadData === 'function') orgLoadData();
+          if (typeof orgRenderTable === 'function') orgRenderTable();
+        } else {
+          var _lot = JSON.parse(localStorage.getItem('sp_org_topics') || '[]');
+          if (_lot.length) setTimeout(_syncToSupabase, 800);
+        }
+        var cloudRP = r2.data.revplan;
+        if (cloudRP && cloudRP.length) {
+          localStorage.setItem('sp_revplan', JSON.stringify(cloudRP));
+          if (typeof rpLoad === 'function') rpLoad();
+        } else {
+          var _lrp = JSON.parse(localStorage.getItem('sp_revplan') || '[]');
+          if (_lrp.length) setTimeout(_syncToSupabase, 800);
+          else if (typeof rpLoad === 'function') rpLoad();
+        }
+        var cloudEx = r2.data.exams;
+        if (cloudEx && cloudEx.length) {
+          localStorage.setItem('sp_exams', JSON.stringify(cloudEx));
+          if (typeof rpExamLoad === 'function') rpExamLoad();
+        }
       } else {
-        var _lot = JSON.parse(localStorage.getItem('sp_org_topics') || '[]');
-        if (_lot.length) setTimeout(_syncToSupabase, 800);
-      }
-    } catch(_e) {}
-    try {
-      var cloudRP = r.data.revplan;
-      if (cloudRP && cloudRP.length) {
-        localStorage.setItem('sp_revplan', JSON.stringify(cloudRP));
+        // Columns may not exist yet — push local data to cloud to bootstrap them
+        var _lot2 = JSON.parse(localStorage.getItem('sp_org_topics') || '[]');
+        var _lrp2 = JSON.parse(localStorage.getItem('sp_revplan') || '[]');
+        if (_lot2.length || _lrp2.length) setTimeout(_syncToSupabase, 800);
         if (typeof rpLoad === 'function') rpLoad();
-      } else {
-        var _lrp = JSON.parse(localStorage.getItem('sp_revplan') || '[]');
-        if (_lrp.length) setTimeout(_syncToSupabase, 800);
       }
-    } catch(_e) {}
-    try {
-      var cloudEx = r.data.exams;
-      if (cloudEx && cloudEx.length) {
-        localStorage.setItem('sp_exams', JSON.stringify(cloudEx));
-        if (typeof rpExamLoad === 'function') rpExamLoad();
-      }
-    } catch(_e) {}
+    } catch(_e) {
+      if (typeof rpLoad === 'function') rpLoad();
+    }
   }
   _supabaseLoading = false;
 }
@@ -9206,8 +9222,20 @@ async function _syncToSupabase() {
   try { payload.exams      = JSON.parse(localStorage.getItem('sp_exams')      || 'null') || []; } catch(_e) {}
   var r = await _spClient.from('user_data').upsert(payload, { onConflict: 'user_id' });
   if (r.error) {
-    console.warn('Supabase save:', r.error.message);
-    _setSyncStatus('⚠ Sync failed — ' + r.error.message);
+    // Columns org_topics/revplan/exams may not exist yet — retry without them
+    var _fb = { user_id: uid, bank: bank, sq_bank: sqBank, updated_at: payload.updated_at };
+    try { _fb.folder_scores = payload.folder_scores; } catch(_e) {}
+    try { _fb.folders       = payload.folders;       } catch(_e) {}
+    try { _fb.folder_meta   = payload.folder_meta;   } catch(_e) {}
+    var r2 = await _spClient.from('user_data').upsert(_fb, { onConflict: 'user_id' });
+    if (r2.error) {
+      console.warn('Supabase save:', r2.error.message);
+      _setSyncStatus('⚠ Sync failed — ' + r2.error.message);
+    } else {
+      localStorage.removeItem('sp_bank_cache_' + uid);
+      localStorage.removeItem('sp_saqs_cache_' + uid);
+      _setSyncStatus('☁ Saved (bank only — add org_topics/revplan/exams columns for full sync)');
+    }
   } else {
     localStorage.removeItem('sp_bank_cache_' + uid);
     localStorage.removeItem('sp_saqs_cache_' + uid);
