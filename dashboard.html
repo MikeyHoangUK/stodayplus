@@ -6382,7 +6382,7 @@ function rpLoad() {
   });
   if (changed) rpSave();
 }
-function rpSave() { localStorage.setItem('sp_revplan', JSON.stringify(rpData)); }
+function rpSave() { localStorage.setItem('sp_revplan', JSON.stringify(rpData)); if (typeof _scheduleSyncToSupabase === 'function') _scheduleSyncToSupabase(); }
 
 function rpAdd() {
   var topic = (document.getElementById('rp-topic-inp').value || '').trim();
@@ -6865,7 +6865,7 @@ var exams = [];
 function rpExamLoad() {
   try { exams = JSON.parse(localStorage.getItem('sp_exams') || '[]'); } catch(e) { exams = []; }
 }
-function rpExamSave() { localStorage.setItem('sp_exams', JSON.stringify(exams)); }
+function rpExamSave() { localStorage.setItem('sp_exams', JSON.stringify(exams)); if (typeof _scheduleSyncToSupabase === 'function') _scheduleSyncToSupabase(); }
 
 function rpExamToggleForm() {
   var form = document.getElementById('rp-exam-form');
@@ -8563,7 +8563,7 @@ function orgLoadData() {
   try { orgSubjects = JSON.parse(localStorage.getItem('sp_org_subjects') || '[]'); } catch(e) { orgSubjects = []; }
   populateSubjectDatalist(); // also calls populateFolderDatalist()
 }
-function orgSaveTopics()    { localStorage.setItem('sp_org_topics',   JSON.stringify(orgTopics)); }
+function orgSaveTopics()    { localStorage.setItem('sp_org_topics',   JSON.stringify(orgTopics)); if (typeof _scheduleSyncToSupabase === 'function') _scheduleSyncToSupabase(); }
 function orgSaveSubjects()  { localStorage.setItem('sp_org_subjects', JSON.stringify(orgSubjects)); }
 
 function orgGetNextDue(revCount, lastRevised) {
@@ -9039,7 +9039,7 @@ async function _loadFromSupabase() {
   }
   localStorage.setItem('sp_last_user_id', uid);
 
-  var r = await _spClient.from('user_data').select('bank, sq_bank, updated_at').eq('user_id', uid).maybeSingle();
+  var r = await _spClient.from('user_data').select('bank, sq_bank, updated_at, org_topics, revplan, exams').eq('user_id', uid).maybeSingle();
   if (r.error) {
     console.warn('Supabase load:', r.error.message);
     // Fall back to sync cache, then persistent local backup
@@ -9076,6 +9076,9 @@ async function _loadFromSupabase() {
     try { _initPayload.folder_scores = getFolderScores(); } catch(e) {}
     try { _initPayload.folders = getAllFolders(); } catch(e) {}
     try { _initPayload.folder_meta = getFolderMeta(); } catch(e) {}
+    try { _initPayload.org_topics = JSON.parse(localStorage.getItem('sp_org_topics') || 'null') || []; } catch(e) {}
+    try { _initPayload.revplan    = JSON.parse(localStorage.getItem('sp_revplan')    || 'null') || []; } catch(e) {}
+    try { _initPayload.exams      = JSON.parse(localStorage.getItem('sp_exams')      || 'null') || []; } catch(e) {}
     await _spClient.from('user_data').upsert(_initPayload, { onConflict: 'user_id' });
     if (typeof renderBank   === 'function') renderBank();
     if (typeof renderSqBank === 'function') renderSqBank();
@@ -9157,7 +9160,36 @@ async function _loadFromSupabase() {
         }
         if (typeof qzShowResumeBanner === 'function') qzShowResumeBanner();
       }
-    } catch(_e) { /* quiz_session column not yet added — local-only session save still works */ }
+    } catch(_e) {}
+    // Load org_topics, revplan, exams from cloud (cloud wins if non-empty, else push local)
+    try {
+      var cloudOT = r.data.org_topics;
+      if (cloudOT && cloudOT.length) {
+        localStorage.setItem('sp_org_topics', JSON.stringify(cloudOT));
+        if (typeof orgLoadData === 'function') orgLoadData();
+        if (typeof orgRenderTable === 'function') orgRenderTable();
+      } else {
+        var _lot = JSON.parse(localStorage.getItem('sp_org_topics') || '[]');
+        if (_lot.length) setTimeout(_syncToSupabase, 800);
+      }
+    } catch(_e) {}
+    try {
+      var cloudRP = r.data.revplan;
+      if (cloudRP && cloudRP.length) {
+        localStorage.setItem('sp_revplan', JSON.stringify(cloudRP));
+        if (typeof rpLoad === 'function') rpLoad();
+      } else {
+        var _lrp = JSON.parse(localStorage.getItem('sp_revplan') || '[]');
+        if (_lrp.length) setTimeout(_syncToSupabase, 800);
+      }
+    } catch(_e) {}
+    try {
+      var cloudEx = r.data.exams;
+      if (cloudEx && cloudEx.length) {
+        localStorage.setItem('sp_exams', JSON.stringify(cloudEx));
+        if (typeof rpExamLoad === 'function') rpExamLoad();
+      }
+    } catch(_e) {}
   }
   _supabaseLoading = false;
 }
@@ -9169,6 +9201,9 @@ async function _syncToSupabase() {
   try { payload.folder_scores = getFolderScores(); } catch(_e) {}
   try { payload.folders = getAllFolders(); } catch(_e) {}
   try { payload.folder_meta = getFolderMeta(); } catch(_e) {}
+  try { payload.org_topics = JSON.parse(localStorage.getItem('sp_org_topics') || 'null') || []; } catch(_e) {}
+  try { payload.revplan    = JSON.parse(localStorage.getItem('sp_revplan')    || 'null') || []; } catch(_e) {}
+  try { payload.exams      = JSON.parse(localStorage.getItem('sp_exams')      || 'null') || []; } catch(_e) {}
   var r = await _spClient.from('user_data').upsert(payload, { onConflict: 'user_id' });
   if (r.error) {
     console.warn('Supabase save:', r.error.message);
