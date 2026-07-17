@@ -6351,20 +6351,12 @@ function finleyInit() {
 }
 
 // ── Revision Planner ─────────────────────────────────────────────────
-var RP_BASE = [1, 3, 7, 14, 28, 56]; // days from addedDate for levels 0-5
-// D1=MCQ, D3=SAQ, D7=Blurting, D14+ optional
-var RP_METHODS = [
-  { tool:'mcq',    emoji:'🧠', name:'Poppy',  label:'MCQ Practice' },
-  { tool:'saqs',   emoji:'✍️', name:'Sage',   label:'Short Answer Qs' },
-  { tool:'blurto', emoji:'📝', name:'Blurto', label:'Blurting' },
-  { tool:'finley', emoji:'🎓', name:'Finley', label:'Feynman Teaching' },
-  null, null, null
-];
+var RP_BASE = [1, 3, 7, 14, 28, 56, 84, 112]; // D1→D3→D7→D14→D28→D56→D84→D112, then +28
 var rpData = [];
 
 function rpIntervalDays(level) {
   if (level < RP_BASE.length) return RP_BASE[level];
-  return 56 + (level - 5) * 30; // monthly after level 5
+  return 112 + (level - 7) * 28; // +28 days per level after D112
 }
 
 function rpLoad() {
@@ -6395,25 +6387,17 @@ function rpAdd() {
   setTimeout(function() { msg.style.display = 'none'; }, 3000);
 }
 
-// Returns the current revision phase for a topic based on cumulative progress
+// Returns a generic review task — tool assignment will come later
 function rpGetCurrentTask(topic) {
-  var t = orgTopics.find(function(x) { return x.topic_name.toLowerCase() === (topic || '').toLowerCase(); });
-  var mcqDone  = t ? (t.mcq_count  || 0) : 0;
-  var saqDone  = t ? (t.saq_count  || 0) : 0;
-  if (mcqDone < ORG_MCQ_THRESHOLD)  return { tool:'mcq',    emoji:'🧠', name:'Poppy',  label:'MCQ Practice',    done:mcqDone, threshold:ORG_MCQ_THRESHOLD };
-  if (saqDone < ORG_SAQ_THRESHOLD)  return { tool:'saqs',   emoji:'✍️', name:'Sage',   label:'Short Answer Qs', done:saqDone, threshold:ORG_SAQ_THRESHOLD };
-  if (!t || !t.blurting_done)        return { tool:'blurto', emoji:'📝', name:'Blurto', label:'Blurting',         done:0,       threshold:1 };
-  if (!t || !t.feynman_done)         return { tool:'finley', emoji:'🎓', name:'Finley', label:'Feynman Teaching', done:0,       threshold:1 };
-  return                                     { tool:'free',   emoji:'🔄', name:'',       label:'Free review',      done:1,       threshold:1 };
+  return { tool:'review', emoji:'📖', name:'Review', label:'Review session' };
 }
 
-// Auto-advances a due planner interval when a session is logged for the current task
+// Auto-advances a due planner interval when any qualifying session is logged
 function rpAutoComplete(topic, tool, score) {
   var now = Date.now();
   var item = rpData.find(function(x) {
     if (x.topic.toLowerCase() !== (topic || '').toLowerCase()) return false;
-    if (x.nextReview > now) return false;
-    return rpGetCurrentTask(x.topic).tool === tool;
+    return x.nextReview <= now;
   });
   if (!item) return;
   rpMarkDone(item.id, score);
@@ -6479,14 +6463,15 @@ function rpFmtDate(ms) {
 }
 
 function rpChainHTML(item) {
-  var labels = ['D1','D3','D7','D14','D28','D56','Monthly'];
+  var labels = ['D1','D3','D7','D14','D28','D56','D84','D112','D140+'];
+  var maxDot = 8;
   var html = '<div class="rp-chain">';
-  for (var i = 0; i <= 6; i++) {
+  for (var i = 0; i <= maxDot; i++) {
     var cls = 'rp-dot';
     if (i < item.level) cls += ' done';
     else if (i === item.level) cls += ' next';
     html += '<div class="rp-chain-item"><div class="' + cls + '"></div><div class="rp-chain-lbl">' + labels[i] + '</div></div>';
-    if (i < 6) html += '<div class="rp-chain-line' + (i < item.level ? ' done' : '') + '"></div>';
+    if (i < maxDot) html += '<div class="rp-chain-line' + (i < item.level ? ' done' : '') + '"></div>';
   }
   html += '</div>';
   return html;
@@ -6586,7 +6571,7 @@ function rpRenderToday() {
       : '<span class="rp-due-now">Due today</span>';
 
     var task = rpGetCurrentTask(item.topic);
-    var dLabel = (['D1','D3','D7','D14','D28','D56','Monthly'])[item.level] || '';
+    var dLabel = (['D1','D3','D7','D14','D28','D56','D84','D112','D140+'])[item.level] || 'D140+';
     var methodRow = task.tool !== 'free'
       ? '<div class="rp-method-row">'
         + '<span class="rp-method-pill">' + task.emoji + ' ' + dLabel + ' — ' + task.label + ' with ' + task.name + '</span>'
@@ -8476,6 +8461,7 @@ function orgIncrementMCQ(folder, questions, score) {
   t.mcq_sessions.push({ date: today, count: newCount });
   t.mcq_count = (t.mcq_count || 0) + newCount;
   if (typeof score === 'number') t.mcq_best_score = Math.max(t.mcq_best_score || 0, score);
+  // Org milestone: unlock SAQ/Blurto after 100 unique Qs
   if (t.mcq_count >= ORG_MCQ_THRESHOLD && !t.mcq_done) {
     t.mcq_done = true;
     if (t.last_revised !== today) {
@@ -8483,23 +8469,27 @@ function orgIncrementMCQ(folder, questions, score) {
       t.last_revised = today;
       t.next_due = orgGetNextDue(t.revision_count, today);
     }
-    // Auto-schedule D+1 revision if not already in the planner
+  }
+  orgSaveTopics();
+  orgRenderBanner();
+  orgRenderTable();
+  // Revision planner: count as a session only if 10+ questions done
+  if (Array.isArray(questions) && questions.length >= 10) {
+    // D0 — start the cycle on first qualifying Poppy session
     if (!rpData.some(function(x) { return x.topic.toLowerCase() === folder.toLowerCase(); })) {
       var _now = Date.now();
       rpData.unshift({
         id: _now + '-' + Math.random().toString(36).slice(2, 7),
         topic: t.topic_name, subject: t.subject || '',
         addedDate: _now, level: 0,
-        nextReview: _now + 86400000, // D+1 tomorrow
+        nextReview: _now + 86400000,
         doneReviews: []
       });
       rpSave();
     }
+    // Mark current due review as done
+    rpAutoComplete(t.topic_name, 'mcq', score);
   }
-  orgSaveTopics();
-  orgRenderBanner();
-  orgRenderTable();
-  rpAutoComplete(t.topic_name, 'mcq', score);
   updateBotLockScreens();
 }
 function orgIncrementSAQ(folder, questionId) {
