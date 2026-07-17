@@ -6361,6 +6361,26 @@ function rpIntervalDays(level) {
 
 function rpLoad() {
   try { rpData = JSON.parse(localStorage.getItem('sp_revplan') || '[]'); } catch(e) { rpData = []; }
+  // Backfill: any topic with 10+ MCQ questions already done should be in the planner
+  var changed = false;
+  (orgTopics || []).forEach(function(t) {
+    if ((t.mcq_count || 0) < 10) return;
+    var already = rpData.some(function(x) { return x.topic.toLowerCase() === t.topic_name.toLowerCase(); });
+    if (already) return;
+    // Use the date of the first recorded session as D0 if available, else today
+    var firstSession = t.mcq_sessions && t.mcq_sessions[0];
+    var d0 = firstSession ? new Date(firstSession.date).getTime() : Date.now();
+    if (isNaN(d0)) d0 = Date.now();
+    rpData.unshift({
+      id: d0 + '-' + Math.random().toString(36).slice(2, 7),
+      topic: t.topic_name, subject: t.subject || '',
+      addedDate: d0, level: 0,
+      nextReview: d0 + 86400000,
+      doneReviews: []
+    });
+    changed = true;
+  });
+  if (changed) rpSave();
 }
 function rpSave() { localStorage.setItem('sp_revplan', JSON.stringify(rpData)); }
 
