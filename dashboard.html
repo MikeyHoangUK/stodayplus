@@ -8742,10 +8742,17 @@ function orgGoTool(tool, topicId) {
 
 // Rendering helpers
 function orgDueBadge(t) {
-  if (!t.next_due) return '<span class="org-due-badge none">—</span>';
+  var rpItem = (rpData || []).find(function(x) { return x.topic.toLowerCase() === (t.topic_name || '').toLowerCase(); });
   var today = new Date(); today.setHours(0, 0, 0, 0);
-  var due   = new Date(t.next_due + 'T00:00:00');
-  var diff  = Math.round((due - today) / 86400000);
+  var due;
+  if (rpItem) {
+    due = new Date(rpItem.nextReview); due.setHours(0, 0, 0, 0);
+  } else if (t.next_due) {
+    due = new Date(t.next_due + 'T00:00:00');
+  } else {
+    return '<span class="org-due-badge none">—</span>';
+  }
+  var diff = Math.round((due - today) / 86400000);
   if (diff < 0)  return '<span class="org-due-badge overdue">Overdue ' + Math.abs(diff) + 'd</span>';
   if (diff === 0) return '<span class="org-due-badge today">Due today</span>';
   if (diff <= 3)  return '<span class="org-due-badge soon">In ' + diff + ' day' + (diff > 1 ? 's' : '') + '</span>';
