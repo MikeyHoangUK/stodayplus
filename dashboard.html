@@ -357,7 +357,8 @@
     #quiz-setup{display:flex;flex-direction:column;justify-content:flex-start;align-items:center;width:100%;max-width:820px;margin:-44px auto 0;padding:0 40px}
     /* ── Quiz wizard steps ── */
     .qzw-step{padding:0 0 48px;animation:fadeIn .25s ease;display:flex;flex-direction:column;align-items:center;text-align:center;width:100%;position:relative}
-    .qzw-back{position:absolute;top:20px;left:0;background:none;border:none;font-family:'Raleway',sans-serif;font-size:.68rem;font-weight:900;color:#a08868;cursor:pointer;padding:6px 0;letter-spacing:.12em;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px;transition:color .15s}
+    #qzw-nav{width:100%;text-align:left;padding-bottom:20px}
+    .qzw-back{background:none;border:none;font-family:'Raleway',sans-serif;font-size:.68rem;font-weight:900;color:#a08868;cursor:pointer;padding:0;letter-spacing:.12em;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px;transition:color .15s}
     .qzw-back:hover{color:#6d28d9}
     .qzw-eyebrow{font-size:.62rem;font-weight:900;letter-spacing:.2em;text-transform:uppercase;color:#b09880;margin-bottom:14px}
     .qzw-hero{font-size:3rem;font-weight:900;color:#1c1208;line-height:1.1;margin-bottom:10px;word-break:break-word;letter-spacing:-.02em}
@@ -2078,6 +2079,11 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
               <button id="start-btn" onclick="startQuiz()">Start</button>
             </div>
 
+            <!-- Shared back nav — shown on diff + count steps -->
+            <div id="qzw-nav" style="display:none">
+              <button class="qzw-back" id="qzw-back-btn" onclick="switchTab('bank')">← Bank</button>
+            </div>
+
             <!-- STEP 0 — no folder chosen yet -->
             <div id="qzw-pick" class="qzw-step">
               <div class="qzw-empty-icon">📂</div>
@@ -2088,8 +2094,6 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
 
             <!-- STEP 1 — choose difficulty -->
             <div id="qzw-diff" class="qzw-step" style="display:none">
-              <button class="qzw-back" onclick="switchTab('bank')">← Bank</button>
-              <div class="qzw-eyebrow">Studying</div>
               <div class="qzw-hero" id="qzw-name-diff">—</div>
               <div class="qzw-avail-small" id="qzw-avail-small">— questions available</div>
               <div class="qzw-diff-cycle" id="qzw-diff-cycle" onclick="qzCycleNext()">
@@ -2101,8 +2105,6 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
 
             <!-- STEP 2 — choose question count -->
             <div id="qzw-count" class="qzw-step" style="display:none">
-              <button class="qzw-back" onclick="qzWizShow('diff')">← Difficulty</button>
-              <div class="qzw-eyebrow">Studying</div>
               <div class="qzw-hero" id="qzw-name-count">—</div>
               <div class="qzw-diff-chosen" id="qzw-diff-pill">All levels</div>
               <div class="qzw-prompt">How many questions?</div>
@@ -3619,6 +3621,13 @@ function qzWizShow(step) {
     var el = document.getElementById('qzw-' + s);
     if (el) el.style.display = s === step ? 'block' : 'none';
   });
+  var nav = document.getElementById('qzw-nav');
+  var btn = document.getElementById('qzw-back-btn');
+  if (nav) nav.style.display = (step === 'diff' || step === 'count') ? 'block' : 'none';
+  if (btn) {
+    if (step === 'diff')  { btn.textContent = '← Bank';       btn.onclick = function() { switchTab('bank'); }; }
+    if (step === 'count') { btn.textContent = '← Difficulty'; btn.onclick = function() { qzWizShow('diff'); }; }
+  }
   if (step === 'diff') {
     _diffCycleIdx = 0;
     _qzCycleUpdate();
