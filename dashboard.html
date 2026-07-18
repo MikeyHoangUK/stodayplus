@@ -8813,11 +8813,11 @@ function orgRenderBanner() {
 function orgProgressCell(t, type) {
   var done, count, threshold, field, locked, lockMsg;
   if (type === 'mcq') {
-    done = t.mcq_done; count = t.mcq_count || 0; threshold = ORG_MCQ_THRESHOLD; field = 'mcq_done'; locked = true;
-    lockMsg = 'Complete ' + threshold + ' MCQs to unlock';
+    done = t.mcq_done; count = t.mcq_count || 0; threshold = ORG_MCQ_THRESHOLD; field = 'mcq_done'; locked = false;
+    lockMsg = '';
   } else if (type === 'saq') {
-    done = t.saq_done; count = t.saq_count || 0; threshold = ORG_SAQ_THRESHOLD; field = 'saq_done'; locked = true;
-    lockMsg = 'Complete ' + threshold + ' SAQs to unlock';
+    done = t.saq_done; count = t.saq_count || 0; threshold = ORG_SAQ_THRESHOLD; field = 'saq_done'; locked = !t.mcq_done;
+    lockMsg = 'Complete MCQ phase first';
   } else {
     done = t.blurting_done; count = t.blurting_count || 0; threshold = ORG_BLURT_THRESHOLD; field = 'blurting_done';
     locked = !((t.mcq_best_score || 0) >= 60);
