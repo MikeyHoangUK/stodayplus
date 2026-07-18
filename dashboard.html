@@ -6808,8 +6808,8 @@ function rpRenderCal() {
     html += '<div class="' + cls + '" onclick="rpCalSelect(' + d + ')">';
     html += '<div class="rp-cal-date">' + d + '</div>';
     topics.slice(0, 2).forEach(function(t) {
-      var em = (RP_METHODS[t.level] || {}).emoji || '🔄';
-      html += '<div class="rp-cal-pill">' + em + ' ' + rpEsc(t.topic) + '</div>';
+      var dlbl = (['D1','D3','D7','D14','D28','D56','D84','D112','D140+'])[t.level] || 'D140+';
+      html += '<div class="rp-cal-pill">📖 ' + dlbl + ' · ' + rpEsc(t.topic) + '</div>';
     });
     if (topics.length > 2) html += '<div class="rp-cal-more">+' + (topics.length - 2) + ' more</div>';
     html += '</div>';
@@ -6826,12 +6826,8 @@ function rpRenderCal() {
       var parts = rpCalSel.split('-');
       var dLabel = parts[2] + ' ' + MONTHS[parseInt(parts[1])];
       html += '<div class="rp-cal-detail"><div class="rp-cal-detail-hd">' + dLabel + '</div>';
-      var rpDayNums = [1,3,7,14,28,56];
       selTopics.forEach(function(item) {
-        var m = RP_METHODS[item.level] || null;
-        var revLabel = m
-          ? m.emoji + ' D' + (rpDayNums[item.level] || '') + ' — ' + (item.level === 0 ? 'MCQ' : item.level === 1 ? 'SAQ' : item.level === 2 ? 'Blurting' : 'Finley')
-          : '🔄 Optional';
+        var revLabel = '📖 ' + ((['D1','D3','D7','D14','D28','D56','D84','D112','D140+'])[item.level] || 'D140+') + ' — Review session';
         html += '<div class="rp-cal-detail-row">'
           + '<div class="rp-cal-detail-topic">' + rpEsc(item.topic) + '</div>'
           + '<span class="rp-cal-rev-badge">' + revLabel + '</span>'
