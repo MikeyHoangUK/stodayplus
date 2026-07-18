@@ -353,38 +353,43 @@
 
     /* Quiz sub-panel */
     #sub-quiz{display:flex;flex-direction:column}
-    /* Quiz setup — centers wizard content */
-    #quiz-setup{display:flex;flex-direction:column;justify-content:center;align-items:center;max-width:600px;margin:0 auto;text-align:center;width:100%;min-height:calc(100vh - 220px)}
+    /* Quiz setup — spacious professional layout */
+    #quiz-setup{display:flex;flex-direction:column;justify-content:center;align-items:center;width:100%;max-width:820px;margin:0 auto;padding:0 40px;min-height:calc(100vh - 220px)}
     /* ── Quiz wizard steps ── */
-    .qzw-step{padding:16px 0 40px;animation:fadeIn .25s ease;display:flex;flex-direction:column;align-items:center;text-align:center;width:100%;position:relative}
-    .qzw-back{position:absolute;top:16px;left:0;background:none;border:none;font-family:'Raleway',sans-serif;font-size:.75rem;font-weight:800;color:#8a6e54;cursor:pointer;padding:0;letter-spacing:.04em;display:inline-flex;align-items:center;gap:5px;transition:color .15s}
+    .qzw-step{padding:72px 0 64px;animation:fadeIn .25s ease;display:flex;flex-direction:column;align-items:center;text-align:center;width:100%;position:relative}
+    .qzw-back{position:absolute;top:20px;left:0;background:none;border:none;font-family:'Raleway',sans-serif;font-size:.68rem;font-weight:900;color:#a08868;cursor:pointer;padding:6px 0;letter-spacing:.12em;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px;transition:color .15s}
     .qzw-back:hover{color:#6d28d9}
-    .qzw-eyebrow{font-size:.68rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#b09880;margin-bottom:10px}
-    .qzw-hero{font-size:2.6rem;font-weight:900;color:#1c1208;line-height:1.15;margin-bottom:6px;word-break:break-word}
-    .qzw-avail-small{font-size:.72rem;font-weight:700;color:#b09880;letter-spacing:.03em;margin-bottom:44px;margin-top:0}
+    .qzw-eyebrow{font-size:.62rem;font-weight:900;letter-spacing:.2em;text-transform:uppercase;color:#b09880;margin-bottom:14px}
+    .qzw-hero{font-size:3rem;font-weight:900;color:#1c1208;line-height:1.1;margin-bottom:10px;word-break:break-word;letter-spacing:-.02em}
+    .qzw-avail-small{font-size:.7rem;font-weight:700;color:#b09880;letter-spacing:.04em;margin-bottom:56px;margin-top:0}
     @keyframes qzwPop{0%{transform:scale(.7);opacity:0}65%{transform:scale(1.09)}100%{transform:scale(1);opacity:1}}
-    .qzw-diff-cycle{width:280px;height:188px;border-radius:28px;background:linear-gradient(145deg,rgba(109,40,217,.09),rgba(67,56,202,.05));border:2px solid rgba(109,40,217,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;margin:0 auto 28px;transition:border-color .22s,box-shadow .22s,background .22s;user-select:none;gap:10px}
-    .qzw-diff-cycle:hover{border-color:rgba(109,40,217,.44);box-shadow:0 12px 44px rgba(109,40,217,.13);background:linear-gradient(145deg,rgba(109,40,217,.13),rgba(67,56,202,.08))}
-    .qzw-diff-cycle:active{transform:scale(.97);transition:transform .08s}
-    .qzw-diff-cycle-val{font-size:3.6rem;font-weight:900;color:#4c1d95;line-height:1;letter-spacing:-.02em}
+    /* Difficulty cycling card */
+    .qzw-diff-cycle{width:min(460px,100%);height:210px;border-radius:28px;background:linear-gradient(145deg,rgba(109,40,217,.07),rgba(67,56,202,.04));border:2px solid rgba(109,40,217,.16);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;margin:0 auto 40px;transition:border-color .22s,box-shadow .22s,background .22s;user-select:none;gap:12px}
+    .qzw-diff-cycle:hover{border-color:rgba(109,40,217,.4);box-shadow:0 20px 64px rgba(109,40,217,.13);background:linear-gradient(145deg,rgba(109,40,217,.11),rgba(67,56,202,.07))}
+    .qzw-diff-cycle:active{transform:scale(.98);transition:transform .08s}
+    .qzw-diff-cycle-val{font-size:4.4rem;font-weight:900;color:#4c1d95;line-height:1;letter-spacing:-.03em}
     .qzw-diff-cycle-val.qzw-pop{animation:qzwPop .32s cubic-bezier(.34,1.56,.64,1)}
-    .qzw-diff-cycle-hint{font-size:.64rem;font-weight:800;color:#b09880;letter-spacing:.1em;text-transform:uppercase}
-    .qzw-diff-chosen{font-size:.72rem;font-weight:800;color:#7c3aed;letter-spacing:.05em;text-transform:uppercase;margin-bottom:28px}
-    .qzw-prompt{font-size:.82rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#8a6e54;margin-bottom:20px}
-    .qzw-opts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:28px}
-    .qzw-opt{padding:16px 30px;border-radius:14px;font-size:.9rem;font-weight:800;font-family:'Raleway',sans-serif;background:rgba(250,243,224,.8);border:1.5px solid rgba(168,85,247,.18);color:#3d2e1a;cursor:pointer;transition:all .18s;letter-spacing:.02em;position:relative}
-    .qzw-opt:hover{background:rgba(109,40,217,.08);border-color:rgba(109,40,217,.4);color:#6d28d9;transform:translateY(-2px);box-shadow:0 6px 20px rgba(109,40,217,.12)}
-    .qzw-opt.qzw-active{background:rgba(109,40,217,.12);border-color:#7c3aed;color:#6d28d9}
-    .qzw-opt-rec{background:linear-gradient(135deg,rgba(109,40,217,.1),rgba(79,70,229,.07));border-color:rgba(109,40,217,.35);color:#5b21b6;padding-bottom:28px}
-    .qzw-opt-rec:hover{background:linear-gradient(135deg,rgba(109,40,217,.18),rgba(79,70,229,.12));border-color:#7c3aed}
-    .qzw-rec-badge{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);font-size:.6rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#7c3aed;white-space:nowrap}
-    .qzw-avail{font-size:.78rem;color:#8a6e54;font-weight:700;margin-bottom:16px}
+    .qzw-diff-cycle-hint{font-size:.6rem;font-weight:800;color:#b09880;letter-spacing:.14em;text-transform:uppercase}
+    /* Count step */
+    .qzw-diff-chosen{display:inline-block;font-size:.64rem;font-weight:900;color:#7c3aed;letter-spacing:.12em;text-transform:uppercase;margin-bottom:40px;background:rgba(109,40,217,.08);padding:5px 18px;border-radius:20px}
+    .qzw-prompt{font-size:1rem;font-weight:900;letter-spacing:.04em;color:#1c1208;margin-bottom:28px}
+    .qzw-opts{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;width:100%;max-width:680px;margin-bottom:28px}
+    .qzw-opt{padding:32px 12px 26px;border-radius:20px;font-family:'Raleway',sans-serif;background:rgba(250,243,224,.75);border:2px solid rgba(168,85,247,.13);color:#3d2e1a;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;align-items:center;gap:7px;position:relative}
+    .qzw-opt:hover{background:rgba(109,40,217,.07);border-color:rgba(109,40,217,.34);transform:translateY(-4px);box-shadow:0 12px 36px rgba(109,40,217,.12)}
+    .qzw-opt.qzw-active{background:rgba(109,40,217,.12);border-color:#7c3aed}
+    .qzw-opt-num{font-size:2.6rem;font-weight:900;color:#4c1d95;line-height:1;letter-spacing:-.02em;display:block}
+    .qzw-opt-label{font-size:.58rem;font-weight:900;color:#a08868;letter-spacing:.12em;text-transform:uppercase;display:block}
+    .qzw-opt-rec{background:linear-gradient(145deg,rgba(109,40,217,.1),rgba(79,70,229,.06));border-color:rgba(109,40,217,.28)}
+    .qzw-opt-rec:hover{background:linear-gradient(145deg,rgba(109,40,217,.16),rgba(79,70,229,.1));border-color:#7c3aed}
+    .qzw-opt-rec .qzw-opt-num{color:#6d28d9}
+    .qzw-rec-badge{font-size:.54rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#7c3aed;background:rgba(109,40,217,.1);padding:3px 10px;border-radius:99px;display:block;white-space:nowrap}
+    .qzw-avail{font-size:.76rem;color:#8a6e54;font-weight:700;margin-bottom:16px}
     /* Empty / no-folder step */
-    .qzw-empty-icon{font-size:3.2rem;margin-bottom:20px}
-    .qzw-empty-title{font-size:1.6rem;font-weight:900;color:#1c1208;margin-bottom:10px}
-    .qzw-empty-sub{font-size:.88rem;color:#6e5438;line-height:1.7;max-width:300px;margin:0 auto 32px}
-    .qzw-cta{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:14px;padding:15px 36px;font-size:.9rem;font-weight:900;font-family:'Raleway',sans-serif;cursor:pointer;transition:opacity .18s;letter-spacing:.03em}
-    .qzw-cta:hover{opacity:.88}
+    .qzw-empty-icon{font-size:3.6rem;margin-bottom:24px}
+    .qzw-empty-title{font-size:1.8rem;font-weight:900;color:#1c1208;margin-bottom:12px;letter-spacing:-.02em}
+    .qzw-empty-sub{font-size:.88rem;color:#6e5438;line-height:1.75;max-width:340px;margin:0 auto 36px}
+    .qzw-cta{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:16px;padding:17px 52px;font-size:.92rem;font-weight:900;font-family:'Raleway',sans-serif;cursor:pointer;transition:opacity .18s,transform .18s;letter-spacing:.04em}
+    .qzw-cta:hover{opacity:.88;transform:translateY(-1px)}
     .qs-h{font-size:1.5rem;font-weight:900;color:#1c1208;margin-bottom:8px;letter-spacing:-.01em}
     .qs-p{color:#6e5438;font-size:.85rem;margin-bottom:32px;font-weight:500}
     .cfg-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px}
@@ -1436,7 +1441,14 @@
       .fc-del      { font-size: .75rem; }
 
       /* ── Quiz setup ── */
-      #quiz-setup     { padding: 0; }
+      #quiz-setup     { padding: 0 16px; }
+      .qzw-step       { padding: 56px 0 48px; }
+      .qzw-hero       { font-size: 2.2rem; }
+      .qzw-diff-cycle { height: 180px; }
+      .qzw-diff-cycle-val { font-size: 3.4rem; }
+      .qzw-opts       { grid-template-columns: repeat(2,1fr); gap: 10px; }
+      .qzw-opt        { padding: 24px 8px 20px; }
+      .qzw-opt-num    { font-size: 2rem; }
       .qzr-inner      { padding: 5px 16px; }
       .qs-h           { font-size: 1.25rem; font-weight: 900; margin-bottom: 6px; }
       .qs-p           { font-size: .83rem; line-height: 1.6; margin-bottom: 22px; }
@@ -2095,10 +2107,10 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
               <div class="qzw-diff-chosen" id="qzw-diff-pill">All levels</div>
               <div class="qzw-prompt">How many questions?</div>
               <div class="qzw-opts">
-                <button class="qzw-opt" onclick="qzWizStart(20)">20</button>
-                <button class="qzw-opt" onclick="qzWizStart(30)">30</button>
-                <button class="qzw-opt" onclick="qzWizStart(50)">50</button>
-                <button class="qzw-opt qzw-opt-rec" onclick="qzWizStart(100)">100<span class="qzw-rec-badge">Recommended</span></button>
+                <button class="qzw-opt" onclick="qzWizStart(20)"><span class="qzw-opt-num">20</span><span class="qzw-opt-label">Quick</span></button>
+                <button class="qzw-opt" onclick="qzWizStart(30)"><span class="qzw-opt-num">30</span><span class="qzw-opt-label">Standard</span></button>
+                <button class="qzw-opt" onclick="qzWizStart(50)"><span class="qzw-opt-num">50</span><span class="qzw-opt-label">Extended</span></button>
+                <button class="qzw-opt qzw-opt-rec" onclick="qzWizStart(100)"><span class="qzw-opt-num">100</span><span class="qzw-opt-label">Full session</span><span class="qzw-rec-badge">Recommended</span></button>
               </div>
               <div class="qzw-avail" id="avail-msg"></div>
               <div id="retry-wrong-row" style="display:none;margin-bottom:14px">
