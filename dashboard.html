@@ -5180,6 +5180,12 @@ function qzResumeSession() {
 })();
 
 document.addEventListener('keydown', function(e) {
+  if (e.key === '-' || e.key === '=') {
+    var tag = document.activeElement && document.activeElement.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    if (e.key === '-') setMode('chill');
+    else setMode('hardcore');
+  }
   if (e.key === 'F11') {
     var run = document.getElementById('quiz-run');
     if (run && run.style.display !== 'none') {
