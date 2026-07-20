@@ -1346,6 +1346,7 @@
     .sq-hint-item:last-child{margin-bottom:0}
     .sq-hint-dot{color:#7c3aed;font-weight:900;flex-shrink:0}
     .sq-hint-kw{color:#6d28d9;font-weight:900;background:rgba(109,40,217,.12);border-radius:4px;padding:0 5px}
+    .sq-hint-dash{color:#a78bfa;font-weight:400;opacity:.6}
     /* L1 self-mark */
     .sq-l1-compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
     .sq-l1-col{background:rgba(250,243,224,.6);border:1px solid rgba(168,85,247,.12);border-radius:11px;padding:12px 14px}
@@ -7995,11 +7996,7 @@ function sqL1RenderHints(q) {
     + '<span class="sq-hints-lbl">💡 Key points to cover' + (aiUsed ? ' <span style="font-size:.52rem;font-weight:700;opacity:.7">✨ AI</span>' : '') + '</span>';
   bullets.forEach(function(line, i) {
     var keywords = sqGetKeywords(q, i, line);
-    var display = rpEsc(line);
-    keywords.forEach(function(kw) {
-      display = display.replace(new RegExp('\\b' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i'),
-        '<em class="sq-hint-kw">$&</em>');
-    });
+    var display = keywords.map(function(kw) { return '<em class="sq-hint-kw">' + rpEsc(kw) + '</em>'; }).join(' <span class="sq-hint-dash">—</span> ');
     html += '<div class="sq-hint-item"><span class="sq-hint-dot">•</span><span>' + display + '</span></div>';
   });
   html += '</div>';
