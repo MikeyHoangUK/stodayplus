@@ -7543,7 +7543,10 @@ async function sqPracSubmit() {
     if (nxtBtn) nxtBtn.textContent = sqPracIdx < sqPracQs.length - 1 ? 'Next →' : 'See results →';
     if (sqCurrentFolder) orgIncrementSAQ(sqCurrentFolder, q.id);
     sqSessionQCount++;
-    sqSessionTotalScore += (typeof result.score === 'number' ? result.score : 0);
+    var _hitScore = (result.feedback && result.feedback.length > 0)
+      ? result.feedback.filter(function(pt) { return !!pt.hit; }).length
+      : (typeof result.score === 'number' ? result.score : 0);
+    sqSessionTotalScore += _hitScore;
     sqSessionMaxScore   += (result.total || (result.feedback ? result.feedback.length : 0));
     var scoreEl = document.getElementById('sq-prac-score');
     if (scoreEl) scoreEl.textContent = '✓ ' + sqSessionTotalScore + ' pts';
@@ -7557,7 +7560,10 @@ async function sqPracSubmit() {
 
 function sqShowMarkResult(result, markscheme) {
   var total = result.total || (result.feedback ? result.feedback.length : 0);
-  var score = typeof result.score === 'number' ? result.score : 0;
+  // Derive score from hit flags — the AI's score field is often wrong (e.g. returns 0 with hit:true points)
+  var score = (result.feedback && result.feedback.length > 0)
+    ? result.feedback.filter(function(pt) { return !!pt.hit; }).length
+    : (typeof result.score === 'number' ? result.score : 0);
   var scoreColor = score === total ? '#16a34a' : score >= total * 0.6 ? '#b45309' : '#dc2626';
   var ptsHtml = (result.feedback || []).map(function(pt) {
     return '<li class="sq-mark-pt ' + (pt.hit ? 'hit' : 'miss') + '">'
