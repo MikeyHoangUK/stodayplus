@@ -795,6 +795,19 @@
     .rp-method-pill{font-size:.71rem;font-weight:800;color:#6d28d9;display:flex;align-items:center;gap:5px;flex:1;min-width:0}
     .rp-go-tool-btn{font-size:.68rem;font-weight:800;background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:8px;padding:5px 12px;cursor:pointer;font-family:'Raleway',sans-serif;white-space:nowrap;transition:opacity .15s;flex-shrink:0}
     .rp-go-tool-btn:hover{opacity:.85}
+    /* Revision mode picker */
+    #rp-mode-picker{padding:8px 0 40px;animation:fadeIn .2s ease}
+    .rp-mode-back-row{margin-bottom:28px}
+    .rp-mode-topic-hd{font-size:2rem;font-weight:900;color:#1c1208;text-align:center;line-height:1.1;margin-bottom:8px}
+    .rp-mode-prompt{font-size:.78rem;font-weight:800;color:#a08868;letter-spacing:.12em;text-transform:uppercase;text-align:center;margin-bottom:32px}
+    .rp-mode-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:720px;margin:0 auto}
+    .rp-mode-card{background:rgba(250,243,224,.8);border:2px solid rgba(168,85,247,.12);border-radius:20px;padding:28px 12px 22px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .18s,background .2s;font-family:'Raleway',sans-serif;text-align:center;outline:none}
+    .rp-mode-card:hover:not([disabled]){border-color:rgba(124,58,237,.4);background:rgba(250,243,224,1);box-shadow:0 8px 32px rgba(109,40,217,.14);transform:translateY(-3px)}
+    .rp-mode-card[disabled]{opacity:.38;cursor:not-allowed;filter:grayscale(.4)}
+    .rp-mode-emoji{font-size:2rem;line-height:1;display:block;margin-bottom:2px}
+    .rp-mode-name{font-size:1.05rem;font-weight:900;color:#4c1d95;display:block}
+    .rp-mode-desc{font-size:.6rem;font-weight:800;color:#a08868;letter-spacing:.1em;text-transform:uppercase;display:block}
+    .rp-mode-lock{font-size:.58rem;font-weight:700;color:#b45309;margin-top:4px;display:block;line-height:1.35;background:rgba(217,119,6,.07);border-radius:6px;padding:3px 7px}
     /* D1 score buttons */
     .rp-score-row{display:flex;gap:8px;margin-top:12px}
     .rp-pass-btn{flex:1;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:10px;padding:8px 10px;font-size:.71rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:opacity .15s}
@@ -1449,6 +1462,7 @@
       .qzw-diff-cycle { height: 180px; }
       .qzw-diff-cycle-val { font-size: 3.4rem; }
       .qzw-opts       { grid-template-columns: repeat(2,1fr); gap: 10px; }
+      .rp-mode-grid   { grid-template-columns: repeat(2,1fr); gap: 10px; }
       .qzw-opt        { padding: 24px 8px 20px; }
       .qzw-opt-num    { font-size: 2rem; }
       .qzr-inner      { padding: 5px 16px; }
@@ -2204,6 +2218,15 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
         <!-- TODAY -->
         <div id="rp-today">
           <div id="rp-today-content"></div>
+          <!-- Bot mode picker — shown instead of today-content when user clicks Start -->
+          <div id="rp-mode-picker" style="display:none">
+            <div class="rp-mode-back-row">
+              <button class="qzw-back" onclick="rpModeClose()">← Back</button>
+            </div>
+            <div class="rp-mode-topic-hd" id="rp-mode-topic-name">—</div>
+            <div class="rp-mode-prompt">How do you want to revise today?</div>
+            <div class="rp-mode-grid" id="rp-mode-grid"></div>
+          </div>
         </div>
 
         <!-- TOPICS (organiser) -->
@@ -6608,9 +6631,53 @@ function rpGoToTopic(tool, itemId) {
   }, 80);
 }
 
+var _rpModeItemId = null;
+function rpShowMode(itemId) {
+  var item = rpData.find(function(x) { return x.id === itemId; });
+  if (!item) return;
+  var topic = item.topic;
+  var sageOk   = isSageUnlocked(topic);
+  var blurtoOk = isBlurtoUnlocked(topic);
+  var finleyOk = isFinleyUnlocked(topic);
+  var bots = [
+    { id:'mcq',    emoji:'🧠', name:'Poppy',  desc:'MCQ Quiz',     ok:true,      lock:'' },
+    { id:'saqs',   emoji:'✍️', name:'Sage',   desc:'Short-answer', ok:sageOk,    lock:'Do 100 MCQs first' },
+    { id:'blurto', emoji:'📝', name:'Blurto', desc:'Brain dump',   ok:blurtoOk,  lock:'Complete Sage first' },
+    { id:'finley', emoji:'🎓', name:'Finley', desc:'Teach back',   ok:finleyOk,  lock:'Complete Blurto first' }
+  ];
+  var grid = document.getElementById('rp-mode-grid');
+  if (!grid) return;
+  grid.innerHTML = bots.map(function(b) {
+    return '<button class="rp-mode-card"' + (b.ok ? ' onclick="rpModeChoose(\'' + b.id + '\')"' : ' disabled') + '>'
+      + '<span class="rp-mode-emoji">' + (b.ok ? b.emoji : '🔒') + '</span>'
+      + '<span class="rp-mode-name">' + b.name + '</span>'
+      + '<span class="rp-mode-desc">' + b.desc + '</span>'
+      + (!b.ok ? '<span class="rp-mode-lock">' + b.lock + '</span>' : '')
+      + '</button>';
+  }).join('');
+  var hn = document.getElementById('rp-mode-topic-name');
+  if (hn) hn.textContent = topic;
+  document.getElementById('rp-today-content').style.display = 'none';
+  document.getElementById('rp-mode-picker').style.display = 'block';
+  _rpModeItemId = itemId;
+}
+function rpModeClose() {
+  document.getElementById('rp-mode-picker').style.display = 'none';
+  document.getElementById('rp-today-content').style.display = 'block';
+  _rpModeItemId = null;
+}
+function rpModeChoose(tool) {
+  var id = _rpModeItemId;
+  rpModeClose();
+  rpGoToTopic(tool, id);
+}
+
 function rpRenderToday() {
+  var _mp = document.getElementById('rp-mode-picker');
+  if (_mp && _mp.style.display !== 'none') { _mp.style.display = 'none'; }
   var el = document.getElementById('rp-today-content');
   if (!el) return;
+  el.style.display = 'block';
   var due = rpGetDue();
   if (due.length === 0) {
     el.innerHTML = '<div class="rp-empty"><div class="rp-empty-icon">🎉</div><div class="rp-empty-title">All caught up!</div><div class="rp-empty-sub">No reviews due today. Come back tomorrow.</div></div>'
@@ -6629,7 +6696,7 @@ function rpRenderToday() {
     var methodRow = task.tool !== 'free'
       ? '<div class="rp-method-row">'
         + '<span class="rp-method-pill">' + task.emoji + ' ' + dLabel + ' — ' + task.label + ' with ' + task.name + '</span>'
-        + '<button class="rp-go-tool-btn" onclick="rpGoToTopic(\'' + task.tool + '\',\'' + item.id + '\')">▶ Start</button>'
+        + '<button class="rp-go-tool-btn" onclick="rpShowMode(\'' + item.id + '\')">▶ Start</button>'
         + '</div>'
       : '<div class="rp-method-row" style="justify-content:flex-start"><span class="rp-method-pill" style="color:#16a34a">✅ ' + dLabel + ' — All steps complete — free review</span></div>';
 
