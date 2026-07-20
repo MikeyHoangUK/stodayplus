@@ -7922,7 +7922,7 @@ async function sqStartWithLevel(lv) {
     var backBtn = document.getElementById('sq-lp-back-btn');
     if (backBtn) backBtn.disabled = true;
     var statusEl = document.getElementById('sq-lp-status');
-    if (statusEl) { statusEl.innerHTML = '<div class="sql-spinner"></div>✨ Extracting key terms with AI…'; statusEl.style.display = 'flex'; }
+    if (statusEl) { statusEl.innerHTML = '<div class="sql-spinner"></div>✨ Analysing markschemes…'; statusEl.style.display = 'flex'; }
     try {
       await sqPrepareAIKeywords(sqPracQs);
       if (statusEl) { statusEl.innerHTML = '<div class="sql-spinner"></div>Done — starting session…'; }
@@ -7944,21 +7944,34 @@ async function sqStartWithLevel(lv) {
 }
 
 async function sqPrepareAIKeywords(questions) {
-  // Build a single prompt with all questions — one AI call for the whole session
   var lines = questions.map(function(q) {
     var bullets = sqParseBullets(q.modelAnswer);
     if (!bullets.length) return null;
-    return 'ID:' + q.id + '\n' + bullets.map(function(b, i) { return (i + 1) + '. ' + b; }).join('\n');
+    return 'QUESTION ID: ' + q.id + '\n'
+      + bullets.map(function(b, i) { return 'BULLET ' + (i + 1) + ': ' + b; }).join('\n');
   }).filter(Boolean);
   if (!lines.length) return;
 
-  var prompt = 'You are a Keyword Extraction Tutor for a student revision tool. Extract keywords from markscheme bullet points using this exact method.\n\nRULES FOR PICKING A KEYWORD:\n1. Delete Test: A word/phrase is a keyword ONLY if removing it would make the bullet lose its main point, become vague, or become factually wrong. If deleting it changes nothing, it is NOT a keyword.\n2. Look specifically for these 5 categories:\n   - Numbers/measurements (quantities, levels, doses, percentages)\n   - Technical/special names (drug names, conditions, specific terms)\n   - Action/decision words (what must be DONE or DECIDED — e.g. monitored, adjusted, avoided)\n   - Condition/qualifier words (words describing "what kind", "how much", "under what circumstance" — e.g. individual, optimal, underlying, resistant)\n   - Warning/expert-referral words (signal caution or need for specialist input)\n3. Pick 3–5 keywords per bullet. Never pick more than half the words in a bullet — if you would, re-select only the most critical.\n4. Keywords must appear verbatim in the bullet text.\n5. Never pick stop-words (the, a, an, is, are, of, in, on, to, and, or, but, for, with, etc.).\n\nReturn ONLY valid JSON — no markdown, no explanation:\n{"results":[{"id":"...","kws":[["kw1","kw2","kw3"],["kw1","kw2"],...]},...]}\n\nEach inner array = keywords for one bullet, in the order they appear in the text.\n\nMarkschemes:\n\n' + lines.join('\n\n');
+  // ── Step 1: free-form reasoning — model thinks without format constraints ──
+  var step1 = 'You are a Keyword Extraction Tutor. Identify the essential keywords from these exam markscheme bullet points.\n\nMETHOD:\n1. Delete Test: a word is a keyword ONLY if removing it makes the bullet lose its main point, become vague, or factually wrong. If deleting changes nothing — skip it.\n2. Focus on these 5 categories:\n   - Numbers / measurements (quantities, doses, levels, percentages)\n   - Technical / special names (drug names, conditions, specific terms)\n   - Action / decision words (what must be DONE — e.g. monitored, adjusted, avoided, referred)\n   - Condition / qualifier words ("what kind", "how much", "under what circumstance" — e.g. individual, optimal, resistant, underlying)\n   - Warning / expert-referral words (signal caution or specialist input)\n3. Pick 3–5 keywords per bullet. Never more than half the words in a line.\n4. Keywords must appear verbatim in the bullet text.\n5. Never pick stop-words (the, a, an, is, are, of, in, on, to, and, or, for, with, by, as, etc.).\n\nFor each question output:\nQUESTION ID: [id]\nBULLET 1: [exact text] | KEYWORDS: word1, word2, word3\nBULLET 2: [exact text] | KEYWORDS: word1, word2\n...\n\nMarkschemes:\n\n' + lines.join('\n\n');
 
-  var data = await callAI({ messages: [{ role: 'user', content: prompt }], temperature: 0.1, max_tokens: 1800 });
-  if (data.error) throw new Error(data.error.message || 'AI error');
-  var raw = (((data.choices || [])[0] || {}).message || {}).content || '';
+  var d1 = await callAI({ messages: [{ role: 'user', content: step1 }], temperature: 0.15, max_tokens: 1800 });
+  if (d1.error) throw new Error(d1.error.message || 'Step 1 failed');
+  var analysis = (((d1.choices || [])[0] || {}).message || {}).content || '';
+  if (!analysis) throw new Error('Empty step 1 response');
+
+  // Update spinner between steps
+  var statusEl = document.getElementById('sq-lp-status');
+  if (statusEl) statusEl.innerHTML = '<div class="sql-spinner"></div>Structuring keywords…';
+
+  // ── Step 2: pure reformatting — no reasoning needed, just convert to JSON ──
+  var step2 = 'Convert the keyword analysis below into JSON. Return ONLY valid JSON — no markdown, no explanation, nothing else.\n\nRequired format:\n{"results":[{"id":"QUESTION_ID","kws":[["kw1","kw2","kw3"],["kw1","kw2"],...]},...]}\n\nOne entry per QUESTION ID. One inner array per bullet in order. Keywords in the order they appear in the bullet.\n\nAnalysis:\n\n' + analysis;
+
+  var d2 = await callAI({ messages: [{ role: 'user', content: step2 }], temperature: 0.0, max_tokens: 1200 });
+  if (d2.error) throw new Error(d2.error.message || 'Step 2 failed');
+  var raw = (((d2.choices || [])[0] || {}).message || {}).content || '';
   var m = raw.match(/\{[\s\S]*\}/);
-  if (!m) throw new Error('No JSON in response');
+  if (!m) throw new Error('No JSON in step 2 response');
   var parsed = JSON.parse(m[0]);
   (parsed.results || []).forEach(function(r) {
     if (r.id && Array.isArray(r.kws)) _sqAIKeywords[r.id] = r.kws;
