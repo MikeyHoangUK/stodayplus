@@ -1324,6 +1324,9 @@
     .sql-lv-tag{font-size:.57rem;font-weight:800;background:rgba(109,40,217,.08);color:#6d28d9;border-radius:6px;padding:3px 9px;margin-top:6px;display:inline-block}
     .sql-lv-tag.rec{background:rgba(124,58,237,.18);color:#4c1d95}
     .sql-back-row{text-align:center;margin-top:4px}
+    #sq-lp-status{text-align:center;padding:16px 0 6px;font-size:.8rem;font-weight:700;color:#6d28d9;display:flex;align-items:center;justify-content:center;gap:10px}
+    .sql-spinner{width:16px;height:16px;border:2.5px solid rgba(109,40,217,.2);border-top-color:#6d28d9;border-radius:50%;animation:spin .75s linear infinite;flex-shrink:0}
+    @keyframes spin{to{transform:rotate(360deg)}}
     /* topbar level badge */
     .sq-level-badge{font-size:.56rem;font-weight:900;background:rgba(109,40,217,.1);color:#6d28d9;border-radius:6px;padding:2px 8px;letter-spacing:.08em;text-transform:uppercase;vertical-align:middle;margin-left:6px}
     /* L4 timer */
@@ -2505,8 +2508,9 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
                 <span class="sql-lv-tag">Exam simulation</span>
               </button>
             </div>
+            <div id="sq-lp-status" style="display:none"></div>
             <div class="sql-back-row">
-              <button class="qzw-back" onclick="sqLevelPickerBack()">← Back</button>
+              <button class="qzw-back" id="sq-lp-back-btn" onclick="sqLevelPickerBack()">← Back</button>
             </div>
           </div>
           <div id="sq-results" class="results-wrap">
@@ -7854,6 +7858,7 @@ function sqPracEnd() {
 
 // ── Sage level system ─────────────────────────────────────────────────────────
 var sqPracLevel = 3;
+var _sqAIKeywords = {}; // {questionId: [[kw1,kw2],[kw1],...]} — populated by AI per session
 var _sqL4TimerInterval = null;
 var _sqL4TotalSecs = 0;
 var _sqL1TickState = []; // true=hit, false=miss, null=unmarked per bullet
@@ -7890,6 +7895,7 @@ function sqBlankMatch(input, keyword) {
 }
 
 function sqShowLevelPicker() {
+  _sqAIKeywords = {}; // clear cache for new session
   var topicName = sqCurrentFolder || 'All Topics';
   var tn = document.getElementById('sql-topic-nm');
   if (tn) tn.textContent = topicName;
@@ -7904,24 +7910,78 @@ function sqLevelPickerBack() {
   document.getElementById('sq-prac-setup').style.display = 'block';
 }
 
-function sqStartWithLevel(lv) {
+async function sqStartWithLevel(lv) {
   sqPracLevel = lv;
   var badge = document.getElementById('sq-level-badge');
   var names = {1:'L1 · Guided', 2:'L2 · Cloze', 3:'L3 · Recall', 4:'L4 · Pressure'};
   if (badge) badge.textContent = names[lv] || ('L' + lv);
+
+  if (lv === 1 || lv === 2) {
+    // Disable cards + show spinner while AI fetches keywords
+    document.querySelectorAll('.sql-card').forEach(function(c) { c.disabled = true; c.style.opacity = '.38'; c.style.pointerEvents = 'none'; });
+    var backBtn = document.getElementById('sq-lp-back-btn');
+    if (backBtn) backBtn.disabled = true;
+    var statusEl = document.getElementById('sq-lp-status');
+    if (statusEl) { statusEl.innerHTML = '<div class="sql-spinner"></div>✨ Extracting key terms with AI…'; statusEl.style.display = 'flex'; }
+    try {
+      await sqPrepareAIKeywords(sqPracQs);
+      if (statusEl) { statusEl.innerHTML = '<div class="sql-spinner"></div>Done — starting session…'; }
+    } catch(e) {
+      if (statusEl) { statusEl.textContent = 'Using local hints (AI unavailable)'; }
+    }
+    // Small pause so user sees the transition
+    await new Promise(function(res) { setTimeout(res, 320); });
+    // Reset picker UI for next time
+    document.querySelectorAll('.sql-card').forEach(function(c) { c.disabled = false; c.style.opacity = ''; c.style.pointerEvents = ''; });
+    if (backBtn) backBtn.disabled = false;
+    if (statusEl) { statusEl.style.display = 'none'; statusEl.innerHTML = ''; }
+  }
+
   document.getElementById('sq-level-picker').style.display = 'none';
   document.getElementById('sq-prac-run').style.display = 'block';
   sqShowPracQ();
   sqEnterFS();
 }
 
+async function sqPrepareAIKeywords(questions) {
+  // Build a single prompt with all questions — one AI call for the whole session
+  var lines = questions.map(function(q) {
+    var bullets = sqParseBullets(q.modelAnswer);
+    if (!bullets.length) return null;
+    return 'ID:' + q.id + '\n' + bullets.map(function(b, i) { return (i + 1) + '. ' + b; }).join('\n');
+  }).filter(Boolean);
+  if (!lines.length) return;
+
+  var prompt = 'You are a revision tool. For each markscheme below, identify 1–2 KEY TERMS per bullet — specific vocabulary the student must recall to earn that mark.\n\nRules:\n- Terms must appear verbatim (or near-verbatim) in the bullet text\n- Prefer technical/subject-specific words over generic ones\n- 1 term for simple bullets, 2 for complex ones\n- Never pick stop-words (the, a, is, of, in, to, and, etc.)\n\nReturn ONLY valid JSON (no markdown, no extra text):\n{"results":[{"id":"...","kws":[["term1","term2"],["term1"],...]},...]}\n\nMarkschemes:\n\n' + lines.join('\n\n');
+
+  var data = await callAI({ messages: [{ role: 'user', content: prompt }], temperature: 0.1, max_tokens: 1400 });
+  if (data.error) throw new Error(data.error.message || 'AI error');
+  var raw = (((data.choices || [])[0] || {}).message || {}).content || '';
+  var m = raw.match(/\{[\s\S]*\}/);
+  if (!m) throw new Error('No JSON in response');
+  var parsed = JSON.parse(m[0]);
+  (parsed.results || []).forEach(function(r) {
+    if (r.id && Array.isArray(r.kws)) _sqAIKeywords[r.id] = r.kws;
+  });
+}
+
+// Return AI keywords for a bullet (with local fallback)
+function sqGetKeywords(q, bulletIdx, bulletText) {
+  var aiKws = _sqAIKeywords[q.id];
+  if (aiKws && Array.isArray(aiKws[bulletIdx]) && aiKws[bulletIdx].length) {
+    return aiKws[bulletIdx];
+  }
+  return sqExtractKeywords(bulletText);
+}
+
 // ── L1: Guided recall ─────────────────────────────────────────────────────────
 function sqL1RenderHints(q) {
   var bullets = sqParseBullets(q.modelAnswer);
+  var aiUsed = !!_sqAIKeywords[q.id];
   var html = '<div class="sq-hints-panel">'
-    + '<span class="sq-hints-lbl">💡 Key points to cover</span>';
-  bullets.forEach(function(line) {
-    var keywords = sqExtractKeywords(line);
+    + '<span class="sq-hints-lbl">💡 Key points to cover' + (aiUsed ? ' <span style="font-size:.52rem;font-weight:700;opacity:.7">✨ AI</span>' : '') + '</span>';
+  bullets.forEach(function(line, i) {
+    var keywords = sqGetKeywords(q, i, line);
     var display = rpEsc(line);
     keywords.forEach(function(kw) {
       display = display.replace(new RegExp('\\b' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i'),
@@ -7994,10 +8054,11 @@ function sqL1Confirm() {
 // ── L2: Cloze / fill-in-the-blank ────────────────────────────────────────────
 function sqL2RenderBlanks(q) {
   var bullets = sqParseBullets(q.modelAnswer);
-  _sqL2Data = bullets.map(function(line) {
-    return { text: line, keywords: sqExtractKeywords(line) };
+  var aiUsed = !!_sqAIKeywords[q.id];
+  _sqL2Data = bullets.map(function(line, i) {
+    return { text: line, keywords: sqGetKeywords(q, i, line) };
   });
-  var html = '<span class="sq-blanks-lbl">📝 Complete the key points</span>';
+  var html = '<span class="sq-blanks-lbl">📝 Complete the key points' + (aiUsed ? ' <span style="font-size:.52rem;font-weight:700;opacity:.7">✨ AI</span>' : '') + '</span>';
   _sqL2Data.forEach(function(bd, i) {
     var display = rpEsc(bd.text);
     bd.keywords.forEach(function(kw, ki) {
