@@ -807,7 +807,9 @@
     .rp-mode-emoji{font-size:2rem;line-height:1;display:block;margin-bottom:2px}
     .rp-mode-name{font-size:1.05rem;font-weight:900;color:#4c1d95;display:block}
     .rp-mode-desc{font-size:.6rem;font-weight:800;color:#a08868;letter-spacing:.1em;text-transform:uppercase;display:block}
-    .rp-mode-lock{font-size:.58rem;font-weight:700;color:#b45309;margin-top:4px;display:block;line-height:1.35;background:rgba(217,119,6,.07);border-radius:6px;padding:3px 7px}
+    .rp-mode-prog{font-size:.64rem;font-weight:800;color:#6d28d9;display:block;background:rgba(109,40,217,.08);border-radius:6px;padding:3px 9px;margin-top:2px;letter-spacing:.04em}
+    .rp-mode-prog-done{color:#16a34a;background:rgba(22,163,74,.08)}
+    .rp-mode-lock{font-size:.58rem;font-weight:700;color:#b45309;margin-top:2px;display:block;line-height:1.35;background:rgba(217,119,6,.07);border-radius:6px;padding:3px 7px}
     /* D1 score buttons */
     .rp-score-row{display:flex;gap:8px;margin-top:12px}
     .rp-pass-btn{flex:1;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:10px;padding:8px 10px;font-size:.71rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:opacity .15s}
@@ -6636,22 +6638,36 @@ function rpShowMode(itemId) {
   var item = rpData.find(function(x) { return x.id === itemId; });
   if (!item) return;
   var topic = item.topic;
+  var t = orgMatchTopic(topic);
+  var mcqDone    = t && t.mcq_done;
+  var saqDone    = t && t.saq_done;
+  var blurtDone  = t && t.blurting_done;
+  var finleyDone = t && !!t.blurto_low_peek_done;
+  var mcqCount   = (t && t.mcq_count)     || 0;
+  var saqCount   = (t && t.saq_count)     || 0;
+  var blurtCount = (t && t.blurting_count)|| 0;
   var sageOk   = isSageUnlocked(topic);
   var blurtoOk = isBlurtoUnlocked(topic);
   var finleyOk = isFinleyUnlocked(topic);
   var bots = [
-    { id:'mcq',    emoji:'🧠', name:'Poppy',  desc:'MCQ Quiz',     ok:true,      lock:'' },
-    { id:'saqs',   emoji:'✍️', name:'Sage',   desc:'Short-answer', ok:sageOk,    lock:'Do 100 MCQs first' },
-    { id:'blurto', emoji:'📝', name:'Blurto', desc:'Brain dump',   ok:blurtoOk,  lock:'Complete Sage first' },
-    { id:'finley', emoji:'🎓', name:'Finley', desc:'Teach back',   ok:finleyOk,  lock:'Complete Blurto first' }
+    { id:'mcq',    emoji:'🧠', name:'Poppy',  desc:'MCQ Quiz',     ok:true,      lock:'',
+      prog: mcqDone ? '✓ Complete' : (mcqCount + ' / ' + ORG_MCQ_THRESHOLD) },
+    { id:'saqs',   emoji:'✍️', name:'Sage',   desc:'Short-answer', ok:sageOk,    lock:'Do 100 MCQs first',
+      prog: saqDone ? '✓ Complete' : (saqCount + ' / ' + ORG_SAQ_THRESHOLD) },
+    { id:'blurto', emoji:'📝', name:'Blurto', desc:'Brain dump',   ok:blurtoOk,  lock:'Complete Sage first',
+      prog: blurtDone ? '✓ Complete' : (blurtCount + ' / ' + ORG_BLURT_THRESHOLD + ' session') },
+    { id:'finley', emoji:'🎓', name:'Finley', desc:'Teach back',   ok:finleyOk,  lock:'Complete Blurto first',
+      prog: finleyDone ? '✓ Unlocked' : 'Not yet unlocked' }
   ];
   var grid = document.getElementById('rp-mode-grid');
   if (!grid) return;
   grid.innerHTML = bots.map(function(b) {
+    var progClass = (b.prog && b.prog.charAt(0) === '✓') ? ' rp-mode-prog-done' : '';
     return '<button class="rp-mode-card"' + (b.ok ? ' onclick="rpModeChoose(\'' + b.id + '\')"' : ' disabled') + '>'
       + '<span class="rp-mode-emoji">' + (b.ok ? b.emoji : '🔒') + '</span>'
       + '<span class="rp-mode-name">' + b.name + '</span>'
       + '<span class="rp-mode-desc">' + b.desc + '</span>'
+      + '<span class="rp-mode-prog' + progClass + '">' + b.prog + '</span>'
       + (!b.ok ? '<span class="rp-mode-lock">' + b.lock + '</span>' : '')
       + '</button>';
   }).join('');
