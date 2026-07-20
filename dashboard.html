@@ -1310,6 +1310,71 @@
     .sq-mark-scheme-body{display:none;margin-top:10px;padding:10px 12px;background:rgba(255,255,255,.55);border-radius:8px;border-left:3px solid rgba(109,40,217,.25);font-size:.8rem;color:#4a3820;line-height:1.65;font-weight:500}
     .sq-mark-scheme-body.open{display:block}
     .sq-prac-next-row{display:flex;justify-content:flex-end;margin-top:16px}
+    /* ── Sage level picker ──────────────────── */
+    #sq-level-picker{max-width:820px;margin:0 auto;padding:0 0 40px;animation:fadeIn .22s ease}
+    .sql-hd{text-align:center;padding:16px 0 30px}
+    .sql-hd-topic{font-size:2rem;font-weight:900;color:#1c1208;line-height:1.1;margin-bottom:8px}
+    .sql-hd-sub{font-size:.72rem;font-weight:800;color:#a08868;letter-spacing:.14em;text-transform:uppercase}
+    .sql-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+    .sql-card{background:rgba(250,243,224,.85);border:2px solid rgba(168,85,247,.12);border-radius:20px;padding:28px 14px 22px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .18s;font-family:'Raleway',sans-serif;text-align:center;outline:none;width:100%}
+    .sql-card:hover{border-color:rgba(124,58,237,.42);box-shadow:0 8px 32px rgba(109,40,217,.14);transform:translateY(-3px)}
+    .sql-lv-num{font-size:2.4rem;font-weight:900;color:#4c1d95;line-height:1;display:block}
+    .sql-lv-name{font-size:.95rem;font-weight:900;color:#1c1208;display:block;margin-top:4px}
+    .sql-lv-desc{font-size:.6rem;font-weight:800;color:#a08868;letter-spacing:.1em;text-transform:uppercase;display:block}
+    .sql-lv-tag{font-size:.57rem;font-weight:800;background:rgba(109,40,217,.08);color:#6d28d9;border-radius:6px;padding:3px 9px;margin-top:6px;display:inline-block}
+    .sql-lv-tag.rec{background:rgba(124,58,237,.18);color:#4c1d95}
+    .sql-back-row{text-align:center;margin-top:4px}
+    /* topbar level badge */
+    .sq-level-badge{font-size:.56rem;font-weight:900;background:rgba(109,40,217,.1);color:#6d28d9;border-radius:6px;padding:2px 8px;letter-spacing:.08em;text-transform:uppercase;vertical-align:middle;margin-left:6px}
+    /* L4 timer */
+    .sq-timer-bar{display:flex;align-items:center;gap:12px;background:rgba(109,40,217,.06);border:1px solid rgba(109,40,217,.14);border-radius:12px;padding:10px 16px;margin-bottom:14px}
+    .sq-timer-num{font-size:1.4rem;font-weight:900;color:#4c1d95;font-family:'Raleway',sans-serif;min-width:48px;transition:color .3s}
+    .sq-timer-num.warn{color:#b45309}
+    .sq-timer-num.urgent{color:#dc2626;animation:blurtoPulse .6s ease-in-out infinite}
+    .sq-timer-track{flex:1;height:6px;background:rgba(109,40,217,.1);border-radius:99px;overflow:hidden}
+    .sq-timer-fill{height:100%;background:linear-gradient(90deg,#7c3aed,#4338ca);border-radius:99px;transition:width .95s linear}
+    .sq-timer-fill.warn{background:linear-gradient(90deg,#f59e0b,#d97706)}
+    .sq-timer-fill.urgent{background:linear-gradient(90deg,#ef4444,#dc2626)}
+    .sq-timer-lbl{font-size:.57rem;font-weight:800;color:#a08868;text-transform:uppercase;letter-spacing:.1em}
+    /* L1 hints */
+    .sq-hints-panel{background:rgba(109,40,217,.04);border:1px solid rgba(109,40,217,.12);border-radius:13px;padding:14px 16px;margin-bottom:14px}
+    .sq-hints-lbl{font-size:.6rem;font-weight:900;color:#6d28d9;text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px;display:block}
+    .sq-hint-item{display:flex;align-items:flex-start;gap:8px;font-size:.82rem;font-weight:600;color:#3a2a14;line-height:1.5;margin-bottom:6px}
+    .sq-hint-item:last-child{margin-bottom:0}
+    .sq-hint-dot{color:#7c3aed;font-weight:900;flex-shrink:0}
+    .sq-hint-kw{color:#6d28d9;font-weight:900;background:rgba(109,40,217,.12);border-radius:4px;padding:0 5px}
+    /* L1 self-mark */
+    .sq-l1-compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+    .sq-l1-col{background:rgba(250,243,224,.6);border:1px solid rgba(168,85,247,.12);border-radius:11px;padding:12px 14px}
+    .sq-l1-col-lbl{font-size:.58rem;font-weight:900;color:#a08868;text-transform:uppercase;letter-spacing:.12em;margin-bottom:7px;display:block}
+    .sq-l1-col-text{font-size:.8rem;color:#3a2a14;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+    .sq-l1-sm-lbl{font-size:.64rem;font-weight:900;color:#1c1208;margin-bottom:9px;display:block;text-transform:uppercase;letter-spacing:.08em}
+    .sq-l1-brow{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:9px;background:rgba(250,243,224,.5);border:1.5px solid rgba(168,85,247,.1);margin-bottom:6px;transition:background .15s,border-color .15s}
+    .sq-l1-brow.lv-hit{background:rgba(22,163,74,.06);border-color:rgba(22,163,74,.28)}
+    .sq-l1-brow.lv-miss{background:rgba(220,38,38,.04);border-color:rgba(220,38,38,.2)}
+    .sq-l1-btxt{flex:1;font-size:.8rem;font-weight:600;color:#3a2a14;line-height:1.4}
+    .sq-l1-bticks{display:flex;gap:5px;flex-shrink:0}
+    .sq-l1-tick{background:none;border:1.5px solid rgba(109,40,217,.22);border-radius:7px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.78rem;transition:all .15s;color:#b09880;font-family:'Raleway',sans-serif;font-weight:800}
+    .sq-l1-tick:hover{border-color:rgba(109,40,217,.5)}
+    .sq-l1-tick.ty{background:#16a34a;border-color:#16a34a;color:#fff}
+    .sq-l1-tick.tn{background:#dc2626;border-color:#dc2626;color:#fff}
+    .sq-l1-done-btn{width:100%;margin-top:10px;padding:12px;background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:12px;font-size:.82rem;font-weight:900;cursor:pointer;font-family:'Raleway',sans-serif;transition:opacity .15s;letter-spacing:.02em}
+    .sq-l1-done-btn:hover{opacity:.88}
+    .sq-l1-done-btn:disabled{opacity:.38;cursor:not-allowed}
+    /* L2 blanks */
+    .sq-blanks-lbl{font-size:.6rem;font-weight:900;color:#6d28d9;text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px;display:block}
+    .sq-blank-row{display:flex;align-items:center;gap:5px;font-size:.84rem;font-weight:600;color:#3a2a14;line-height:1.9;flex-wrap:wrap;margin-bottom:7px;padding:8px 12px;background:rgba(250,243,224,.6);border:1.5px solid rgba(168,85,247,.1);border-radius:10px;transition:border-color .2s,background .2s}
+    .sq-blank-row.b-ok-row{border-color:rgba(22,163,74,.3);background:rgba(22,163,74,.04)}
+    .sq-blank-row.b-miss-row{border-color:rgba(220,38,38,.22);background:rgba(220,38,38,.03)}
+    .sq-blank-inp{border:none;border-bottom:2px solid rgba(109,40,217,.4);background:transparent;font-family:'Raleway',sans-serif;font-size:.84rem;font-weight:700;color:#4c1d95;outline:none;min-width:72px;max-width:130px;padding:0 3px;transition:border-color .18s}
+    .sq-blank-inp:focus{border-bottom-color:#6d28d9}
+    .sq-blank-inp.bk-ok{border-bottom-color:#16a34a;color:#16a34a}
+    .sq-blank-inp.bk-miss{border-bottom-color:#dc2626;color:#dc2626;text-decoration:line-through}
+    .sq-blank-reveal{font-size:.78rem;font-weight:800;color:#16a34a;display:none;margin-left:4px;white-space:nowrap}
+    .sq-blank-row.b-miss-row .sq-blank-reveal{display:inline}
+    .sq-l2-score-row{display:flex;align-items:baseline;gap:10px;margin:10px 0 4px;padding:10px 14px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.12);border-radius:10px}
+    .sq-l2-score-num{font-size:1.6rem;font-weight:900}
+    .sq-l2-score-lbl{font-size:.7rem;font-weight:700;color:#6e5438;text-transform:uppercase;letter-spacing:.08em}
     body.hc .sq-prac-input{background:#0d0b1e!important;color:#e8dcc8!important;border-color:rgba(168,85,247,.4)!important}
     body.hc .sq-mark-result{background:#0f0d22!important;border-color:rgba(168,85,247,.4)!important;box-shadow:0 0 0 1px rgba(168,85,247,.12),0 2px 12px rgba(0,0,0,.6)!important}
     body.hc .sq-mark-score-lbl{color:#a08878!important}
@@ -1466,6 +1531,8 @@
       .qzw-diff-cycle-val { font-size: 3.4rem; }
       .qzw-opts       { grid-template-columns: repeat(2,1fr); gap: 10px; }
       .rp-mode-grid   { grid-template-columns: repeat(2,1fr); gap: 10px; }
+      .sql-grid       { grid-template-columns: repeat(2,1fr); gap: 10px; }
+      .sq-l1-compare  { grid-template-columns: 1fr; }
       .qzw-opt        { padding: 24px 8px 20px; }
       .qzw-opt-num    { font-size: 2rem; }
       .qzr-inner      { padding: 5px 16px; }
@@ -2402,7 +2469,44 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
                 </div>
               </div>
               <div class="avail-msg" id="sq-avail-msg" style="margin-bottom:24px"></div>
-              <button class="start-btn" onclick="sqStartPrac()">Start Practice →</button>
+              <button class="start-btn" onclick="sqStartPrac()">Choose difficulty →</button>
+            </div>
+          </div>
+
+          <!-- ── Level picker ────────────────────────── -->
+          <div id="sq-level-picker" style="display:none">
+            <div class="sql-hd">
+              <div class="sql-hd-topic" id="sql-topic-nm">—</div>
+              <div class="sql-hd-sub">Choose your difficulty</div>
+            </div>
+            <div class="sql-grid">
+              <button class="sql-card" onclick="sqStartWithLevel(1)">
+                <span class="sql-lv-num">1</span>
+                <span class="sql-lv-name">Guided</span>
+                <span class="sql-lv-desc">Key hints revealed</span>
+                <span class="sql-lv-tag">Start here</span>
+              </button>
+              <button class="sql-card" onclick="sqStartWithLevel(2)">
+                <span class="sql-lv-num">2</span>
+                <span class="sql-lv-name">Cloze</span>
+                <span class="sql-lv-desc">Fill the gaps</span>
+                <span class="sql-lv-tag">Targeted recall</span>
+              </button>
+              <button class="sql-card" onclick="sqStartWithLevel(3)">
+                <span class="sql-lv-num">3</span>
+                <span class="sql-lv-name">Recall</span>
+                <span class="sql-lv-desc">Write full answer</span>
+                <span class="sql-lv-tag rec">Recommended</span>
+              </button>
+              <button class="sql-card" onclick="sqStartWithLevel(4)">
+                <span class="sql-lv-num">4</span>
+                <span class="sql-lv-name">Pressure</span>
+                <span class="sql-lv-desc">Timed full answer</span>
+                <span class="sql-lv-tag">Exam simulation</span>
+              </button>
+            </div>
+            <div class="sql-back-row">
+              <button class="qzw-back" onclick="sqLevelPickerBack()">← Back</button>
             </div>
           </div>
           <div id="sq-results" class="results-wrap">
@@ -2429,25 +2533,44 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
                 <button class="fs-btn" onclick="sqPracEnd()">← End</button>
                 <div class="quiz-topbar-mid">
                   <span class="q-counter" id="sq-prac-counter">1 / 5</span>
+                  <span class="sq-level-badge" id="sq-level-badge">L3</span>
                   <span class="q-score-lbl" id="sq-prac-score"></span>
                 </div>
                 <button class="fs-btn" onclick="sqToggleFS()" id="sq-fs-btn">⛶ Fullscreen</button>
               </div>
               <div class="q-prog-bar"><div class="q-prog-fill" id="sq-prac-prog" style="width:0%"></div></div>
+              <!-- L4 timer -->
+              <div id="sq-l4-timer" style="display:none">
+                <div class="sq-timer-bar">
+                  <span class="sq-timer-num" id="sq-timer-num">2:00</span>
+                  <div class="sq-timer-track"><div class="sq-timer-fill" id="sq-timer-fill" style="width:100%"></div></div>
+                  <span class="sq-timer-lbl">Time</span>
+                </div>
+              </div>
               <div class="quiz-card" id="sq-prac-card">
                 <div class="qcard-num" id="sq-prac-num">1</div>
                 <div class="sq-prac-q" id="sq-prac-q"></div>
               </div>
+              <!-- L1 hints panel -->
+              <div id="sq-l1-hints" style="display:none"></div>
+              <!-- L2 blanks area -->
+              <div id="sq-l2-area" style="display:none">
+                <div id="sq-l2-blanks"></div>
+                <button class="sq-prac-submit" id="sq-l2-submit-btn" onclick="sqL2Submit()">Check my answers →</button>
+              </div>
+              <!-- L1/L3/L4 answer area -->
               <div id="sq-prac-answer-area">
-                <div class="sq-ans-lbl">Your answer</div>
+                <div class="sq-ans-lbl" id="sq-ans-lbl">Your answer</div>
                 <textarea id="sq-prac-input" class="sq-prac-input" placeholder="Write your answer here…"></textarea>
                 <button class="sq-prac-submit" id="sq-prac-submit-btn" onclick="sqPracSubmit()">Submit for marking →</button>
                 <div class="ai-status" id="sq-prac-status" style="display:none"></div>
               </div>
               <div id="sq-prac-result" style="display:none">
-                <div class="sq-mark-result" id="sq-mark-result-inner"></div>
+                <!-- L1 self-mark panel -->
+                <div id="sq-l1-self-mark" style="display:none"></div>
+                <div class="sq-mark-result" id="sq-mark-result-inner" style="display:none"></div>
                 <div style="margin-top:14px">
-                  <button class="next-btn show" onclick="sqPracNext()" id="sq-prac-next-btn">Next →</button>
+                  <button class="next-btn show" onclick="sqPracNext()" id="sq-prac-next-btn" style="display:none">Next →</button>
                 </div>
               </div>
             </div>
@@ -7462,16 +7585,11 @@ function sqPracFolder(folder) {
   sqCurrentFolder = folder;
   sqPracQs = sqBank.filter(function(q) { return (q.folder || 'General') === folder; });
   if (!sqPracQs.length) return;
-  for (var i = sqPracQs.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var tmp = sqPracQs[i]; sqPracQs[i] = sqPracQs[j]; sqPracQs[j] = tmp;
-  }
+  for (var i = sqPracQs.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var tmp = sqPracQs[i]; sqPracQs[i] = sqPracQs[j]; sqPracQs[j] = tmp; }
   sqPracIdx = 0;
+  sqSessionQCount = 0; sqSessionTotalScore = 0; sqSessionMaxScore = 0; sqSessionStartTime = Date.now();
   sqTab('prac');
-  document.getElementById('sq-prac-setup').style.display = 'none';
-  document.getElementById('sq-prac-run').style.display = 'block';
-  sqShowPracQ();
-  sqEnterFS();
+  sqShowLevelPicker();
 }
 
 function sqTab(t) {
@@ -7480,7 +7598,12 @@ function sqTab(t) {
     document.getElementById('sq-tab-' + x).classList.toggle('active', x === t);
   });
   if (t === 'bank') renderSqBank();
-  if (t === 'prac') { sqPopulatePracFolder(); document.getElementById('sq-prac-setup').style.display = 'block'; document.getElementById('sq-prac-run').style.display = 'none'; }
+  if (t === 'prac') {
+    sqPopulatePracFolder();
+    document.getElementById('sq-prac-setup').style.display = 'block';
+    document.getElementById('sq-level-picker').style.display = 'none';
+    document.getElementById('sq-prac-run').style.display = 'none';
+  }
 }
 
 function sqUpdateAvail() {
@@ -7505,7 +7628,6 @@ function sqPopulatePracFolder() {
 
 function sqStartPrac() {
   var folder = document.getElementById('sq-prac-folder').value;
-  // Phase lock: MCQs must be done first for specific folders
   if (folder !== 'all') {
     var phaseT = orgMatchTopic(folder);
     if (phaseT && (phaseT.mcq_count || 0) < ORG_MCQ_THRESHOLD) {
@@ -7516,44 +7638,91 @@ function sqStartPrac() {
   }
   sqCurrentFolder = folder !== 'all' ? folder : null;
   sqSessionQCount = 0; sqSessionTotalScore = 0; sqSessionMaxScore = 0; sqSessionStartTime = Date.now();
-  sqPracQs = sqBank.filter(function(q) {
-    return folder === 'all' || (q.folder || 'General') === folder;
-  });
+  sqPracQs = sqBank.filter(function(q) { return folder === 'all' || (q.folder || 'General') === folder; });
   if (!sqPracQs.length) { alert('No SAQs match that filter — add some first!'); return; }
-  for (var i = sqPracQs.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var tmp = sqPracQs[i]; sqPracQs[i] = sqPracQs[j]; sqPracQs[j] = tmp;
-  }
+  for (var i = sqPracQs.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var tmp = sqPracQs[i]; sqPracQs[i] = sqPracQs[j]; sqPracQs[j] = tmp; }
   sqPracIdx = 0;
-  document.getElementById('sq-prac-setup').style.display = 'none';
-  document.getElementById('sq-prac-run').style.display = 'block';
-  sqShowPracQ();
-  sqEnterFS();
+  sqShowLevelPicker();
 }
 
 function sqShowPracQ() {
   var q = sqPracQs[sqPracIdx];
+  var lv = sqPracLevel;
   document.getElementById('sq-prac-counter').textContent = (sqPracIdx + 1) + ' / ' + sqPracQs.length;
   document.getElementById('sq-prac-num').textContent = sqPracIdx + 1;
   document.getElementById('sq-prac-prog').style.width = (sqPracIdx / sqPracQs.length * 100) + '%';
   document.getElementById('sq-prac-q').textContent = q.question;
+  // Reset all level-specific panels
   document.getElementById('sq-prac-input').value = '';
   document.getElementById('sq-prac-submit-btn').disabled = false;
-  var st = document.getElementById('sq-prac-status');
-  st.style.display = 'none'; st.textContent = '';
-  document.getElementById('sq-prac-answer-area').style.display = 'block';
   document.getElementById('sq-prac-result').style.display = 'none';
+  document.getElementById('sq-mark-result-inner').style.display = 'none';
+  document.getElementById('sq-l1-self-mark').style.display = 'none';
+  document.getElementById('sq-prac-next-btn').style.display = 'none';
+  var st = document.getElementById('sq-prac-status'); st.style.display = 'none'; st.textContent = '';
   var scoreEl = document.getElementById('sq-prac-score');
   if (scoreEl) scoreEl.textContent = sqSessionQCount > 0 ? '✓ ' + sqSessionTotalScore + ' pts' : '';
+  // L1: show hints + textarea
+  if (lv === 1) {
+    sqL1RenderHints(q);
+    document.getElementById('sq-l1-hints').style.display = 'block';
+    document.getElementById('sq-prac-answer-area').style.display = 'block';
+    document.getElementById('sq-l2-area').style.display = 'none';
+    document.getElementById('sq-l4-timer').style.display = 'none';
+    document.getElementById('sq-prac-submit-btn').textContent = 'Compare with model →';
+    document.getElementById('sq-ans-lbl').textContent = 'Your answer (use the hints above)';
+  } else if (lv === 2) {
+    // L2: blanks only, no textarea
+    sqL2RenderBlanks(q);
+    document.getElementById('sq-l1-hints').style.display = 'none';
+    document.getElementById('sq-prac-answer-area').style.display = 'none';
+    document.getElementById('sq-l2-area').style.display = 'block';
+    document.getElementById('sq-l4-timer').style.display = 'none';
+    document.getElementById('sq-l2-submit-btn').style.display = 'block';
+    document.getElementById('sq-l2-submit-btn').disabled = false;
+  } else if (lv === 3) {
+    document.getElementById('sq-l1-hints').style.display = 'none';
+    document.getElementById('sq-prac-answer-area').style.display = 'block';
+    document.getElementById('sq-l2-area').style.display = 'none';
+    document.getElementById('sq-l4-timer').style.display = 'none';
+    document.getElementById('sq-prac-submit-btn').textContent = 'Submit for marking →';
+    document.getElementById('sq-ans-lbl').textContent = 'Your answer';
+  } else if (lv === 4) {
+    document.getElementById('sq-l1-hints').style.display = 'none';
+    document.getElementById('sq-prac-answer-area').style.display = 'block';
+    document.getElementById('sq-l2-area').style.display = 'none';
+    document.getElementById('sq-l4-timer').style.display = 'block';
+    document.getElementById('sq-prac-submit-btn').textContent = 'Submit for marking →';
+    document.getElementById('sq-ans-lbl').textContent = 'Your answer';
+    var bullets = sqParseBullets(q.modelAnswer);
+    var secs = Math.max(90, Math.min(480, bullets.length * 75));
+    sqL4StartTimer(secs);
+  }
 }
 
 async function sqPracSubmit() {
+  // L1: show self-mark UI (no AI)
+  if (sqPracLevel === 1) {
+    var answer = (document.getElementById('sq-prac-input').value || '').trim();
+    if (!answer) {
+      var st2 = document.getElementById('sq-prac-status');
+      st2.textContent = 'Write your answer before comparing.';
+      st2.className = 'ai-status serr'; st2.style.display = 'block'; return;
+    }
+    document.getElementById('sq-prac-answer-area').style.display = 'none';
+    document.getElementById('sq-l1-hints').style.display = 'none';
+    sqL1ShowSelfMark(sqPracQs[sqPracIdx], answer);
+    document.getElementById('sq-prac-result').style.display = 'block';
+    return;
+  }
+  // L3/L4: AI marking
   var st = document.getElementById('sq-prac-status');
   var answer = (document.getElementById('sq-prac-input').value || '').trim();
   if (!answer) {
     st.textContent = 'Write your answer before submitting.';
     st.className = 'ai-status serr'; st.style.display = 'block'; return;
   }
+  if (sqPracLevel === 4) sqL4StopTimer();
   var q = sqPracQs[sqPracIdx];
   var btn = document.getElementById('sq-prac-submit-btn');
   btn.disabled = true;
@@ -7572,16 +7741,17 @@ async function sqPracSubmit() {
     st.style.display = 'none';
     document.getElementById('sq-prac-answer-area').style.display = 'none';
     sqShowMarkResult(result, q.modelAnswer);
+    document.getElementById('sq-mark-result-inner').style.display = 'block';
     document.getElementById('sq-prac-result').style.display = 'block';
     var nxtBtn = document.getElementById('sq-prac-next-btn');
-    if (nxtBtn) nxtBtn.textContent = sqPracIdx < sqPracQs.length - 1 ? 'Next →' : 'See results →';
+    if (nxtBtn) { nxtBtn.textContent = sqPracIdx < sqPracQs.length - 1 ? 'Next →' : 'See results →'; nxtBtn.style.display = 'block'; }
     if (sqCurrentFolder) orgIncrementSAQ(sqCurrentFolder, q.id);
     sqSessionQCount++;
     var _hitScore = (result.feedback && result.feedback.length > 0)
       ? result.feedback.filter(function(pt) { return !!pt.hit; }).length
       : (typeof result.score === 'number' ? result.score : 0);
     sqSessionTotalScore += _hitScore;
-    sqSessionMaxScore   += (result.total || (result.feedback ? result.feedback.length : 0));
+    sqSessionMaxScore += (result.total || (result.feedback ? result.feedback.length : 0));
     var scoreEl = document.getElementById('sq-prac-score');
     if (scoreEl) scoreEl.textContent = '✓ ' + sqSessionTotalScore + ' pts';
     document.getElementById('sq-prac-prog').style.width = (sqSessionQCount / sqPracQs.length * 100) + '%';
@@ -7654,17 +7824,13 @@ function sqBackToBank() {
 }
 function sqRetry() {
   document.getElementById('sq-results').style.display = 'none';
-  for (var i = sqPracQs.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var tmp = sqPracQs[i]; sqPracQs[i] = sqPracQs[j]; sqPracQs[j] = tmp;
-  }
+  for (var i = sqPracQs.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var tmp = sqPracQs[i]; sqPracQs[i] = sqPracQs[j]; sqPracQs[j] = tmp; }
   sqPracIdx = 0;
   sqSessionQCount = 0; sqSessionTotalScore = 0; sqSessionMaxScore = 0; sqSessionStartTime = Date.now();
-  document.getElementById('sq-prac-run').style.display = 'block';
-  sqShowPracQ();
-  sqEnterFS();
+  sqShowLevelPicker();
 }
 function sqPracEnd() {
+  sqL4StopTimer();
   if (document.fullscreenElement) document.exitFullscreen();
   document.getElementById('sq-results').style.display = 'none';
   // Log the SAQ session if any questions were answered
@@ -7684,6 +7850,230 @@ function sqPracEnd() {
   var warn = document.getElementById('sq-phase-warn');
   if (warn) warn.style.display = 'none';
   sqPopulatePracFolder();
+}
+
+// ── Sage level system ─────────────────────────────────────────────────────────
+var sqPracLevel = 3;
+var _sqL4TimerInterval = null;
+var _sqL4TotalSecs = 0;
+var _sqL1TickState = []; // true=hit, false=miss, null=unmarked per bullet
+var _sqL2Data = [];      // [{text, keywords}] per bullet
+
+var _sqStopWords = ['the','a','an','is','are','was','were','of','in','on','at','to',
+  'for','and','or','but','by','with','this','that','these','those','it','its','be',
+  'been','being','has','have','had','do','does','did','will','would','could','should',
+  'may','might','must','can','not','no','nor','so','yet','both','each','some','than',
+  'too','very','just','also','as','if','while','when','then','there','from','into',
+  'through','during','before','after','which','who','what','how','where','their',
+  'they','them','any','all','more','most','other','such','its','are','our','their'];
+
+function sqParseBullets(modelAnswer) {
+  if (!modelAnswer) return [];
+  return (modelAnswer + '').split('\n')
+    .map(function(l) { return l.replace(/^[\s•\-\*\d+\.\)]+/, '').trim(); })
+    .filter(function(l) { return l.length > 4; });
+}
+
+function sqExtractKeywords(line) {
+  var words = line.match(/\b[a-zA-Z]{4,}\b/g) || [];
+  return words.filter(function(w) { return _sqStopWords.indexOf(w.toLowerCase()) === -1; }).slice(0, 2);
+}
+
+function sqBlankMatch(input, keyword) {
+  var u = (input || '').trim().toLowerCase().replace(/[^a-z]/g, '');
+  var k = (keyword || '').toLowerCase().replace(/[^a-z]/g, '');
+  if (!u || u.length < 2) return false;
+  if (u === k) return true;
+  if (k.indexOf(u) === 0 && u.length >= Math.floor(k.length * 0.72)) return true;
+  if (u.indexOf(k.slice(0, Math.floor(k.length * 0.8))) === 0) return true;
+  return false;
+}
+
+function sqShowLevelPicker() {
+  var topicName = sqCurrentFolder || 'All Topics';
+  var tn = document.getElementById('sql-topic-nm');
+  if (tn) tn.textContent = topicName;
+  document.getElementById('sq-prac-setup').style.display = 'none';
+  document.getElementById('sq-results').style.display = 'none';
+  document.getElementById('sq-prac-run').style.display = 'none';
+  document.getElementById('sq-level-picker').style.display = 'block';
+}
+
+function sqLevelPickerBack() {
+  document.getElementById('sq-level-picker').style.display = 'none';
+  document.getElementById('sq-prac-setup').style.display = 'block';
+}
+
+function sqStartWithLevel(lv) {
+  sqPracLevel = lv;
+  var badge = document.getElementById('sq-level-badge');
+  var names = {1:'L1 · Guided', 2:'L2 · Cloze', 3:'L3 · Recall', 4:'L4 · Pressure'};
+  if (badge) badge.textContent = names[lv] || ('L' + lv);
+  document.getElementById('sq-level-picker').style.display = 'none';
+  document.getElementById('sq-prac-run').style.display = 'block';
+  sqShowPracQ();
+  sqEnterFS();
+}
+
+// ── L1: Guided recall ─────────────────────────────────────────────────────────
+function sqL1RenderHints(q) {
+  var bullets = sqParseBullets(q.modelAnswer);
+  var html = '<div class="sq-hints-panel">'
+    + '<span class="sq-hints-lbl">💡 Key points to cover</span>';
+  bullets.forEach(function(line) {
+    var keywords = sqExtractKeywords(line);
+    var display = rpEsc(line);
+    keywords.forEach(function(kw) {
+      display = display.replace(new RegExp('\\b' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i'),
+        '<em class="sq-hint-kw">$&</em>');
+    });
+    html += '<div class="sq-hint-item"><span class="sq-hint-dot">•</span><span>' + display + '</span></div>';
+  });
+  html += '</div>';
+  document.getElementById('sq-l1-hints').innerHTML = html;
+}
+
+function sqL1ShowSelfMark(q, userAnswer) {
+  var bullets = sqParseBullets(q.modelAnswer);
+  _sqL1TickState = bullets.map(function() { return null; });
+  var html = '<div class="sq-mark-result">';
+  html += '<div class="sq-l1-compare">'
+    + '<div class="sq-l1-col"><span class="sq-l1-col-lbl">Your answer</span><div class="sq-l1-col-text">' + rpEsc(userAnswer) + '</div></div>'
+    + '<div class="sq-l1-col"><span class="sq-l1-col-lbl">Model answer</span><div class="sq-l1-col-text">' + rpEsc(q.modelAnswer) + '</div></div>'
+    + '</div>';
+  html += '<span class="sq-l1-sm-lbl">Did you cover each point?</span>';
+  bullets.forEach(function(line, i) {
+    html += '<div class="sq-l1-brow" id="sq-l1-brow-' + i + '">'
+      + '<span class="sq-l1-btxt">• ' + rpEsc(line) + '</span>'
+      + '<div class="sq-l1-bticks">'
+      + '<button class="sq-l1-tick" id="sq-l1-ty-' + i + '" onclick="sqL1Tick(' + i + ',true)" title="Got it">✓</button>'
+      + '<button class="sq-l1-tick" id="sq-l1-tn-' + i + '" onclick="sqL1Tick(' + i + ',false)" title="Missed">✗</button>'
+      + '</div></div>';
+  });
+  html += '<button class="sq-l1-done-btn" id="sq-l1-done-btn" onclick="sqL1Confirm()" disabled>Confirm marks →</button>';
+  html += '</div>';
+  document.getElementById('sq-l1-self-mark').innerHTML = html;
+  document.getElementById('sq-l1-self-mark').style.display = 'block';
+}
+
+function sqL1Tick(i, hit) {
+  _sqL1TickState[i] = hit;
+  var row = document.getElementById('sq-l1-brow-' + i);
+  var ty  = document.getElementById('sq-l1-ty-' + i);
+  var tn  = document.getElementById('sq-l1-tn-' + i);
+  if (row) { row.className = 'sq-l1-brow ' + (hit ? 'lv-hit' : 'lv-miss'); }
+  if (ty)  { ty.className  = 'sq-l1-tick' + (hit  ? ' ty' : ''); }
+  if (tn)  { tn.className  = 'sq-l1-tick' + (!hit ? ' tn' : ''); }
+  var allMarked = _sqL1TickState.every(function(v) { return v !== null; });
+  var doneBtn = document.getElementById('sq-l1-done-btn');
+  if (doneBtn) doneBtn.disabled = !allMarked;
+}
+
+function sqL1Confirm() {
+  var hits  = _sqL1TickState.filter(function(v) { return v === true;  }).length;
+  var total = _sqL1TickState.length;
+  var q = sqPracQs[sqPracIdx];
+  if (sqCurrentFolder) orgIncrementSAQ(sqCurrentFolder, q.id);
+  sqSessionQCount++;
+  sqSessionTotalScore += hits;
+  sqSessionMaxScore   += total;
+  var scoreEl = document.getElementById('sq-prac-score');
+  if (scoreEl) scoreEl.textContent = '✓ ' + sqSessionTotalScore + ' pts';
+  document.getElementById('sq-prac-prog').style.width = (sqSessionQCount / sqPracQs.length * 100) + '%';
+  // Show AI-style score card
+  var feedback = _sqL1TickState.map(function(v, i) {
+    return { point: '• ' + (sqParseBullets(q.modelAnswer)[i] || ''), hit: !!v };
+  });
+  sqShowMarkResult({ score: hits, total: total, feedback: feedback, comment: 'Self-assessed · ' + hits + '/' + total + ' points.' }, null);
+  document.getElementById('sq-l1-self-mark').style.display = 'none';
+  document.getElementById('sq-mark-result-inner').style.display = 'block';
+  var nxtBtn = document.getElementById('sq-prac-next-btn');
+  if (nxtBtn) { nxtBtn.textContent = sqPracIdx < sqPracQs.length - 1 ? 'Next →' : 'See results →'; nxtBtn.style.display = 'block'; }
+}
+
+// ── L2: Cloze / fill-in-the-blank ────────────────────────────────────────────
+function sqL2RenderBlanks(q) {
+  var bullets = sqParseBullets(q.modelAnswer);
+  _sqL2Data = bullets.map(function(line) {
+    return { text: line, keywords: sqExtractKeywords(line) };
+  });
+  var html = '<span class="sq-blanks-lbl">📝 Complete the key points</span>';
+  _sqL2Data.forEach(function(bd, i) {
+    var display = rpEsc(bd.text);
+    bd.keywords.forEach(function(kw, ki) {
+      display = display.replace(
+        new RegExp('\\b' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i'),
+        '<input class="sq-blank-inp" id="sq-bi-' + i + '-' + ki + '" data-kw="' + rpEsc(kw) + '" autocomplete="off" spellcheck="false" placeholder="——"/>'
+        + '<span class="sq-blank-reveal">' + rpEsc(kw) + '</span>');
+    });
+    html += '<div class="sq-blank-row" id="sq-bl-' + i + '"><span style="flex-shrink:0;color:#7c3aed;font-weight:900">•</span> ' + display + '</div>';
+  });
+  document.getElementById('sq-l2-blanks').innerHTML = html;
+  // Focus first blank
+  var first = document.querySelector('#sq-l2-blanks .sq-blank-inp');
+  if (first) setTimeout(function() { first.focus(); }, 80);
+}
+
+function sqL2Submit() {
+  document.getElementById('sq-l2-submit-btn').disabled = true;
+  var correctBlanks = 0, totalBlanks = 0;
+  _sqL2Data.forEach(function(bd, i) {
+    var allOk = true;
+    bd.keywords.forEach(function(kw, ki) {
+      var inp = document.getElementById('sq-bi-' + i + '-' + ki);
+      if (!inp) return;
+      var ok = sqBlankMatch(inp.value, kw);
+      inp.classList.add(ok ? 'bk-ok' : 'bk-miss');
+      inp.disabled = true;
+      if (ok) correctBlanks++; else allOk = false;
+      totalBlanks++;
+    });
+    var row = document.getElementById('sq-bl-' + i);
+    if (row) row.classList.add(allOk ? 'b-ok-row' : 'b-miss-row');
+  });
+  var q = sqPracQs[sqPracIdx];
+  if (sqCurrentFolder) orgIncrementSAQ(sqCurrentFolder, q.id);
+  sqSessionQCount++;
+  sqSessionTotalScore += correctBlanks;
+  sqSessionMaxScore   += totalBlanks;
+  var scoreEl = document.getElementById('sq-prac-score');
+  if (scoreEl) scoreEl.textContent = '✓ ' + sqSessionTotalScore + ' pts';
+  document.getElementById('sq-prac-prog').style.width = (sqSessionQCount / sqPracQs.length * 100) + '%';
+  // Show inline score below blanks
+  var scoreColor = correctBlanks === totalBlanks ? '#16a34a' : correctBlanks >= totalBlanks * 0.6 ? '#b45309' : '#dc2626';
+  var scoreHtml = '<div class="sq-l2-score-row"><span class="sq-l2-score-num" style="color:' + scoreColor + '">' + correctBlanks + ' / ' + totalBlanks + '</span><span class="sq-l2-score-lbl">blanks correct</span></div>';
+  document.getElementById('sq-l2-blanks').insertAdjacentHTML('afterend', scoreHtml);
+  document.getElementById('sq-prac-result').style.display = 'block';
+  var nxtBtn = document.getElementById('sq-prac-next-btn');
+  if (nxtBtn) { nxtBtn.textContent = sqPracIdx < sqPracQs.length - 1 ? 'Next →' : 'See results →'; nxtBtn.style.display = 'block'; }
+}
+
+// ── L4: Timer ─────────────────────────────────────────────────────────────────
+function sqL4StartTimer(secs) {
+  sqL4StopTimer();
+  _sqL4TotalSecs = secs;
+  var remaining = secs;
+  function _tick() {
+    var m = Math.floor(remaining / 60), s = remaining % 60;
+    var numEl  = document.getElementById('sq-timer-num');
+    var fillEl = document.getElementById('sq-timer-fill');
+    if (!numEl) { sqL4StopTimer(); return; }
+    var display = m + ':' + (s < 10 ? '0' : '') + s;
+    numEl.textContent = display;
+    var pct = (remaining / _sqL4TotalSecs) * 100;
+    if (fillEl) fillEl.style.width = pct + '%';
+    var cls = remaining <= 10 ? 'urgent' : remaining <= 30 ? 'warn' : '';
+    numEl.className = 'sq-timer-num' + (cls ? ' ' + cls : '');
+    if (fillEl) fillEl.className = 'sq-timer-fill' + (cls ? ' ' + cls : '');
+    if (remaining <= 0) { sqL4StopTimer(); sqPracSubmit(); return; }
+    remaining--;
+  }
+  _tick();
+  _sqL4TimerInterval = setInterval(_tick, 1000);
+}
+
+function sqL4StopTimer() {
+  if (_sqL4TimerInterval) { clearInterval(_sqL4TimerInterval); _sqL4TimerInterval = null; }
 }
 
 function sqToggleFS() {
