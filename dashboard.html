@@ -424,6 +424,7 @@
     .quiz-opts{display:grid;gap:10px}
     .qopt{display:flex;align-items:center;gap:13px;background:rgba(255,255,255,.62);border:1px solid rgba(109,40,217,.14);border-radius:13px;padding:13px 16px;cursor:pointer;transition:all .2s}
     .qopt:hover:not(.locked){background:rgba(109,40,217,.07);border-color:rgba(109,40,217,.28)}
+    .qopt.kb-focus:not(.locked){background:rgba(109,40,217,.11);border-color:rgba(109,40,217,.45);box-shadow:0 0 0 2px rgba(109,40,217,.14)}
     .qopt.locked{cursor:default}
     .qopt .ol{width:30px;height:30px;min-width:30px;border-radius:50%;background:rgba(109,40,217,.1);border:1px solid rgba(109,40,217,.25);color:#6d28d9;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:900;transition:all .2s}
     .qopt .ot{font-size:.88rem;color:#2c2014;font-weight:600;line-height:1.45}
@@ -2765,6 +2766,8 @@ if (!user) { window.location.href = 'login.html'; }
 
 var LTRS = ['A','B','C','D','E'];
 var STORAGE_KEY = 'sp_questions';
+var _qzKbIdx = 0;
+var _qzDisplayOpts = [];
 var bank = [];
 var selDiff = 'easy';
 var bankFilt = 'all';
@@ -3797,6 +3800,14 @@ function drawSparkline(canvas, data) {
   ctx.stroke();
 }
 
+function _qzKbHighlight() {
+  document.querySelectorAll('.qopt').forEach(function(o) { o.classList.remove('kb-focus'); });
+  if (!qzAnswered && _qzDisplayOpts.length > 0) {
+    var el = document.getElementById('qo' + _qzDisplayOpts[_qzKbIdx].idx);
+    if (el) el.classList.add('kb-focus');
+  }
+}
+
 function showQ() {
   var q = qzQs[qzIdx];
   var prior = qzAnswers[qzIdx] || null;
@@ -3812,6 +3823,8 @@ function showQ() {
   var displayOpts = q.options
     .map(function(o, i) { return { text: o, idx: i }; })
     .filter(function(o) { return o.text && o.text.trim() && o.text !== '—'; });
+  _qzDisplayOpts = displayOpts;
+  _qzKbIdx = 0;
   displayOpts.forEach(function(opt, di) {
     var d = document.createElement('div');
     d.className = 'qopt'; d.id = 'qo'+opt.idx;
@@ -3819,6 +3832,7 @@ function showQ() {
     if (!prior) d.addEventListener('click', function() { answerQ(opt.idx); });
     opts.appendChild(d);
   });
+  if (!prior) _qzKbHighlight();
   document.getElementById('hint-txt').textContent = q.hint || 'No hint available.';
   document.getElementById('hint-txt').classList.remove('show');
   document.getElementById('hint-tog').textContent = '💡 Show hint';
@@ -3842,7 +3856,7 @@ function answerQ(idx) {
   if (qzAnswered) return; qzAnswered = true;
   var q = qzQs[qzIdx];
   var ok = idx === q.correct;
-  document.querySelectorAll('.qopt').forEach(function(o) { o.classList.add('locked'); });
+  document.querySelectorAll('.qopt').forEach(function(o) { o.classList.remove('kb-focus'); o.classList.add('locked'); });
   document.getElementById('qcard').classList.add(ok ? 'c-flash' : 'w-flash');
   document.getElementById('qo'+q.correct).classList.add('c-opt');
   if (!ok) document.getElementById('qo'+idx).classList.add('w-opt');
@@ -5248,6 +5262,26 @@ document.addEventListener('keydown', function(e) {
   }
   if (e.key === 'Escape' && document.fullscreenElement) {
     document.getElementById('fs-btn').textContent = '⛶ Fullscreen';
+  }
+  if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'Enter') {
+    var tag = document.activeElement && document.activeElement.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    var run = document.getElementById('quiz-run');
+    if (!run || run.style.display === 'none') return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      if (!qzAnswered && _qzDisplayOpts.length > 0) {
+        e.preventDefault();
+        _qzKbIdx = e.key === 'ArrowDown'
+          ? (_qzKbIdx + 1) % _qzDisplayOpts.length
+          : (_qzKbIdx - 1 + _qzDisplayOpts.length) % _qzDisplayOpts.length;
+        _qzKbHighlight();
+      }
+    } else if (e.key === 'Enter') {
+      if (!qzAnswered && _qzDisplayOpts.length > 0) {
+        e.preventDefault();
+        answerQ(_qzDisplayOpts[_qzKbIdx].idx);
+      }
+    }
   }
   if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
     var tag = document.activeElement && document.activeElement.tagName;
