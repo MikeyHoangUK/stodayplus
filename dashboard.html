@@ -6794,10 +6794,50 @@ function rpRepeatCycle(id) {
 }
 
 function rpDelete(id) {
-  if (!confirm('Remove this topic from your revision plan?')) return;
+  var item = rpData.find(function(x) { return x.id === id; });
+  if (!item) return;
+  var name = item.topic;
+
+  // Snapshot everything for undo
+  var snapRp      = JSON.stringify(rpData);
+  var snapBank    = JSON.stringify(bank);
+  var snapSq      = JSON.stringify(sqBank);
+  var snapBlurto  = JSON.stringify(blurtoSessions);
+  var snapFolders = localStorage.getItem('sp_folders');
+  var snapOrg     = JSON.stringify(orgTopics);
+  var snapMeta    = localStorage.getItem('sp_folder_meta');
+  var snapScores  = localStorage.getItem('sp_folder_scores');
+  var snapSqsc    = localStorage.getItem('sp_saq_folder_scores');
+
+  // Remove from planner
   rpData = rpData.filter(function(x) { return x.id !== id; });
   rpSave();
-  rpRenderAll();
+
+  // Remove all content for this folder
+  bank = bank.filter(function(q) { return (q.folder || 'General') !== name; }); saveBank();
+  sqBank = sqBank.filter(function(q) { return (q.folder || 'General') !== name; }); sqSave();
+  blurtoSessions = blurtoSessions.filter(function(s) { return s.topic !== name; }); blurtoSave();
+  saveAllFolders(getAllFolders().filter(function(f) { return f.name !== name; }));
+  orgTopics = orgTopics.filter(function(t) { return t.topic_name.toLowerCase() !== name.toLowerCase(); }); orgSaveTopics();
+  var meta = getFolderMeta(); delete meta[name]; localStorage.setItem('sp_folder_meta', JSON.stringify(meta));
+  var scores = getFolderScores(); delete scores[name]; localStorage.setItem('sp_folder_scores', JSON.stringify(scores));
+  var sqsc = getSaqFolderScores(); delete sqsc[name]; localStorage.setItem('sp_saq_folder_scores', JSON.stringify(sqsc));
+
+  rpRenderAll(); renderBank(); renderSqBank(); populateFolderDatalist(); orgRenderBanner(); orgRenderTable();
+
+  pushUndo('"' + name + '" + all content', function() {
+    rpData = JSON.parse(snapRp); rpSave();
+    bank = JSON.parse(snapBank); saveBank();
+    sqBank = JSON.parse(snapSq); sqSave();
+    blurtoSessions = JSON.parse(snapBlurto); blurtoSave();
+    if (snapFolders) localStorage.setItem('sp_folders', snapFolders);
+    orgTopics = JSON.parse(snapOrg); orgSaveTopics();
+    if (snapMeta)   localStorage.setItem('sp_folder_meta',   snapMeta);
+    if (snapScores) localStorage.setItem('sp_folder_scores', snapScores);
+    if (snapSqsc)   localStorage.setItem('sp_saq_folder_scores', snapSqsc);
+    populateFolderDatalist(); orgRenderBanner(); orgRenderTable();
+    renderBank(); renderSqBank(); rpRenderAll();
+  });
 }
 
 function rpGetDue() {
