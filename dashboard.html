@@ -461,13 +461,40 @@
     .score-pct{font-size:2.4rem;font-weight:900;line-height:1}
     .score-lbl{font-size:.62rem;color:#6e5438;margin-top:3px;letter-spacing:.08em;text-transform:uppercase}
     .res-title{font-size:1.35rem;font-weight:900;margin-bottom:8px;letter-spacing:-.01em}
-    .res-sub{color:#6e5438;font-size:.85rem;margin-bottom:32px;font-weight:500}
+    .res-sub{color:#6e5438;font-size:.85rem;margin-bottom:10px;font-weight:500}
     .res-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
     .res-btn{padding:11px 26px;border-radius:11px;font-size:.8rem;font-weight:800;cursor:pointer;border:none;font-family:'Raleway',sans-serif;transition:all .18s;letter-spacing:.03em}
     .res-btn.pri{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff}
     .res-btn.sec{background:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.09);color:#6e5438}
     .res-btn.pri:hover{opacity:.88;transform:translateY(-1px)}
     .res-btn.sec:hover{color:#1c1208;border-color:rgba(255,255,255,.18)}
+    /* ── Results premium insight cards ── */
+    .res-sub{color:#6e5438;font-size:.85rem;margin-bottom:10px;font-weight:500}
+    .res-pb-badge{display:inline-flex;align-items:center;gap:6px;font-size:.64rem;font-weight:900;color:#b45309;background:rgba(245,158,11,.1);border:1.5px solid rgba(245,158,11,.28);border-radius:99px;padding:5px 16px;margin:0 auto 6px;letter-spacing:.09em;text-transform:uppercase;animation:pbBadgeIn .5s cubic-bezier(.34,1.56,.64,1) .25s both}
+    @keyframes pbBadgeIn{from{transform:scale(.7) translateY(6px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+    .res-insights{width:100%;display:flex;flex-direction:column;gap:10px;margin:14px 0 22px;text-align:left}
+    .res-insight-card{background:rgba(250,243,224,.65);border:1.5px solid rgba(168,85,247,.12);border-radius:16px;padding:16px 18px;animation:fadeIn .3s ease}
+    .res-insight-lbl{font-size:.53rem;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:#b09880;margin-bottom:11px}
+    .res-mastery-track{height:7px;background:rgba(168,85,247,.1);border-radius:99px;overflow:hidden;margin-bottom:9px}
+    .res-mastery-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#7c3aed,#a855f7);width:0;transition:width 1.1s cubic-bezier(.25,.1,.25,1) .35s}
+    .res-mastery-txt{font-size:.77rem;font-weight:700;color:#3d2e1a}
+    .res-mastery-txt strong{color:#6d28d9}
+    .res-diff-chips{display:flex;gap:8px;margin-bottom:9px}
+    .res-diff-chip{flex:1;border-radius:10px;padding:10px 6px;text-align:center;background:rgba(255,255,255,.55);border:1.5px solid rgba(168,85,247,.12)}
+    .res-diff-chip-pct{font-size:1.1rem;font-weight:900;display:block;color:#3d2e1a;line-height:1.1}
+    .res-diff-chip-name{font-size:.52rem;font-weight:900;color:#b09880;letter-spacing:.1em;text-transform:uppercase;display:block;margin-top:2px}
+    .res-diff-chip-raw{font-size:.58rem;font-weight:700;color:#b09880;display:block;margin-top:1px}
+    .res-diff-chip.chip-weak{border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.04)}
+    .res-diff-chip.chip-weak .res-diff-chip-pct{color:#dc2626}
+    .res-diff-chip.chip-strong{border-color:rgba(34,197,94,.22);background:rgba(34,197,94,.04)}
+    .res-diff-chip.chip-strong .res-diff-chip-pct{color:#16a34a}
+    .res-diff-callout{font-size:.74rem;font-weight:700;color:#6d28d9}
+    .res-sparkline{width:100%;height:54px;display:block;margin-bottom:9px}
+    .res-traj-txt{font-size:.76rem;font-weight:700;color:#3d2e1a;line-height:1.55}
+    .res-nextstep-card{background:linear-gradient(145deg,rgba(109,40,217,.06),rgba(79,70,229,.03));border-color:rgba(109,40,217,.2)}
+    .res-nextstep-txt{font-size:.8rem;font-weight:700;color:#3d2e1a;line-height:1.6;margin-bottom:13px}
+    .res-nextstep-btn{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:.74rem;font-weight:800;font-family:'Raleway',sans-serif;cursor:pointer;letter-spacing:.04em;transition:opacity .15s,transform .15s}
+    .res-nextstep-btn:hover{opacity:.88;transform:translateY(-1px)}
 
     /* Fullscreen quiz */
     #content:fullscreen,#content:-webkit-full-screen{background:#f0e4c6}
@@ -629,6 +656,20 @@
     body.hc .res-sub{color:#a08878!important}
     body.hc .res-btn.sec{background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.1)!important;color:#c8b89a!important}
     body.hc .res-btn.sec:hover{color:#e8dcc8!important;border-color:rgba(255,255,255,.2)!important}
+    body.hc .res-insight-card{background:rgba(20,12,4,.5)!important;border-color:rgba(168,85,247,.22)!important}
+    body.hc .res-insight-lbl{color:#7a6448!important}
+    body.hc .res-mastery-txt{color:#c8b89a!important}
+    body.hc .res-mastery-track{background:rgba(168,85,247,.15)!important}
+    body.hc .res-diff-chip{background:rgba(20,12,4,.4)!important;border-color:rgba(168,85,247,.2)!important}
+    body.hc .res-diff-chip-pct{color:#c8b89a!important}
+    body.hc .res-diff-chip-name,body.hc .res-diff-chip-raw{color:#7a6448!important}
+    body.hc .res-diff-chip.chip-weak .res-diff-chip-pct{color:#f87171!important}
+    body.hc .res-diff-chip.chip-strong .res-diff-chip-pct{color:#4ade80!important}
+    body.hc .res-diff-callout{color:#c084fc!important}
+    body.hc .res-traj-txt{color:#c8b89a!important}
+    body.hc .res-nextstep-card{background:linear-gradient(145deg,rgba(109,40,217,.14),rgba(79,70,229,.07))!important;border-color:rgba(109,40,217,.32)!important}
+    body.hc .res-nextstep-txt{color:#c8b89a!important}
+    body.hc .res-pb-badge{color:#fbbf24!important;background:rgba(245,158,11,.15)!important;border-color:rgba(245,158,11,.35)!important}
     /* Pomo modal */
     body.hc .pomo-card h2{color:#e8dcc8!important}
     body.hc .pomo-card p{color:#a08878!important}
@@ -2281,6 +2322,28 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
             </div>
             <div class="res-title" id="res-title"></div>
             <div class="res-sub" id="res-sub"></div>
+            <div id="res-pb-badge" class="res-pb-badge" style="display:none">🏆 New personal best</div>
+            <div id="res-insights" class="res-insights" style="display:none">
+              <div class="res-insight-card" id="res-mastery-card" style="display:none">
+                <div class="res-insight-lbl">Folder mastery</div>
+                <div class="res-mastery-track"><div class="res-mastery-fill" id="res-mastery-fill"></div></div>
+                <div class="res-mastery-txt" id="res-mastery-txt"></div>
+              </div>
+              <div class="res-insight-card" id="res-diff-card" style="display:none">
+                <div class="res-insight-lbl">By difficulty</div>
+                <div class="res-diff-chips" id="res-diff-chips"></div>
+                <div class="res-diff-callout" id="res-diff-callout"></div>
+              </div>
+              <div class="res-insight-card" id="res-traj-card" style="display:none">
+                <div class="res-insight-lbl">Your progress</div>
+                <svg class="res-sparkline" id="res-sparkline" viewBox="0 0 260 50" preserveAspectRatio="none"></svg>
+                <div class="res-traj-txt" id="res-traj-txt"></div>
+              </div>
+              <div class="res-insight-card res-nextstep-card" id="res-nextstep-card" style="display:none">
+                <div class="res-nextstep-txt" id="res-nextstep-txt"></div>
+                <button class="res-nextstep-btn" id="res-nextstep-btn" style="display:none"></button>
+              </div>
+            </div>
             <div id="res-rp-banner" class="res-rp-banner" style="display:none"></div>
             <div class="res-btns">
               <button class="res-btn pri" onclick="retryQuiz()">Try Again</button>
@@ -4461,35 +4524,228 @@ function populateSubjectDatalist() {
 function showResults() {
   document.getElementById('quiz-run').style.display = 'none';
   var pct = Math.round(qzScore / qzQs.length * 100);
-  var color, title, sub;
+  var color, title;
   var hc = document.body.classList.contains('hc');
-  if (pct >= 90) { color=hc?'#60a5fa':'#2563eb'; title='Outstanding! 🎯'; sub='You nailed it. Ready for the real exam.'; }
-  else if (pct >= 75) { color=hc?'#a855f7':'#6d28d9'; title='Strong performance!'; sub='A few gaps to close — review the ones you missed.'; }
-  else if (pct >= 50) { color=hc?'#fbbf24':'#b45309'; title='Good effort'; sub='Halfway there. Another pass will lock these in.'; }
-  else { color=hc?'#f87171':'#dc2626'; title='Keep going'; sub='These need another review before you quiz again.'; }
+  if (pct >= 90) { color=hc?'#60a5fa':'#2563eb'; title='Outstanding! 🎯'; }
+  else if (pct >= 75) { color=hc?'#a855f7':'#6d28d9'; title='Strong performance!'; }
+  else if (pct >= 50) { color=hc?'#fbbf24':'#b45309'; title='Good effort'; }
+  else { color=hc?'#f87171':'#dc2626'; title='Keep going'; }
   document.getElementById('res-circle').style.borderColor = color;
   document.getElementById('res-pct').style.color = color;
   document.getElementById('res-pct').textContent = pct + '%';
   document.getElementById('res-title').style.color = color;
   document.getElementById('res-title').textContent = title;
-  document.getElementById('res-sub').textContent = sub + ' ('+qzScore+'/'+qzQs.length+' correct)';
+  var elapsed = qzStartTime ? Math.round((Date.now() - qzStartTime) / 1000) : 0;
+  var timeStr = elapsed >= 60 ? Math.floor(elapsed/60) + 'm ' + (elapsed % 60) + 's' : elapsed + 's';
+  document.getElementById('res-sub').textContent = qzScore + '/' + qzQs.length + ' correct · ' + timeStr;
   document.getElementById('res-rp-banner').style.display = 'none';
+  // Reset all insight cards
+  ['res-mastery-card','res-diff-card','res-traj-card','res-nextstep-card'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.style.display = 'none';
+  });
+  var pbBadge = document.getElementById('res-pb-badge');
+  if (pbBadge) pbBadge.style.display = 'none';
+  var insightsEl = document.getElementById('res-insights');
+  if (insightsEl) insightsEl.style.display = 'none';
   var r = document.getElementById('quiz-results');
   r.style.display = 'block'; r.style.animation = 'fadeIn .4s ease';
   mascotPeek();
   var f = document.getElementById('qz-folder').value;
-  if (f && f !== 'all') saveFolderScore(f, pct);
+  var d = document.getElementById('qz-diff').value;
   if (f && f !== 'all') {
+    var prevBest = -1;
+    var _prevS = getFolderScores()[f];
+    if (_prevS && _prevS.sessions > 0) prevBest = _prevS.best;
+    saveFolderScore(f, pct);
+    if (pct > prevBest && prevBest >= 0 && pbBadge) pbBadge.style.display = 'inline-flex';
     updateWrongIds(f, qzWrongInSession, qzQs.map(function(q) { return q.id; }));
     if (qzCorrectInSession.length) updateCorrectIds(f, qzCorrectInSession);
     updateAvail();
+    orgIncrementMCQ(f, qzQs, pct);
   }
-  if (f && f !== 'all') orgIncrementMCQ(f, qzQs, pct); // rpAutoComplete fires inside orgIncrementMCQ
+  resShowMastery(f);
+  resShowDiffBreakdown();
+  resShowTrajectory(f);
+  resShowNextStep(f, pct, d);
+  if (insightsEl) {
+    var hasInsight = ['res-mastery-card','res-diff-card','res-traj-card','res-nextstep-card'].some(function(id) {
+      var el = document.getElementById(id); return el && el.style.display !== 'none';
+    });
+    insightsEl.style.display = hasInsight ? 'flex' : 'none';
+  }
   var trackEl = document.getElementById('qz-track-rp');
   if (trackEl && trackEl.checked) {
     if (f && f !== 'all') rpAddFromQuiz(f);
   }
   renderBank();
+}
+
+function resShowMastery(f) {
+  if (!f || f === 'all') return;
+  var total = bank.filter(function(q) { return (q.folder||'General') === f; }).length;
+  if (!total) return;
+  var mastered = (getCorrectIds()[f] || []).length;
+  var pct = Math.round(mastered / total * 100);
+  var card = document.getElementById('res-mastery-card');
+  var fill = document.getElementById('res-mastery-fill');
+  var txt = document.getElementById('res-mastery-txt');
+  if (!card) return;
+  card.style.display = 'block';
+  if (fill) fill.style.width = '0';
+  txt.innerHTML = '<strong>' + mastered + '</strong> of <strong>' + total + '</strong> questions mastered · <strong>' + pct + '%</strong> of this folder';
+  setTimeout(function() { if (fill) fill.style.width = pct + '%'; }, 80);
+}
+
+function resShowDiffBreakdown() {
+  var stats = {};
+  qzQs.forEach(function(q, i) {
+    var d = q.difficulty || 'unset';
+    if (!stats[d]) stats[d] = { correct: 0, total: 0 };
+    stats[d].total++;
+    if (qzAnswers[i] && qzAnswers[i].chosen === q.correct) stats[d].correct++;
+  });
+  var diffs = ['easy','medium','hard'].filter(function(d) { return stats[d] && stats[d].total >= 1; });
+  if (diffs.length < 2) return;
+  var card = document.getElementById('res-diff-card');
+  var chips = document.getElementById('res-diff-chips');
+  var callout = document.getElementById('res-diff-callout');
+  if (!card) return;
+  var labels = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
+  var weakest = null, weakestRate = 1;
+  diffs.forEach(function(d) {
+    var rate = stats[d].correct / stats[d].total;
+    if (rate < weakestRate && stats[d].total >= 2) { weakestRate = rate; weakest = d; }
+  });
+  chips.innerHTML = diffs.map(function(d) {
+    var s = stats[d], rate = s.correct / s.total, p = Math.round(rate * 100);
+    var cls = 'res-diff-chip' + (d === weakest && rate < .75 ? ' chip-weak' : rate >= .8 ? ' chip-strong' : '');
+    return '<div class="' + cls + '">'
+      + '<span class="res-diff-chip-pct">' + p + '%</span>'
+      + '<span class="res-diff-chip-name">' + labels[d] + '</span>'
+      + '<span class="res-diff-chip-raw">' + s.correct + '/' + s.total + '</span>'
+      + '</div>';
+  }).join('');
+  if (weakest && weakestRate < .75) {
+    callout.textContent = labels[weakest] + ' is where you\'re losing marks — focus your next session there.';
+  } else {
+    callout.textContent = 'Solid across all levels.';
+  }
+  card.style.display = 'block';
+}
+
+function resShowTrajectory(f) {
+  if (!f || f === 'all') return;
+  var s = getFolderScores()[f];
+  if (!s || !s.history || s.history.length < 2) return;
+  var hist = s.history.slice(-6);
+  var card = document.getElementById('res-traj-card');
+  var svgEl = document.getElementById('res-sparkline');
+  var txt = document.getElementById('res-traj-txt');
+  if (!card || !svgEl) return;
+  var W = 260, H = 50, padX = 16, padY = 10;
+  var minV = Math.max(0, Math.min.apply(null, hist) - 8);
+  var maxV = Math.min(100, Math.max.apply(null, hist) + 8);
+  var range = Math.max(maxV - minV, 18);
+  function cx(i) { return padX + i * (W - 2*padX) / Math.max(hist.length - 1, 1); }
+  function cy(v) { return H - padY - (v - minV) / range * (H - 2*padY); }
+  var pts = hist.map(function(v,i) { return cx(i).toFixed(1)+','+cy(v).toFixed(1); });
+  var areaD = 'M'+cx(0).toFixed(1)+','+H
+    + hist.map(function(v,i){ return ' L'+cx(i).toFixed(1)+','+cy(v).toFixed(1); }).join('')
+    + ' L'+cx(hist.length-1).toFixed(1)+','+H+' Z';
+  svgEl.innerHTML = '<defs><linearGradient id="spkFill" x1="0" y1="0" x2="0" y2="1">'
+    + '<stop offset="0%" stop-color="#7c3aed" stop-opacity=".16"/>'
+    + '<stop offset="100%" stop-color="#7c3aed" stop-opacity="0"/>'
+    + '</linearGradient></defs>'
+    + '<path d="'+areaD+'" fill="url(#spkFill)"/>'
+    + '<polyline points="'+pts.join(' ')+'" fill="none" stroke="#7c3aed" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>'
+    + hist.map(function(v,i) {
+        var isLast = i === hist.length-1;
+        var dotR = isLast ? 4 : 2.5, dotFill = isLast ? '#7c3aed' : '#c4b5fd';
+        return '<circle cx="'+cx(i).toFixed(1)+'" cy="'+cy(v).toFixed(1)+'" r="'+dotR+'" fill="'+dotFill+'"/>'
+          + '<text x="'+cx(i).toFixed(1)+'" y="'+(cy(v)-8).toFixed(1)+'" text-anchor="middle" '
+          + 'font-size="7" font-family="Raleway,sans-serif" font-weight="800" fill="#7c3aed">'+v+'%</text>';
+      }).join('');
+  var first = hist[0], last = hist[hist.length-1], prev = hist.length >= 2 ? hist[hist.length-2] : null;
+  var delta = last - first;
+  var avg = Math.round(hist.reduce(function(a,b){return a+b;},0)/hist.length);
+  var msg;
+  if (hist.length >= 3 && delta >= 12) {
+    msg = 'Up '+delta+'% across '+hist.length+' sessions — that\'s real, sustained progress.';
+  } else if (prev !== null && last >= prev + 5) {
+    msg = 'Up from '+prev+'% last time. Keep this momentum going.';
+  } else if (prev !== null && last <= prev - 6) {
+    msg = 'Down from '+prev+'% last time — dips happen. Your best here is still '+(s.best||last)+'%.';
+  } else if (Math.abs(last - first) <= 8 && hist.length >= 3) {
+    msg = 'Holding steady around '+avg+'% — you know this material. Try stepping up the difficulty.';
+  } else {
+    msg = 'Session '+hist.length+' on this folder. The trend will emerge over time.';
+  }
+  txt.textContent = msg;
+  card.style.display = 'block';
+}
+
+function resShowNextStep(f, pct, d) {
+  var card = document.getElementById('res-nextstep-card');
+  var txtEl = document.getElementById('res-nextstep-txt');
+  var btn = document.getElementById('res-nextstep-btn');
+  if (!card) return;
+  var msg = null, btnLabel = null, btnFn = null;
+  if (f && f !== 'all') {
+    var correctIds = (getCorrectIds()[f] || []).map(String);
+    var wrongIds = (getWrongIds()[f] || []).map(String);
+    var folderBank = bank.filter(function(q) { return (q.folder||'General') === f; });
+    var unattempted = folderBank.filter(function(q) { return correctIds.indexOf(String(q.id)) === -1; });
+    var wrongInFolder = folderBank.filter(function(q) { return wrongIds.indexOf(String(q.id)) !== -1; });
+    var uHard = unattempted.filter(function(q) { return q.difficulty === 'hard'; });
+    if (pct >= 80 && d !== 'hard' && uHard.length >= 3) {
+      msg = 'Strong session. You have '+uHard.length+' untouched Hard questions in this folder — ready to push yourself?';
+      btnLabel = 'Try Hard →';
+      btnFn = function() {
+        document.getElementById('quiz-results').style.display = 'none';
+        document.getElementById('qz-diff').value = 'hard';
+        document.getElementById('qz-count').value = 'all';
+        var ucb = document.getElementById('qzw-unatt-cb'); if (ucb) ucb.checked = true;
+        startQuiz();
+      };
+    } else if (wrongInFolder.length >= 3) {
+      msg = wrongInFolder.length+' questions in this folder have caught you out before. Drilling just those is the fastest way to close the gap.';
+      btnLabel = 'Drill wrong answers →';
+      btnFn = function() {
+        document.getElementById('quiz-results').style.display = 'none';
+        document.getElementById('qz-diff').value = 'all';
+        document.getElementById('qz-count').value = 'all';
+        var rc = document.getElementById('qz-retry-wrong'); if (rc) rc.checked = true;
+        startQuiz();
+      };
+    } else if (unattempted.length > 0 && pct >= 55) {
+      msg = unattempted.length+' questions in this folder you\'ve never seen. Cover your blind spots before calling it mastered.';
+      btnLabel = 'Try unseen questions →';
+      btnFn = function() {
+        document.getElementById('quiz-results').style.display = 'none';
+        document.getElementById('qz-diff').value = 'all';
+        document.getElementById('qz-count').value = 'all';
+        var ucb = document.getElementById('qzw-unatt-cb'); if (ucb) ucb.checked = true;
+        startQuiz();
+      };
+    } else if (pct < 50) {
+      msg = 'Under 50% — another pass on this material right now will do more than moving on. Repetition is the mechanism.';
+      btnLabel = 'Go again →';
+      btnFn = function() {
+        document.getElementById('quiz-results').style.display = 'none';
+        startQuiz();
+      };
+    }
+  }
+  if (!msg) return;
+  txtEl.textContent = msg;
+  if (btnLabel && btnFn) {
+    btn.textContent = btnLabel;
+    btn.onclick = btnFn;
+    btn.style.display = 'inline-block';
+  } else {
+    btn.style.display = 'none';
+  }
+  card.style.display = 'block';
 }
 
 function retryQuiz() {
