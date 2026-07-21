@@ -6772,6 +6772,7 @@ function rpGoToTopic(tool, itemId) {
       switchTab('quiz');
       populateFolderSelect(folder);
       updateAvail();
+      qzWizInit();
     } else if (tool === 'saqs') {
       var sqFolders = sqGetFolders();
       var folder = sqFolders.indexOf(topic) !== -1 ? topic
