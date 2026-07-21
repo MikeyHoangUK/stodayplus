@@ -1318,7 +1318,6 @@
     .sql-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
     .sql-card{background:rgba(250,243,224,.85);border:2px solid rgba(168,85,247,.12);border-radius:20px;padding:28px 14px 22px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .18s;font-family:'Raleway',sans-serif;text-align:center;outline:none;width:100%}
     .sql-card:hover{border-color:rgba(124,58,237,.42);box-shadow:0 8px 32px rgba(109,40,217,.14);transform:translateY(-3px)}
-    .sql-card.kb-focus{border-color:rgba(124,58,237,.65)!important;box-shadow:0 0 0 3px rgba(109,40,217,.2),0 8px 32px rgba(109,40,217,.16)!important;transform:translateY(-3px)}
     .sql-lv-num{font-size:2.4rem;font-weight:900;color:#4c1d95;line-height:1;display:block}
     .sql-lv-name{font-size:.95rem;font-weight:900;color:#1c1208;display:block;margin-top:4px}
     .sql-lv-desc{font-size:.6rem;font-weight:800;color:#a08868;letter-spacing:.1em;text-transform:uppercase;display:block}
@@ -2898,8 +2897,6 @@ var STORAGE_KEY = 'sp_questions';
 var _qzKbIdx = 0;
 var _qzKbActive = false;
 var _qzDisplayOpts = [];
-var _sqLvKbIdx = 0;
-var _sqLvKbActive = false;
 var bank = [];
 var selDiff = 'easy';
 var bankFilt = 'all';
@@ -3939,12 +3936,6 @@ function _qzKbHighlight() {
     if (el) el.classList.add('kb-focus');
   }
 }
-function _sqLvKbHighlight() {
-  var cards = document.querySelectorAll('.sql-card');
-  cards.forEach(function(c) { c.classList.remove('kb-focus'); });
-  if (_sqLvKbActive && cards[_sqLvKbIdx]) cards[_sqLvKbIdx].classList.add('kb-focus');
-}
-
 function showQ() {
   var q = qzQs[qzIdx];
   var prior = qzAnswers[qzIdx] || null;
@@ -5383,6 +5374,85 @@ function qzResumeSession() {
   });
 })();
 
+/* ── Sage yellow-highlight on selection (toggle) + right-click clear ── */
+(function() {
+  var sqRun = document.getElementById('sq-prac-run');
+  if (!sqRun) return;
+
+  function hlAncestor(node) {
+    for (var n = node; n && n !== sqRun; n = n.parentNode) {
+      if (n.nodeType === 1 && n.tagName === 'MARK' && n.classList.contains('quiz-hl')) return n;
+    }
+    return null;
+  }
+
+  function clearAllHL() {
+    sqRun.querySelectorAll('mark.quiz-hl').forEach(function(m) {
+      var frag = document.createDocumentFragment();
+      while (m.firstChild) frag.appendChild(m.firstChild);
+      m.parentNode.replaceChild(frag, m);
+    });
+  }
+
+  function hlContainer(node) {
+    for (var n = node.nodeType === 3 ? node.parentNode : node; n && n !== sqRun; n = n.parentNode) {
+      if (n.id === 'sq-prac-q') return n;
+    }
+    return null;
+  }
+
+  sqRun.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    clearAllHL();
+  });
+
+  sqRun.addEventListener('mouseup', function() {
+    var sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !sel.rangeCount) return;
+
+    // Snap to whole-word boundaries
+    (function() {
+      var r = sel.getRangeAt(0).cloneRange();
+      var changed = false;
+      if (r.startContainer.nodeType === 3) {
+        var st = r.startContainer.textContent, so = r.startOffset;
+        while (so > 0 && /\S/.test(st[so - 1])) so--;
+        if (so !== r.startOffset) { r.setStart(r.startContainer, so); changed = true; }
+      }
+      if (r.endContainer.nodeType === 3) {
+        var et = r.endContainer.textContent, eo = r.endOffset;
+        while (eo < et.length && /\S/.test(et[eo])) eo++;
+        if (eo !== r.endOffset) { r.setEnd(r.endContainer, eo); changed = true; }
+      }
+      if (changed) { sel.removeAllRanges(); sel.addRange(r); }
+    })();
+
+    var range = sel.getRangeAt(0);
+    if (!range || range.collapsed) return;
+    if (!sqRun.contains(range.commonAncestorContainer)) return;
+
+    var c1 = hlContainer(range.startContainer);
+    var c2 = hlContainer(range.endContainer);
+    if (!c1 || c1 !== c2) { sel.removeAllRanges(); return; }
+
+    var existing = hlAncestor(range.startContainer) || hlAncestor(range.commonAncestorContainer);
+    if (existing) {
+      var frag = document.createDocumentFragment();
+      while (existing.firstChild) frag.appendChild(existing.firstChild);
+      existing.parentNode.replaceChild(frag, existing);
+      sel.removeAllRanges();
+      return;
+    }
+
+    try {
+      var mark = document.createElement('mark');
+      mark.className = 'quiz-hl';
+      range.surroundContents(mark);
+    } catch (_) {}
+    sel.removeAllRanges();
+  });
+})();
+
 document.addEventListener('keydown', function(e) {
   if (e.key === '-' || e.key === '=' || e.key === 'm' || e.key === 'M') {
     var tag = document.activeElement && document.activeElement.tagName;
@@ -5404,17 +5474,6 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
     var tag = document.activeElement && document.activeElement.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-    var lvPicker = document.getElementById('sq-level-picker');
-    if (lvPicker && lvPicker.style.display !== 'none') {
-      e.preventDefault();
-      _sqLvKbActive = true;
-      var nCards = document.querySelectorAll('.sql-card').length;
-      _sqLvKbIdx = e.key === 'ArrowDown'
-        ? (_sqLvKbIdx + 1) % nCards
-        : (_sqLvKbIdx - 1 + nCards) % nCards;
-      _sqLvKbHighlight();
-      return;
-    }
     var run = document.getElementById('quiz-run');
     if (!run || run.style.display === 'none') return;
     if (!qzAnswered && _qzDisplayOpts.length > 0) {
@@ -5424,15 +5483,6 @@ document.addEventListener('keydown', function(e) {
         ? (_qzKbIdx + 1) % _qzDisplayOpts.length
         : (_qzKbIdx - 1 + _qzDisplayOpts.length) % _qzDisplayOpts.length;
       _qzKbHighlight();
-    }
-  }
-  if ((e.key === ' ' || e.key === 'Enter') && _sqLvKbActive) {
-    var tag = document.activeElement && document.activeElement.tagName;
-    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-    var lvPicker = document.getElementById('sq-level-picker');
-    if (lvPicker && lvPicker.style.display !== 'none') {
-      e.preventDefault();
-      sqStartWithLevel(_sqLvKbIdx + 1);
     }
   }
   if (e.key === 'h' || e.key === 'H') {
@@ -7930,7 +7980,6 @@ function sqBlankMatch(input, keyword) {
 }
 
 function sqShowLevelPicker() {
-  _sqLvKbIdx = 0; _sqLvKbActive = false;
   _sqAIKeywords = {}; // clear cache for new session
   var topicName = sqCurrentFolder || 'All Topics';
   var tn = document.getElementById('sql-topic-nm');
