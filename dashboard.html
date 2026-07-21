@@ -6763,7 +6763,6 @@ function rpMarkDone(id, score) {
     item.nextReview = Date.now() + 86400000;
   } else {
     item.level++;
-    if (typeof score === 'number' && score >= 80 && item.level >= 2) item.level++;
     item.nextReview = item.addedDate + rpIntervalDays(item.level) * 86400000;
   }
   rpSave();
