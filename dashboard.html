@@ -1015,14 +1015,14 @@
     .blurto-end-btn{flex-shrink:0;background:rgba(109,40,217,.1);border:1px solid rgba(109,40,217,.2);color:#6d28d9;border-radius:10px;padding:7px 14px;font-size:.72rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:all .15s}
     .blurto-end-btn:hover{background:rgba(109,40,217,.18)}
     /* Active blurting layout */
-    .blurto-active-layout{display:grid;grid-template-columns:1fr 1fr;gap:0;height:calc(100vh - 280px)}
+    .blurto-active-layout{display:grid;grid-template-columns:1fr 1fr;gap:0}
     .blurto-active-hd{display:flex;align-items:center;justify-content:space-between;font-size:.68rem;font-weight:800;color:#5a4230;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;flex-shrink:0}
     .blurto-fade-col{display:flex;flex-direction:column;min-width:0;padding-right:20px;border-right:2px solid rgba(168,85,247,.13);overflow:hidden}
     .blurto-write-col{display:flex;flex-direction:column;min-width:0;padding-left:20px;overflow:hidden}
     .blurto-fade-wrap{position:relative;flex:1;overflow:hidden}
     .blurto-notes-scroll{height:100%;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(168,85,247,.2) transparent}
-    .blurto-notes-ro{min-height:0;pointer-events:none;user-select:none}
-    .blurto-write-col .blurto-area{flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(168,85,247,.2) transparent}
+    .blurto-notes-ro{min-height:360px;pointer-events:none;user-select:none}
+    .blurto-write-col .blurto-area{flex:1;min-height:360px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(168,85,247,.2) transparent}
     .blurto-fade-overlay{position:absolute;inset:0;background:#f0e4c6;border-radius:14px;pointer-events:none;opacity:0}
     body.hc .blurto-fade-overlay{background:#06060f}
     .blurto-peek-btn{align-self:center;margin-top:10px;background:rgba(255,255,255,.55);border:1px solid rgba(168,85,247,.2);color:#6d28d9;border-radius:10px;padding:7px 18px;font-size:.72rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:all .15s}
@@ -1031,7 +1031,7 @@
     .blurto-wc{font-size:.65rem;font-weight:700;color:#b09880;font-variant-numeric:tabular-nums}
     .blurto-voice-btn.vactive{background:rgba(239,68,68,.1)!important;color:#dc2626!important;animation:blurtoVoicePulse 1.2s ease-in-out infinite}
     @keyframes blurtoVoicePulse{0%,100%{opacity:1}50%{opacity:.55}}
-    .blurto-write-col .blurto-area{flex:1;min-height:0}
+    .blurto-write-col .blurto-area{flex:1;min-height:360px}
     /* Review */
     .blurto-review-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
     .blurto-rev-title{font-size:1.05rem;font-weight:900;color:#1c1208;margin-bottom:3px}
