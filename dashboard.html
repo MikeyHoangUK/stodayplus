@@ -6772,10 +6772,6 @@ function rpGoToTopic(tool, itemId) {
       switchTab('quiz');
       populateFolderSelect(folder);
       updateAvail();
-      setTimeout(function() {
-        var btn = document.getElementById('start-btn');
-        if (btn && !btn.disabled) startQuiz();
-      }, 80);
     } else if (tool === 'saqs') {
       var sqFolders = sqGetFolders();
       var folder = sqFolders.indexOf(topic) !== -1 ? topic
