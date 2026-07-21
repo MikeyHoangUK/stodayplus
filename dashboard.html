@@ -2479,40 +2479,61 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
 
           <!-- ── Level picker ────────────────────────── -->
           <div id="sq-level-picker" style="display:none">
-            <div class="sql-hd">
-              <div class="sql-hd-topic" id="sql-topic-nm">—</div>
-              <div class="sql-hd-sub">Choose your difficulty</div>
+            <!-- Step 1: level -->
+            <div id="sq-lp-step-level">
+              <div class="sql-hd">
+                <div class="sql-hd-topic" id="sql-topic-nm">—</div>
+                <div class="sql-hd-sub">Choose your difficulty</div>
+              </div>
+              <div class="sql-grid">
+                <button class="sql-card" onclick="sqPickCount(1)">
+                  <span class="sql-lv-num">1</span>
+                  <span class="sql-lv-name">Guided</span>
+                  <span class="sql-lv-desc">Key hints revealed</span>
+                  <span class="sql-lv-tag">Start here</span>
+                </button>
+                <button class="sql-card" onclick="sqPickCount(2)">
+                  <span class="sql-lv-num">2</span>
+                  <span class="sql-lv-name">Cloze</span>
+                  <span class="sql-lv-desc">Fill the gaps</span>
+                  <span class="sql-lv-tag">Targeted recall</span>
+                </button>
+                <button class="sql-card" onclick="sqPickCount(3)">
+                  <span class="sql-lv-num">3</span>
+                  <span class="sql-lv-name">Recall</span>
+                  <span class="sql-lv-desc">Write full answer</span>
+                  <span class="sql-lv-tag rec">Recommended</span>
+                </button>
+                <button class="sql-card" onclick="sqPickCount(4)">
+                  <span class="sql-lv-num">4</span>
+                  <span class="sql-lv-name">Pressure</span>
+                  <span class="sql-lv-desc">Timed full answer</span>
+                  <span class="sql-lv-tag">Exam simulation</span>
+                </button>
+              </div>
+              <div class="sql-back-row">
+                <button class="qzw-back" onclick="sqLevelPickerBack()">← Back</button>
+              </div>
             </div>
-            <div class="sql-grid">
-              <button class="sql-card" onclick="sqStartWithLevel(1)">
-                <span class="sql-lv-num">1</span>
-                <span class="sql-lv-name">Guided</span>
-                <span class="sql-lv-desc">Key hints revealed</span>
-                <span class="sql-lv-tag">Start here</span>
-              </button>
-              <button class="sql-card" onclick="sqStartWithLevel(2)">
-                <span class="sql-lv-num">2</span>
-                <span class="sql-lv-name">Cloze</span>
-                <span class="sql-lv-desc">Fill the gaps</span>
-                <span class="sql-lv-tag">Targeted recall</span>
-              </button>
-              <button class="sql-card" onclick="sqStartWithLevel(3)">
-                <span class="sql-lv-num">3</span>
-                <span class="sql-lv-name">Recall</span>
-                <span class="sql-lv-desc">Write full answer</span>
-                <span class="sql-lv-tag rec">Recommended</span>
-              </button>
-              <button class="sql-card" onclick="sqStartWithLevel(4)">
-                <span class="sql-lv-num">4</span>
-                <span class="sql-lv-name">Pressure</span>
-                <span class="sql-lv-desc">Timed full answer</span>
-                <span class="sql-lv-tag">Exam simulation</span>
-              </button>
+            <!-- Step 2: count -->
+            <div id="sq-lp-step-count" style="display:none">
+              <div class="sql-hd">
+                <div class="sql-hd-topic" id="sq-lp-count-topic">—</div>
+                <div class="sql-hd-sub" id="sq-lp-count-sub">—</div>
+              </div>
+              <div class="qzw-prompt">How many questions?</div>
+              <div class="qzw-opts">
+                <button class="qzw-opt" onclick="sqStartWithLevel(_sqChosenLevel,2)"><span class="qzw-opt-num">2</span><span class="qzw-opt-label">Quick test</span></button>
+                <button class="qzw-opt" onclick="sqStartWithLevel(_sqChosenLevel,3)"><span class="qzw-opt-num">3</span><span class="qzw-opt-label">Short burst</span></button>
+                <button class="qzw-opt" onclick="sqStartWithLevel(_sqChosenLevel,5)"><span class="qzw-opt-num">5</span><span class="qzw-opt-label">Standard</span></button>
+                <button class="qzw-opt qzw-opt-rec" onclick="sqStartWithLevel(_sqChosenLevel,10)"><span class="qzw-opt-num">10</span><span class="qzw-opt-label">Full session</span><span class="qzw-rec-badge">Recommended</span></button>
+              </div>
+              <div class="qzw-avail" id="sq-lp-avail"></div>
+              <div class="sql-back-row">
+                <button class="qzw-back" onclick="sqCountPickerBack()">← Difficulty</button>
+              </div>
             </div>
             <div id="sq-lp-status" style="display:none"></div>
-            <div class="sql-back-row">
-              <button class="qzw-back" id="sq-lp-back-btn" onclick="sqLevelPickerBack()">← Back</button>
-            </div>
           </div>
           <div id="sq-results" class="results-wrap">
             <div class="score-circle" id="sq-res-circle">
@@ -7979,11 +8000,16 @@ function sqBlankMatch(input, keyword) {
   return false;
 }
 
+var _sqChosenLevel = 1;
+
 function sqShowLevelPicker() {
-  _sqAIKeywords = {}; // clear cache for new session
+  _sqAIKeywords = {};
   var topicName = sqCurrentFolder || 'All Topics';
   var tn = document.getElementById('sql-topic-nm');
   if (tn) tn.textContent = topicName;
+  document.getElementById('sq-lp-step-level').style.display = 'block';
+  document.getElementById('sq-lp-step-count').style.display = 'none';
+  document.getElementById('sq-lp-status').style.display = 'none';
   document.getElementById('sq-prac-setup').style.display = 'none';
   document.getElementById('sq-results').style.display = 'none';
   document.getElementById('sq-prac-run').style.display = 'none';
@@ -7995,17 +8021,33 @@ function sqLevelPickerBack() {
   document.getElementById('sq-prac-setup').style.display = 'block';
 }
 
-async function sqStartWithLevel(lv) {
+function sqPickCount(lv) {
+  _sqChosenLevel = lv;
+  var names = {1:'L1 · Guided', 2:'L2 · Cloze', 3:'L3 · Recall', 4:'L4 · Pressure'};
+  var topicEl = document.getElementById('sq-lp-count-topic');
+  var subEl   = document.getElementById('sq-lp-count-sub');
+  if (topicEl) topicEl.textContent = sqCurrentFolder || 'All Topics';
+  if (subEl)   subEl.textContent   = names[lv] || ('Level ' + lv);
+  var avail = document.getElementById('sq-lp-avail');
+  if (avail) avail.textContent = sqPracQs.length + ' question' + (sqPracQs.length !== 1 ? 's' : '') + ' available';
+  document.getElementById('sq-lp-step-level').style.display = 'none';
+  document.getElementById('sq-lp-step-count').style.display = 'block';
+}
+
+function sqCountPickerBack() {
+  document.getElementById('sq-lp-step-count').style.display = 'none';
+  document.getElementById('sq-lp-step-level').style.display = 'block';
+}
+
+async function sqStartWithLevel(lv, n) {
   sqPracLevel = lv;
+  if (n && n < sqPracQs.length) sqPracQs = sqPracQs.slice(0, n);
   var badge = document.getElementById('sq-level-badge');
   var names = {1:'L1 · Guided', 2:'L2 · Cloze', 3:'L3 · Recall', 4:'L4 · Pressure'};
   if (badge) badge.textContent = names[lv] || ('L' + lv);
 
   if (lv === 1 || lv === 2) {
-    // Disable cards + show spinner while AI fetches keywords
-    document.querySelectorAll('.sql-card').forEach(function(c) { c.disabled = true; c.style.opacity = '.38'; c.style.pointerEvents = 'none'; });
-    var backBtn = document.getElementById('sq-lp-back-btn');
-    if (backBtn) backBtn.disabled = true;
+    document.querySelectorAll('#sq-level-picker button').forEach(function(b) { b.disabled = true; b.style.opacity = '.38'; b.style.pointerEvents = 'none'; });
     var statusEl = document.getElementById('sq-lp-status');
     if (statusEl) { statusEl.innerHTML = '<div class="sql-spinner"></div>✨ Analysing markschemes…'; statusEl.style.display = 'flex'; }
     try {
@@ -8014,11 +8056,8 @@ async function sqStartWithLevel(lv) {
     } catch(e) {
       if (statusEl) { statusEl.textContent = 'Using local hints (AI unavailable)'; }
     }
-    // Small pause so user sees the transition
     await new Promise(function(res) { setTimeout(res, 320); });
-    // Reset picker UI for next time
-    document.querySelectorAll('.sql-card').forEach(function(c) { c.disabled = false; c.style.opacity = ''; c.style.pointerEvents = ''; });
-    if (backBtn) backBtn.disabled = false;
+    document.querySelectorAll('#sq-level-picker button').forEach(function(b) { b.disabled = false; b.style.opacity = ''; b.style.pointerEvents = ''; });
     if (statusEl) { statusEl.style.display = 'none'; statusEl.innerHTML = ''; }
   }
 
