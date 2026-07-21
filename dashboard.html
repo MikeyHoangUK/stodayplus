@@ -1015,9 +1015,10 @@
     .blurto-end-btn{flex-shrink:0;background:rgba(109,40,217,.1);border:1px solid rgba(109,40,217,.2);color:#6d28d9;border-radius:10px;padding:7px 14px;font-size:.72rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:all .15s}
     .blurto-end-btn:hover{background:rgba(109,40,217,.18)}
     /* Active blurting layout */
-    .blurto-active-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .blurto-active-layout{display:grid;grid-template-columns:1fr 1fr;gap:0}
     .blurto-active-hd{display:flex;align-items:center;justify-content:space-between;font-size:.68rem;font-weight:800;color:#5a4230;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
-    .blurto-fade-col,.blurto-write-col{display:flex;flex-direction:column;min-width:0}
+    .blurto-fade-col{display:flex;flex-direction:column;min-width:0;padding-right:20px;border-right:2px solid rgba(168,85,247,.13)}
+    .blurto-write-col{display:flex;flex-direction:column;min-width:0;padding-left:20px}
     .blurto-fade-wrap{position:relative;flex:1}
     .blurto-notes-ro{min-height:360px;pointer-events:none;user-select:none}
     .blurto-fade-overlay{position:absolute;inset:0;background:#f0e4c6;border-radius:14px;pointer-events:none;opacity:0}
@@ -2735,7 +2736,7 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
                 <div class="blurto-area blurto-notes-ro" id="blurto-notes-snapshot"></div>
                 <div class="blurto-fade-overlay" id="blurto-fade-overlay"></div>
               </div>
-              <button class="blurto-peek-btn" id="blurto-peek-btn" onclick="blurtoPeek()">👁 Peek (3s)</button>
+              <button class="blurto-peek-btn" id="blurto-peek-btn" onclick="blurtoPeek()">👁 Peek (3s) <span style="opacity:.5;font-size:.65em;font-weight:700">Ctrl+P</span></button>
             </div>
             <div class="blurto-write-col">
               <div class="blurto-active-hd">
@@ -5475,6 +5476,14 @@ function qzResumeSession() {
 })();
 
 document.addEventListener('keydown', function(e) {
+  if (e.ctrlKey && (e.key === 'p' || e.key === 'P')) {
+    var ba = document.getElementById('blurto-active');
+    if (ba && ba.style.display !== 'none') {
+      e.preventDefault();
+      blurtoPeek();
+      return;
+    }
+  }
   if (e.key === '-' || e.key === '=' || e.key === 'm' || e.key === 'M') {
     var tag = document.activeElement && document.activeElement.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
