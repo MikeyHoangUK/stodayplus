@@ -8880,6 +8880,7 @@ function blurtoLoad() {
 
 function blurtoSave() {
   localStorage.setItem('sp_blurto', JSON.stringify(blurtoSessions));
+  if (typeof _scheduleSyncToSupabase === 'function') _scheduleSyncToSupabase();
 }
 
 function blurtoInit() {
@@ -9689,7 +9690,7 @@ function orgLoadData() {
   populateSubjectDatalist(); // also calls populateFolderDatalist()
 }
 function orgSaveTopics()    { localStorage.setItem('sp_org_topics',   JSON.stringify(orgTopics)); if (typeof _scheduleSyncToSupabase === 'function') _scheduleSyncToSupabase(); }
-function orgSaveSubjects()  { localStorage.setItem('sp_org_subjects', JSON.stringify(orgSubjects)); }
+function orgSaveSubjects()  { localStorage.setItem('sp_org_subjects', JSON.stringify(orgSubjects)); if (typeof _scheduleSyncToSupabase === 'function') _scheduleSyncToSupabase(); }
 
 function orgGetNextDue(revCount, lastRevised) {
   if (!lastRevised) return null;
@@ -10144,7 +10145,7 @@ var _USER_DATA_KEYS = [
   'sp_questions','sp_saqs','sp_blurto','sp_org_topics','sp_org_subjects',
   'sp_folder_scores','sp_saq_folder_scores','sp_folder_meta','sp_topic_content','sp_notes_cache',
   'sp_blurto_cache','sp_finley_draft',
-  'sp_wrong_ids','sp_folders','finley_sessions','sp_revplan','sp_exams'
+  'sp_wrong_ids','sp_correct_ids','sp_folders','finley_sessions','sp_revplan','sp_exams'
 ];
 
 var _supabaseLoading = false;
@@ -10208,9 +10209,13 @@ async function _loadFromSupabase() {
     try { _initPayload.folder_scores = getFolderScores(); } catch(e) {}
     try { _initPayload.folders = getAllFolders(); } catch(e) {}
     try { _initPayload.folder_meta = getFolderMeta(); } catch(e) {}
-    try { _initPayload.org_topics = JSON.parse(localStorage.getItem('sp_org_topics') || 'null') || []; } catch(e) {}
-    try { _initPayload.revplan    = JSON.parse(localStorage.getItem('sp_revplan')    || 'null') || []; } catch(e) {}
-    try { _initPayload.exams      = JSON.parse(localStorage.getItem('sp_exams')      || 'null') || []; } catch(e) {}
+    try { _initPayload.org_topics   = JSON.parse(localStorage.getItem('sp_org_topics')   || 'null') || []; } catch(e) {}
+    try { _initPayload.revplan      = JSON.parse(localStorage.getItem('sp_revplan')      || 'null') || []; } catch(e) {}
+    try { _initPayload.exams        = JSON.parse(localStorage.getItem('sp_exams')        || 'null') || []; } catch(e) {}
+    try { _initPayload.blurto       = JSON.parse(localStorage.getItem('sp_blurto')       || 'null') || []; } catch(e) {}
+    try { _initPayload.wrong_ids    = JSON.parse(localStorage.getItem('sp_wrong_ids')    || 'null') || {}; } catch(e) {}
+    try { _initPayload.correct_ids  = JSON.parse(localStorage.getItem('sp_correct_ids')  || 'null') || {}; } catch(e) {}
+    try { _initPayload.org_subjects = JSON.parse(localStorage.getItem('sp_org_subjects') || 'null') || []; } catch(e) {}
     var _initR = await _spClient.from('user_data').upsert(_initPayload, { onConflict: 'user_id' });
     if (_initR.error) {
       // Retry without new columns in case they don't exist in the Supabase table yet
@@ -10301,10 +10306,13 @@ async function _loadFromSupabase() {
         if (typeof qzShowResumeBanner === 'function') qzShowResumeBanner();
       }
     } catch(_e) {}
-    // Load org_topics, revplan, exams from a separate query (columns may not exist yet — fails gracefully)
+    // Load planner, org, and supplementary data (columns may not exist yet — fails gracefully)
     try {
-      var r2 = await _spClient.from('user_data').select('org_topics, revplan, exams').eq('user_id', uid).maybeSingle();
+      var r2 = await _spClient.from('user_data')
+        .select('org_topics, revplan, exams, blurto, wrong_ids, correct_ids, org_subjects')
+        .eq('user_id', uid).maybeSingle();
       if (!r2.error && r2.data) {
+        // ── org_topics ──────────────────────────────────────────────────────
         var cloudOT = r2.data.org_topics;
         if (cloudOT && cloudOT.length) {
           localStorage.setItem('sp_org_topics', JSON.stringify(cloudOT));
@@ -10314,19 +10322,87 @@ async function _loadFromSupabase() {
           var _lot = JSON.parse(localStorage.getItem('sp_org_topics') || '[]');
           if (_lot.length) setTimeout(_syncToSupabase, 800);
         }
+        // ── revplan: per-item merge by id, keep whichever device is further ahead ──
         var cloudRP = r2.data.revplan;
+        var _lrp = [];
+        try { _lrp = JSON.parse(localStorage.getItem('sp_revplan') || '[]'); } catch(_ee) {}
         if (cloudRP && cloudRP.length) {
-          localStorage.setItem('sp_revplan', JSON.stringify(cloudRP));
-          if (typeof rpLoad === 'function') rpLoad();
-        } else {
-          var _lrp = JSON.parse(localStorage.getItem('sp_revplan') || '[]');
-          if (_lrp.length) setTimeout(_syncToSupabase, 800);
-          else if (typeof rpLoad === 'function') rpLoad();
+          var rpMergeMap = {};
+          cloudRP.forEach(function(item) { if (item.id) rpMergeMap[item.id] = item; });
+          _lrp.forEach(function(item) {
+            if (!item.id) return;
+            var existing = rpMergeMap[item.id];
+            if (!existing) { rpMergeMap[item.id] = item; }
+            else if ((item.level || 0) > (existing.level || 0)) { rpMergeMap[item.id] = item; }
+            else if ((item.level || 0) === (existing.level || 0) &&
+                     (item.doneReviews || []).length > (existing.doneReviews || []).length) {
+              rpMergeMap[item.id] = item;
+            }
+          });
+          localStorage.setItem('sp_revplan', JSON.stringify(Object.values(rpMergeMap)));
+        } else if (_lrp.length) {
+          setTimeout(_syncToSupabase, 800);
         }
+        if (typeof rpLoad === 'function') rpLoad();
+        if (typeof rpRenderToday === 'function') rpRenderToday();
+        // ── exams: union by id ───────────────────────────────────────────────
         var cloudEx = r2.data.exams;
         if (cloudEx && cloudEx.length) {
-          localStorage.setItem('sp_exams', JSON.stringify(cloudEx));
-          if (typeof rpExamLoad === 'function') rpExamLoad();
+          var _lex = [];
+          try { _lex = JSON.parse(localStorage.getItem('sp_exams') || '[]'); } catch(_ee) {}
+          var exMap = {};
+          cloudEx.forEach(function(e) { if (e.id) exMap[e.id] = e; });
+          _lex.forEach(function(e) { if (e.id && !exMap[e.id]) exMap[e.id] = e; });
+          var mergedEx = Object.values(exMap).sort(function(a,b){ return a.date < b.date ? -1 : 1; });
+          localStorage.setItem('sp_exams', JSON.stringify(mergedEx));
+        } else {
+          var _lex0 = [];
+          try { _lex0 = JSON.parse(localStorage.getItem('sp_exams') || '[]'); } catch(_ee) {}
+          if (_lex0.length) setTimeout(_syncToSupabase, 800);
+        }
+        if (typeof rpExamLoad === 'function') rpExamLoad();
+        // ── blurto sessions: union by topic+savedAt key ──────────────────────
+        var cloudBl = r2.data.blurto;
+        if (cloudBl && cloudBl.length) {
+          var _lbl = [];
+          try { _lbl = JSON.parse(localStorage.getItem('sp_blurto') || '[]'); } catch(_ee) {}
+          function _blKey(s) { return (s.topic || '') + '_' + (s.savedAt || s.date || ''); }
+          var blMap = {};
+          _lbl.forEach(function(s) { blMap[_blKey(s)] = s; });
+          cloudBl.forEach(function(s) { var k = _blKey(s); if (!blMap[k]) blMap[k] = s; });
+          localStorage.setItem('sp_blurto', JSON.stringify(Object.values(blMap)));
+          if (typeof blurtoLoad === 'function') blurtoLoad();
+        }
+        // ── wrong_ids: union per folder ──────────────────────────────────────
+        if (r2.data.wrong_ids && Object.keys(r2.data.wrong_ids).length) {
+          var cloudWI = r2.data.wrong_ids, localWI = {};
+          try { localWI = JSON.parse(localStorage.getItem('sp_wrong_ids') || '{}'); } catch(_ee) {}
+          var mergedWI = Object.assign({}, cloudWI);
+          Object.keys(localWI).forEach(function(f) {
+            if (!mergedWI[f]) { mergedWI[f] = localWI[f]; }
+            else { localWI[f].forEach(function(id) { if (mergedWI[f].indexOf(id) === -1) mergedWI[f].push(id); }); }
+          });
+          localStorage.setItem('sp_wrong_ids', JSON.stringify(mergedWI));
+        }
+        // ── correct_ids: union per folder (more mastered = more progress) ────
+        if (r2.data.correct_ids && Object.keys(r2.data.correct_ids).length) {
+          var cloudCI = r2.data.correct_ids, localCI = {};
+          try { localCI = JSON.parse(localStorage.getItem('sp_correct_ids') || '{}'); } catch(_ee) {}
+          var mergedCI = Object.assign({}, cloudCI);
+          Object.keys(localCI).forEach(function(f) {
+            if (!mergedCI[f]) { mergedCI[f] = localCI[f]; }
+            else { localCI[f].forEach(function(id) { if (mergedCI[f].indexOf(id) === -1) mergedCI[f].push(id); }); }
+          });
+          localStorage.setItem('sp_correct_ids', JSON.stringify(mergedCI));
+        }
+        // ── org_subjects: union ──────────────────────────────────────────────
+        if (r2.data.org_subjects && r2.data.org_subjects.length) {
+          var cloudSubj = r2.data.org_subjects, localSubj = [];
+          try { localSubj = JSON.parse(localStorage.getItem('sp_org_subjects') || '[]'); } catch(_ee) {}
+          var mergedSubj = cloudSubj.slice();
+          localSubj.forEach(function(s) { if (mergedSubj.indexOf(s) === -1) mergedSubj.push(s); });
+          localStorage.setItem('sp_org_subjects', JSON.stringify(mergedSubj));
+          if (typeof orgLoadData === 'function') orgLoadData();
         }
       } else {
         // Columns may not exist yet — push local data to cloud to bootstrap them
@@ -10334,9 +10410,11 @@ async function _loadFromSupabase() {
         var _lrp2 = JSON.parse(localStorage.getItem('sp_revplan') || '[]');
         if (_lot2.length || _lrp2.length) setTimeout(_syncToSupabase, 800);
         if (typeof rpLoad === 'function') rpLoad();
+        if (typeof rpRenderToday === 'function') rpRenderToday();
       }
     } catch(_e) {
       if (typeof rpLoad === 'function') rpLoad();
+      if (typeof rpRenderToday === 'function') rpRenderToday();
     }
   }
   _supabaseLoading = false;
@@ -10349,9 +10427,13 @@ async function _syncToSupabase() {
   try { payload.folder_scores = getFolderScores(); } catch(_e) {}
   try { payload.folders = getAllFolders(); } catch(_e) {}
   try { payload.folder_meta = getFolderMeta(); } catch(_e) {}
-  try { payload.org_topics = JSON.parse(localStorage.getItem('sp_org_topics') || 'null') || []; } catch(_e) {}
-  try { payload.revplan    = JSON.parse(localStorage.getItem('sp_revplan')    || 'null') || []; } catch(_e) {}
-  try { payload.exams      = JSON.parse(localStorage.getItem('sp_exams')      || 'null') || []; } catch(_e) {}
+  try { payload.org_topics    = JSON.parse(localStorage.getItem('sp_org_topics')    || 'null') || []; } catch(_e) {}
+  try { payload.revplan       = JSON.parse(localStorage.getItem('sp_revplan')       || 'null') || []; } catch(_e) {}
+  try { payload.exams         = JSON.parse(localStorage.getItem('sp_exams')         || 'null') || []; } catch(_e) {}
+  try { payload.blurto        = JSON.parse(localStorage.getItem('sp_blurto')        || 'null') || []; } catch(_e) {}
+  try { payload.wrong_ids     = JSON.parse(localStorage.getItem('sp_wrong_ids')     || 'null') || {}; } catch(_e) {}
+  try { payload.correct_ids   = JSON.parse(localStorage.getItem('sp_correct_ids')   || 'null') || {}; } catch(_e) {}
+  try { payload.org_subjects  = JSON.parse(localStorage.getItem('sp_org_subjects')  || 'null') || []; } catch(_e) {}
   var r = await _spClient.from('user_data').upsert(payload, { onConflict: 'user_id' });
   if (r.error) {
     // Columns org_topics/revplan/exams may not exist yet — retry without them
