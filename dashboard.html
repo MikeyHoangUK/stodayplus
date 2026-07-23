@@ -9774,7 +9774,7 @@ function orgToggleField(id, field) {
   // Block manually ticking ON if requirements not met
   if (field === 'mcq_done'      && !t.mcq_done      && (t.mcq_count || 0) < ORG_MCQ_THRESHOLD) return;
   if (field === 'saq_done'      && !t.saq_done      && (t.saq_count || 0) < ORG_SAQ_THRESHOLD) return;
-  if (field === 'blurting_done' && !t.blurting_done && !((t.mcq_best_score || 0) >= 60)) return;
+  if (field === 'blurting_done' && !t.blurting_done && !t.saq_done) return;
   if (field === 'feynman_done'  && !t.feynman_done  && !t.blurto_low_peek_done) return;
   t[field] = !t[field];
   // On any revision task ticked ON, advance spaced rep (once per day)
@@ -9957,8 +9957,8 @@ function orgProgressCell(t, type) {
     lockMsg = 'Complete MCQ phase first';
   } else {
     done = t.blurting_done; count = t.blurting_count || 0; threshold = ORG_BLURT_THRESHOLD; field = 'blurting_done';
-    locked = !((t.mcq_best_score || 0) >= 60);
-    lockMsg = locked ? ('Score 60%+ in Sage to unlock Blurting' + (t.mcq_best_score ? ' (best: ' + t.mcq_best_score + '%)' : '')) : '';
+    locked = !t.saq_done;
+    lockMsg = locked ? 'Complete SAQ phase first' : '';
   }
   if (done) {
     return '<button class="org-toggle on" onclick="orgToggleField(\'' + t.id + '\',\'' + field + '\')" title="' + type + ' done — click to untick">✓</button>';
