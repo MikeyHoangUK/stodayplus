@@ -3008,6 +3008,7 @@ var bankSubjFilt = 'all';
 var bankSearch = '';
 var sqSubjFilt = 'all';
 var sqFolderSearch = '';
+var sqBankFolder = 'all';
 var sqSessionQCount = 0, sqSessionStartTime = null, sqSessionTotalScore = 0, sqSessionMaxScore = 0;
 var blurtoSubjFilt = 'all';
 var blurtoFolderSearch = '';
@@ -7975,9 +7976,11 @@ function sqSubmitManual() {
 }
 
 function sqDelete(id) {
+  var snap = JSON.stringify(sqBank);
   sqBank = sqBank.filter(function(q) { return String(q.id) !== String(id); });
   sqSave();
   renderSqBank();
+  pushUndo('SAQ', function() { sqBank = JSON.parse(snap); sqSave(); renderSqBank(); });
 }
 
 function sqToggleAns(id) {
@@ -7989,9 +7992,61 @@ function sqToggleAns(id) {
   if (btn) btn.textContent = showing ? 'Hide markscheme ▲' : 'Show markscheme ▼';
 }
 
+function sqFilterFolder(f) {
+  sqBankFolder = f;
+  sqFolderSearch = '';
+  renderSqBank();
+}
+
 function renderSqBank() {
   var el = document.getElementById('sq-bank-content');
   if (!el) return;
+
+  // ── Inside a folder ────────────────────────────────────────────────────────
+  if (sqBankFolder !== 'all') {
+    var folderQs = sqBank.filter(function(q) { return (q.folder || 'General') === sqBankFolder; });
+    var searchVal = sqFolderSearch || '';
+    var filtered = folderQs.filter(function(q) {
+      if (!searchVal.trim()) return true;
+      return (q.question || '').toLowerCase().indexOf(searchVal.toLowerCase()) !== -1
+          || (q.modelAnswer || '').toLowerCase().indexOf(searchVal.toLowerCase()) !== -1;
+    });
+    var fbar = '<div style="display:flex;align-items:center;gap:6px;margin-bottom:14px">'
+      + '<span class="folder-pill" onclick="sqFilterFolder(\'all\')" style="font-size:.68rem;cursor:pointer">← All folders</span>'
+      + '<span style="color:#5a4230;font-size:.78rem;padding:0 4px">›</span>'
+      + '<span class="folder-pill active" style="font-size:.68rem">' + rpEsc(sqBankFolder) + '</span>'
+      + '</div>';
+    var statBar = '<div class="bank-stat" style="margin-bottom:10px">'
+      + folderQs.length + ' SAQ' + (folderQs.length !== 1 ? 's' : '') + ' in "' + rpEsc(sqBankFolder) + '"'
+      + '</div>';
+    var searchBar = '<div style="margin-bottom:14px"><input class="bank-folder-search" placeholder="Search questions…" value="'
+      + esc(searchVal) + '" oninput="sqBankSearchInput(this.value)" style="width:100%;box-sizing:border-box"/></div>';
+    if (filtered.length === 0) {
+      el.innerHTML = fbar + statBar + searchBar + '<div class="bank-empty"><div class="ei">🔍</div><h3>No matching questions</h3></div>';
+      var si = el.querySelector('.bank-folder-search'); if (si) { si.focus(); si.setSelectionRange(searchVal.length, searchVal.length); }
+      return;
+    }
+    var html = fbar + statBar + searchBar;
+    filtered.forEach(function(q, i) {
+      html += '<div class="sq-card" id="sqc-' + q.id + '">'
+        + '<div class="sq-card-top">'
+        + '<div style="font-size:.62rem;font-weight:900;color:#b09880;letter-spacing:.08em;text-transform:uppercase;flex-shrink:0">Q' + (i+1) + '</div>'
+        + '<div style="flex:1;font-size:.84rem;font-weight:700;color:#1c1208;line-height:1.5">' + rpEsc(q.question || '') + '</div>'
+        + '<div style="display:flex;gap:6px;flex-shrink:0">'
+        + '<button class="q-btn del" onclick="sqDelete(\'' + q.id + '\')">Delete</button>'
+        + '</div>'
+        + '</div>'
+        + '<button class="sq-reveal-btn" onclick="sqToggleAns(\'' + q.id + '\')">Show markscheme ▼</button>'
+        + '<div class="sq-ans" id="sqa-' + q.id + '">' + rpEsc(q.modelAnswer || '') + '</div>'
+        + '</div>';
+    });
+    el.innerHTML = html;
+    var si2 = el.querySelector('.bank-folder-search');
+    if (si2 && document.activeElement === si2) { si2.focus(); si2.setSelectionRange(searchVal.length, searchVal.length); }
+    return;
+  }
+
+  // ── Folder grid ────────────────────────────────────────────────────────────
   var folders = sqGetFolders();
   folders.sort(function(a, b) {
     var ac = sqBank.some(function(q){ return (q.folder||'General') === a; }) ? 0 : 1;
@@ -8026,7 +8081,6 @@ function renderSqBank() {
 
   if (!visible.length) {
     el.innerHTML = filterBar + '<div class="bank-empty"><div class="ei">🔍</div><h3>No folders match</h3><p>Try a different search or subject filter.</p></div>';
-    // restore focus
     var inp = document.getElementById('sq-folder-search');
     if (inp) { inp.focus(); inp.setSelectionRange(sqFolderSearch.length, sqFolderSearch.length); }
     return;
@@ -8041,7 +8095,13 @@ function renderSqBank() {
     var mcqProg = lockedTopic ? (lockedTopic.mcq_count || 0) : 0;
     var card = document.createElement('div');
     card.className = 'folder-card' + (count === 0 ? ' fc-empty' : '');
-    (function(folder, isLocked){ card.onclick = function(e){ if(!e.target.classList.contains('fc-quiz')&&!e.target.classList.contains('fc-del')&&!e.target.classList.contains('fc-edit-top')&&!e.target.classList.contains('fc-create')&&count>0&&!isLocked) sqPracFolder(folder); }; })(f, locked);
+    (function(folder, isLocked, cnt){
+      card.onclick = function(e) {
+        if (e.target.classList.contains('fc-quiz') || e.target.classList.contains('fc-del')
+          || e.target.classList.contains('fc-edit-top') || e.target.classList.contains('fc-create')) return;
+        if (cnt > 0 && !isLocked) sqFilterFolder(folder);
+      };
+    })(f, locked, count);
     var sqsc = getSaqFolderScores()[f];
     var sqConfBadge = '';
     if (sqsc && sqsc.best >= 0) {
@@ -8068,12 +8128,14 @@ function renderSqBank() {
 }
 function sqSetSubj(s) { sqSubjFilt = s; renderSqBank(); }
 function sqFolderSearchInput(v) { sqFolderSearch = v; renderSqBank(); var inp = document.getElementById('sq-folder-search'); if (inp) { inp.focus(); inp.setSelectionRange(v.length, v.length); } }
+function sqBankSearchInput(v) { sqFolderSearch = v; renderSqBank(); }
 
 function sqDeleteFolder(folder) {
   if (!confirm('Delete all SAQs in "' + folder + '"?')) return;
   var snap = JSON.stringify(sqBank);
   sqBank = sqBank.filter(function(q) { return (q.folder || 'General') !== folder; });
   var sqsc = getSaqFolderScores(); delete sqsc[folder]; localStorage.setItem('sp_saq_folder_scores', JSON.stringify(sqsc));
+  sqBankFolder = 'all';
   sqSave(); renderSqBank();
   pushUndo('"' + folder + '" SAQs', function() { sqBank = JSON.parse(snap); sqSave(); renderSqBank(); });
 }
