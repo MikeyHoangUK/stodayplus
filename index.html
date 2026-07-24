@@ -49,16 +49,16 @@
       <span class="text-white font-extrabold text-xl tracking-wide">Stoday <span class="text-purple-mid">Plus</span></span>
     </a>
     <!-- Desktop nav — 3 key links only -->
-    <div class="hidden md:flex items-center gap-5 text-sm text-gray-400 font-medium">
+    <div class="hidden md:flex items-center gap-5 text-sm text-gray-300 font-medium">
       <a href="#techniques"  class="nav-link hover:text-white transition-colors">Techniques</a>
-      <span class="text-gray-700 select-none text-xs">·</span>
+      <span class="text-gray-500 select-none text-xs">·</span>
       <a href="about.html"   class="nav-link hover:text-white transition-colors">About</a>
-      <span class="text-gray-700 select-none text-xs">·</span>
+      <span class="text-gray-500 select-none text-xs">·</span>
       <a href="#pricing"     class="nav-link hover:text-white transition-colors">Build Your System</a>
     </div>
     <!-- CTA -->
     <div class="flex items-center gap-3">
-      <a href="login.html" class="hidden sm:inline text-gray-500 hover:text-white text-sm transition-colors">Log in</a>
+      <a href="login.html" class="hidden sm:inline text-gray-300 hover:text-white text-sm transition-colors">Log in</a>
       <a href="join.html"  class="gradient-brand text-white text-sm font-bold px-5 py-2 rounded-xl hover:opacity-90 transition-opacity">Get Started →</a>
     </div>
   </div>
@@ -554,14 +554,16 @@
     <p class="text-purple-DEFAULT font-semibold text-sm uppercase tracking-widest mb-3">See it in action</p>
     <h2 class="text-3xl sm:text-4xl font-extrabold text-navy-dark mb-4">Watch the 11-minute breakdown</h2>
     <p class="text-gray-500 mb-10 max-w-xl mx-auto">Mikey walks through the entire Stoday Plus system — what it is, why it works, and exactly how to use it starting today.</p>
-    <div class="relative rounded-2xl overflow-hidden shadow-2xl shadow-purple-DEFAULT shadow-opacity-20 cursor-pointer group max-w-2xl mx-auto" onclick="this.querySelector('iframe').style.display='block'; this.querySelector('.play-overlay').style.display='none';">
-      <img src="Core/11-min%20Sales%20Call/Thumbnail.png" alt="Watch the Stoday Plus breakdown" class="w-full" />
+    <div class="relative rounded-2xl overflow-hidden shadow-2xl shadow-purple-DEFAULT shadow-opacity-20 cursor-pointer group max-w-2xl mx-auto" style="aspect-ratio:16/9" onclick="var v=this.querySelector('video');v.style.display='block';this.querySelector('.play-overlay').style.display='none';v.play();">
+      <img src="Core/11-min%20Sales%20Call/Thumbnail.png" alt="Watch the Stoday Plus breakdown" class="w-full h-full object-cover" />
       <div class="play-overlay absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 group-hover:bg-opacity-40 transition-all">
         <div class="w-20 h-20 rounded-full gradient-brand flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
           <svg class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
         </div>
       </div>
-      <iframe class="absolute inset-0 w-full h-full" style="display:none" frameborder="0" allowfullscreen></iframe>
+      <video class="absolute inset-0 w-full h-full" style="display:none" controls>
+        <source src="Core/11-min%20Sales%20Call/Sales.mp4" type="video/mp4">
+      </video>
     </div>
     <p class="text-gray-400 text-sm mt-4">11 minutes. No fluff. Just the system.</p>
   </div>
@@ -750,36 +752,36 @@
           <img src="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" alt="" class="w-8 h-8 object-contain" />
           <span class="text-white font-extrabold">Stoday <span class="text-purple-mid">Plus</span></span>
         </div>
-        <p class="text-gray-500 text-sm max-w-xs">Study Today. Because the only moment you can change is right now.</p>
-        <p class="text-gray-600 text-xs mt-2">Stoday = <em>Study Today</em></p>
+        <p class="text-gray-400 text-sm max-w-xs">Study Today. Because the only moment you can change is right now.</p>
+        <p class="text-gray-500 text-xs mt-2">Stoday = <em>Study Today</em></p>
       </div>
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-8 text-sm">
         <div>
-          <p class="text-gray-400 font-semibold mb-3">Product</p>
+          <p class="text-gray-300 font-semibold mb-3">Product</p>
           <ul class="space-y-2">
-            <li><a href="#techniques"      class="text-gray-600 hover:text-white transition-colors">Techniques</a></li>
-            <li><a href="#whats-included"  class="text-gray-600 hover:text-white transition-colors">What's Included</a></li>
-            <li><a href="#pricing"         class="text-gray-600 hover:text-white transition-colors">Pricing</a></li>
+            <li><a href="#techniques"      class="text-gray-400 hover:text-white transition-colors">Techniques</a></li>
+            <li><a href="#whats-included"  class="text-gray-400 hover:text-white transition-colors">What's Included</a></li>
+            <li><a href="#pricing"         class="text-gray-400 hover:text-white transition-colors">Pricing</a></li>
           </ul>
         </div>
         <div>
-          <p class="text-gray-400 font-semibold mb-3">Company</p>
+          <p class="text-gray-300 font-semibold mb-3">Company</p>
           <ul class="space-y-2">
-            <li><a href="about.html"       class="text-gray-600 hover:text-white transition-colors">About Mikey</a></li>
-            <li><a href="join.html#free"   class="text-gray-600 hover:text-white transition-colors">Free Resources</a></li>
-            <li><a href="#faq"             class="text-gray-600 hover:text-white transition-colors">FAQ</a></li>
+            <li><a href="about.html"       class="text-gray-400 hover:text-white transition-colors">About Mikey</a></li>
+            <li><a href="join.html#free"   class="text-gray-400 hover:text-white transition-colors">Free Resources</a></li>
+            <li><a href="#faq"             class="text-gray-400 hover:text-white transition-colors">FAQ</a></li>
           </ul>
         </div>
         <div>
-          <p class="text-gray-400 font-semibold mb-3">Account</p>
+          <p class="text-gray-300 font-semibold mb-3">Account</p>
           <ul class="space-y-2">
-            <li><a href="login.html"       class="text-gray-600 hover:text-white transition-colors">Log In</a></li>
-            <li><a href="join.html"        class="text-gray-600 hover:text-white transition-colors">Get Started</a></li>
+            <li><a href="login.html"       class="text-gray-400 hover:text-white transition-colors">Log In</a></li>
+            <li><a href="join.html"        class="text-gray-400 hover:text-white transition-colors">Get Started</a></li>
           </ul>
         </div>
       </div>
     </div>
-    <div class="border-t border-white border-opacity-10 pt-6 text-center text-gray-600 text-xs">
+    <div class="border-t border-white border-opacity-10 pt-6 text-center text-gray-400 text-xs">
       © 2026 Stoday Plus. Built by Mikey Hoang. Study Today.
     </div>
   </div>
