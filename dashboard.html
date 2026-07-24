@@ -1662,6 +1662,13 @@
     body.hc .sq-hint-kw{color:#c084fc!important}
     body.hc .sq-hint-dash{color:#7a6448!important}
     body.hc .sq-hint-item{color:#c8b89a!important}
+    body.hc .rp-ql-note{color:#7a6448!important}
+    body.hc .pomo-dur{color:#c8b89a!important}
+    body.hc .ai-status.sload{color:#a855f7!important}
+    body.hc .rp-method-row[style] .rp-method-pill{color:#4ade80!important}
+    body.hc .sq-type-note span[style]{color:#c084fc!important}
+    body.hc .rp-auto-hint{color:#a08878!important}
+    body.hc .rp-auto-hint strong{color:#c8b89a!important}
 
     /* ── MOBILE RESPONSIVE ───────────────────────────────────────────── */
 
@@ -3411,6 +3418,15 @@ function applyMode(m, autoPlay) {
     document.getElementById('btn-chill').className = 'mode-btn m-chill';
     document.getElementById('btn-hard').className = 'mode-btn';
   }
+  // Refresh dynamically-rendered sections so HC-aware colors update live
+  setTimeout(function() {
+    if (typeof renderSqBank === 'function') { try { renderSqBank(); } catch(e) {} }
+    if (typeof orgRenderTable === 'function') { try { orgRenderTable(); } catch(e) {} }
+    if (typeof rpRenderToday === 'function') { try { rpRenderToday(); } catch(e) {} }
+    if (typeof updateBlurtoCacheUI === 'function') { try { updateBlurtoCacheUI(); } catch(e) {} }
+    if (typeof updateNotesCacheUI === 'function') { try { updateNotesCacheUI(); } catch(e) {} }
+    if (typeof updateSqNotesCacheUI === 'function') { try { updateSqNotesCacheUI(); } catch(e) {} }
+  }, 0);
   document.getElementById('music-player').style.display = 'flex';
   var inPlaylist = m === 'hardcore' ? hcPlaylist : lofiPlaylist;
   var inState    = m === 'hardcore' ? hcm : lofi;
@@ -5616,10 +5632,11 @@ function updateBlurtoCacheUI(folder) {
   if (!name) { info.style.display = 'none'; return; }
   var cached = blurtoCacheGet(name);
   if (cached) {
+    var _hc = document.body.classList.contains('hc');
     info.style.display = 'flex';
-    info.innerHTML = '<span style="font-weight:800;color:#5b21b6">📂 Simplified notes saved</span>'
-      + '<span style="margin-left:4px">· ' + esc(name) + ' · ' + cached.date + '</span>'
-      + '<button onclick="blurtoCacheClear(\'' + jsq(name) + '\');updateBlurtoCacheUI(\'' + jsq(name) + '\')" style="margin-left:8px;font-size:.6rem;font-weight:800;color:#b45309;background:none;border:1px solid rgba(180,83,9,.3);border-radius:5px;padding:1px 7px;cursor:pointer">Replace ↺</button>';
+    info.innerHTML = '<span style="font-weight:800;color:' + (_hc?'#c084fc':'#5b21b6') + '">📂 Simplified notes saved</span>'
+      + '<span style="margin-left:4px;color:' + (_hc?'#a08878':'inherit') + '">· ' + esc(name) + ' · ' + cached.date + '</span>'
+      + '<button onclick="blurtoCacheClear(\'' + jsq(name) + '\');updateBlurtoCacheUI(\'' + jsq(name) + '\')" style="margin-left:8px;font-size:.6rem;font-weight:800;color:' + (_hc?'#fbbf24':'#b45309') + ';background:none;border:1px solid rgba(180,83,9,.3);border-radius:5px;padding:1px 7px;cursor:pointer">Replace ↺</button>';
   } else {
     info.style.display = 'none';
   }
@@ -5632,10 +5649,11 @@ function updateNotesCacheUI() {
   if (!folderName.trim()) { info.style.display = 'none'; fileRow.style.display = 'block'; return; }
   var cached = notesCacheGet(folderName.trim());
   if (cached) {
+    var _hc = document.body.classList.contains('hc');
     info.style.display = 'flex';
-    info.innerHTML = '<span style="font-size:.65rem;font-weight:800;color:#5b21b6">📂 Notes saved</span>'
-      + '<span style="font-size:.63rem;color:#6e5438;margin-left:6px">' + esc(cached.fileName || 'from upload') + ' · ' + cached.date + '</span>'
-      + '<button onclick="notesCacheClear(\'' + jsq(folderName.trim()) + '\');updateNotesCacheUI()" style="margin-left:10px;font-size:.6rem;font-weight:800;color:#b45309;background:none;border:1px solid rgba(180,83,9,.3);border-radius:5px;padding:1px 7px;cursor:pointer">Replace ↺</button>';
+    info.innerHTML = '<span style="font-size:.65rem;font-weight:800;color:' + (_hc?'#c084fc':'#5b21b6') + '">📂 Notes saved</span>'
+      + '<span style="font-size:.63rem;color:' + (_hc?'#a08878':'#6e5438') + ';margin-left:6px">' + esc(cached.fileName || 'from upload') + ' · ' + cached.date + '</span>'
+      + '<button onclick="notesCacheClear(\'' + jsq(folderName.trim()) + '\');updateNotesCacheUI()" style="margin-left:10px;font-size:.6rem;font-weight:800;color:' + (_hc?'#fbbf24':'#b45309') + ';background:none;border:1px solid rgba(180,83,9,.3);border-radius:5px;padding:1px 7px;cursor:pointer">Replace ↺</button>';
     fileRow.style.display = 'none';
   } else {
     info.style.display = 'none';
@@ -5651,10 +5669,11 @@ function updateSqNotesCacheUI() {
   if (!folderName.trim()) { info.style.display = 'none'; fileRow.style.display = 'block'; return; }
   var cached = notesCacheGet(folderName.trim());
   if (cached) {
+    var _hc = document.body.classList.contains('hc');
     info.style.display = 'flex';
-    info.innerHTML = '<span style="font-size:.65rem;font-weight:800;color:#5b21b6">📂 Notes saved</span>'
-      + '<span style="font-size:.63rem;color:#6e5438;margin-left:6px">' + esc(cached.fileName || 'from upload') + ' · ' + cached.date + '</span>'
-      + '<button onclick="notesCacheClear(\'' + jsq(folderName.trim()) + '\');updateSqNotesCacheUI()" style="margin-left:10px;font-size:.6rem;font-weight:800;color:#b45309;background:none;border:1px solid rgba(180,83,9,.3);border-radius:5px;padding:1px 7px;cursor:pointer">Replace ↺</button>';
+    info.innerHTML = '<span style="font-size:.65rem;font-weight:800;color:' + (_hc?'#c084fc':'#5b21b6') + '">📂 Notes saved</span>'
+      + '<span style="font-size:.63rem;color:' + (_hc?'#a08878':'#6e5438') + ';margin-left:6px">' + esc(cached.fileName || 'from upload') + ' · ' + cached.date + '</span>'
+      + '<button onclick="notesCacheClear(\'' + jsq(folderName.trim()) + '\');updateSqNotesCacheUI()" style="margin-left:10px;font-size:.6rem;font-weight:800;color:' + (_hc?'#fbbf24':'#b45309') + ';background:none;border:1px solid rgba(180,83,9,.3);border-radius:5px;padding:1px 7px;cursor:pointer">Replace ↺</button>';
     fileRow.style.display = 'none';
   } else {
     info.style.display = 'none';
@@ -7013,7 +7032,7 @@ async function finleyStart() {
   var status = document.getElementById('finley-setup-status');
   btn.disabled = true;
   status.textContent = 'Preparing Finley…';
-  status.style.color = '#7c3aed';
+  status.style.color = document.body.classList.contains('hc') ? '#c084fc' : '#7c3aed';
 
   var concepts = await finleyExtractConcepts(topic, notes);
   var systemPrompt = finleyBuildSystemPrompt(topic, concepts);
@@ -7624,7 +7643,7 @@ function rpRenderToday() {
         + '<span class="rp-method-pill">' + task.emoji + ' ' + dLabel + ' — ' + task.label + ' with ' + task.name + '</span>'
         + '<button class="rp-go-tool-btn" onclick="rpShowMode(\'' + item.id + '\')">▶ Start</button>'
         + '</div>'
-      : '<div class="rp-method-row" style="justify-content:flex-start"><span class="rp-method-pill" style="color:#16a34a">✅ ' + dLabel + ' — All steps complete — free review</span></div>';
+      : '<div class="rp-method-row" style="justify-content:flex-start"><span class="rp-method-pill" style="color:' + (document.body.classList.contains('hc')?'#4ade80':'#16a34a') + '">✅ ' + dLabel + ' — All steps complete — free review</span></div>';
 
     var actionRow;
     if (task.tool === 'mcq' || task.tool === 'saqs') {
@@ -7761,9 +7780,9 @@ function rpImportFromPoppy() {
   var msg = document.getElementById('rp-add-msg');
   if (exists) {
     msg.textContent = '"' + folder + '" is already in your Revision Planner ✓';
-    msg.style.color = '#6d28d9';
+    msg.style.color = document.body.classList.contains('hc') ? '#a855f7' : '#6d28d9';
     msg.style.display = 'block';
-    setTimeout(function() { msg.style.display = 'none'; msg.style.color = '#16a34a'; }, 2800);
+    setTimeout(function() { msg.style.display = 'none'; msg.style.color = document.body.classList.contains('hc') ? '#4ade80' : '#16a34a'; }, 2800);
     return;
   }
   document.getElementById('rp-topic-inp').value = folder;
@@ -8281,11 +8300,12 @@ function renderSqBank() {
       return;
     }
     var html = fbar + statBar + searchBar;
+    var _hcSq = document.body.classList.contains('hc');
     filtered.forEach(function(q, i) {
       html += '<div class="sq-card" id="sqc-' + q.id + '">'
         + '<div class="sq-card-top">'
-        + '<div style="font-size:.62rem;font-weight:900;color:#b09880;letter-spacing:.08em;text-transform:uppercase;flex-shrink:0">Q' + (i+1) + '</div>'
-        + '<div style="flex:1;font-size:.84rem;font-weight:700;color:#1c1208;line-height:1.5">' + rpEsc(q.question || '') + '</div>'
+        + '<div style="font-size:.62rem;font-weight:900;color:' + (_hcSq?'#7a6448':'#b09880') + ';letter-spacing:.08em;text-transform:uppercase;flex-shrink:0">Q' + (i+1) + '</div>'
+        + '<div style="flex:1;font-size:.84rem;font-weight:700;color:' + (_hcSq?'#c8b89a':'#1c1208') + ';line-height:1.5">' + rpEsc(q.question || '') + '</div>'
         + '<div style="display:flex;gap:6px;flex-shrink:0">'
         + '<button class="q-btn del" onclick="sqDelete(\'' + q.id + '\')">Delete</button>'
         + '</div>'
@@ -10285,10 +10305,11 @@ function orgProgressCell(t, type) {
   var belowThreshold = count < threshold;
   if (count > 0) {
     var pct = Math.min(Math.round(count / threshold * 100), 100);
+    var _hcOrg = document.body.classList.contains('hc');
     var clickAttr = !belowThreshold ? ' onclick="orgToggleField(\'' + t.id + '\',\'' + field + '\')" style="cursor:pointer"' : ' title="' + count + '/' + threshold + ' — reach the threshold to unlock" style="cursor:not-allowed"';
     return '<div style="display:inline-flex;flex-direction:column;align-items:center;gap:2px"' + clickAttr + '>'
-      + '<span style="font-size:.58rem;font-weight:800;color:#7c3aed">' + count + '/' + threshold + '</span>'
-      + '<div style="width:38px;height:5px;background:rgba(124,58,237,.12);border-radius:99px;overflow:hidden">'
+      + '<span style="font-size:.58rem;font-weight:800;color:' + (_hcOrg?'#c084fc':'#7c3aed') + '">' + count + '/' + threshold + '</span>'
+      + '<div style="width:38px;height:5px;background:rgba(124,58,237,' + (_hcOrg?'.22':'.12') + ');border-radius:99px;overflow:hidden">'
       + '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#7c3aed,#4338ca);border-radius:99px"></div></div>'
       + '</div>';
   }
