@@ -414,7 +414,23 @@
     .start-btn:disabled{opacity:.3;cursor:default;box-shadow:none;transform:none}
 
     /* Active quiz */
-    #quiz-run{max-width:660px;margin:0 auto}
+    #quiz-run-wrap{display:flex;align-items:flex-start;justify-content:center;gap:18px;width:100%}
+    #quiz-run{max-width:660px;width:100%;flex-shrink:0}
+    #qz-def-panel{width:272px;flex-shrink:0;background:rgba(250,243,224,.92);border:1.5px solid rgba(109,40,217,.18);border-radius:18px;padding:18px;font-family:'Raleway',sans-serif;box-shadow:0 8px 40px rgba(109,40,217,.1);animation:defPanelIn .22s cubic-bezier(.34,1.3,.64,1);position:sticky;top:24px;display:none}
+    @keyframes defPanelIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}
+    .qzd-eyebrow{font-size:.52rem;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#b09880;margin-bottom:8px}
+    .qzd-term{font-size:1rem;font-weight:900;color:#4c1d95;margin-bottom:10px;line-height:1.2;word-break:break-word}
+    .qzd-body{font-size:.78rem;color:#3d2e1a;line-height:1.65;font-weight:500}
+    .qzd-source{font-size:.57rem;font-weight:800;color:#b09880;letter-spacing:.1em;text-transform:uppercase;margin-top:12px;display:flex;align-items:center;gap:5px}
+    .qzd-img{width:100%;border-radius:10px;margin-bottom:10px;object-fit:cover;max-height:120px}
+    .qzd-close{position:absolute;top:10px;right:12px;background:none;border:none;font-size:.72rem;font-weight:900;color:#b09880;cursor:pointer;padding:2px 6px;border-radius:6px;transition:color .15s}
+    .qzd-close:hover{color:#6d28d9}
+    .qzd-spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(109,40,217,.2);border-top-color:#7c3aed;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+    .qzd-kb-hint{font-size:.57rem;color:#b09880;text-align:center;margin-top:12px;letter-spacing:.04em}
+    body.hc #qz-def-panel{background:#0f0d22!important;border-color:rgba(168,85,247,.32)!important}
+    body.hc .qzd-term{color:#c084fc!important}
+    body.hc .qzd-body{color:#c8b89a!important}
+    body.hc .qzd-eyebrow,body.hc .qzd-source,body.hc .qzd-kb-hint,body.hc .qzd-close{color:#7a6448!important}
     .quiz-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
     .q-prog-bar{height:3px;background:rgba(109,40,217,.15);border-radius:2px;margin-bottom:28px;overflow:hidden}
     .q-prog-fill{height:100%;background:linear-gradient(90deg,#7c3aed,#6366f1);border-radius:2px;transition:width .4s ease}
@@ -500,6 +516,7 @@
     #content:fullscreen,#content:-webkit-full-screen{background:#f0e4c6}
     body.hc #content:fullscreen,body.hc #content:-webkit-full-screen{background:#06060f}
     :fullscreen #quiz-run,.fullscreen-quiz #quiz-run{max-width:720px;padding:48px 0}
+    :fullscreen #quiz-run-wrap,.fullscreen-quiz #quiz-run-wrap{justify-content:center}
     :fullscreen #sub-quiz,.fullscreen-quiz #sub-quiz{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:100vh;padding:48px}
     :fullscreen #quiz-setup,.fullscreen-quiz #quiz-setup{max-width:640px}
     /* In-quiz pomo clock (fullscreen only) */
@@ -1542,6 +1559,8 @@
       .rp-cal-layout { flex-direction: column; }
       .rp-exam-panel { width: 100%; min-width: 0; position: static; }
       .panel.active { max-width: 100%; }
+      #quiz-run-wrap { flex-direction: column; align-items: stretch; }
+      #qz-def-panel { width: auto; position: static; }
     }
 
     /* ════════════════════════════════════════════════════════════
@@ -2280,7 +2299,8 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
 
           </div>
 
-          <div id="quiz-run" style="display:none">
+          <div id="quiz-run-wrap" style="display:none">
+          <div id="quiz-run">
             <div id="quiz-pomo">
               <div id="quiz-pomo-time"></div>
               <div class="quiz-pomo-lbl">Focus session</div>
@@ -2314,6 +2334,16 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
               <button class="next-btn" id="next-btn" onclick="nextQ()">Next →</button>
             </div>
           </div>
+          <div id="qz-def-panel" style="position:relative">
+            <button class="qzd-close" onclick="qzDefClose()" title="Close (Esc)">✕</button>
+            <div class="qzd-eyebrow">Definition</div>
+            <div class="qzd-term" id="qzd-term"></div>
+            <img class="qzd-img" id="qzd-img" style="display:none" alt=""/>
+            <div class="qzd-body" id="qzd-body"></div>
+            <div class="qzd-source" id="qzd-source"></div>
+            <div class="qzd-kb-hint">Ctrl+G to look up · Esc to close</div>
+          </div>
+          </div><!-- /quiz-run-wrap -->
 
           <div class="results-wrap" id="quiz-results">
             <div class="score-circle" id="res-circle">
@@ -4000,14 +4030,15 @@ function startQuiz() {
   var n = cv === 'all' ? pool.length : Math.min(parseInt(cv), pool.length);
   qzQs = pool.slice(0, n); qzIdx = 0; qzScore = 0; qzAnswered = false; qzAnswers = []; lastCfg = { d: d, cv: cv }; qzStartTime = Date.now(); qzWrongInSession = []; qzCorrectInSession = []; qzClearSession();
   document.getElementById('quiz-setup').style.display = 'none';
-  document.getElementById('quiz-run').style.display = 'block';
+  document.getElementById('quiz-run-wrap').style.display = 'flex';
   document.getElementById('quiz-results').style.display = 'none';
+  qzDefClose();
   showQ();
   var el = document.getElementById('content');
   if (el.requestFullscreen) el.requestFullscreen();
   document.getElementById('fs-btn').textContent = '✕ Exit Fullscreen';
   setTimeout(function() {
-    document.getElementById('quiz-run').scrollIntoView({behavior:'smooth', block:'center'});
+    document.getElementById('quiz-run-wrap').scrollIntoView({behavior:'smooth', block:'center'});
   }, 60);
   setTimeout(function() {
     var btn = document.getElementById('fs-btn');
@@ -4523,7 +4554,8 @@ function populateSubjectDatalist() {
 }
 
 function showResults() {
-  document.getElementById('quiz-run').style.display = 'none';
+  document.getElementById('quiz-run-wrap').style.display = 'none';
+  qzDefClose();
   var pct = Math.round(qzScore / qzQs.length * 100);
   var color, title;
   var hc = document.body.classList.contains('hc');
@@ -5556,11 +5588,79 @@ function sqJumpToCreate(folderName) {
   updateSqNotesCacheUI();
 }
 
+// ── Ctrl+G definition lookup ──────────────────────────────────────────────────
+function qzDefClose() {
+  var p = document.getElementById('qz-def-panel');
+  if (p) p.style.display = 'none';
+}
+
+async function qzDefLookup() {
+  var term = (window.getSelection() || '').toString().trim().replace(/\s+/g, ' ');
+  if (!term || term.length < 2 || term.length > 80) return;
+  var panel = document.getElementById('qz-def-panel');
+  var termEl = document.getElementById('qzd-term');
+  var bodyEl = document.getElementById('qzd-body');
+  var srcEl  = document.getElementById('qzd-source');
+  var imgEl  = document.getElementById('qzd-img');
+  if (!panel) return;
+
+  termEl.textContent = term;
+  bodyEl.innerHTML = '<span class="qzd-spinner"></span>Looking up…';
+  srcEl.innerHTML = '';
+  imgEl.style.display = 'none';
+  panel.style.display = 'block';
+
+  // Step 1 — Wikipedia REST summary
+  var wikiOk = false;
+  try {
+    var slug = encodeURIComponent(term.replace(/\s+/g, '_'));
+    var wr = await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/' + slug, { headers: { 'Accept': 'application/json' } });
+    if (wr.ok) {
+      var wj = await wr.json();
+      var extract = (wj.extract || '').trim();
+      if (extract && extract.length > 40 && wj.type !== 'disambiguation') {
+        // Truncate to ~3 sentences
+        var sentences = extract.match(/[^.!?]+[.!?]+/g) || [extract];
+        var summary = sentences.slice(0, 3).join(' ').trim();
+        bodyEl.textContent = summary;
+        if (wj.thumbnail && wj.thumbnail.source) {
+          imgEl.src = wj.thumbnail.source;
+          imgEl.style.display = 'block';
+        }
+        srcEl.innerHTML = '📖 <span>Wikipedia</span>';
+        wikiOk = true;
+      }
+    }
+  } catch(_e) {}
+
+  if (wikiOk) return;
+
+  // Step 2 — Groq AI fallback
+  try {
+    bodyEl.innerHTML = '<span class="qzd-spinner"></span>Looking up with AI…';
+    var prompt = 'Define "' + term.replace(/"/g, '') + '" in 2–3 sentences as a concise medical/academic definition. No headers, no bullet points, plain prose only.';
+    var d = await callAI({ messages: [{ role: 'user', content: prompt }], temperature: 0.15, max_tokens: 160 });
+    var def = (((d.choices || [])[0] || {}).message || {}).content || '';
+    def = def.trim().replace(/^["']|["']$/g, '');
+    if (def) {
+      bodyEl.textContent = def;
+      srcEl.innerHTML = '✨ <span>AI</span>';
+    } else {
+      bodyEl.textContent = 'No definition found.';
+      srcEl.innerHTML = '';
+    }
+  } catch(_e) {
+    bodyEl.textContent = 'Could not retrieve a definition.';
+    srcEl.innerHTML = '';
+  }
+}
+
 function returnToSetup() {
   if (document.fullscreenElement) document.exitFullscreen();
-  document.getElementById('quiz-run').style.display = 'none';
+  document.getElementById('quiz-run-wrap').style.display = 'none';
   document.getElementById('quiz-results').style.display = 'none';
   document.getElementById('quiz-setup').style.display = 'block';
+  qzDefClose();
   qzWizInit();
 }
 
@@ -5647,7 +5747,7 @@ function qzResumeSession() {
     qzAnswers = s.qzAnswers || []; qzWrongInSession = s.qzWrongInSession || [];
     qzAnswered = !!(qzAnswers[qzIdx]);
     document.getElementById('quiz-setup').style.display = 'none';
-    document.getElementById('quiz-run').style.display = 'block';
+    document.getElementById('quiz-run-wrap').style.display = 'flex';
     document.getElementById('quiz-results').style.display = 'none';
     showQ();
   } catch(e) { qzClearSession(); }
@@ -5833,19 +5933,29 @@ document.addEventListener('keydown', function(e) {
     else toggleLofi();
   }
   if (e.key === 'F11') {
-    var run = document.getElementById('quiz-run');
+    var run = document.getElementById('quiz-run-wrap');
     if (run && run.style.display !== 'none') {
       e.preventDefault();
       toggleQuizFS();
     }
   }
-  if (e.key === 'Escape' && document.fullscreenElement) {
-    document.getElementById('fs-btn').textContent = '⛶ Fullscreen';
+  if (e.key === 'Escape') {
+    if (document.fullscreenElement) document.getElementById('fs-btn').textContent = '⛶ Fullscreen';
+    var dp = document.getElementById('qz-def-panel');
+    if (dp && dp.style.display !== 'none') { qzDefClose(); return; }
+  }
+  if (e.ctrlKey && (e.key === 'g' || e.key === 'G')) {
+    var wrap = document.getElementById('quiz-run-wrap');
+    if (wrap && wrap.style.display !== 'none') {
+      e.preventDefault();
+      qzDefLookup();
+      return;
+    }
   }
   if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
     var tag = document.activeElement && document.activeElement.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-    var run = document.getElementById('quiz-run');
+    var run = document.getElementById('quiz-run-wrap');
     if (!run || run.style.display === 'none') return;
     if (!qzAnswered && _qzDisplayOpts.length > 0) {
       e.preventDefault();
@@ -5859,7 +5969,7 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'h' || e.key === 'H') {
     var tag = document.activeElement && document.activeElement.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-    var run = document.getElementById('quiz-run');
+    var run = document.getElementById('quiz-run-wrap');
     if (!run || run.style.display === 'none') return;
     e.preventDefault();
     toggleHint();
@@ -5867,7 +5977,7 @@ document.addEventListener('keydown', function(e) {
   if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
     var tag = document.activeElement && document.activeElement.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-    var run = document.getElementById('quiz-run');
+    var run = document.getElementById('quiz-run-wrap');
     if (!run || run.style.display === 'none') return;
     if (e.key === 'ArrowLeft') {
       e.preventDefault();
@@ -5895,7 +6005,7 @@ document.addEventListener('fullscreenchange', function() {
     if (btn) btn.textContent = '⛶ Fullscreen';
     if (sqBtn) sqBtn.textContent = '⛶ Fullscreen';
   }
-  var run = document.getElementById('quiz-run');
+  var run = document.getElementById('quiz-run-wrap');
   if (run && run.style.display !== 'none') {
     setTimeout(function() { run.scrollIntoView({behavior:'smooth', block:'center'}); }, 120);
   }
