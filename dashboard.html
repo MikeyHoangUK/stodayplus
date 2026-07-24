@@ -415,9 +415,10 @@
 
     /* Active quiz */
     #quiz-run-wrap{display:flex;align-items:flex-start;justify-content:center;gap:18px;width:100%}
-    #quiz-run{max-width:660px;width:100%;flex-shrink:0}
-    #qz-def-panel{width:272px;flex-shrink:0;background:rgba(250,243,224,.92);border:1.5px solid rgba(109,40,217,.18);border-radius:18px;padding:18px;font-family:'Raleway',sans-serif;box-shadow:0 8px 40px rgba(109,40,217,.1);animation:defPanelIn .22s cubic-bezier(.34,1.3,.64,1);position:sticky;top:24px;display:none}
-    @keyframes defPanelIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}
+    #qz-def-spacer{width:260px;flex-shrink:0;display:none}
+    #quiz-run{max-width:660px;width:100%;flex-shrink:1;min-width:0}
+    #qz-def-panel{width:260px;flex-shrink:0;background:rgba(250,243,224,.92);border:1.5px solid rgba(109,40,217,.18);border-radius:18px;padding:18px;font-family:'Raleway',sans-serif;box-shadow:0 8px 40px rgba(109,40,217,.1);animation:defPanelIn .22s cubic-bezier(.34,1.3,.64,1);position:sticky;top:24px;display:none}
+    @keyframes defPanelIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
     .qzd-eyebrow{font-size:.52rem;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#b09880;margin-bottom:8px}
     .qzd-term{font-size:1rem;font-weight:900;color:#4c1d95;margin-bottom:10px;line-height:1.2;word-break:break-word}
     .qzd-body{font-size:.78rem;color:#3d2e1a;line-height:1.65;font-weight:500}
@@ -1561,6 +1562,7 @@
       .panel.active { max-width: 100%; }
       #quiz-run-wrap { flex-direction: column; align-items: stretch; }
       #qz-def-panel { width: auto; position: static; }
+      #qz-def-spacer { display: none !important; }
     }
 
     /* ════════════════════════════════════════════════════════════
@@ -2300,6 +2302,7 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
           </div>
 
           <div id="quiz-run-wrap" style="display:none">
+          <div id="qz-def-spacer"></div>
           <div id="quiz-run">
             <div id="quiz-pomo">
               <div id="quiz-pomo-time"></div>
@@ -2335,13 +2338,13 @@ D) Hydrogen" oninput="pasteOnInput()"></textarea>
             </div>
           </div>
           <div id="qz-def-panel" style="position:relative">
-            <button class="qzd-close" onclick="qzDefClose()" title="Close (Esc)">✕</button>
+            <button class="qzd-close" onclick="qzDefClose()" title="Close">✕</button>
             <div class="qzd-eyebrow">Definition</div>
             <div class="qzd-term" id="qzd-term"></div>
             <img class="qzd-img" id="qzd-img" style="display:none" alt=""/>
             <div class="qzd-body" id="qzd-body"></div>
             <div class="qzd-source" id="qzd-source"></div>
-            <div class="qzd-kb-hint">Ctrl+G to look up · Esc to close</div>
+            <div class="qzd-kb-hint">Select text · Ctrl+G to look up</div>
           </div>
           </div><!-- /quiz-run-wrap -->
 
@@ -5591,8 +5594,17 @@ function sqJumpToCreate(folderName) {
 // ── Ctrl+G definition lookup ──────────────────────────────────────────────────
 function qzDefClose() {
   var p = document.getElementById('qz-def-panel');
+  var s = document.getElementById('qz-def-spacer');
   if (p) p.style.display = 'none';
+  if (s) s.style.display = 'none';
 }
+
+// Click outside the panel closes it
+document.addEventListener('mousedown', function(e) {
+  var panel = document.getElementById('qz-def-panel');
+  if (!panel || panel.style.display === 'none') return;
+  if (!panel.contains(e.target)) qzDefClose();
+});
 
 async function qzDefLookup() {
   var term = (window.getSelection() || '').toString().trim().replace(/\s+/g, ' ');
@@ -5609,6 +5621,8 @@ async function qzDefLookup() {
   srcEl.innerHTML = '';
   imgEl.style.display = 'none';
   panel.style.display = 'block';
+  var _spacer = document.getElementById('qz-def-spacer');
+  if (_spacer) _spacer.style.display = 'block';
 
   // Step 1 — Wikipedia REST summary
   var wikiOk = false;
@@ -5939,10 +5953,8 @@ document.addEventListener('keydown', function(e) {
       toggleQuizFS();
     }
   }
-  if (e.key === 'Escape') {
-    if (document.fullscreenElement) document.getElementById('fs-btn').textContent = '⛶ Fullscreen';
-    var dp = document.getElementById('qz-def-panel');
-    if (dp && dp.style.display !== 'none') { qzDefClose(); return; }
+  if (e.key === 'Escape' && document.fullscreenElement) {
+    document.getElementById('fs-btn').textContent = '⛶ Fullscreen';
   }
   if (e.ctrlKey && (e.key === 'g' || e.key === 'G')) {
     var wrap = document.getElementById('quiz-run-wrap');
