@@ -475,37 +475,86 @@
 
     </div>
   </section>
-  </section>
 
-  <!-- SLIDE 4: What's Included -->
-  <section class="fp-section py-24" id="whats-included" style="background:#f5f3ff;overflow-y:auto">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6">
-      <div class="text-center mb-14">
-        <p class="text-purple-DEFAULT font-semibold text-sm uppercase tracking-widest mb-3">The full package</p>
-        <h2 class="text-3xl sm:text-4xl font-extrabold text-navy-dark">Everything inside Stoday Plus</h2>
+  <!-- SLIDE 4: What's Included (carousel) -->
+  <section class="fp-section" id="whats-included" style="background:#f5f3ff;overflow:hidden;display:flex;flex-direction:column;justify-content:center;">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 w-full py-10">
+
+      <!-- Header row -->
+      <div class="flex items-end justify-between mb-8">
+        <div>
+          <p class="text-purple-DEFAULT font-semibold text-xs uppercase tracking-widest mb-1">The full package</p>
+          <h2 class="text-3xl font-extrabold text-navy-dark">Everything inside Stoday Plus</h2>
+        </div>
+        <span id="inc-counter" class="text-5xl font-extrabold leading-none select-none" style="color:#ddd6fe">01</span>
       </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-        <div class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-sm border border-purple-soft card-hover">
-          <img src="Marketing/Store%20Page%20Esstls/1.png" alt="" class="w-16 h-16 rounded-xl flex-shrink-0 object-cover" />
-          <div><h3 class="font-extrabold text-navy-dark mb-1">5 Novel Techniques Guide</h3><p class="text-gray-500 text-sm leading-relaxed">The full breakdown of every technique — how it works, why it works, and exactly how to use it in your next study session.</p></div>
-        </div>
-        <div class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-sm border border-purple-soft card-hover">
-          <img src="Marketing/Store%20Page%20Esstls/2.png" alt="" class="w-16 h-16 rounded-xl flex-shrink-0 object-cover" />
-          <div><h3 class="font-extrabold text-navy-dark mb-1">The Stoday System</h3><p class="text-gray-500 text-sm leading-relaxed">A ready-to-use daily study framework. Plug your subjects in and never wonder "what should I be doing?" again.</p></div>
-        </div>
-        <div class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-sm border border-purple-soft card-hover">
-          <img src="Marketing/Store%20Page%20Esstls/3.png" alt="" class="w-16 h-16 rounded-xl flex-shrink-0 object-cover" />
-          <div><h3 class="font-extrabold text-navy-dark mb-1">Blurting Sheet Template</h3><p class="text-gray-500 text-sm leading-relaxed">The active recall worksheet that replaces passive note-taking. Simple. Brutal. Effective.</p></div>
-        </div>
-        <div class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-sm border border-purple-soft card-hover">
-          <img src="Marketing/Store%20Page%20Esstls/4.png" alt="" class="w-16 h-16 rounded-xl flex-shrink-0 object-cover" />
-          <div><h3 class="font-extrabold text-navy-dark mb-1">Full Resource Bundle</h3><p class="text-gray-500 text-sm leading-relaxed">Scientific papers, revision guides, and supporting materials — everything behind the "why."</p></div>
+
+      <!-- Carousel viewport -->
+      <div style="overflow:hidden;border-radius:1rem;">
+        <div id="inc-track" style="display:flex;transition:transform .55s cubic-bezier(.77,0,.175,1);will-change:transform;">
+
+          <!-- ITEM 1 -->
+          <div style="min-width:100%;flex-shrink:0;padding:2rem;background:white;border:1px solid #e9d5ff;border-radius:1rem;">
+            <div class="flex flex-col sm:flex-row gap-8 items-center">
+              <img src="Marketing/Store%20Page%20Esstls/1.png" alt="" style="width:160px;height:160px;object-fit:cover;border-radius:1rem;flex-shrink:0;box-shadow:0 8px 24px rgba(147,51,234,.12);" />
+              <div>
+                <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-3">What's included · 01 / 04</p>
+                <h3 class="text-2xl font-extrabold text-navy-dark mb-3">5 Novel Techniques Guide</h3>
+                <p class="text-gray-500 text-sm leading-relaxed mb-5">The full breakdown of every technique — how it works, why it works, and exactly how to use it in your next study session.</p>
+                <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-4 py-2 rounded-full">Instant digital access</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ITEM 2 -->
+          <div style="min-width:100%;flex-shrink:0;padding:2rem;background:white;border:1px solid #e9d5ff;border-radius:1rem;">
+            <div class="flex flex-col sm:flex-row gap-8 items-center">
+              <img src="Marketing/Store%20Page%20Esstls/2.png" alt="" style="width:160px;height:160px;object-fit:cover;border-radius:1rem;flex-shrink:0;box-shadow:0 8px 24px rgba(147,51,234,.12);" />
+              <div>
+                <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-3">What's included · 02 / 04</p>
+                <h3 class="text-2xl font-extrabold text-navy-dark mb-3">The Stoday System</h3>
+                <p class="text-gray-500 text-sm leading-relaxed mb-5">A ready-to-use daily study framework. Plug your subjects in and never wonder "what should I be doing?" again.</p>
+                <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-4 py-2 rounded-full">Instant digital access</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ITEM 3 -->
+          <div style="min-width:100%;flex-shrink:0;padding:2rem;background:white;border:1px solid #e9d5ff;border-radius:1rem;">
+            <div class="flex flex-col sm:flex-row gap-8 items-center">
+              <img src="Marketing/Store%20Page%20Esstls/3.png" alt="" style="width:160px;height:160px;object-fit:cover;border-radius:1rem;flex-shrink:0;box-shadow:0 8px 24px rgba(147,51,234,.12);" />
+              <div>
+                <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-3">What's included · 03 / 04</p>
+                <h3 class="text-2xl font-extrabold text-navy-dark mb-3">Blurting Sheet Template</h3>
+                <p class="text-gray-500 text-sm leading-relaxed mb-5">The active recall worksheet that replaces passive note-taking. Topic in, pen down, recall everything — then check and correct. Simple. Brutal. Effective.</p>
+                <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-4 py-2 rounded-full">Instant digital access</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ITEM 4 -->
+          <div style="min-width:100%;flex-shrink:0;padding:2rem;background:white;border:1px solid #e9d5ff;border-radius:1rem;">
+            <div class="flex flex-col sm:flex-row gap-8 items-center">
+              <img src="Marketing/Store%20Page%20Esstls/4.png" alt="" style="width:160px;height:160px;object-fit:cover;border-radius:1rem;flex-shrink:0;box-shadow:0 8px 24px rgba(147,51,234,.12);" />
+              <div>
+                <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-3">What's included · 04 / 04</p>
+                <h3 class="text-2xl font-extrabold text-navy-dark mb-3">Full Resource Bundle</h3>
+                <p class="text-gray-500 text-sm leading-relaxed mb-5">Scientific papers, revision guides, and supporting materials. Everything you need to understand the "why" behind the methods — so you actually trust the process.</p>
+                <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-4 py-2 rounded-full">Instant digital access</span>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
-      <div class="rounded-2xl overflow-hidden shadow-xl max-w-2xl mx-auto mt-8">
-        <img src="Marketing/Store%20Page%20Esstls/1365=1.png" alt="1.01 to the power of 365" class="w-full" />
+
+      <!-- Navigation row -->
+      <div class="flex items-center justify-between mt-6">
+        <button id="inc-prev" style="width:42px;height:42px;border-radius:50%;border:1.5px solid #c084fc;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:1rem;color:#6b21a8;" onmouseover="this.style.background='linear-gradient(135deg,#9333ea,#3730a3)';this.style.color='white';this.style.borderColor='transparent'" onmouseout="this.style.background='white';this.style.color='#6b21a8';this.style.borderColor='#c084fc'">←</button>
+        <div id="inc-dots" style="display:flex;gap:8px;align-items:center;"></div>
+        <button id="inc-next" style="width:42px;height:42px;border-radius:50%;border:1.5px solid #c084fc;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:1rem;color:#6b21a8;" onmouseover="this.style.background='linear-gradient(135deg,#9333ea,#3730a3)';this.style.color='white';this.style.borderColor='transparent'" onmouseout="this.style.background='white';this.style.color='#6b21a8';this.style.borderColor='#c084fc'">→</button>
       </div>
-      <p class="text-center text-gray-500 text-sm mt-4">1% better every day compounds into something extraordinary. The method matters.</p>
+
     </div>
   </section>
 
@@ -712,6 +761,39 @@
 <div id="fp-counter">01 / 10</div>
 
 <script>
+  /* ── What's Included carousel ─────────────────────────────── */
+  (function() {
+    var track   = document.getElementById('inc-track');
+    var counter = document.getElementById('inc-counter');
+    var dotsEl  = document.getElementById('inc-dots');
+    var total   = 4, cur = 0;
+    for (var i = 0; i < total; i++) {
+      var d = document.createElement('button');
+      d.style.cssText = 'width:7px;height:7px;border-radius:50%;border:none;padding:0;cursor:pointer;transition:all .25s;background:' + (i === 0 ? '#9333ea' : 'rgba(147,51,234,.25)') + ';';
+      (function(idx){ d.addEventListener('click', function(){ goto(idx); }); })(i);
+      dotsEl.appendChild(d);
+    }
+    function goto(idx) {
+      if (idx < 0 || idx >= total) return;
+      cur = idx;
+      track.style.transform = 'translateX(-' + (cur * 100) + '%)';
+      counter.textContent   = String(cur + 1).padStart(2, '0');
+      dotsEl.querySelectorAll('button').forEach(function(d, i) {
+        d.style.background   = i === cur ? '#9333ea' : 'rgba(147,51,234,.25)';
+        d.style.width        = i === cur ? '22px' : '7px';
+        d.style.borderRadius = i === cur ? '4px' : '50%';
+      });
+    }
+    document.getElementById('inc-prev').addEventListener('click', function() { goto(cur - 1); });
+    document.getElementById('inc-next').addEventListener('click', function() { goto(cur + 1); });
+    var tx = 0;
+    track.addEventListener('touchstart', function(e){ tx = e.touches[0].clientX; }, { passive:true });
+    track.addEventListener('touchend',   function(e){
+      var d = tx - e.changedTouches[0].clientX;
+      if (Math.abs(d) > 40) goto(d > 0 ? cur + 1 : cur - 1);
+    }, { passive:true });
+  })();
+
   /* ── Techniques carousel ───────────────────────────────────── */
   (function() {
     var track   = document.getElementById('tech-track');
