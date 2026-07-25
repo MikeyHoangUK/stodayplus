@@ -838,9 +838,11 @@
   (function() {
     var nav = document.querySelector('nav');
     if (!nav) return;
-    var last = 0;
+    var last = 0, lastTime = Date.now();
     window.addEventListener('scroll', function() {
       var cur = window.scrollY;
+      var now = Date.now();
+      var velocity = (last - cur) / Math.max(now - lastTime, 1);
       if (cur <= 0) {
         nav.style.transition = 'transform .2s ease, opacity .2s ease';
         nav.style.transform = 'translateY(0)';
@@ -849,12 +851,13 @@
         nav.style.transition = 'transform .55s ease, opacity .55s ease';
         nav.style.transform = 'translateY(-100%)';
         nav.style.opacity = '0';
-      } else if (cur < last) {
+      } else if (velocity > 5) {
         nav.style.transition = 'transform .18s ease, opacity .15s ease';
         nav.style.transform = 'translateY(0)';
         nav.style.opacity = '1';
       }
       last = cur;
+      lastTime = now;
     }, { passive: true });
   })();
 
