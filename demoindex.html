@@ -816,8 +816,8 @@
       /* reset internal scroll of newly active section */
       sections[current].scrollTop = 0;
       navLastTop = 0;
-      /* navbar follows slide direction */
-      if (idx > prev) navHide(); else navShow(false);
+      /* navbar only on slide 0 */
+      if (idx === 0) navShow(false); else navHide();
       updateDots();
       updateCounter();
       setTimeout(function() { busy = false; }, LOCK_MS);
