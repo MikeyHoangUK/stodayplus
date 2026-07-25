@@ -805,6 +805,7 @@
     function goto(idx) {
       if (idx < 0 || idx >= sections.length || idx === current || busy) return;
       busy = true;
+      var prev = current;
       current = idx;
       sections.forEach(function(s, i) {
         s.classList.remove('fp-active', 'fp-above');
@@ -815,7 +816,8 @@
       /* reset internal scroll of newly active section */
       sections[current].scrollTop = 0;
       navLastTop = 0;
-      navShow(false);
+      /* navbar follows slide direction */
+      if (idx > prev) navHide(); else navShow(false);
       updateDots();
       updateCounter();
       setTimeout(function() { busy = false; }, LOCK_MS);
