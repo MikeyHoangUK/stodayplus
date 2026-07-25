@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" type="image/png" sizes="96x96" />
+  <title>Stoday Plus — DEMO (Fullpage Scroll)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy:   { DEFAULT: '#1e3a8a', dark: '#1e1b4b', mid: '#3730a3' },
+            purple: { light: '#f3e8ff', soft: '#e9d5ff', mid: '#c084fc', DEFAULT: '#9333ea', deep: '#7e22ce', dark: '#6b21a8' }
+          },
+          fontFamily: { sans: ['Raleway', 'system-ui', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet" />
+  <style>
+    html, body { overflow: hidden; height: 100%; margin: 0; padding: 0; }
+    .gradient-hero  { background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #e0e7ff 100%); }
+    .gradient-dark  { background: linear-gradient(135deg, #1e1b4b 0%, #1e3a8a 100%); }
+    .gradient-brand { background: linear-gradient(135deg, #9333ea 0%, #3730a3 100%); }
+    .gradient-card  { background: linear-gradient(135deg, #9333ea 0%, #1e3a8a 100%); }
+    .card-hover { transition: transform .2s ease, box-shadow .2s ease; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(147,51,234,.15); }
+    .faq-answer { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
+    .faq-answer.open { max-height: 300px; }
+    .nav-link { position: relative; }
+    .nav-link::after { content:''; position:absolute; bottom:-2px; left:0; width:0; height:2px; background:#c084fc; transition:width .2s; }
+    .nav-link:hover::after { width:100%; }
+    .btn-ghost { background:rgba(255,255,255,.65); border:1px solid #e9d5ff; color:#6b21a8; font-weight:600; transition:background .2s ease, color .2s ease, border-color .2s ease; cursor:pointer; }
+    .btn-ghost:hover { background:linear-gradient(135deg,#9333ea 0%,#3730a3 100%); color:#fff; border-color:transparent; }
+
+    /* ── Fullpage system ──────────────────────────────────────── */
+    #fp-wrapper {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .fp-section {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      transform: translateY(100%);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.85s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.6s ease;
+      will-change: transform, opacity;
+    }
+    .fp-section.fp-active {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .fp-section.fp-above {
+      transform: translateY(-6%);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Dot nav */
+    #fp-dots {
+      position: fixed;
+      right: 1.25rem;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+    .fp-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      background: rgba(147, 51, 234, 0.25);
+      padding: 0;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    .fp-dot.fp-dot-active {
+      background: #9333ea;
+      width: 9px; height: 9px;
+      box-shadow: 0 0 8px rgba(147,51,234,.5);
+    }
+    .fp-dot::before {
+      content: attr(data-name);
+      position: absolute;
+      right: calc(100% + 10px);
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(30, 27, 75, 0.88);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 700;
+      font-family: 'Raleway', sans-serif;
+      padding: 3px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .fp-dot:hover::before { opacity: 1; }
+
+    /* Slide counter badge */
+    #fp-counter {
+      position: fixed;
+      left: 1.5rem;
+      bottom: 1.5rem;
+      z-index: 200;
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: rgba(147,51,234,.5);
+      letter-spacing: .1em;
+    }
+  </style>
+</head>
+<body class="font-sans bg-white text-gray-900 antialiased">
+
+<!-- ── NAVBAR ─────────────────────────────────────────────── -->
+<nav class="fixed top-0 left-0 right-0 z-50 backdrop-blur-sm border-b border-white border-opacity-10" style="background-color:#1e1b4b;">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
+    <a href="demoindex.html" class="flex items-center gap-3 flex-shrink-0">
+      <img src="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" alt="Stoday Plus" class="w-10 h-10 object-contain" />
+      <span class="text-white font-extrabold text-xl tracking-wide">Stoday <span class="text-purple-mid">Plus</span></span>
+    </a>
+    <div class="hidden md:flex items-center gap-5 text-sm text-gray-300 font-medium">
+      <button onclick="fpGoto(3)" class="nav-link hover:text-white transition-colors bg-transparent text-gray-300 text-sm font-medium" style="cursor:pointer;font-family:inherit">Techniques</button>
+      <span class="text-gray-500 select-none text-xs">·</span>
+      <a href="about.html" class="nav-link hover:text-white transition-colors">About</a>
+      <span class="text-gray-500 select-none text-xs">·</span>
+      <button onclick="fpGoto(7)" class="nav-link hover:text-white transition-colors bg-transparent text-gray-300 text-sm font-medium" style="cursor:pointer;font-family:inherit">Build Your System</button>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="login.html" class="hidden sm:inline text-gray-300 hover:text-white text-sm transition-colors">Log in</a>
+      <a href="join.html" class="gradient-brand text-white text-sm font-bold px-5 py-2 rounded-xl hover:opacity-90 transition-opacity">Get Started →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── FP WRAPPER ─────────────────────────────────────────── -->
+<div id="fp-wrapper">
+
+  <!-- SLIDE 0: Hero -->
+  <section class="fp-section gradient-hero flex items-start pt-14">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 w-full pt-12 pb-16">
+      <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+        <div class="flex-1 text-center lg:text-left">
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-navy-dark leading-tight mb-5">
+            Hard work should<br />
+            <span class="text-purple-DEFAULT">show up in results.</span>
+          </h1>
+          <div class="w-10 h-0.5 gradient-brand mx-auto lg:mx-0 mb-5 rounded-full"></div>
+          <p class="text-sm text-gray-500 max-w-lg leading-relaxed mb-8 mx-auto lg:mx-0">
+            Most students study for hours and still underperform on exam day. It's not effort — it's method. Stoday Plus gives your child the exact system to turn hard work into A*s, without burning out or missing out on life.
+          </p>
+          <div class="flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 mb-8">
+            <span class="text-base font-bold text-navy-dark">A*s in exams</span>
+            <span class="text-purple-mid text-sm">·</span>
+            <span class="text-base font-bold text-navy-dark">Time for family</span>
+            <span class="text-purple-mid text-sm">·</span>
+            <span class="text-base font-bold text-navy-dark">Strong university offers</span>
+          </div>
+          <button onclick="fpGoto(1)" class="btn-ghost inline-block px-8 py-3.5 rounded-xl text-sm">
+            See how it works ↓
+          </button>
+        </div>
+        <div id="hero-panel" class="flex-shrink-0 w-full max-w-sm lg:max-w-md" style="will-change:transform">
+          <div class="rounded-2xl overflow-hidden shadow-2xl" style="border:1px solid rgba(109,40,217,.15)">
+            <div style="background:#1e1b4b;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.07)">
+              <div style="display:flex;align-items:center;gap:5px">
+                <div style="width:10px;height:10px;border-radius:50%;background:#f87171;opacity:.65"></div>
+                <div style="width:10px;height:10px;border-radius:50%;background:#fbbf24;opacity:.65"></div>
+                <div style="width:10px;height:10px;border-radius:50%;background:#4ade80;opacity:.65"></div>
+              </div>
+              <span style="color:rgba(255,255,255,.35);font-size:.63rem;font-weight:600;font-family:'Raleway',sans-serif;letter-spacing:.02em">stoday.plus — revision planner</span>
+              <div style="width:40px"></div>
+            </div>
+            <div style="background:#1e1b4b;display:flex;padding:0 14px;border-bottom:1px solid rgba(255,255,255,.05)">
+              <div style="padding:8px 12px;font-size:.67rem;font-weight:800;font-family:'Raleway',sans-serif;color:#c084fc;border-bottom:2px solid #c084fc;letter-spacing:.03em">Today</div>
+              <div style="padding:8px 12px;font-size:.67rem;font-weight:700;font-family:'Raleway',sans-serif;color:rgba(255,255,255,.3);border-bottom:2px solid transparent;letter-spacing:.03em">All Topics</div>
+              <div style="padding:8px 12px;font-size:.67rem;font-weight:700;font-family:'Raleway',sans-serif;color:rgba(255,255,255,.3);border-bottom:2px solid transparent;letter-spacing:.03em">Calendar</div>
+            </div>
+            <div style="position:relative">
+              <div style="padding:20px 18px;max-height:430px;overflow:hidden;background:rgba(250,243,224,.97)">
+                <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:18px">
+                  <span style="font-size:2.4rem;font-weight:900;background:linear-gradient(135deg,#6d28d9,#4338ca);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1">3</span>
+                  <span style="font-size:.82rem;font-weight:700;color:#6e5438">topics due for review</span>
+                </div>
+                <div style="background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:14px;padding:15px 16px;margin-bottom:9px">
+                  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:11px">
+                    <div>
+                      <div style="font-size:.88rem;font-weight:800;color:#1c1208;margin-bottom:4px;line-height:1.3">Organic Reactions</div>
+                      <span style="font-size:.57rem;font-weight:800;background:rgba(109,40,217,.1);color:#6d28d9;border:1px solid rgba(109,40,217,.2);border-radius:20px;padding:2px 8px;letter-spacing:.05em;text-transform:uppercase">Chemistry</span>
+                    </div>
+                    <span style="font-size:.63rem;font-weight:800;color:#ef4444;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:20px;padding:2px 8px;white-space:nowrap;flex-shrink:0">1d overdue</span>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;background:rgba(109,40,217,.05);border:1px solid rgba(109,40,217,.1);border-radius:9px;margin-bottom:9px">
+                    <span style="font-size:.67rem;font-weight:800;color:#6d28d9">📚 D3 — Active Recall with Poppy</span>
+                    <button style="font-size:.63rem;font-weight:800;background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:7px;padding:4px 9px;font-family:'Raleway',sans-serif;white-space:nowrap;flex-shrink:0">▶ Start</button>
+                  </div>
+                  <div style="font-size:.59rem;font-weight:700;color:#9ca3af;padding:5px 9px;background:rgba(0,0,0,.03);border-radius:7px;border:1px solid rgba(0,0,0,.06);text-align:center">
+                    📚 <strong style="color:#6d28d9">4&thinsp;/&thinsp;10</strong> MCQs done — <strong style="color:#6d28d9">6 more</strong> to unlock next phase
+                    <div style="margin-top:5px;background:rgba(124,58,237,.1);border-radius:99px;height:4px;overflow:hidden"><div style="height:100%;width:40%;background:linear-gradient(90deg,#7c3aed,#4338ca);border-radius:99px"></div></div>
+                  </div>
+                  <div style="display:flex;align-items:center;margin-top:12px">
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:12px;height:12px;border-radius:50%;background:#6d28d9;border:2px solid #6d28d9;box-shadow:0 0 5px rgba(109,40,217,.4)"></div><span style="font-size:.46rem;font-weight:700;color:#6e5438">D1</span></div>
+                    <div style="flex:1;height:2px;background:#6d28d9;max-width:32px;margin-bottom:11px"></div>
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:12px;height:12px;border-radius:50%;border:2px solid #7c3aed;background:rgba(124,58,237,.15)"></div><span style="font-size:.46rem;font-weight:700;color:#6e5438">D3</span></div>
+                    <div style="flex:1;height:2px;background:rgba(109,40,217,.12);max-width:32px;margin-bottom:11px"></div>
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:12px;height:12px;border-radius:50%;border:2px solid rgba(109,40,217,.25);background:transparent"></div><span style="font-size:.46rem;font-weight:700;color:#6e5438">D7</span></div>
+                    <div style="flex:1;height:2px;background:rgba(109,40,217,.12);max-width:32px;margin-bottom:11px"></div>
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:12px;height:12px;border-radius:50%;border:2px solid rgba(109,40,217,.25);background:transparent"></div><span style="font-size:.46rem;font-weight:700;color:#6e5438">D14</span></div>
+                    <div style="flex:1;height:2px;background:rgba(109,40,217,.12);max-width:32px;margin-bottom:11px"></div>
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:12px;height:12px;border-radius:50%;border:2px solid rgba(109,40,217,.25);background:transparent"></div><span style="font-size:.46rem;font-weight:700;color:#6e5438">D28</span></div>
+                  </div>
+                </div>
+                <div style="background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:14px;padding:15px 16px;margin-bottom:9px">
+                  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:11px">
+                    <div>
+                      <div style="font-size:.88rem;font-weight:800;color:#1c1208;margin-bottom:4px;line-height:1.3">Integration by Parts</div>
+                      <span style="font-size:.57rem;font-weight:800;background:rgba(109,40,217,.1);color:#6d28d9;border:1px solid rgba(109,40,217,.2);border-radius:20px;padding:2px 8px;letter-spacing:.05em;text-transform:uppercase">Maths</span>
+                    </div>
+                    <span style="font-size:.63rem;font-weight:800;color:#7c3aed;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:20px;padding:2px 8px;white-space:nowrap;flex-shrink:0">Due today</span>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;background:rgba(109,40,217,.05);border:1px solid rgba(109,40,217,.1);border-radius:9px;margin-bottom:9px">
+                    <span style="font-size:.67rem;font-weight:800;color:#6d28d9">📝 D1 — Blurting with Blurto</span>
+                    <button style="font-size:.63rem;font-weight:800;background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:7px;padding:4px 9px;font-family:'Raleway',sans-serif;white-space:nowrap;flex-shrink:0">▶ Start</button>
+                  </div>
+                  <div style="display:flex;align-items:center;margin-top:10px">
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:12px;height:12px;border-radius:50%;border:2px solid #7c3aed;background:rgba(124,58,237,.15)"></div><span style="font-size:.46rem;font-weight:700;color:#6e5438">D1</span></div>
+                    <div style="flex:1;height:2px;background:rgba(109,40,217,.12);max-width:32px;margin-bottom:11px"></div>
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:12px;height:12px;border-radius:50%;border:2px solid rgba(109,40,217,.25);background:transparent"></div><span style="font-size:.46rem;font-weight:700;color:#6e5438">D3</span></div>
+                    <div style="flex:1;height:2px;background:rgba(109,40,217,.12);max-width:32px;margin-bottom:11px"></div>
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:12px;height:12px;border-radius:50%;border:2px solid rgba(109,40,217,.25);background:transparent"></div><span style="font-size:.46rem;font-weight:700;color:#6e5438">D7</span></div>
+                    <div style="flex:1;height:2px;background:rgba(109,40,217,.12);max-width:32px;margin-bottom:11px"></div>
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:12px;height:12px;border-radius:50%;border:2px solid rgba(109,40,217,.25);background:transparent"></div><span style="font-size:.46rem;font-weight:700;color:#6e5438">D14</span></div>
+                    <div style="flex:1;height:2px;background:rgba(109,40,217,.12);max-width:32px;margin-bottom:11px"></div>
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:12px;height:12px;border-radius:50%;border:2px solid rgba(109,40,217,.25);background:transparent"></div><span style="font-size:.46rem;font-weight:700;color:#6e5438">D28</span></div>
+                  </div>
+                </div>
+                <div style="background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:14px;padding:15px 16px;opacity:.5">
+                  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+                    <div>
+                      <div style="font-size:.88rem;font-weight:800;color:#1c1208;margin-bottom:4px;line-height:1.3">Cell Signalling</div>
+                      <span style="font-size:.57rem;font-weight:800;background:rgba(109,40,217,.1);color:#6d28d9;border:1px solid rgba(109,40,217,.2);border-radius:20px;padding:2px 8px;letter-spacing:.05em;text-transform:uppercase">Biology</span>
+                    </div>
+                    <span style="font-size:.63rem;font-weight:800;color:#7c3aed;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:20px;padding:2px 8px;white-space:nowrap;flex-shrink:0">Due today</span>
+                  </div>
+                </div>
+              </div>
+              <div style="position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(to bottom,transparent,rgba(250,243,224,.97));pointer-events:none"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 1: Proof Bar + Problem -->
+  <div class="fp-section" style="background:white;overflow-y:auto">
+    <div class="gradient-dark py-5" style="padding-top:4rem">
+      <div class="max-w-5xl mx-auto px-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+        <div><p class="text-white font-extrabold text-2xl">5</p><p class="text-gray-400 text-xs mt-0.5">Proven techniques</p></div>
+        <div><p class="text-white font-extrabold text-2xl">300%</p><p class="text-gray-400 text-xs mt-0.5">Better recall vs passive study</p></div>
+        <div><p class="text-white font-extrabold text-2xl">30 min</p><p class="text-gray-400 text-xs mt-0.5">A day is all it takes</p></div>
+        <div><p class="text-white font-extrabold text-2xl">£0</p><p class="text-gray-400 text-xs mt-0.5">Free blurting sheet included</p></div>
+      </div>
+    </div>
+    <div class="py-16 bg-white">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6">
+        <div class="text-center mb-10">
+          <p class="text-purple-DEFAULT font-semibold text-sm uppercase tracking-widest mb-3">Sound familiar?</p>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-navy-dark">The grind isn't working.</h2>
+          <p class="text-gray-500 mt-4 max-w-2xl mx-auto">Most students study for hours and still forget everything before the exam. It's not a discipline problem. It's a method problem.</p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+          <div class="bg-purple-light border border-purple-soft rounded-2xl p-6 text-center card-hover">
+            <div class="text-4xl mb-3">📖</div>
+            <h3 class="font-bold text-navy-dark mb-2">Re-reading your notes</h3>
+            <p class="text-gray-500 text-sm">Feels productive. Achieves almost nothing. Your brain isn't being challenged — it's just skimming.</p>
+          </div>
+          <div class="bg-purple-light border border-purple-soft rounded-2xl p-6 text-center card-hover">
+            <div class="text-4xl mb-3">🖊️</div>
+            <h3 class="font-bold text-navy-dark mb-2">Copying out notes</h3>
+            <p class="text-gray-500 text-sm">You're busy, but you're not learning. Passive writing without retrieval is wasted time.</p>
+          </div>
+          <div class="bg-purple-light border border-purple-soft rounded-2xl p-6 text-center card-hover">
+            <div class="text-4xl mb-3">🎥</div>
+            <h3 class="font-bold text-navy-dark mb-2">Watching tutorials</h3>
+            <p class="text-gray-500 text-sm">It feels like studying. It isn't. Watching someone else understand something isn't the same as you understanding it.</p>
+          </div>
+        </div>
+        <div class="rounded-2xl overflow-hidden shadow-xl max-w-2xl mx-auto">
+          <img src="Marketing/Store%20Page%20Esstls/1365=1.png" alt="1.01 to the power of 365" class="w-full" />
+        </div>
+        <p class="text-center text-gray-500 text-sm mt-4">1% better every day compounds into something extraordinary. The method matters.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: How It Works -->
+  <section class="fp-section py-24" id="how-it-works" style="background:#f5f3ff">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-14">
+        <p class="text-purple-DEFAULT font-semibold text-sm uppercase tracking-widest mb-3">The Stoday Method</p>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-navy-dark">Three things. Every day.</h2>
+        <p class="text-gray-500 mt-4 max-w-xl mx-auto">Stoday Plus = <em>Study Today</em>. Because the only moment you can actually change is right now.</p>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-8">
+        <div class="bg-white rounded-2xl p-8 text-center shadow-sm border border-purple-soft card-hover">
+          <div class="w-16 h-16 rounded-2xl gradient-brand flex items-center justify-center text-2xl mx-auto mb-5">⚡</div>
+          <h3 class="text-xl font-extrabold text-navy-dark mb-3">Daily Flow</h3>
+          <p class="text-gray-500 text-sm leading-relaxed">No overwhelm. No 6-hour marathon sessions that leave you drained. Short, focused bursts that actually stick — and keep you coming back tomorrow.</p>
+        </div>
+        <div class="bg-white rounded-2xl p-8 text-center shadow-sm border border-purple-soft card-hover">
+          <div class="w-16 h-16 rounded-2xl gradient-brand flex items-center justify-center text-2xl mx-auto mb-5">🧠</div>
+          <h3 class="text-xl font-extrabold text-navy-dark mb-3">Deep Recall</h3>
+          <p class="text-gray-500 text-sm leading-relaxed">Active recall, spaced repetition, the Feynman technique. Techniques proven by neuroscience to make information stay — not just for the exam, but for life.</p>
+        </div>
+        <div class="bg-white rounded-2xl p-8 text-center shadow-sm border border-purple-soft card-hover">
+          <div class="w-16 h-16 rounded-2xl gradient-brand flex items-center justify-center text-2xl mx-auto mb-5">✅</div>
+          <h3 class="text-xl font-extrabold text-navy-dark mb-3">Zero Guilt</h3>
+          <p class="text-gray-500 text-sm leading-relaxed">30 minutes of smart effort is better than 3 hours of mindless notes. If you do your 30 minutes, you're winning. No exceptions, no guilt, no comparison.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3: 5 Techniques -->
+  <section class="fp-section py-20 bg-white" id="techniques" style="overflow-y:auto">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-14">
+        <p class="text-purple-DEFAULT font-semibold text-sm uppercase tracking-widest mb-3">The method</p>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-navy-dark">5 techniques. One system.</h2>
+        <p class="text-gray-400 mt-4 max-w-md mx-auto text-sm">Science-backed methods used by the world's best learners — built into one daily practice.</p>
+      </div>
+      <div class="flex flex-col lg:flex-row gap-10 xl:gap-16 items-start">
+        <div class="lg:w-52 flex-shrink-0">
+          <nav id="tech-nav" class="space-y-0">
+            <button id="tech-btn-0" class="tech-btn w-full flex items-center gap-4 py-4 text-left border-l-2 border-purple-DEFAULT pl-5 transition-all">
+              <span class="tech-num w-8 h-8 rounded-lg text-xs font-extrabold flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,#9333ea,#3730a3);color:white;">01</span>
+              <span class="tech-label font-bold text-navy-dark text-sm">Pomodoro+</span>
+            </button>
+            <button id="tech-btn-1" class="tech-btn w-full flex items-center gap-4 py-4 text-left border-l-2 border-transparent pl-5 transition-all hover:border-purple-soft">
+              <span class="tech-num w-8 h-8 rounded-lg text-xs font-extrabold flex items-center justify-center flex-shrink-0 bg-gray-100 text-gray-400">02</span>
+              <span class="tech-label font-semibold text-gray-400 text-sm">Active Recall</span>
+            </button>
+            <button id="tech-btn-2" class="tech-btn w-full flex items-center gap-4 py-4 text-left border-l-2 border-transparent pl-5 transition-all hover:border-purple-soft">
+              <span class="tech-num w-8 h-8 rounded-lg text-xs font-extrabold flex items-center justify-center flex-shrink-0 bg-gray-100 text-gray-400">03</span>
+              <span class="tech-label font-semibold text-gray-400 text-sm">Spaced Repetition</span>
+            </button>
+            <button id="tech-btn-3" class="tech-btn w-full flex items-center gap-4 py-4 text-left border-l-2 border-transparent pl-5 transition-all hover:border-purple-soft">
+              <span class="tech-num w-8 h-8 rounded-lg text-xs font-extrabold flex items-center justify-center flex-shrink-0 bg-gray-100 text-gray-400">04</span>
+              <span class="tech-label font-semibold text-gray-400 text-sm">3-Day Retention</span>
+            </button>
+            <button id="tech-btn-4" class="tech-btn w-full flex items-center gap-4 py-4 text-left border-l-2 border-transparent pl-5 transition-all hover:border-purple-soft">
+              <span class="tech-num w-8 h-8 rounded-lg text-xs font-extrabold flex items-center justify-center flex-shrink-0 bg-gray-100 text-gray-400">05</span>
+              <span class="tech-label font-semibold text-gray-400 text-sm">Feynman Technique</span>
+            </button>
+          </nav>
+        </div>
+        <div class="hidden lg:block w-px self-stretch flex-shrink-0" style="background:linear-gradient(180deg,transparent,#e9d5ff 15%,#e9d5ff 85%,transparent);"></div>
+        <div class="flex-1 min-h-80">
+          <div id="tech-panel-0" class="tech-panel">
+            <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-4">Technique 01</p>
+            <h3 class="text-2xl sm:text-3xl font-extrabold text-navy-dark mb-5">Pomodoro+</h3>
+            <p class="text-gray-600 text-sm leading-relaxed mb-2"><span class="font-semibold text-gray-800">What it is —</span> 25-minute focused blocks with a 5-minute break. Adapted to 45–60 min for deeper work sessions.</p>
+            <p class="text-gray-600 text-sm leading-relaxed mb-8"><span class="font-semibold text-gray-800">Why it works —</span> Timed pressure activates focus. Planned breaks prevent the fatigue that quietly destroys retention.</p>
+            <div class="flex items-center gap-10 mb-8">
+              <div class="relative w-24 h-24 flex-shrink-0">
+                <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="#e9d5ff" stroke-width="10"/>
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="#9333ea" stroke-width="10" stroke-dasharray="239" stroke-dashoffset="60" stroke-linecap="round"/>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                  <span class="text-navy-dark font-extrabold text-lg leading-none">25</span>
+                  <span class="text-gray-400 text-xs">min</span>
+                </div>
+              </div>
+              <div class="space-y-3">
+                <div class="flex items-center gap-2.5"><span class="w-2.5 h-2.5 rounded-full bg-purple-DEFAULT flex-shrink-0"></span><span class="text-sm text-gray-600">Focus block — 25 min</span></div>
+                <div class="flex items-center gap-2.5"><span class="w-2.5 h-2.5 rounded-full bg-purple-soft flex-shrink-0"></span><span class="text-sm text-gray-400">Short break — 5 min</span></div>
+                <div class="flex items-center gap-2.5"><span class="w-2.5 h-2.5 rounded-full bg-navy-dark flex-shrink-0"></span><span class="text-sm text-gray-400">Deep session — 45–60 min</span></div>
+              </div>
+            </div>
+            <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-4 py-2 rounded-full">Outcome: sustained focus without burnout</span>
+          </div>
+          <div id="tech-panel-1" class="tech-panel hidden">
+            <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-4">Technique 02</p>
+            <h3 class="text-2xl sm:text-3xl font-extrabold text-navy-dark mb-5">Active Recall</h3>
+            <p class="text-gray-600 text-sm leading-relaxed mb-2"><span class="font-semibold text-gray-800">What it is —</span> Close your notes. Write or say everything you can remember. Then check and correct.</p>
+            <p class="text-gray-600 text-sm leading-relaxed mb-8"><span class="font-semibold text-gray-800">Why it works —</span> Retrieval practice is up to 3× more effective than re-reading.</p>
+            <div class="flex items-end gap-6 mb-8">
+              <div class="flex flex-col items-center gap-2">
+                <div class="w-16 bg-red-50 border-2 border-red-100 rounded-t-xl flex items-end justify-center pb-1" style="height:36px;"><span class="text-red-400 font-bold text-xs">10%</span></div>
+                <p class="text-xs font-semibold text-red-400 text-center">Re-reading</p>
+              </div>
+              <div class="flex flex-col items-center gap-2">
+                <div class="w-16 rounded-t-xl flex items-end justify-center pb-2" style="height:108px;background:linear-gradient(135deg,#9333ea,#3730a3);"><span class="text-white font-bold text-sm">~90%</span></div>
+                <p class="text-xs font-semibold text-purple-DEFAULT text-center">Active Recall</p>
+              </div>
+              <p class="text-gray-400 text-xs self-center pb-6 leading-snug">memory<br/>retained</p>
+            </div>
+            <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-4 py-2 rounded-full">Outcome: 3× stronger memory</span>
+          </div>
+          <div id="tech-panel-2" class="tech-panel hidden">
+            <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-4">Technique 03</p>
+            <h3 class="text-2xl sm:text-3xl font-extrabold text-navy-dark mb-5">Spaced Repetition</h3>
+            <p class="text-gray-600 text-sm leading-relaxed mb-2"><span class="font-semibold text-gray-800">What it is —</span> Review material at increasing intervals: Day 1 → Day 3 → Day 7 → Day 14.</p>
+            <p class="text-gray-600 text-sm leading-relaxed mb-8"><span class="font-semibold text-gray-800">Why it works —</span> Each review resets the Forgetting Curve.</p>
+            <div class="space-y-3 mb-8 max-w-xs">
+              <div class="flex items-center gap-3"><span class="text-xs text-gray-400 w-14 flex-shrink-0">Day 0</span><div class="flex-1 bg-gray-100 rounded-full h-2"><div class="h-2 rounded-full bg-red-300" style="width:28%"></div></div><span class="text-xs text-gray-400 w-20 flex-shrink-0 text-right">No review</span></div>
+              <div class="flex items-center gap-3"><span class="text-xs text-gray-400 w-14 flex-shrink-0">Day 3</span><div class="flex-1 bg-gray-100 rounded-full h-2"><div class="h-2 rounded-full bg-amber-400" style="width:58%"></div></div><span class="text-xs text-gray-400 w-20 flex-shrink-0 text-right">1 review</span></div>
+              <div class="flex items-center gap-3"><span class="text-xs text-gray-400 w-14 flex-shrink-0">Day 7</span><div class="flex-1 bg-gray-100 rounded-full h-2"><div class="h-2 rounded-full bg-purple-DEFAULT" style="width:78%"></div></div><span class="text-xs text-gray-400 w-20 flex-shrink-0 text-right">2 reviews</span></div>
+              <div class="flex items-center gap-3"><span class="text-xs text-gray-400 w-14 flex-shrink-0">Day 14+</span><div class="flex-1 bg-gray-100 rounded-full h-2"><div class="h-2 rounded-full" style="width:95%;background:linear-gradient(90deg,#9333ea,#3730a3)"></div></div><span class="text-xs text-purple-DEFAULT font-semibold w-20 flex-shrink-0 text-right">Long-term</span></div>
+            </div>
+            <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-4 py-2 rounded-full">Outcome: long-term retention</span>
+          </div>
+          <div id="tech-panel-3" class="tech-panel hidden">
+            <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-4">Technique 04</p>
+            <h3 class="text-2xl sm:text-3xl font-extrabold text-navy-dark mb-5">3-Day Retention</h3>
+            <p class="text-gray-600 text-sm leading-relaxed mb-2"><span class="font-semibold text-gray-800">What it is —</span> Review anything you've learned within 3 days — before it falls into the forgetting window.</p>
+            <p class="text-gray-600 text-sm leading-relaxed mb-8"><span class="font-semibold text-gray-800">Why it works —</span> Memory drops sharply after 72 hours without review.</p>
+            <div class="flex items-center gap-2 mb-8 max-w-sm">
+              <div class="flex flex-col items-center flex-shrink-0"><div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-extrabold text-sm shadow" style="background:linear-gradient(135deg,#9333ea,#3730a3)">L</div><p class="text-xs text-gray-500 mt-2">Learn</p><p class="text-xs text-purple-DEFAULT font-bold">Day 0</p></div>
+              <div class="flex-1 flex flex-col items-center gap-1 mx-1"><div class="w-full h-px bg-purple-soft"></div><span class="text-xs text-red-400 font-semibold whitespace-nowrap">max 3 days</span></div>
+              <div class="flex flex-col items-center flex-shrink-0"><div class="w-11 h-11 rounded-full border-2 border-purple-DEFAULT bg-purple-light flex items-center justify-center text-purple-dark font-extrabold text-sm">R</div><p class="text-xs text-gray-500 mt-2">Review</p><p class="text-xs text-purple-DEFAULT font-bold">Day 3</p></div>
+              <div class="flex-1 h-px bg-purple-soft mx-1"></div>
+              <div class="flex flex-col items-center flex-shrink-0"><div class="w-11 h-11 rounded-full bg-navy-dark flex items-center justify-center text-white font-extrabold text-sm">✓</div><p class="text-xs text-gray-500 mt-2">Locked in</p><p class="text-xs text-gray-400 font-bold">Day 7+</p></div>
+            </div>
+            <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-4 py-2 rounded-full">Outcome: nothing gets forgotten</span>
+          </div>
+          <div id="tech-panel-4" class="tech-panel hidden">
+            <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-4">Technique 05</p>
+            <h3 class="text-2xl sm:text-3xl font-extrabold text-navy-dark mb-5">Feynman Technique</h3>
+            <p class="text-gray-600 text-sm leading-relaxed mb-2"><span class="font-semibold text-gray-800">What it is —</span> Explain what you've learned in plain language, as if teaching it to someone with no prior knowledge.</p>
+            <p class="text-gray-600 text-sm leading-relaxed mb-8"><span class="font-semibold text-gray-800">Why it works —</span> Simplifying forces your brain to identify the parts you only think you understand.</p>
+            <div class="grid grid-cols-2 gap-3 mb-8 max-w-xs">
+              <div class="p-4 bg-purple-light rounded-xl"><p class="text-purple-dark font-bold text-xs mb-1">1 — Learn</p><p class="text-gray-500 text-xs">Study the topic normally</p></div>
+              <div class="p-4 bg-purple-light rounded-xl"><p class="text-purple-dark font-bold text-xs mb-1">2 — Explain</p><p class="text-gray-500 text-xs">Write it in your own words</p></div>
+              <div class="p-4 bg-purple-light rounded-xl"><p class="text-purple-dark font-bold text-xs mb-1">3 — Find gaps</p><p class="text-gray-500 text-xs">Where did you get stuck?</p></div>
+              <div class="p-4 rounded-xl" style="background:#1e1b4b"><p class="text-white font-bold text-xs mb-1">4 — Go back</p><p class="text-gray-400 text-xs">Fill the gaps. Repeat.</p></div>
+            </div>
+            <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-4 py-2 rounded-full">Outcome: deep understanding, not surface recall</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 4: What's Included -->
+  <section class="fp-section py-24" id="whats-included" style="background:#f5f3ff;overflow-y:auto">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-14">
+        <p class="text-purple-DEFAULT font-semibold text-sm uppercase tracking-widest mb-3">The full package</p>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-navy-dark">Everything inside Stoday Plus</h2>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-sm border border-purple-soft card-hover">
+          <img src="Marketing/Store%20Page%20Esstls/1.png" alt="" class="w-16 h-16 rounded-xl flex-shrink-0 object-cover" />
+          <div><h3 class="font-extrabold text-navy-dark mb-1">5 Novel Techniques Guide</h3><p class="text-gray-500 text-sm leading-relaxed">The full breakdown of every technique — how it works, why it works, and exactly how to use it in your next study session.</p></div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-sm border border-purple-soft card-hover">
+          <img src="Marketing/Store%20Page%20Esstls/2.png" alt="" class="w-16 h-16 rounded-xl flex-shrink-0 object-cover" />
+          <div><h3 class="font-extrabold text-navy-dark mb-1">The Stoday System</h3><p class="text-gray-500 text-sm leading-relaxed">A ready-to-use daily study framework. Plug your subjects in and never wonder "what should I be doing?" again.</p></div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-sm border border-purple-soft card-hover">
+          <img src="Marketing/Store%20Page%20Esstls/3.png" alt="" class="w-16 h-16 rounded-xl flex-shrink-0 object-cover" />
+          <div><h3 class="font-extrabold text-navy-dark mb-1">Blurting Sheet Template</h3><p class="text-gray-500 text-sm leading-relaxed">The active recall worksheet that replaces passive note-taking. Simple. Brutal. Effective.</p></div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-sm border border-purple-soft card-hover">
+          <img src="Marketing/Store%20Page%20Esstls/4.png" alt="" class="w-16 h-16 rounded-xl flex-shrink-0 object-cover" />
+          <div><h3 class="font-extrabold text-navy-dark mb-1">Full Resource Bundle</h3><p class="text-gray-500 text-sm leading-relaxed">Scientific papers, revision guides, and supporting materials — everything behind the "why."</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 5: Sales Video -->
+  <section class="fp-section py-24 bg-white">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+      <p class="text-purple-DEFAULT font-semibold text-sm uppercase tracking-widest mb-3">See it in action</p>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-navy-dark mb-4">Watch the 11-minute breakdown</h2>
+      <p class="text-gray-500 mb-10 max-w-xl mx-auto">Mikey walks through the entire Stoday Plus system — what it is, why it works, and exactly how to use it starting today.</p>
+      <div class="relative rounded-2xl overflow-hidden shadow-2xl cursor-pointer group max-w-2xl mx-auto" style="aspect-ratio:16/9" onclick="var v=this.querySelector('video');v.style.display='block';this.querySelector('.play-overlay').style.display='none';v.play();">
+        <img src="Core/11-min%20Sales%20Call/Thumbnail.png" alt="Watch the Stoday Plus breakdown" class="w-full h-full object-cover" />
+        <div class="play-overlay absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 group-hover:bg-opacity-40 transition-all">
+          <div class="w-20 h-20 rounded-full gradient-brand flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
+            <svg class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
+        <video class="absolute inset-0 w-full h-full" style="display:none" controls>
+          <source src="Core/11-min%20Sales%20Call/Sales.mp4" type="video/mp4">
+        </video>
+      </div>
+      <p class="text-gray-400 text-sm mt-4">11 minutes. No fluff. Just the system.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 6: About Mikey -->
+  <section class="fp-section py-24 gradient-dark">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6">
+      <div class="flex flex-col lg:flex-row items-center gap-12">
+        <div class="flex-shrink-0">
+          <div class="w-56 h-56 rounded-3xl bg-white bg-opacity-10 border border-white border-opacity-20 flex items-center justify-center p-4">
+            <img src="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" alt="Mikey's mascot" class="w-full h-full object-contain" />
+          </div>
+        </div>
+        <div>
+          <p class="text-purple-mid font-semibold text-sm uppercase tracking-widest mb-3">The person behind it</p>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-5">Mikey Hoang — founder of Stoday Plus</h2>
+          <div class="space-y-4 text-gray-300 leading-relaxed text-sm sm:text-base">
+            <p>I used to be the student who followed the rules. Extra classes. Revision packs. Hours of re-reading. My mum spent money we didn't have on worksheets that did nothing.</p>
+            <p>Then something cracked. I started questioning <em>why</em> everyone studies the same way. I started testing methods. I trained my brain differently.</p>
+            <p>Eventually I got A-Levels I'm still proud of — and an offer to study Pharmacy at one of the top schools in London. Won 20+ international Olympiad awards along the way.</p>
+            <p class="text-white font-semibold">"I didn't build this because I love helping people. I built it because I hate watching people stuck in a system that breaks them."</p>
+          </div>
+          <a href="about.html" class="inline-block mt-6 bg-white bg-opacity-10 border border-white border-opacity-20 text-white font-semibold px-6 py-3 rounded-xl hover:bg-opacity-20 transition-colors text-sm">Read the full story →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 7: Pricing -->
+  <section class="fp-section py-24 bg-white" id="pricing" style="overflow-y:auto">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-14">
+        <p class="text-purple-DEFAULT font-semibold text-sm uppercase tracking-widest mb-3">Pricing</p>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-navy-dark">Simple. No subscriptions.</h2>
+        <p class="text-gray-500 mt-4">Pay once. Use forever. The system doesn't expire.</p>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
+        <div class="border-2 border-purple-soft rounded-2xl p-8">
+          <p class="text-sm font-extrabold text-gray-400 uppercase tracking-widest mb-2">Free</p>
+          <p class="text-4xl font-extrabold text-navy-dark mb-1">£0</p>
+          <p class="text-gray-400 text-sm mb-6">No account needed</p>
+          <ul class="space-y-3 text-sm text-gray-700 mb-8">
+            <li class="flex items-start gap-3"><span class="text-purple-DEFAULT font-bold mt-0.5">✓</span> Blurting Sheet template (PDF)</li>
+            <li class="flex items-start gap-3"><span class="text-purple-DEFAULT font-bold mt-0.5">✓</span> Introduction to the 5 techniques</li>
+            <li class="flex items-start gap-3 text-gray-300"><span>✗</span> Full techniques guide</li>
+            <li class="flex items-start gap-3 text-gray-300"><span>✗</span> The Stoday study system</li>
+            <li class="flex items-start gap-3 text-gray-300"><span>✗</span> Scientific papers + resources</li>
+            <li class="flex items-start gap-3 text-gray-300"><span>✗</span> Mikey's full breakdown video</li>
+          </ul>
+          <a href="join.html#free" class="block text-center border-2 border-purple-soft text-purple-deep font-semibold px-6 py-3 rounded-xl hover:bg-purple-light transition-colors text-sm">Download Free Resources</a>
+        </div>
+        <div class="rounded-2xl p-8 relative overflow-hidden shadow-xl" style="background: linear-gradient(135deg, #1e1b4b 0%, #1e3a8a 100%);">
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2 z-10"><span class="gradient-brand text-white text-xs font-bold px-4 py-1.5 rounded-full shadow">RECOMMENDED</span></div>
+          <div class="absolute right-0 bottom-0 opacity-5 pointer-events-none"><img src="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" class="w-40" alt="" /></div>
+          <p class="text-sm font-extrabold text-purple-mid uppercase tracking-widest mb-2 relative z-10">Full System</p>
+          <div class="flex items-end gap-2 mb-1 relative z-10"><span class="text-4xl font-extrabold text-white">£37</span><span class="text-gray-400 mb-1 text-sm">one-time</span></div>
+          <p class="text-gray-400 text-sm mb-6 relative z-10">No subscription. No renewal. Yours forever.</p>
+          <ul class="space-y-3 text-sm text-gray-200 mb-8 relative z-10">
+            <li class="flex items-start gap-3"><span class="text-purple-mid font-bold mt-0.5">✓</span> Everything in Free</li>
+            <li class="flex items-start gap-3"><span class="text-purple-mid font-bold mt-0.5">✓</span> Full 5 Techniques guide + breakdown</li>
+            <li class="flex items-start gap-3"><span class="text-purple-mid font-bold mt-0.5">✓</span> Complete Stoday study system</li>
+            <li class="flex items-start gap-3"><span class="text-purple-mid font-bold mt-0.5">✓</span> Scientific papers + supporting research</li>
+            <li class="flex items-start gap-3"><span class="text-purple-mid font-bold mt-0.5">✓</span> 11-minute video walkthrough</li>
+            <li class="flex items-start gap-3"><span class="text-purple-mid font-bold mt-0.5">✓</span> All future updates included</li>
+          </ul>
+          <a href="join.html" class="block text-center relative z-10 gradient-brand text-white font-bold px-6 py-3.5 rounded-xl hover:opacity-90 transition-opacity">Get the Full System — £37 →</a>
+          <p class="text-center text-gray-500 text-xs mt-3 relative z-10">Secure payment. Instant access.</p>
+        </div>
+      </div>
+      <div class="mt-8 bg-purple-light border border-purple-soft rounded-2xl p-6 sm:p-8">
+        <div class="flex flex-col sm:flex-row items-start gap-4">
+          <div class="text-3xl mt-1">📞</div>
+          <div class="flex-1">
+            <h3 class="font-extrabold text-navy-dark text-lg mb-1">1:1 Mentoring with Mikey</h3>
+            <p class="text-gray-600 text-sm leading-relaxed">A personalised session where Mikey reviews your current study approach and builds a custom system around your subjects and exam dates.</p>
+          </div>
+          <div class="flex-shrink-0 text-right">
+            <p class="text-purple-dark font-extrabold text-xl">From £55</p>
+            <a href="join.html#mentoring" class="inline-block mt-2 gradient-brand text-white font-semibold text-sm px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity">Book a session</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 8: FAQ -->
+  <section class="fp-section py-24" id="faq" style="background:#f5f3ff;overflow-y:auto">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-extrabold text-navy-dark">Common questions</h2>
+      </div>
+      <div class="space-y-3" id="faq-list">
+        <div class="faq-item bg-white border border-purple-soft rounded-xl overflow-hidden">
+          <button class="faq-btn w-full flex justify-between items-center p-5 text-left font-semibold text-navy-dark hover:bg-purple-light transition-colors">
+            <span>How is this different from just watching YouTube study videos?</span>
+            <span class="faq-icon text-purple-DEFAULT text-xl flex-shrink-0 ml-2">+</span>
+          </button>
+          <div class="faq-answer px-5 pb-5 text-gray-600 text-sm leading-relaxed">Watching someone else understand something is passive — your brain doesn't have to work. The Stoday system forces active engagement: you recall, you test yourself, you explain back. That's where the learning actually happens.</div>
+        </div>
+        <div class="faq-item bg-white border border-purple-soft rounded-xl overflow-hidden">
+          <button class="faq-btn w-full flex justify-between items-center p-5 text-left font-semibold text-navy-dark hover:bg-purple-light transition-colors">
+            <span>I only have 30 minutes a day. Is that really enough?</span>
+            <span class="faq-icon text-purple-DEFAULT text-xl flex-shrink-0 ml-2">+</span>
+          </button>
+          <div class="faq-answer px-5 pb-5 text-gray-600 text-sm leading-relaxed">Yes — if those 30 minutes are spent right. The research is clear: 30 minutes of active recall beats 3 hours of re-reading. The system is designed around this.</div>
+        </div>
+        <div class="faq-item bg-white border border-purple-soft rounded-xl overflow-hidden">
+          <button class="faq-btn w-full flex justify-between items-center p-5 text-left font-semibold text-navy-dark hover:bg-purple-light transition-colors">
+            <span>Does this work for any subject?</span>
+            <span class="faq-icon text-purple-DEFAULT text-xl flex-shrink-0 ml-2">+</span>
+          </button>
+          <div class="faq-answer px-5 pb-5 text-gray-600 text-sm leading-relaxed">Yes. The techniques are based on how the brain learns — not on any specific subject. Whether you're doing Maths, Biology, History, or Languages, the same methods apply.</div>
+        </div>
+        <div class="faq-item bg-white border border-purple-soft rounded-xl overflow-hidden">
+          <button class="faq-btn w-full flex justify-between items-center p-5 text-left font-semibold text-navy-dark hover:bg-purple-light transition-colors">
+            <span>What do I get access to immediately after buying?</span>
+            <span class="faq-icon text-purple-DEFAULT text-xl flex-shrink-0 ml-2">+</span>
+          </button>
+          <div class="faq-answer px-5 pb-5 text-gray-600 text-sm leading-relaxed">Instant access to the full techniques guide, the Blurting Sheet template, the Stoday daily system, supporting scientific papers, and the 11-minute video breakdown. Everything is downloadable and yours to keep.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 9: Final CTA + Footer -->
+  <div class="fp-section" style="overflow-y:auto;background:#1e1b4b">
+    <section class="py-24 gradient-dark text-center">
+      <div class="max-w-3xl mx-auto px-4 sm:px-6">
+        <img src="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" alt="" class="w-24 mx-auto mb-6 opacity-90" />
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">15 minutes of smart beats 3 hours of stuck.</h2>
+        <p class="text-gray-300 text-lg mb-10 max-w-xl mx-auto">Start with the free Blurting Sheet. Come back for the system when you're ready. Either way — today is the only day that matters.</p>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a href="join.html#free" class="w-full sm:w-auto bg-white text-navy-dark font-bold px-8 py-4 rounded-xl hover:bg-purple-light transition-colors text-center">Download Free Sheet</a>
+          <a href="join.html" class="w-full sm:w-auto gradient-brand text-white font-bold px-8 py-4 rounded-xl hover:opacity-90 transition-opacity text-center">Get the Full System — £37 →</a>
+        </div>
+      </div>
+    </section>
+    <footer style="background:#1e1b4b;" class="py-12">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start gap-8 mb-10">
+          <div>
+            <div class="flex items-center gap-2 mb-3">
+              <img src="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" alt="" class="w-8 h-8 object-contain" />
+              <span class="text-white font-extrabold">Stoday <span class="text-purple-mid">Plus</span></span>
+            </div>
+            <p class="text-gray-400 text-sm max-w-xs">Study Today. Because the only moment you can change is right now.</p>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-8 text-sm">
+            <div>
+              <p class="text-gray-300 font-semibold mb-3">Product</p>
+              <ul class="space-y-2">
+                <li><button onclick="fpGoto(3)" class="text-gray-400 hover:text-white transition-colors bg-transparent" style="font-family:inherit;font-size:inherit;cursor:pointer">Techniques</button></li>
+                <li><button onclick="fpGoto(4)" class="text-gray-400 hover:text-white transition-colors bg-transparent" style="font-family:inherit;font-size:inherit;cursor:pointer">What's Included</button></li>
+                <li><button onclick="fpGoto(7)" class="text-gray-400 hover:text-white transition-colors bg-transparent" style="font-family:inherit;font-size:inherit;cursor:pointer">Pricing</button></li>
+              </ul>
+            </div>
+            <div>
+              <p class="text-gray-300 font-semibold mb-3">Company</p>
+              <ul class="space-y-2">
+                <li><a href="about.html" class="text-gray-400 hover:text-white transition-colors">About Mikey</a></li>
+                <li><a href="join.html#free" class="text-gray-400 hover:text-white transition-colors">Free Resources</a></li>
+                <li><button onclick="fpGoto(8)" class="text-gray-400 hover:text-white transition-colors bg-transparent" style="font-family:inherit;font-size:inherit;cursor:pointer">FAQ</button></li>
+              </ul>
+            </div>
+            <div>
+              <p class="text-gray-300 font-semibold mb-3">Account</p>
+              <ul class="space-y-2">
+                <li><a href="login.html" class="text-gray-400 hover:text-white transition-colors">Log In</a></li>
+                <li><a href="join.html" class="text-gray-400 hover:text-white transition-colors">Get Started</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="border-t border-white border-opacity-10 pt-6 text-center text-gray-400 text-xs">
+          © 2026 Stoday Plus. Built by Mikey Hoang. Study Today.
+        </div>
+      </div>
+    </footer>
+  </div>
+
+</div><!-- end #fp-wrapper -->
+
+<!-- Slide counter -->
+<div id="fp-counter">01 / 10</div>
+
+<script>
+  /* ── Techniques tab switcher ───────────────────────────────── */
+  function activateTech(idx) {
+    for (var i = 0; i < 5; i++) {
+      var btn   = document.getElementById('tech-btn-' + i);
+      var num   = btn.querySelector('.tech-num');
+      var label = btn.querySelector('.tech-label');
+      var panel = document.getElementById('tech-panel-' + i);
+      if (i === idx) {
+        btn.style.borderLeftColor = '#9333ea';
+        num.style.background      = 'linear-gradient(135deg,#9333ea,#3730a3)';
+        num.style.color           = 'white';
+        label.style.color         = '#1e1b4b';
+        label.style.fontWeight    = '700';
+        panel.classList.remove('hidden');
+        panel.style.opacity = '0';
+        requestAnimationFrame(function(p){ return function(){ p.style.transition='opacity .2s'; p.style.opacity='1'; }; }(panel));
+      } else {
+        btn.style.borderLeftColor = 'transparent';
+        num.style.background      = '#f3f4f6';
+        num.style.color           = '#9ca3af';
+        label.style.color         = '#9ca3af';
+        label.style.fontWeight    = '600';
+        panel.classList.add('hidden');
+      }
+    }
+  }
+  (function() {
+    for (var i = 0; i < 5; i++) {
+      (function(idx) {
+        var btn = document.getElementById('tech-btn-' + idx);
+        if (!btn) return;
+        btn.addEventListener('mouseenter', function() { activateTech(idx); });
+        btn.addEventListener('click',      function() { activateTech(idx); });
+      })(i);
+    }
+  })();
+
+  /* ── FAQ accordion ─────────────────────────────────────────── */
+  document.querySelectorAll('.faq-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var item   = btn.closest('.faq-item');
+      var answer = item.querySelector('.faq-answer');
+      var icon   = btn.querySelector('.faq-icon');
+      var isOpen = answer.classList.contains('open');
+      document.querySelectorAll('.faq-answer').forEach(function(a) { a.classList.remove('open'); });
+      document.querySelectorAll('.faq-icon').forEach(function(i) { i.textContent = '+'; });
+      if (!isOpen) { answer.classList.add('open'); icon.textContent = '−'; }
+    });
+  });
+
+  /* ── Hero parallax float ───────────────────────────────────── */
+  (function() {
+    var panel = document.getElementById('hero-panel');
+    if (!panel) return;
+    var mx = 0, my = 0, cx = 0, cy = 0, phase = 0, active = false, timer;
+    document.addEventListener('mousemove', function(e) {
+      var w = window.innerWidth, h = window.innerHeight;
+      mx = (e.clientX - w / 2) / (w / 2) * 14;
+      my = (e.clientY - h / 2) / (h / 2) * 8;
+      active = true;
+      clearTimeout(timer);
+      timer = setTimeout(function() { active = false; }, 2000);
+    });
+    function tick() {
+      if (active) { cx += (mx - cx) * 0.06; cy += (my - cy) * 0.06; }
+      else { phase += 0.007; cx += (0 - cx) * 0.04; cy += (Math.sin(phase) * 10 - cy) * 0.04; }
+      panel.style.transform = 'translate(' + cx.toFixed(2) + 'px,' + cy.toFixed(2) + 'px)';
+      requestAnimationFrame(tick);
+    }
+    tick();
+  })();
+
+  /* ── Fullpage scroll system ────────────────────────────────── */
+  (function() {
+    var NAMES = ['Home', 'Problem', 'Method', 'Techniques', 'Included', 'Watch', 'Mikey', 'Pricing', 'FAQ', 'Start'];
+    var sections = Array.from(document.querySelectorAll('#fp-wrapper > .fp-section'));
+    var current  = 0;
+    var busy     = false;
+    var LOCK_MS  = 920;
+
+    /* initialise positions */
+    sections[0].classList.add('fp-active');
+
+    function goto(idx) {
+      if (idx < 0 || idx >= sections.length || idx === current || busy) return;
+      busy = true;
+      current = idx;
+      sections.forEach(function(s, i) {
+        s.classList.remove('fp-active', 'fp-above');
+        if (i < current) s.classList.add('fp-above');
+        /* i > current stays in default (translateY 100%) */
+      });
+      sections[current].classList.add('fp-active');
+      /* reset internal scroll of newly active section */
+      sections[current].scrollTop = 0;
+      updateDots();
+      updateCounter();
+      setTimeout(function() { busy = false; }, LOCK_MS);
+    }
+
+    /* expose globally for inline onclick */
+    window.fpGoto = goto;
+
+    /* wheel */
+    var wrapper = document.getElementById('fp-wrapper');
+    wrapper.addEventListener('wheel', function(e) {
+      if (busy) { e.preventDefault(); return; }
+      var s       = sections[current];
+      var atBot   = s.scrollTop + s.clientHeight >= s.scrollHeight - 4;
+      var atTop   = s.scrollTop <= 0;
+      if (e.deltaY > 0 && atBot)  { e.preventDefault(); goto(current + 1); }
+      else if (e.deltaY < 0 && atTop) { e.preventDefault(); goto(current - 1); }
+    }, { passive: false });
+
+    /* touch */
+    var touchY = 0;
+    wrapper.addEventListener('touchstart', function(e) { touchY = e.touches[0].clientY; }, { passive: true });
+    wrapper.addEventListener('touchend', function(e) {
+      if (busy) return;
+      var delta = touchY - e.changedTouches[0].clientY;
+      if (Math.abs(delta) < 50) return;
+      var s = sections[current];
+      var atBot = s.scrollTop + s.clientHeight >= s.scrollHeight - 4;
+      var atTop = s.scrollTop <= 0;
+      if (delta > 0 && atBot)  goto(current + 1);
+      else if (delta < 0 && atTop) goto(current - 1);
+    }, { passive: true });
+
+    /* keyboard */
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowDown' || e.key === 'PageDown') { e.preventDefault(); goto(current + 1); }
+      if (e.key === 'ArrowUp'   || e.key === 'PageUp')   { e.preventDefault(); goto(current - 1); }
+    });
+
+    /* dots */
+    var dotContainer = document.createElement('div');
+    dotContainer.id = 'fp-dots';
+    sections.forEach(function(_, i) {
+      var dot = document.createElement('button');
+      dot.className = 'fp-dot' + (i === 0 ? ' fp-dot-active' : '');
+      dot.setAttribute('data-name', NAMES[i] || (i + 1));
+      dot.addEventListener('click', function() { goto(i); });
+      dotContainer.appendChild(dot);
+    });
+    document.body.appendChild(dotContainer);
+
+    function updateDots() {
+      document.querySelectorAll('.fp-dot').forEach(function(d, i) {
+        d.classList.toggle('fp-dot-active', i === current);
+      });
+    }
+
+    function updateCounter() {
+      var el = document.getElementById('fp-counter');
+      if (el) el.textContent = String(current + 1).padStart(2, '0') + ' / ' + sections.length;
+    }
+  })();
+</script>
+
+</body>
+</html>
