@@ -834,6 +834,30 @@
 </footer>
 
 <script>
+  // ── Navbar: slow hide on scroll down, fast show on scroll up ──
+  (function() {
+    var nav = document.querySelector('nav');
+    if (!nav) return;
+    var last = 0;
+    window.addEventListener('scroll', function() {
+      var cur = window.scrollY;
+      if (cur <= 0) {
+        nav.style.transition = 'transform .2s ease, opacity .2s ease';
+        nav.style.transform = 'translateY(0)';
+        nav.style.opacity = '1';
+      } else if (cur > last && cur > 80) {
+        nav.style.transition = 'transform .55s ease, opacity .55s ease';
+        nav.style.transform = 'translateY(-100%)';
+        nav.style.opacity = '0';
+      } else if (cur < last) {
+        nav.style.transition = 'transform .18s ease, opacity .15s ease';
+        nav.style.transform = 'translateY(0)';
+        nav.style.opacity = '1';
+      }
+      last = cur;
+    }, { passive: true });
+  })();
+
   // ── Hero panel: mouse parallax + idle float ──────────────────
   (function() {
     var panel = document.getElementById('hero-panel');
