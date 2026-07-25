@@ -335,130 +335,181 @@
   </section>
 
   <!-- SLIDE 3: 5 Techniques (carousel) -->
-  <section class="fp-section bg-white" id="techniques" style="overflow:hidden;display:flex;flex-direction:column;justify-content:center;">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 w-full py-5" style="display:flex;flex-direction:column;flex:1;min-height:0;max-height:100vh;">
+  <section class="fp-section" id="techniques" style="overflow:hidden;display:flex;flex-direction:column;justify-content:center;background:#f8f5ff;">
+    <div style="max-width:880px;margin:0 auto;padding:2rem 1.5rem;display:flex;flex-direction:column;width:100%;height:100%;max-height:100vh;box-sizing:border-box;">
 
-      <!-- Header row -->
-      <div class="flex items-end justify-between mb-3 flex-shrink-0">
+      <!-- Header -->
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:1.25rem;flex-shrink:0;">
         <div>
-          <p class="text-purple-DEFAULT font-semibold text-xs uppercase tracking-widest mb-0.5">The method</p>
-          <h2 class="text-2xl font-extrabold text-navy-dark">5 techniques. One system.</h2>
+          <p style="color:#9333ea;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.14em;margin-bottom:.3rem;">The Method</p>
+          <h2 style="font-size:1.75rem;font-weight:900;color:#1e1b4b;line-height:1.1;">5 techniques. One system.</h2>
         </div>
-        <span id="tech-counter" class="text-4xl font-extrabold leading-none select-none" style="color:#f0ebff">01</span>
+        <span id="tech-counter" style="font-size:4rem;font-weight:900;line-height:1;color:#ede9fe;user-select:none;font-variant-numeric:tabular-nums;">01</span>
       </div>
 
       <!-- Carousel viewport -->
-      <div style="overflow:hidden;border-radius:1rem;flex:1;min-height:0;">
-        <div id="tech-track" style="display:flex;height:100%;transition:transform .55s cubic-bezier(.77,0,.175,1);will-change:transform;">
+      <div style="flex:1;min-height:0;overflow:hidden;border-radius:1.5rem;box-shadow:0 28px 70px rgba(88,28,135,.18);">
+        <div id="tech-track" style="display:flex;height:100%;transition:transform .6s cubic-bezier(.77,0,.175,1);will-change:transform;">
 
           <!-- SLIDE 1: Pomodoro+ -->
-          <div style="min-width:100%;flex-shrink:0;height:100%;padding:1.25rem 1.5rem;background:#faf8ff;border:1px solid #e9d5ff;border-radius:1rem;box-sizing:border-box;overflow:hidden;display:flex;align-items:center;">
-            <div class="flex flex-col lg:flex-row gap-6 items-center w-full">
-              <div class="flex-1">
-                <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-1">Technique 01</p>
-                <h3 class="text-xl font-extrabold text-navy-dark mb-2">Pomodoro+</h3>
-                <p class="text-gray-600 text-sm leading-relaxed mb-1.5"><span class="font-semibold text-gray-800">What it is —</span> 25-minute focused blocks with a 5-minute break. Adapted to 45–60 min for deeper work sessions.</p>
-                <p class="text-gray-600 text-sm leading-relaxed mb-3"><span class="font-semibold text-gray-800">Why it works —</span> Timed pressure activates focus. Planned breaks prevent the fatigue that quietly destroys retention.</p>
-                <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-3 py-1.5 rounded-full">Outcome: sustained focus without burnout</span>
+          <div style="min-width:100%;flex-shrink:0;height:100%;display:flex;overflow:hidden;">
+            <div style="flex:1;padding:2.5rem 3rem;background:white;display:flex;flex-direction:column;justify-content:center;min-width:0;">
+              <p style="color:#9333ea;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.14em;margin:0 0 .5rem;">Technique 01 of 05</p>
+              <h3 style="font-size:2rem;font-weight:900;color:#1e1b4b;margin:0 0 1rem;line-height:1.1;">Pomodoro+</h3>
+              <p style="color:#6b7280;font-size:.875rem;line-height:1.65;margin:0 0 .6rem;"><strong style="color:#111827;font-weight:700;">What it is —</strong> 25-minute focused blocks with a 5-minute break. Adapted to 45–60 min for deeper work sessions.</p>
+              <p style="color:#6b7280;font-size:.875rem;line-height:1.65;margin:0 0 1.5rem;"><strong style="color:#111827;font-weight:700;">Why it works —</strong> Timed pressure activates focus. Planned breaks prevent the fatigue that quietly destroys retention.</p>
+              <span style="display:inline-flex;align-items:center;gap:.4rem;background:linear-gradient(135deg,#9333ea,#4338ca);color:white;font-size:.68rem;font-weight:800;padding:.5rem 1.25rem;border-radius:999px;width:fit-content;letter-spacing:.02em;">✦ Outcome: sustained focus without burnout</span>
+            </div>
+            <div style="width:260px;flex-shrink:0;background:linear-gradient(145deg,#1e1b4b 0%,#312e81 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.75rem;padding:2.5rem;">
+              <div style="position:relative;width:116px;height:116px;">
+                <svg style="width:100%;height:100%;transform:rotate(-90deg);" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="9"/>
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="url(#pg1)" stroke-width="9" stroke-dasharray="239" stroke-dashoffset="60" stroke-linecap="round"/>
+                  <defs><linearGradient id="pg1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#c084fc"/><stop offset="100%" stop-color="#818cf8"/></linearGradient></defs>
+                </svg>
+                <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.1rem;">
+                  <span style="color:white;font-weight:900;font-size:1.875rem;line-height:1;">25</span>
+                  <span style="color:rgba(255,255,255,.35);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;">minutes</span>
+                </div>
               </div>
-              <div class="flex items-center gap-6 flex-shrink-0">
-                <div class="relative w-16 h-16">
-                  <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="38" fill="none" stroke="#e9d5ff" stroke-width="10"/>
-                    <circle cx="50" cy="50" r="38" fill="none" stroke="#9333ea" stroke-width="10" stroke-dasharray="239" stroke-dashoffset="60" stroke-linecap="round"/>
-                  </svg>
-                  <div class="absolute inset-0 flex flex-col items-center justify-center">
-                    <span class="text-navy-dark font-extrabold text-sm leading-none">25</span>
-                    <span class="text-gray-400 text-xs">min</span>
-                  </div>
-                </div>
-                <div class="space-y-2">
-                  <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-DEFAULT flex-shrink-0"></span><span class="text-xs text-gray-600">Focus block — 25 min</span></div>
-                  <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-soft flex-shrink-0"></span><span class="text-xs text-gray-400">Short break — 5 min</span></div>
-                  <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-navy-dark flex-shrink-0"></span><span class="text-xs text-gray-400">Deep session — 45–60 min</span></div>
-                </div>
+              <div style="display:flex;flex-direction:column;gap:.7rem;width:100%;">
+                <div style="display:flex;align-items:center;gap:.75rem;"><span style="width:7px;height:7px;border-radius:50%;background:#c084fc;flex-shrink:0;"></span><span style="color:rgba(255,255,255,.75);font-size:.73rem;">Focus block — 25 min</span></div>
+                <div style="display:flex;align-items:center;gap:.75rem;"><span style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.18);flex-shrink:0;"></span><span style="color:rgba(255,255,255,.38);font-size:.73rem;">Short break — 5 min</span></div>
+                <div style="display:flex;align-items:center;gap:.75rem;"><span style="width:7px;height:7px;border-radius:50%;background:rgba(99,102,241,.45);flex-shrink:0;"></span><span style="color:rgba(255,255,255,.38);font-size:.73rem;">Deep session — 45–60 min</span></div>
               </div>
             </div>
           </div>
 
           <!-- SLIDE 2: Active Recall -->
-          <div style="min-width:100%;flex-shrink:0;height:100%;padding:1.25rem 1.5rem;background:#faf8ff;border:1px solid #e9d5ff;border-radius:1rem;box-sizing:border-box;overflow:hidden;display:flex;align-items:center;">
-            <div class="flex flex-col lg:flex-row gap-6 items-center w-full">
-              <div class="flex-1">
-                <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-1">Technique 02</p>
-                <h3 class="text-xl font-extrabold text-navy-dark mb-2">Active Recall</h3>
-                <p class="text-gray-600 text-sm leading-relaxed mb-1.5"><span class="font-semibold text-gray-800">What it is —</span> Close your notes. Write or say everything you can remember. Then check and correct.</p>
-                <p class="text-gray-600 text-sm leading-relaxed mb-3"><span class="font-semibold text-gray-800">Why it works —</span> Retrieval practice is up to 3× more effective than re-reading — because it makes your brain actually work.</p>
-                <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-3 py-1.5 rounded-full">Outcome: 3× stronger memory</span>
+          <div style="min-width:100%;flex-shrink:0;height:100%;display:flex;overflow:hidden;">
+            <div style="flex:1;padding:2.5rem 3rem;background:white;display:flex;flex-direction:column;justify-content:center;min-width:0;">
+              <p style="color:#9333ea;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.14em;margin:0 0 .5rem;">Technique 02 of 05</p>
+              <h3 style="font-size:2rem;font-weight:900;color:#1e1b4b;margin:0 0 1rem;line-height:1.1;">Active Recall</h3>
+              <p style="color:#6b7280;font-size:.875rem;line-height:1.65;margin:0 0 .6rem;"><strong style="color:#111827;font-weight:700;">What it is —</strong> Close your notes. Write or say everything you can remember. Then check and correct.</p>
+              <p style="color:#6b7280;font-size:.875rem;line-height:1.65;margin:0 0 1.5rem;"><strong style="color:#111827;font-weight:700;">Why it works —</strong> Retrieval practice is up to 3× more effective than re-reading — because it makes your brain actually work.</p>
+              <span style="display:inline-flex;align-items:center;gap:.4rem;background:linear-gradient(135deg,#9333ea,#4338ca);color:white;font-size:.68rem;font-weight:800;padding:.5rem 1.25rem;border-radius:999px;width:fit-content;letter-spacing:.02em;">✦ Outcome: 3× stronger memory</span>
+            </div>
+            <div style="width:260px;flex-shrink:0;background:linear-gradient(145deg,#1e1b4b 0%,#312e81 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;padding:2.5rem;">
+              <div style="text-align:center;">
+                <div style="font-size:4.5rem;font-weight:900;line-height:1;background:linear-gradient(135deg,#c084fc,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">3×</div>
+                <p style="color:rgba(255,255,255,.5);font-size:.7rem;text-align:center;margin:.25rem 0 0;line-height:1.4;">more effective<br/>than re-reading</p>
               </div>
-              <div class="flex items-end gap-4 flex-shrink-0">
-                <div class="flex flex-col items-center gap-1.5">
-                  <div class="w-12 bg-red-50 border-2 border-red-100 rounded-t-lg flex items-end justify-center pb-1" style="height:30px;"><span class="text-red-400 font-bold text-xs">10%</span></div>
-                  <p class="text-xs font-semibold text-red-400 text-center">Re-reading</p>
+              <div style="display:flex;align-items:flex-end;gap:1.25rem;padding-top:.5rem;">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:.5rem;">
+                  <div style="width:44px;background:rgba(239,68,68,.2);border:1.5px solid rgba(239,68,68,.25);border-radius:.4rem .4rem 0 0;display:flex;align-items:flex-end;justify-content:center;padding-bottom:.3rem;height:32px;"><span style="color:rgba(239,68,68,.8);font-weight:800;font-size:.65rem;">10%</span></div>
+                  <p style="color:rgba(255,255,255,.3);font-size:.65rem;font-weight:600;">Re-reading</p>
                 </div>
-                <div class="flex flex-col items-center gap-1.5">
-                  <div class="w-12 rounded-t-lg flex items-end justify-center pb-1" style="height:80px;background:linear-gradient(135deg,#9333ea,#3730a3);"><span class="text-white font-bold text-xs">~90%</span></div>
-                  <p class="text-xs font-semibold text-purple-DEFAULT text-center">Active Recall</p>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:.5rem;">
+                  <div style="width:44px;background:linear-gradient(180deg,#c084fc,#7c3aed);border-radius:.4rem .4rem 0 0;display:flex;align-items:flex-end;justify-content:center;padding-bottom:.3rem;height:88px;"><span style="color:white;font-weight:800;font-size:.65rem;">90%</span></div>
+                  <p style="color:rgba(192,132,252,.9);font-size:.65rem;font-weight:600;">Recall</p>
                 </div>
-                <p class="text-gray-400 text-xs self-center pb-6 leading-snug">memory<br/>retained</p>
               </div>
             </div>
           </div>
 
           <!-- SLIDE 3: Spaced Repetition -->
-          <div style="min-width:100%;flex-shrink:0;height:100%;padding:1.25rem 1.5rem;background:#faf8ff;border:1px solid #e9d5ff;border-radius:1rem;box-sizing:border-box;overflow:hidden;display:flex;align-items:center;">
-            <div class="flex flex-col lg:flex-row gap-6 items-center w-full">
-              <div class="flex-1">
-                <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-1">Technique 03</p>
-                <h3 class="text-xl font-extrabold text-navy-dark mb-2">Spaced Repetition</h3>
-                <p class="text-gray-600 text-sm leading-relaxed mb-1.5"><span class="font-semibold text-gray-800">What it is —</span> Review material at increasing intervals: Day 1 → Day 3 → Day 7 → Day 14.</p>
-                <p class="text-gray-600 text-sm leading-relaxed mb-3"><span class="font-semibold text-gray-800">Why it works —</span> Each review resets the Forgetting Curve, moving information from short-term into long-term memory.</p>
-                <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-3 py-1.5 rounded-full">Outcome: long-term retention</span>
-              </div>
-              <div class="flex-shrink-0 space-y-2" style="min-width:220px">
-                <div class="flex items-center gap-2"><span class="text-xs text-gray-400 w-12 flex-shrink-0">Day 0</span><div class="flex-1 bg-gray-100 rounded-full h-2"><div class="h-2 rounded-full bg-red-300" style="width:28%"></div></div><span class="text-xs text-gray-400 w-16 text-right">No review</span></div>
-                <div class="flex items-center gap-2"><span class="text-xs text-gray-400 w-12 flex-shrink-0">Day 3</span><div class="flex-1 bg-gray-100 rounded-full h-2"><div class="h-2 rounded-full bg-amber-400" style="width:58%"></div></div><span class="text-xs text-gray-400 w-16 text-right">1 review</span></div>
-                <div class="flex items-center gap-2"><span class="text-xs text-gray-400 w-12 flex-shrink-0">Day 7</span><div class="flex-1 bg-gray-100 rounded-full h-2"><div class="h-2 rounded-full bg-purple-DEFAULT" style="width:78%"></div></div><span class="text-xs text-gray-400 w-16 text-right">2 reviews</span></div>
-                <div class="flex items-center gap-2"><span class="text-xs text-gray-400 w-12 flex-shrink-0">Day 14+</span><div class="flex-1 bg-gray-100 rounded-full h-2"><div class="h-2 rounded-full" style="width:95%;background:linear-gradient(90deg,#9333ea,#3730a3)"></div></div><span class="text-xs text-purple-DEFAULT font-semibold w-16 text-right">Long-term</span></div>
+          <div style="min-width:100%;flex-shrink:0;height:100%;display:flex;overflow:hidden;">
+            <div style="flex:1;padding:2.5rem 3rem;background:white;display:flex;flex-direction:column;justify-content:center;min-width:0;">
+              <p style="color:#9333ea;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.14em;margin:0 0 .5rem;">Technique 03 of 05</p>
+              <h3 style="font-size:2rem;font-weight:900;color:#1e1b4b;margin:0 0 1rem;line-height:1.1;">Spaced Repetition</h3>
+              <p style="color:#6b7280;font-size:.875rem;line-height:1.65;margin:0 0 .6rem;"><strong style="color:#111827;font-weight:700;">What it is —</strong> Review material at increasing intervals: Day 1 → Day 3 → Day 7 → Day 14.</p>
+              <p style="color:#6b7280;font-size:.875rem;line-height:1.65;margin:0 0 1.5rem;"><strong style="color:#111827;font-weight:700;">Why it works —</strong> Each review resets the Forgetting Curve, moving information from short-term into long-term memory.</p>
+              <span style="display:inline-flex;align-items:center;gap:.4rem;background:linear-gradient(135deg,#9333ea,#4338ca);color:white;font-size:.68rem;font-weight:800;padding:.5rem 1.25rem;border-radius:999px;width:fit-content;letter-spacing:.02em;">✦ Outcome: long-term retention</span>
+            </div>
+            <div style="width:260px;flex-shrink:0;background:linear-gradient(145deg,#1e1b4b 0%,#312e81 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:2.5rem;">
+              <div style="display:flex;flex-direction:column;gap:.875rem;width:100%;">
+                <div style="display:flex;align-items:center;gap:.75rem;">
+                  <span style="color:rgba(255,255,255,.35);font-size:.68rem;width:38px;flex-shrink:0;">Day 0</span>
+                  <div style="flex:1;background:rgba(255,255,255,.07);border-radius:999px;height:6px;overflow:hidden;"><div style="width:22%;height:100%;background:rgba(239,68,68,.55);border-radius:999px;"></div></div>
+                  <span style="color:rgba(255,255,255,.25);font-size:.6rem;width:52px;text-align:right;">No review</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:.75rem;">
+                  <span style="color:rgba(255,255,255,.35);font-size:.68rem;width:38px;flex-shrink:0;">Day 3</span>
+                  <div style="flex:1;background:rgba(255,255,255,.07);border-radius:999px;height:6px;overflow:hidden;"><div style="width:52%;height:100%;background:#f59e0b;border-radius:999px;"></div></div>
+                  <span style="color:rgba(255,255,255,.25);font-size:.6rem;width:52px;text-align:right;">1 review</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:.75rem;">
+                  <span style="color:rgba(255,255,255,.35);font-size:.68rem;width:38px;flex-shrink:0;">Day 7</span>
+                  <div style="flex:1;background:rgba(255,255,255,.07);border-radius:999px;height:6px;overflow:hidden;"><div style="width:74%;height:100%;background:#a78bfa;border-radius:999px;"></div></div>
+                  <span style="color:rgba(255,255,255,.25);font-size:.6rem;width:52px;text-align:right;">2 reviews</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:.75rem;">
+                  <span style="color:rgba(255,255,255,.35);font-size:.68rem;width:38px;flex-shrink:0;">Day 14+</span>
+                  <div style="flex:1;background:rgba(255,255,255,.07);border-radius:999px;height:6px;overflow:hidden;"><div style="width:96%;height:100%;background:linear-gradient(90deg,#c084fc,#818cf8);border-radius:999px;"></div></div>
+                  <span style="color:#c084fc;font-size:.6rem;font-weight:700;width:52px;text-align:right;">Long-term</span>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- SLIDE 4: 3-Day Retention -->
-          <div style="min-width:100%;flex-shrink:0;height:100%;padding:1.25rem 1.5rem;background:#faf8ff;border:1px solid #e9d5ff;border-radius:1rem;box-sizing:border-box;overflow:hidden;display:flex;align-items:center;">
-            <div class="flex flex-col lg:flex-row gap-6 items-center w-full">
-              <div class="flex-1">
-                <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-1">Technique 04</p>
-                <h3 class="text-xl font-extrabold text-navy-dark mb-2">3-Day Retention</h3>
-                <p class="text-gray-600 text-sm leading-relaxed mb-1.5"><span class="font-semibold text-gray-800">What it is —</span> Review anything you've learned within 3 days — before it falls into the forgetting window.</p>
-                <p class="text-gray-600 text-sm leading-relaxed mb-3"><span class="font-semibold text-gray-800">Why it works —</span> Memory drops sharply after 72 hours without review. One session inside that window resets the clock.</p>
-                <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-3 py-1.5 rounded-full">Outcome: nothing gets forgotten</span>
-              </div>
-              <div class="flex items-center gap-2 flex-shrink-0">
-                <div class="flex flex-col items-center flex-shrink-0"><div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-extrabold text-sm shadow" style="background:linear-gradient(135deg,#9333ea,#3730a3)">L</div><p class="text-xs text-gray-500 mt-1">Learn</p><p class="text-xs text-purple-DEFAULT font-bold">Day 0</p></div>
-                <div class="flex flex-col items-center gap-1 mx-1" style="min-width:50px"><div class="w-full h-px bg-purple-soft"></div><span class="text-xs text-red-400 font-semibold whitespace-nowrap">≤ 3 days</span></div>
-                <div class="flex flex-col items-center flex-shrink-0"><div class="w-10 h-10 rounded-full border-2 border-purple-DEFAULT bg-purple-light flex items-center justify-center text-purple-dark font-extrabold text-sm">R</div><p class="text-xs text-gray-500 mt-1">Review</p><p class="text-xs text-purple-DEFAULT font-bold">Day 3</p></div>
-                <div class="h-px bg-purple-soft mx-1" style="min-width:35px"></div>
-                <div class="flex flex-col items-center flex-shrink-0"><div class="w-10 h-10 rounded-full bg-navy-dark flex items-center justify-center text-white font-extrabold text-sm">✓</div><p class="text-xs text-gray-500 mt-1">Locked in</p><p class="text-xs text-gray-400 font-bold">Day 7+</p></div>
+          <div style="min-width:100%;flex-shrink:0;height:100%;display:flex;overflow:hidden;">
+            <div style="flex:1;padding:2.5rem 3rem;background:white;display:flex;flex-direction:column;justify-content:center;min-width:0;">
+              <p style="color:#9333ea;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.14em;margin:0 0 .5rem;">Technique 04 of 05</p>
+              <h3 style="font-size:2rem;font-weight:900;color:#1e1b4b;margin:0 0 1rem;line-height:1.1;">3-Day Retention</h3>
+              <p style="color:#6b7280;font-size:.875rem;line-height:1.65;margin:0 0 .6rem;"><strong style="color:#111827;font-weight:700;">What it is —</strong> Review anything you've learned within 3 days — before it falls into the forgetting window.</p>
+              <p style="color:#6b7280;font-size:.875rem;line-height:1.65;margin:0 0 1.5rem;"><strong style="color:#111827;font-weight:700;">Why it works —</strong> Memory drops sharply after 72 hours without review. One session inside that window resets the clock.</p>
+              <span style="display:inline-flex;align-items:center;gap:.4rem;background:linear-gradient(135deg,#9333ea,#4338ca);color:white;font-size:.68rem;font-weight:800;padding:.5rem 1.25rem;border-radius:999px;width:fit-content;letter-spacing:.02em;">✦ Outcome: nothing gets forgotten</span>
+            </div>
+            <div style="width:260px;flex-shrink:0;background:linear-gradient(145deg,#1e1b4b 0%,#312e81 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:2.5rem;">
+              <div style="display:flex;align-items:center;gap:0;">
+                <div style="display:flex;flex-direction:column;align-items:center;">
+                  <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#9333ea,#4338ca);display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px rgba(147,51,234,.5);">
+                    <span style="color:white;font-weight:900;font-size:.8rem;">L</span>
+                  </div>
+                  <p style="color:rgba(255,255,255,.4);font-size:.6rem;margin:.5rem 0 .1rem;text-align:center;">Learn</p>
+                  <p style="color:#c084fc;font-size:.65rem;font-weight:800;text-align:center;">Day 0</p>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:.2rem;padding:0 .75rem;margin-bottom:1.5rem;">
+                  <div style="height:1.5px;width:52px;background:linear-gradient(90deg,rgba(147,51,234,.4),rgba(192,132,252,.6));"></div>
+                  <span style="color:#f87171;font-size:.58rem;font-weight:700;white-space:nowrap;">≤ 3 days</span>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;">
+                  <div style="width:52px;height:52px;border-radius:50%;border:2px solid #c084fc;background:rgba(192,132,252,.12);display:flex;align-items:center;justify-content:center;">
+                    <span style="color:#c084fc;font-weight:900;font-size:.8rem;">R</span>
+                  </div>
+                  <p style="color:rgba(255,255,255,.4);font-size:.6rem;margin:.5rem 0 .1rem;text-align:center;">Review</p>
+                  <p style="color:#c084fc;font-size:.65rem;font-weight:800;text-align:center;">Day 3</p>
+                </div>
+                <div style="height:1.5px;width:40px;background:rgba(255,255,255,.1);margin:0 .5rem 1.5rem;"></div>
+                <div style="display:flex;flex-direction:column;align-items:center;">
+                  <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;">
+                    <span style="color:rgba(255,255,255,.8);font-weight:900;font-size:.95rem;">✓</span>
+                  </div>
+                  <p style="color:rgba(255,255,255,.4);font-size:.6rem;margin:.5rem 0 .1rem;text-align:center;">Locked in</p>
+                  <p style="color:rgba(255,255,255,.3);font-size:.65rem;font-weight:800;text-align:center;">Day 7+</p>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- SLIDE 5: Feynman -->
-          <div style="min-width:100%;flex-shrink:0;height:100%;padding:1.25rem 1.5rem;background:#faf8ff;border:1px solid #e9d5ff;border-radius:1rem;box-sizing:border-box;overflow:hidden;display:flex;align-items:center;">
-            <div class="flex flex-col lg:flex-row gap-6 items-center w-full">
-              <div class="flex-1">
-                <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-1">Technique 05</p>
-                <h3 class="text-xl font-extrabold text-navy-dark mb-2">Feynman Technique</h3>
-                <p class="text-gray-600 text-sm leading-relaxed mb-1.5"><span class="font-semibold text-gray-800">What it is —</span> Explain what you've learned in plain language, as if teaching it to someone with no prior knowledge.</p>
-                <p class="text-gray-600 text-sm leading-relaxed mb-3"><span class="font-semibold text-gray-800">Why it works —</span> Simplifying forces your brain to identify the parts you only think you understand — exposing real gaps.</p>
-                <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-3 py-1.5 rounded-full">Outcome: deep understanding, not surface recall</span>
-              </div>
-              <div class="grid grid-cols-2 gap-2 flex-shrink-0" style="min-width:200px">
-                <div class="p-3 bg-purple-light rounded-xl"><p class="text-purple-dark font-bold text-xs mb-0.5">1 — Learn</p><p class="text-gray-500 text-xs">Study the topic normally</p></div>
-                <div class="p-3 bg-purple-light rounded-xl"><p class="text-purple-dark font-bold text-xs mb-0.5">2 — Explain</p><p class="text-gray-500 text-xs">Write it in your own words</p></div>
-                <div class="p-3 bg-purple-light rounded-xl"><p class="text-purple-dark font-bold text-xs mb-0.5">3 — Find gaps</p><p class="text-gray-500 text-xs">Where did you get stuck?</p></div>
-                <div class="p-3 rounded-xl" style="background:#1e1b4b"><p class="text-white font-bold text-xs mb-0.5">4 — Go back</p><p class="text-gray-400 text-xs">Fill the gaps. Repeat.</p></div>
+          <div style="min-width:100%;flex-shrink:0;height:100%;display:flex;overflow:hidden;">
+            <div style="flex:1;padding:2.5rem 3rem;background:white;display:flex;flex-direction:column;justify-content:center;min-width:0;">
+              <p style="color:#9333ea;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.14em;margin:0 0 .5rem;">Technique 05 of 05</p>
+              <h3 style="font-size:2rem;font-weight:900;color:#1e1b4b;margin:0 0 1rem;line-height:1.1;">Feynman Technique</h3>
+              <p style="color:#6b7280;font-size:.875rem;line-height:1.65;margin:0 0 .6rem;"><strong style="color:#111827;font-weight:700;">What it is —</strong> Explain what you've learned in plain language, as if teaching it to someone with no prior knowledge.</p>
+              <p style="color:#6b7280;font-size:.875rem;line-height:1.65;margin:0 0 1.5rem;"><strong style="color:#111827;font-weight:700;">Why it works —</strong> Simplifying forces your brain to identify the parts you only think you understand — exposing real gaps.</p>
+              <span style="display:inline-flex;align-items:center;gap:.4rem;background:linear-gradient(135deg,#9333ea,#4338ca);color:white;font-size:.68rem;font-weight:800;padding:.5rem 1.25rem;border-radius:999px;width:fit-content;letter-spacing:.02em;">✦ Outcome: deep understanding, not surface recall</span>
+            </div>
+            <div style="width:260px;flex-shrink:0;background:linear-gradient(145deg,#1e1b4b 0%,#312e81 100%);display:flex;align-items:center;justify-content:center;padding:2rem;">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:.625rem;width:100%;">
+                <div style="background:rgba(192,132,252,.12);border:1px solid rgba(192,132,252,.2);border-radius:.75rem;padding:.875rem;">
+                  <p style="color:#c084fc;font-weight:800;font-size:.68rem;margin:0 0 .25rem;">1 — Learn</p>
+                  <p style="color:rgba(255,255,255,.4);font-size:.65rem;line-height:1.4;margin:0;">Study the topic normally</p>
+                </div>
+                <div style="background:rgba(192,132,252,.12);border:1px solid rgba(192,132,252,.2);border-radius:.75rem;padding:.875rem;">
+                  <p style="color:#c084fc;font-weight:800;font-size:.68rem;margin:0 0 .25rem;">2 — Explain</p>
+                  <p style="color:rgba(255,255,255,.4);font-size:.65rem;line-height:1.4;margin:0;">Write it in plain words</p>
+                </div>
+                <div style="background:rgba(192,132,252,.12);border:1px solid rgba(192,132,252,.2);border-radius:.75rem;padding:.875rem;">
+                  <p style="color:#c084fc;font-weight:800;font-size:.68rem;margin:0 0 .25rem;">3 — Find gaps</p>
+                  <p style="color:rgba(255,255,255,.4);font-size:.65rem;line-height:1.4;margin:0;">Where did you get stuck?</p>
+                </div>
+                <div style="background:linear-gradient(135deg,rgba(147,51,234,.35),rgba(67,56,202,.35));border:1px solid rgba(192,132,252,.35);border-radius:.75rem;padding:.875rem;">
+                  <p style="color:white;font-weight:800;font-size:.68rem;margin:0 0 .25rem;">4 — Go back</p>
+                  <p style="color:rgba(255,255,255,.5);font-size:.65rem;line-height:1.4;margin:0;">Fill gaps. Repeat.</p>
+                </div>
               </div>
             </div>
           </div>
@@ -466,11 +517,11 @@
         </div>
       </div>
 
-      <!-- Navigation row -->
-      <div class="flex items-center justify-between mt-3 flex-shrink-0">
-        <button id="tech-prev" style="width:38px;height:38px;border-radius:50%;border:1.5px solid #e9d5ff;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:1rem;color:#6b21a8;" onmouseover="this.style.background='linear-gradient(135deg,#9333ea,#3730a3)';this.style.color='white';this.style.borderColor='transparent'" onmouseout="this.style.background='white';this.style.color='#6b21a8';this.style.borderColor='#e9d5ff'">←</button>
+      <!-- Navigation -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:1rem;flex-shrink:0;">
+        <button id="tech-prev" style="width:40px;height:40px;border-radius:50%;border:1.5px solid #ddd6fe;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;color:#7c3aed;font-size:1rem;" onmouseover="this.style.background='linear-gradient(135deg,#9333ea,#4338ca)';this.style.color='white';this.style.borderColor='transparent';this.style.boxShadow='0 4px 14px rgba(147,51,234,.4)'" onmouseout="this.style.background='white';this.style.color='#7c3aed';this.style.borderColor='#ddd6fe';this.style.boxShadow='none'">←</button>
         <div id="tech-dots" style="display:flex;gap:8px;align-items:center;"></div>
-        <button id="tech-next" style="width:38px;height:38px;border-radius:50%;border:1.5px solid #e9d5ff;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:1rem;color:#6b21a8;" onmouseover="this.style.background='linear-gradient(135deg,#9333ea,#3730a3)';this.style.color='white';this.style.borderColor='transparent'" onmouseout="this.style.background='white';this.style.color='#6b21a8';this.style.borderColor='#e9d5ff'">→</button>
+        <button id="tech-next" style="width:40px;height:40px;border-radius:50%;border:1.5px solid #ddd6fe;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;color:#7c3aed;font-size:1rem;" onmouseover="this.style.background='linear-gradient(135deg,#9333ea,#4338ca)';this.style.color='white';this.style.borderColor='transparent';this.style.boxShadow='0 4px 14px rgba(147,51,234,.4)'" onmouseout="this.style.background='white';this.style.color='#7c3aed';this.style.borderColor='#ddd6fe';this.style.boxShadow='none'">→</button>
       </div>
 
     </div>
