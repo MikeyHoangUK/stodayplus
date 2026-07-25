@@ -336,129 +336,129 @@
 
   <!-- SLIDE 3: 5 Techniques (carousel) -->
   <section class="fp-section bg-white" id="techniques" style="overflow:hidden;display:flex;flex-direction:column;justify-content:center;">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 w-full py-10">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 w-full py-5" style="display:flex;flex-direction:column;flex:1;min-height:0;max-height:100vh;">
 
       <!-- Header row -->
-      <div class="flex items-end justify-between mb-8">
+      <div class="flex items-end justify-between mb-3 flex-shrink-0">
         <div>
-          <p class="text-purple-DEFAULT font-semibold text-xs uppercase tracking-widest mb-1">The method</p>
-          <h2 class="text-3xl font-extrabold text-navy-dark">5 techniques. One system.</h2>
+          <p class="text-purple-DEFAULT font-semibold text-xs uppercase tracking-widest mb-0.5">The method</p>
+          <h2 class="text-2xl font-extrabold text-navy-dark">5 techniques. One system.</h2>
         </div>
-        <span id="tech-counter" class="text-5xl font-extrabold leading-none select-none" style="color:#f0ebff">01</span>
+        <span id="tech-counter" class="text-4xl font-extrabold leading-none select-none" style="color:#f0ebff">01</span>
       </div>
 
       <!-- Carousel viewport -->
-      <div style="overflow:hidden;border-radius:1rem;">
-        <div id="tech-track" style="display:flex;transition:transform .55s cubic-bezier(.77,0,.175,1);will-change:transform;">
+      <div style="overflow:hidden;border-radius:1rem;flex:1;min-height:0;">
+        <div id="tech-track" style="display:flex;height:100%;transition:transform .55s cubic-bezier(.77,0,.175,1);will-change:transform;">
 
           <!-- SLIDE 1: Pomodoro+ -->
-          <div style="min-width:100%;flex-shrink:0;padding:2rem;background:#faf8ff;border:1px solid #e9d5ff;border-radius:1rem;">
-            <div class="flex flex-col lg:flex-row gap-10 items-start">
+          <div style="min-width:100%;flex-shrink:0;height:100%;padding:1.25rem 1.5rem;background:#faf8ff;border:1px solid #e9d5ff;border-radius:1rem;box-sizing:border-box;overflow:hidden;display:flex;align-items:center;">
+            <div class="flex flex-col lg:flex-row gap-6 items-center w-full">
               <div class="flex-1">
-                <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-3">Technique 01</p>
-                <h3 class="text-2xl font-extrabold text-navy-dark mb-4">Pomodoro+</h3>
-                <p class="text-gray-600 text-sm leading-relaxed mb-2"><span class="font-semibold text-gray-800">What it is —</span> 25-minute focused blocks with a 5-minute break. Adapted to 45–60 min for deeper work sessions.</p>
-                <p class="text-gray-600 text-sm leading-relaxed mb-6"><span class="font-semibold text-gray-800">Why it works —</span> Timed pressure activates focus. Planned breaks prevent the fatigue that quietly destroys retention.</p>
-                <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-4 py-2 rounded-full">Outcome: sustained focus without burnout</span>
+                <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-1">Technique 01</p>
+                <h3 class="text-xl font-extrabold text-navy-dark mb-2">Pomodoro+</h3>
+                <p class="text-gray-600 text-sm leading-relaxed mb-1.5"><span class="font-semibold text-gray-800">What it is —</span> 25-minute focused blocks with a 5-minute break. Adapted to 45–60 min for deeper work sessions.</p>
+                <p class="text-gray-600 text-sm leading-relaxed mb-3"><span class="font-semibold text-gray-800">Why it works —</span> Timed pressure activates focus. Planned breaks prevent the fatigue that quietly destroys retention.</p>
+                <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-3 py-1.5 rounded-full">Outcome: sustained focus without burnout</span>
               </div>
-              <div class="flex items-center gap-10 flex-shrink-0">
-                <div class="relative w-24 h-24">
+              <div class="flex items-center gap-6 flex-shrink-0">
+                <div class="relative w-16 h-16">
                   <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100">
                     <circle cx="50" cy="50" r="38" fill="none" stroke="#e9d5ff" stroke-width="10"/>
                     <circle cx="50" cy="50" r="38" fill="none" stroke="#9333ea" stroke-width="10" stroke-dasharray="239" stroke-dashoffset="60" stroke-linecap="round"/>
                   </svg>
                   <div class="absolute inset-0 flex flex-col items-center justify-center">
-                    <span class="text-navy-dark font-extrabold text-lg leading-none">25</span>
+                    <span class="text-navy-dark font-extrabold text-sm leading-none">25</span>
                     <span class="text-gray-400 text-xs">min</span>
                   </div>
                 </div>
-                <div class="space-y-3">
-                  <div class="flex items-center gap-2.5"><span class="w-2.5 h-2.5 rounded-full bg-purple-DEFAULT flex-shrink-0"></span><span class="text-sm text-gray-600">Focus block — 25 min</span></div>
-                  <div class="flex items-center gap-2.5"><span class="w-2.5 h-2.5 rounded-full bg-purple-soft flex-shrink-0"></span><span class="text-sm text-gray-400">Short break — 5 min</span></div>
-                  <div class="flex items-center gap-2.5"><span class="w-2.5 h-2.5 rounded-full bg-navy-dark flex-shrink-0"></span><span class="text-sm text-gray-400">Deep session — 45–60 min</span></div>
+                <div class="space-y-2">
+                  <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-DEFAULT flex-shrink-0"></span><span class="text-xs text-gray-600">Focus block — 25 min</span></div>
+                  <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-soft flex-shrink-0"></span><span class="text-xs text-gray-400">Short break — 5 min</span></div>
+                  <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-navy-dark flex-shrink-0"></span><span class="text-xs text-gray-400">Deep session — 45–60 min</span></div>
                 </div>
               </div>
             </div>
           </div>
 
           <!-- SLIDE 2: Active Recall -->
-          <div style="min-width:100%;flex-shrink:0;padding:2rem;background:#faf8ff;border:1px solid #e9d5ff;border-radius:1rem;">
-            <div class="flex flex-col lg:flex-row gap-10 items-start">
+          <div style="min-width:100%;flex-shrink:0;height:100%;padding:1.25rem 1.5rem;background:#faf8ff;border:1px solid #e9d5ff;border-radius:1rem;box-sizing:border-box;overflow:hidden;display:flex;align-items:center;">
+            <div class="flex flex-col lg:flex-row gap-6 items-center w-full">
               <div class="flex-1">
-                <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-3">Technique 02</p>
-                <h3 class="text-2xl font-extrabold text-navy-dark mb-4">Active Recall</h3>
-                <p class="text-gray-600 text-sm leading-relaxed mb-2"><span class="font-semibold text-gray-800">What it is —</span> Close your notes. Write or say everything you can remember. Then check and correct.</p>
-                <p class="text-gray-600 text-sm leading-relaxed mb-6"><span class="font-semibold text-gray-800">Why it works —</span> Retrieval practice is up to 3× more effective than re-reading — because it makes your brain actually work.</p>
-                <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-4 py-2 rounded-full">Outcome: 3× stronger memory</span>
+                <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-1">Technique 02</p>
+                <h3 class="text-xl font-extrabold text-navy-dark mb-2">Active Recall</h3>
+                <p class="text-gray-600 text-sm leading-relaxed mb-1.5"><span class="font-semibold text-gray-800">What it is —</span> Close your notes. Write or say everything you can remember. Then check and correct.</p>
+                <p class="text-gray-600 text-sm leading-relaxed mb-3"><span class="font-semibold text-gray-800">Why it works —</span> Retrieval practice is up to 3× more effective than re-reading — because it makes your brain actually work.</p>
+                <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-3 py-1.5 rounded-full">Outcome: 3× stronger memory</span>
               </div>
-              <div class="flex items-end gap-6 flex-shrink-0 pb-2">
-                <div class="flex flex-col items-center gap-2">
-                  <div class="w-16 bg-red-50 border-2 border-red-100 rounded-t-xl flex items-end justify-center pb-1" style="height:40px;"><span class="text-red-400 font-bold text-xs">10%</span></div>
+              <div class="flex items-end gap-4 flex-shrink-0">
+                <div class="flex flex-col items-center gap-1.5">
+                  <div class="w-12 bg-red-50 border-2 border-red-100 rounded-t-lg flex items-end justify-center pb-1" style="height:30px;"><span class="text-red-400 font-bold text-xs">10%</span></div>
                   <p class="text-xs font-semibold text-red-400 text-center">Re-reading</p>
                 </div>
-                <div class="flex flex-col items-center gap-2">
-                  <div class="w-16 rounded-t-xl flex items-end justify-center pb-2" style="height:120px;background:linear-gradient(135deg,#9333ea,#3730a3);"><span class="text-white font-bold text-sm">~90%</span></div>
+                <div class="flex flex-col items-center gap-1.5">
+                  <div class="w-12 rounded-t-lg flex items-end justify-center pb-1" style="height:80px;background:linear-gradient(135deg,#9333ea,#3730a3);"><span class="text-white font-bold text-xs">~90%</span></div>
                   <p class="text-xs font-semibold text-purple-DEFAULT text-center">Active Recall</p>
                 </div>
-                <p class="text-gray-400 text-xs self-center pb-8 leading-snug">memory<br/>retained</p>
+                <p class="text-gray-400 text-xs self-center pb-6 leading-snug">memory<br/>retained</p>
               </div>
             </div>
           </div>
 
           <!-- SLIDE 3: Spaced Repetition -->
-          <div style="min-width:100%;flex-shrink:0;padding:2rem;background:#faf8ff;border:1px solid #e9d5ff;border-radius:1rem;">
-            <div class="flex flex-col lg:flex-row gap-10 items-start">
+          <div style="min-width:100%;flex-shrink:0;height:100%;padding:1.25rem 1.5rem;background:#faf8ff;border:1px solid #e9d5ff;border-radius:1rem;box-sizing:border-box;overflow:hidden;display:flex;align-items:center;">
+            <div class="flex flex-col lg:flex-row gap-6 items-center w-full">
               <div class="flex-1">
-                <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-3">Technique 03</p>
-                <h3 class="text-2xl font-extrabold text-navy-dark mb-4">Spaced Repetition</h3>
-                <p class="text-gray-600 text-sm leading-relaxed mb-2"><span class="font-semibold text-gray-800">What it is —</span> Review material at increasing intervals: Day 1 → Day 3 → Day 7 → Day 14.</p>
-                <p class="text-gray-600 text-sm leading-relaxed mb-6"><span class="font-semibold text-gray-800">Why it works —</span> Each review resets the Forgetting Curve, moving information from short-term into long-term memory.</p>
-                <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-4 py-2 rounded-full">Outcome: long-term retention</span>
+                <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-1">Technique 03</p>
+                <h3 class="text-xl font-extrabold text-navy-dark mb-2">Spaced Repetition</h3>
+                <p class="text-gray-600 text-sm leading-relaxed mb-1.5"><span class="font-semibold text-gray-800">What it is —</span> Review material at increasing intervals: Day 1 → Day 3 → Day 7 → Day 14.</p>
+                <p class="text-gray-600 text-sm leading-relaxed mb-3"><span class="font-semibold text-gray-800">Why it works —</span> Each review resets the Forgetting Curve, moving information from short-term into long-term memory.</p>
+                <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-3 py-1.5 rounded-full">Outcome: long-term retention</span>
               </div>
-              <div class="flex-shrink-0 space-y-3 min-w-56">
-                <div class="flex items-center gap-3"><span class="text-xs text-gray-400 w-14 flex-shrink-0">Day 0</span><div class="flex-1 bg-gray-100 rounded-full h-2"><div class="h-2 rounded-full bg-red-300" style="width:28%"></div></div><span class="text-xs text-gray-400 w-20 text-right">No review</span></div>
-                <div class="flex items-center gap-3"><span class="text-xs text-gray-400 w-14 flex-shrink-0">Day 3</span><div class="flex-1 bg-gray-100 rounded-full h-2"><div class="h-2 rounded-full bg-amber-400" style="width:58%"></div></div><span class="text-xs text-gray-400 w-20 text-right">1 review</span></div>
-                <div class="flex items-center gap-3"><span class="text-xs text-gray-400 w-14 flex-shrink-0">Day 7</span><div class="flex-1 bg-gray-100 rounded-full h-2"><div class="h-2 rounded-full bg-purple-DEFAULT" style="width:78%"></div></div><span class="text-xs text-gray-400 w-20 text-right">2 reviews</span></div>
-                <div class="flex items-center gap-3"><span class="text-xs text-gray-400 w-14 flex-shrink-0">Day 14+</span><div class="flex-1 bg-gray-100 rounded-full h-2"><div class="h-2 rounded-full" style="width:95%;background:linear-gradient(90deg,#9333ea,#3730a3)"></div></div><span class="text-xs text-purple-DEFAULT font-semibold w-20 text-right">Long-term</span></div>
+              <div class="flex-shrink-0 space-y-2" style="min-width:220px">
+                <div class="flex items-center gap-2"><span class="text-xs text-gray-400 w-12 flex-shrink-0">Day 0</span><div class="flex-1 bg-gray-100 rounded-full h-2"><div class="h-2 rounded-full bg-red-300" style="width:28%"></div></div><span class="text-xs text-gray-400 w-16 text-right">No review</span></div>
+                <div class="flex items-center gap-2"><span class="text-xs text-gray-400 w-12 flex-shrink-0">Day 3</span><div class="flex-1 bg-gray-100 rounded-full h-2"><div class="h-2 rounded-full bg-amber-400" style="width:58%"></div></div><span class="text-xs text-gray-400 w-16 text-right">1 review</span></div>
+                <div class="flex items-center gap-2"><span class="text-xs text-gray-400 w-12 flex-shrink-0">Day 7</span><div class="flex-1 bg-gray-100 rounded-full h-2"><div class="h-2 rounded-full bg-purple-DEFAULT" style="width:78%"></div></div><span class="text-xs text-gray-400 w-16 text-right">2 reviews</span></div>
+                <div class="flex items-center gap-2"><span class="text-xs text-gray-400 w-12 flex-shrink-0">Day 14+</span><div class="flex-1 bg-gray-100 rounded-full h-2"><div class="h-2 rounded-full" style="width:95%;background:linear-gradient(90deg,#9333ea,#3730a3)"></div></div><span class="text-xs text-purple-DEFAULT font-semibold w-16 text-right">Long-term</span></div>
               </div>
             </div>
           </div>
 
           <!-- SLIDE 4: 3-Day Retention -->
-          <div style="min-width:100%;flex-shrink:0;padding:2rem;background:#faf8ff;border:1px solid #e9d5ff;border-radius:1rem;">
-            <div class="flex flex-col lg:flex-row gap-10 items-start">
+          <div style="min-width:100%;flex-shrink:0;height:100%;padding:1.25rem 1.5rem;background:#faf8ff;border:1px solid #e9d5ff;border-radius:1rem;box-sizing:border-box;overflow:hidden;display:flex;align-items:center;">
+            <div class="flex flex-col lg:flex-row gap-6 items-center w-full">
               <div class="flex-1">
-                <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-3">Technique 04</p>
-                <h3 class="text-2xl font-extrabold text-navy-dark mb-4">3-Day Retention</h3>
-                <p class="text-gray-600 text-sm leading-relaxed mb-2"><span class="font-semibold text-gray-800">What it is —</span> Review anything you've learned within 3 days — before it falls into the forgetting window.</p>
-                <p class="text-gray-600 text-sm leading-relaxed mb-6"><span class="font-semibold text-gray-800">Why it works —</span> Memory drops sharply after 72 hours without review. One session inside that window resets the clock.</p>
-                <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-4 py-2 rounded-full">Outcome: nothing gets forgotten</span>
+                <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-1">Technique 04</p>
+                <h3 class="text-xl font-extrabold text-navy-dark mb-2">3-Day Retention</h3>
+                <p class="text-gray-600 text-sm leading-relaxed mb-1.5"><span class="font-semibold text-gray-800">What it is —</span> Review anything you've learned within 3 days — before it falls into the forgetting window.</p>
+                <p class="text-gray-600 text-sm leading-relaxed mb-3"><span class="font-semibold text-gray-800">Why it works —</span> Memory drops sharply after 72 hours without review. One session inside that window resets the clock.</p>
+                <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-3 py-1.5 rounded-full">Outcome: nothing gets forgotten</span>
               </div>
-              <div class="flex items-center gap-2 flex-shrink-0 pt-4">
-                <div class="flex flex-col items-center flex-shrink-0"><div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-extrabold text-sm shadow" style="background:linear-gradient(135deg,#9333ea,#3730a3)">L</div><p class="text-xs text-gray-500 mt-2">Learn</p><p class="text-xs text-purple-DEFAULT font-bold">Day 0</p></div>
-                <div class="flex flex-col items-center gap-1 mx-1" style="min-width:60px"><div class="w-full h-px bg-purple-soft"></div><span class="text-xs text-red-400 font-semibold whitespace-nowrap">max 3 days</span></div>
-                <div class="flex flex-col items-center flex-shrink-0"><div class="w-11 h-11 rounded-full border-2 border-purple-DEFAULT bg-purple-light flex items-center justify-center text-purple-dark font-extrabold text-sm">R</div><p class="text-xs text-gray-500 mt-2">Review</p><p class="text-xs text-purple-DEFAULT font-bold">Day 3</p></div>
-                <div class="h-px bg-purple-soft mx-1" style="min-width:40px"></div>
-                <div class="flex flex-col items-center flex-shrink-0"><div class="w-11 h-11 rounded-full bg-navy-dark flex items-center justify-center text-white font-extrabold text-sm">✓</div><p class="text-xs text-gray-500 mt-2">Locked in</p><p class="text-xs text-gray-400 font-bold">Day 7+</p></div>
+              <div class="flex items-center gap-2 flex-shrink-0">
+                <div class="flex flex-col items-center flex-shrink-0"><div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-extrabold text-sm shadow" style="background:linear-gradient(135deg,#9333ea,#3730a3)">L</div><p class="text-xs text-gray-500 mt-1">Learn</p><p class="text-xs text-purple-DEFAULT font-bold">Day 0</p></div>
+                <div class="flex flex-col items-center gap-1 mx-1" style="min-width:50px"><div class="w-full h-px bg-purple-soft"></div><span class="text-xs text-red-400 font-semibold whitespace-nowrap">≤ 3 days</span></div>
+                <div class="flex flex-col items-center flex-shrink-0"><div class="w-10 h-10 rounded-full border-2 border-purple-DEFAULT bg-purple-light flex items-center justify-center text-purple-dark font-extrabold text-sm">R</div><p class="text-xs text-gray-500 mt-1">Review</p><p class="text-xs text-purple-DEFAULT font-bold">Day 3</p></div>
+                <div class="h-px bg-purple-soft mx-1" style="min-width:35px"></div>
+                <div class="flex flex-col items-center flex-shrink-0"><div class="w-10 h-10 rounded-full bg-navy-dark flex items-center justify-center text-white font-extrabold text-sm">✓</div><p class="text-xs text-gray-500 mt-1">Locked in</p><p class="text-xs text-gray-400 font-bold">Day 7+</p></div>
               </div>
             </div>
           </div>
 
           <!-- SLIDE 5: Feynman -->
-          <div style="min-width:100%;flex-shrink:0;padding:2rem;background:#faf8ff;border:1px solid #e9d5ff;border-radius:1rem;">
-            <div class="flex flex-col lg:flex-row gap-10 items-start">
+          <div style="min-width:100%;flex-shrink:0;height:100%;padding:1.25rem 1.5rem;background:#faf8ff;border:1px solid #e9d5ff;border-radius:1rem;box-sizing:border-box;overflow:hidden;display:flex;align-items:center;">
+            <div class="flex flex-col lg:flex-row gap-6 items-center w-full">
               <div class="flex-1">
-                <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-3">Technique 05</p>
-                <h3 class="text-2xl font-extrabold text-navy-dark mb-4">Feynman Technique</h3>
-                <p class="text-gray-600 text-sm leading-relaxed mb-2"><span class="font-semibold text-gray-800">What it is —</span> Explain what you've learned in plain language, as if teaching it to someone with no prior knowledge.</p>
-                <p class="text-gray-600 text-sm leading-relaxed mb-6"><span class="font-semibold text-gray-800">Why it works —</span> Simplifying forces your brain to identify the parts you only think you understand — exposing real gaps.</p>
-                <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-4 py-2 rounded-full">Outcome: deep understanding, not surface recall</span>
+                <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-1">Technique 05</p>
+                <h3 class="text-xl font-extrabold text-navy-dark mb-2">Feynman Technique</h3>
+                <p class="text-gray-600 text-sm leading-relaxed mb-1.5"><span class="font-semibold text-gray-800">What it is —</span> Explain what you've learned in plain language, as if teaching it to someone with no prior knowledge.</p>
+                <p class="text-gray-600 text-sm leading-relaxed mb-3"><span class="font-semibold text-gray-800">Why it works —</span> Simplifying forces your brain to identify the parts you only think you understand — exposing real gaps.</p>
+                <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-3 py-1.5 rounded-full">Outcome: deep understanding, not surface recall</span>
               </div>
-              <div class="grid grid-cols-2 gap-3 flex-shrink-0" style="min-width:220px">
-                <div class="p-4 bg-purple-light rounded-xl"><p class="text-purple-dark font-bold text-xs mb-1">1 — Learn</p><p class="text-gray-500 text-xs">Study the topic normally</p></div>
-                <div class="p-4 bg-purple-light rounded-xl"><p class="text-purple-dark font-bold text-xs mb-1">2 — Explain</p><p class="text-gray-500 text-xs">Write it in your own words</p></div>
-                <div class="p-4 bg-purple-light rounded-xl"><p class="text-purple-dark font-bold text-xs mb-1">3 — Find gaps</p><p class="text-gray-500 text-xs">Where did you get stuck?</p></div>
-                <div class="p-4 rounded-xl" style="background:#1e1b4b"><p class="text-white font-bold text-xs mb-1">4 — Go back</p><p class="text-gray-400 text-xs">Fill the gaps. Repeat.</p></div>
+              <div class="grid grid-cols-2 gap-2 flex-shrink-0" style="min-width:200px">
+                <div class="p-3 bg-purple-light rounded-xl"><p class="text-purple-dark font-bold text-xs mb-0.5">1 — Learn</p><p class="text-gray-500 text-xs">Study the topic normally</p></div>
+                <div class="p-3 bg-purple-light rounded-xl"><p class="text-purple-dark font-bold text-xs mb-0.5">2 — Explain</p><p class="text-gray-500 text-xs">Write it in your own words</p></div>
+                <div class="p-3 bg-purple-light rounded-xl"><p class="text-purple-dark font-bold text-xs mb-0.5">3 — Find gaps</p><p class="text-gray-500 text-xs">Where did you get stuck?</p></div>
+                <div class="p-3 rounded-xl" style="background:#1e1b4b"><p class="text-white font-bold text-xs mb-0.5">4 — Go back</p><p class="text-gray-400 text-xs">Fill the gaps. Repeat.</p></div>
               </div>
             </div>
           </div>
@@ -467,94 +467,44 @@
       </div>
 
       <!-- Navigation row -->
-      <div class="flex items-center justify-between mt-6">
-        <button id="tech-prev" style="width:42px;height:42px;border-radius:50%;border:1.5px solid #e9d5ff;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:1rem;color:#6b21a8;" onmouseover="this.style.background='linear-gradient(135deg,#9333ea,#3730a3)';this.style.color='white';this.style.borderColor='transparent'" onmouseout="this.style.background='white';this.style.color='#6b21a8';this.style.borderColor='#e9d5ff'">←</button>
+      <div class="flex items-center justify-between mt-3 flex-shrink-0">
+        <button id="tech-prev" style="width:38px;height:38px;border-radius:50%;border:1.5px solid #e9d5ff;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:1rem;color:#6b21a8;" onmouseover="this.style.background='linear-gradient(135deg,#9333ea,#3730a3)';this.style.color='white';this.style.borderColor='transparent'" onmouseout="this.style.background='white';this.style.color='#6b21a8';this.style.borderColor='#e9d5ff'">←</button>
         <div id="tech-dots" style="display:flex;gap:8px;align-items:center;"></div>
-        <button id="tech-next" style="width:42px;height:42px;border-radius:50%;border:1.5px solid #e9d5ff;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:1rem;color:#6b21a8;" onmouseover="this.style.background='linear-gradient(135deg,#9333ea,#3730a3)';this.style.color='white';this.style.borderColor='transparent'" onmouseout="this.style.background='white';this.style.color='#6b21a8';this.style.borderColor='#e9d5ff'">→</button>
+        <button id="tech-next" style="width:38px;height:38px;border-radius:50%;border:1.5px solid #e9d5ff;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:1rem;color:#6b21a8;" onmouseover="this.style.background='linear-gradient(135deg,#9333ea,#3730a3)';this.style.color='white';this.style.borderColor='transparent'" onmouseout="this.style.background='white';this.style.color='#6b21a8';this.style.borderColor='#e9d5ff'">→</button>
       </div>
 
     </div>
   </section>
 
-  <!-- SLIDE 4: What's Included (carousel) -->
-  <section class="fp-section" id="whats-included" style="background:#f5f3ff;overflow:hidden;display:flex;flex-direction:column;justify-content:center;">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 w-full py-10">
-
-      <!-- Header row -->
-      <div class="flex items-end justify-between mb-8">
-        <div>
-          <p class="text-purple-DEFAULT font-semibold text-xs uppercase tracking-widest mb-1">The full package</p>
-          <h2 class="text-3xl font-extrabold text-navy-dark">Everything inside Stoday Plus</h2>
-        </div>
-        <span id="inc-counter" class="text-5xl font-extrabold leading-none select-none" style="color:#ddd6fe">01</span>
+  <!-- SLIDE 4: What's Included -->
+  <section class="fp-section py-24" id="whats-included" style="background:#f5f3ff;overflow-y:auto">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6">
+      <div class="text-center mb-14">
+        <p class="text-purple-DEFAULT font-semibold text-sm uppercase tracking-widest mb-3">The full package</p>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-navy-dark">Everything inside Stoday Plus</h2>
       </div>
-
-      <!-- Carousel viewport -->
-      <div style="overflow:hidden;border-radius:1rem;">
-        <div id="inc-track" style="display:flex;transition:transform .55s cubic-bezier(.77,0,.175,1);will-change:transform;">
-
-          <!-- ITEM 1 -->
-          <div style="min-width:100%;flex-shrink:0;padding:2rem;background:white;border:1px solid #e9d5ff;border-radius:1rem;">
-            <div class="flex flex-col sm:flex-row gap-8 items-center">
-              <img src="Marketing/Store%20Page%20Esstls/1.png" alt="" style="width:160px;height:160px;object-fit:cover;border-radius:1rem;flex-shrink:0;box-shadow:0 8px 24px rgba(147,51,234,.12);" />
-              <div>
-                <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-3">What's included · 01 / 04</p>
-                <h3 class="text-2xl font-extrabold text-navy-dark mb-3">5 Novel Techniques Guide</h3>
-                <p class="text-gray-500 text-sm leading-relaxed mb-5">The full breakdown of every technique — how it works, why it works, and exactly how to use it in your next study session.</p>
-                <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-4 py-2 rounded-full">Instant digital access</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- ITEM 2 -->
-          <div style="min-width:100%;flex-shrink:0;padding:2rem;background:white;border:1px solid #e9d5ff;border-radius:1rem;">
-            <div class="flex flex-col sm:flex-row gap-8 items-center">
-              <img src="Marketing/Store%20Page%20Esstls/2.png" alt="" style="width:160px;height:160px;object-fit:cover;border-radius:1rem;flex-shrink:0;box-shadow:0 8px 24px rgba(147,51,234,.12);" />
-              <div>
-                <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-3">What's included · 02 / 04</p>
-                <h3 class="text-2xl font-extrabold text-navy-dark mb-3">The Stoday System</h3>
-                <p class="text-gray-500 text-sm leading-relaxed mb-5">A ready-to-use daily study framework. Plug your subjects in and never wonder "what should I be doing?" again.</p>
-                <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-4 py-2 rounded-full">Instant digital access</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- ITEM 3 -->
-          <div style="min-width:100%;flex-shrink:0;padding:2rem;background:white;border:1px solid #e9d5ff;border-radius:1rem;">
-            <div class="flex flex-col sm:flex-row gap-8 items-center">
-              <img src="Marketing/Store%20Page%20Esstls/3.png" alt="" style="width:160px;height:160px;object-fit:cover;border-radius:1rem;flex-shrink:0;box-shadow:0 8px 24px rgba(147,51,234,.12);" />
-              <div>
-                <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-3">What's included · 03 / 04</p>
-                <h3 class="text-2xl font-extrabold text-navy-dark mb-3">Blurting Sheet Template</h3>
-                <p class="text-gray-500 text-sm leading-relaxed mb-5">The active recall worksheet that replaces passive note-taking. Topic in, pen down, recall everything — then check and correct. Simple. Brutal. Effective.</p>
-                <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-4 py-2 rounded-full">Instant digital access</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- ITEM 4 -->
-          <div style="min-width:100%;flex-shrink:0;padding:2rem;background:white;border:1px solid #e9d5ff;border-radius:1rem;">
-            <div class="flex flex-col sm:flex-row gap-8 items-center">
-              <img src="Marketing/Store%20Page%20Esstls/4.png" alt="" style="width:160px;height:160px;object-fit:cover;border-radius:1rem;flex-shrink:0;box-shadow:0 8px 24px rgba(147,51,234,.12);" />
-              <div>
-                <p class="text-purple-DEFAULT text-xs font-bold uppercase tracking-widest mb-3">What's included · 04 / 04</p>
-                <h3 class="text-2xl font-extrabold text-navy-dark mb-3">Full Resource Bundle</h3>
-                <p class="text-gray-500 text-sm leading-relaxed mb-5">Scientific papers, revision guides, and supporting materials. Everything you need to understand the "why" behind the methods — so you actually trust the process.</p>
-                <span class="inline-block bg-purple-light text-purple-deep text-xs font-bold px-4 py-2 rounded-full">Instant digital access</span>
-              </div>
-            </div>
-          </div>
-
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-sm border border-purple-soft card-hover">
+          <img src="Marketing/Store%20Page%20Esstls/1.png" alt="" class="w-16 h-16 rounded-xl flex-shrink-0 object-cover" />
+          <div><h3 class="font-extrabold text-navy-dark mb-1">5 Novel Techniques Guide</h3><p class="text-gray-500 text-sm leading-relaxed">The full breakdown of every technique — how it works, why it works, and exactly how to use it in your next study session.</p></div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-sm border border-purple-soft card-hover">
+          <img src="Marketing/Store%20Page%20Esstls/2.png" alt="" class="w-16 h-16 rounded-xl flex-shrink-0 object-cover" />
+          <div><h3 class="font-extrabold text-navy-dark mb-1">The Stoday System</h3><p class="text-gray-500 text-sm leading-relaxed">A ready-to-use daily study framework. Plug your subjects in and never wonder "what should I be doing?" again.</p></div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-sm border border-purple-soft card-hover">
+          <img src="Marketing/Store%20Page%20Esstls/3.png" alt="" class="w-16 h-16 rounded-xl flex-shrink-0 object-cover" />
+          <div><h3 class="font-extrabold text-navy-dark mb-1">Blurting Sheet Template</h3><p class="text-gray-500 text-sm leading-relaxed">The active recall worksheet that replaces passive note-taking. Simple. Brutal. Effective.</p></div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-sm border border-purple-soft card-hover">
+          <img src="Marketing/Store%20Page%20Esstls/4.png" alt="" class="w-16 h-16 rounded-xl flex-shrink-0 object-cover" />
+          <div><h3 class="font-extrabold text-navy-dark mb-1">Full Resource Bundle</h3><p class="text-gray-500 text-sm leading-relaxed">Scientific papers, revision guides, and supporting materials — everything behind the "why."</p></div>
         </div>
       </div>
-
-      <!-- Navigation row -->
-      <div class="flex items-center justify-between mt-6">
-        <button id="inc-prev" style="width:42px;height:42px;border-radius:50%;border:1.5px solid #c084fc;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:1rem;color:#6b21a8;" onmouseover="this.style.background='linear-gradient(135deg,#9333ea,#3730a3)';this.style.color='white';this.style.borderColor='transparent'" onmouseout="this.style.background='white';this.style.color='#6b21a8';this.style.borderColor='#c084fc'">←</button>
-        <div id="inc-dots" style="display:flex;gap:8px;align-items:center;"></div>
-        <button id="inc-next" style="width:42px;height:42px;border-radius:50%;border:1.5px solid #c084fc;background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:1rem;color:#6b21a8;" onmouseover="this.style.background='linear-gradient(135deg,#9333ea,#3730a3)';this.style.color='white';this.style.borderColor='transparent'" onmouseout="this.style.background='white';this.style.color='#6b21a8';this.style.borderColor='#c084fc'">→</button>
+      <div class="rounded-2xl overflow-hidden shadow-xl max-w-2xl mx-auto mt-8">
+        <img src="Marketing/Store%20Page%20Esstls/1365=1.png" alt="1.01 to the power of 365" class="w-full" />
       </div>
-
+      <p class="text-center text-gray-500 text-sm mt-4">1% better every day compounds into something extraordinary. The method matters.</p>
     </div>
   </section>
 
@@ -761,39 +711,6 @@
 <div id="fp-counter">01 / 10</div>
 
 <script>
-  /* ── What's Included carousel ─────────────────────────────── */
-  (function() {
-    var track   = document.getElementById('inc-track');
-    var counter = document.getElementById('inc-counter');
-    var dotsEl  = document.getElementById('inc-dots');
-    var total   = 4, cur = 0;
-    for (var i = 0; i < total; i++) {
-      var d = document.createElement('button');
-      d.style.cssText = 'width:7px;height:7px;border-radius:50%;border:none;padding:0;cursor:pointer;transition:all .25s;background:' + (i === 0 ? '#9333ea' : 'rgba(147,51,234,.25)') + ';';
-      (function(idx){ d.addEventListener('click', function(){ goto(idx); }); })(i);
-      dotsEl.appendChild(d);
-    }
-    function goto(idx) {
-      if (idx < 0 || idx >= total) return;
-      cur = idx;
-      track.style.transform = 'translateX(-' + (cur * 100) + '%)';
-      counter.textContent   = String(cur + 1).padStart(2, '0');
-      dotsEl.querySelectorAll('button').forEach(function(d, i) {
-        d.style.background   = i === cur ? '#9333ea' : 'rgba(147,51,234,.25)';
-        d.style.width        = i === cur ? '22px' : '7px';
-        d.style.borderRadius = i === cur ? '4px' : '50%';
-      });
-    }
-    document.getElementById('inc-prev').addEventListener('click', function() { goto(cur - 1); });
-    document.getElementById('inc-next').addEventListener('click', function() { goto(cur + 1); });
-    var tx = 0;
-    track.addEventListener('touchstart', function(e){ tx = e.touches[0].clientX; }, { passive:true });
-    track.addEventListener('touchend',   function(e){
-      var d = tx - e.changedTouches[0].clientX;
-      if (Math.abs(d) > 40) goto(d > 0 ? cur + 1 : cur - 1);
-    }, { passive:true });
-  })();
-
   /* ── Techniques carousel ───────────────────────────────────── */
   (function() {
     var track   = document.getElementById('tech-track');
