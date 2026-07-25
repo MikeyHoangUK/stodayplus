@@ -36,6 +36,8 @@
     .nav-link { position: relative; }
     .nav-link::after { content:''; position:absolute; bottom:-2px; left:0; width:0; height:2px; background:#c084fc; transition:width .2s; }
     .nav-link:hover::after { width:100%; }
+    .scroll-reveal { opacity:0; transform:translateY(28px); transition:opacity .7s ease, transform .7s ease; }
+    .scroll-reveal.revealed { opacity:1; transform:translateY(0); }
   </style>
 </head>
 <body class="font-sans bg-white text-gray-900 antialiased">
@@ -66,27 +68,36 @@
 
 <!-- ── HERO ───────────────────────────────────────────────── -->
 <section class="gradient-hero min-h-screen flex items-start pt-14">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 w-full pt-16 pb-20">
-    <div class="flex flex-col lg:flex-row items-center gap-16 lg:gap-20">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 w-full pt-24 pb-32">
+    <div class="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
 
       <!-- Left: Copy -->
       <div class="flex-1 text-center lg:text-left">
-        <div class="inline-flex items-center gap-2 bg-white bg-opacity-60 border border-purple-soft rounded-full px-4 py-2 text-sm text-purple-deep font-semibold mb-5 shadow-sm">
+        <div class="inline-flex items-center gap-2 bg-white bg-opacity-60 border border-purple-soft rounded-full px-4 py-2 text-sm text-purple-deep font-semibold mb-9 shadow-sm">
           <span>🎓</span> Built by a full-ride scholarship student
         </div>
-        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-navy-dark leading-tight mb-5">
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-navy-dark leading-tight mb-8">
           Hard work should<br />
           <span class="text-purple-DEFAULT">show up in results.</span>
         </h1>
-        <p class="text-lg text-gray-500 max-w-lg leading-relaxed mb-6 mx-auto lg:mx-0">
+        <p class="text-lg text-gray-500 max-w-lg leading-relaxed mb-10 mx-auto lg:mx-0">
           Most students study for hours and still underperform on exam day. It's not effort — it's method. Stoday Plus gives your child the exact system to turn hard work into A*s, without burning out or missing out on life.
         </p>
-        <div class="flex flex-wrap gap-3 justify-center lg:justify-start mb-8">
-          <span class="inline-flex items-center gap-2 bg-white border border-purple-soft text-navy-dark text-sm font-semibold px-4 py-2 rounded-full shadow-sm">🎯 A*s in exams</span>
-          <span class="inline-flex items-center gap-2 bg-white border border-purple-soft text-navy-dark text-sm font-semibold px-4 py-2 rounded-full shadow-sm">🏖️ Time for family holidays</span>
-          <span class="inline-flex items-center gap-2 bg-white border border-purple-soft text-navy-dark text-sm font-semibold px-4 py-2 rounded-full shadow-sm">🎓 Strong university offers</span>
+        <div class="flex flex-col gap-4 items-center lg:items-start mb-12">
+          <div class="flex items-center gap-3">
+            <span class="w-7 h-7 rounded-full gradient-brand flex items-center justify-center text-white text-xs font-bold flex-shrink-0">✓</span>
+            <span class="text-navy-dark font-semibold">A*s in exams</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="w-7 h-7 rounded-full gradient-brand flex items-center justify-center text-white text-xs font-bold flex-shrink-0">✓</span>
+            <span class="text-navy-dark font-semibold">Time for family holidays</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="w-7 h-7 rounded-full gradient-brand flex items-center justify-center text-white text-xs font-bold flex-shrink-0">✓</span>
+            <span class="text-navy-dark font-semibold">Strong university offers</span>
+          </div>
         </div>
-        <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-4">
+        <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-6">
           <a href="join.html" class="w-full sm:w-auto gradient-brand text-white font-bold px-8 py-4 rounded-xl hover:opacity-90 transition-opacity text-center shadow-lg">
             Get the Full System
           </a>
@@ -98,7 +109,7 @@
       </div>
 
       <!-- Right: Revision Planner replica -->
-      <div class="flex-shrink-0 w-full max-w-sm lg:max-w-md">
+      <div id="hero-panel" class="flex-shrink-0 w-full max-w-sm lg:max-w-md" style="will-change:transform">
         <div class="rounded-2xl overflow-hidden shadow-2xl" style="border:1px solid rgba(109,40,217,.15)">
 
           <!-- Window chrome -->
@@ -234,24 +245,24 @@
 <!-- ── PROBLEM ────────────────────────────────────────────── -->
 <section class="py-24 bg-white">
   <div class="max-w-5xl mx-auto px-4 sm:px-6">
-    <div class="text-center mb-14">
+    <div class="text-center mb-14 scroll-reveal">
       <p class="text-purple-DEFAULT font-semibold text-sm uppercase tracking-widest mb-3">Sound familiar?</p>
       <h2 class="text-3xl sm:text-4xl font-extrabold text-navy-dark">The grind isn't working.</h2>
       <p class="text-gray-500 mt-4 max-w-2xl mx-auto">Most students study for hours and still forget everything before the exam. It's not a discipline problem. It's a method problem.</p>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-14">
-      <div class="bg-purple-light border border-purple-soft rounded-2xl p-6 text-center card-hover">
+      <div class="bg-purple-light border border-purple-soft rounded-2xl p-6 text-center card-hover scroll-reveal" data-delay="0">
         <div class="text-4xl mb-3">📖</div>
         <h3 class="font-bold text-navy-dark mb-2">Re-reading your notes</h3>
         <p class="text-gray-500 text-sm">Feels productive. Achieves almost nothing. Your brain isn't being challenged — it's just skimming.</p>
       </div>
-      <div class="bg-purple-light border border-purple-soft rounded-2xl p-6 text-center card-hover">
+      <div class="bg-purple-light border border-purple-soft rounded-2xl p-6 text-center card-hover scroll-reveal" data-delay="120">
         <div class="text-4xl mb-3">🖊️</div>
         <h3 class="font-bold text-navy-dark mb-2">Copying out notes</h3>
         <p class="text-gray-500 text-sm">You're busy, but you're not learning. Passive writing without retrieval is wasted time.</p>
       </div>
-      <div class="bg-purple-light border border-purple-soft rounded-2xl p-6 text-center card-hover">
+      <div class="bg-purple-light border border-purple-soft rounded-2xl p-6 text-center card-hover scroll-reveal" data-delay="240">
         <div class="text-4xl mb-3">🎥</div>
         <h3 class="font-bold text-navy-dark mb-2">Watching tutorials</h3>
         <p class="text-gray-500 text-sm">It feels like studying. It isn't. Watching someone else understand something isn't the same as you understanding it.</p>
@@ -269,7 +280,7 @@
 <!-- ── HOW IT WORKS ────────────────────────────────────────── -->
 <section id="how-it-works" class="py-24" style="background:#f5f3ff;">
   <div class="max-w-5xl mx-auto px-4 sm:px-6">
-    <div class="text-center mb-14">
+    <div class="text-center mb-14 scroll-reveal">
       <p class="text-purple-DEFAULT font-semibold text-sm uppercase tracking-widest mb-3">The Stoday Method</p>
       <h2 class="text-3xl sm:text-4xl font-extrabold text-navy-dark">Three things. Every day.</h2>
       <p class="text-gray-500 mt-4 max-w-xl mx-auto">Stoday Plus = <em>Study Today</em>. Because the only moment you can actually change is right now.</p>
@@ -277,19 +288,19 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-8">
       <!-- Pillar 1 -->
-      <div class="bg-white rounded-2xl p-8 text-center shadow-sm border border-purple-soft card-hover">
+      <div class="bg-white rounded-2xl p-8 text-center shadow-sm border border-purple-soft card-hover scroll-reveal" data-delay="0">
         <div class="w-16 h-16 rounded-2xl gradient-brand flex items-center justify-center text-2xl mx-auto mb-5">⚡</div>
         <h3 class="text-xl font-extrabold text-navy-dark mb-3">Daily Flow</h3>
         <p class="text-gray-500 text-sm leading-relaxed">No overwhelm. No 6-hour marathon sessions that leave you drained. Short, focused bursts that actually stick — and keep you coming back tomorrow.</p>
       </div>
       <!-- Pillar 2 -->
-      <div class="bg-white rounded-2xl p-8 text-center shadow-sm border border-purple-soft card-hover">
+      <div class="bg-white rounded-2xl p-8 text-center shadow-sm border border-purple-soft card-hover scroll-reveal" data-delay="120">
         <div class="w-16 h-16 rounded-2xl gradient-brand flex items-center justify-center text-2xl mx-auto mb-5">🧠</div>
         <h3 class="text-xl font-extrabold text-navy-dark mb-3">Deep Recall</h3>
         <p class="text-gray-500 text-sm leading-relaxed">Active recall, spaced repetition, the Feynman technique. Techniques proven by neuroscience to make information stay — not just for the exam, but for life.</p>
       </div>
       <!-- Pillar 3 -->
-      <div class="bg-white rounded-2xl p-8 text-center shadow-sm border border-purple-soft card-hover">
+      <div class="bg-white rounded-2xl p-8 text-center shadow-sm border border-purple-soft card-hover scroll-reveal" data-delay="240">
         <div class="w-16 h-16 rounded-2xl gradient-brand flex items-center justify-center text-2xl mx-auto mb-5">✅</div>
         <h3 class="text-xl font-extrabold text-navy-dark mb-3">Zero Guilt</h3>
         <p class="text-gray-500 text-sm leading-relaxed">30 minutes of smart effort is better than 3 hours of mindless notes. If you do your 30 minutes, you're winning. No exceptions, no guilt, no comparison.</p>
@@ -821,6 +832,56 @@
     </div>
   </div>
 </footer>
+
+<script>
+  // ── Hero panel: mouse parallax + idle float ──────────────────
+  (function() {
+    var panel = document.getElementById('hero-panel');
+    if (!panel) return;
+    var mx = 0, my = 0, cx = 0, cy = 0, phase = 0, active = false, timer;
+    document.addEventListener('mousemove', function(e) {
+      var w = window.innerWidth, h = window.innerHeight;
+      mx = (e.clientX - w / 2) / (w / 2) * 14;
+      my = (e.clientY - h / 2) / (h / 2) * 8;
+      active = true;
+      clearTimeout(timer);
+      timer = setTimeout(function() { active = false; }, 2000);
+    });
+    function tick() {
+      if (active) {
+        cx += (mx - cx) * 0.06;
+        cy += (my - cy) * 0.06;
+      } else {
+        phase += 0.007;
+        cx += (0 - cx) * 0.04;
+        cy += (Math.sin(phase) * 10 - cy) * 0.04;
+      }
+      panel.style.transform = 'translate(' + cx.toFixed(2) + 'px,' + cy.toFixed(2) + 'px)';
+      requestAnimationFrame(tick);
+    }
+    tick();
+  })();
+
+  // ── Scroll reveal ────────────────────────────────────────────
+  (function() {
+    var els = document.querySelectorAll('.scroll-reveal');
+    if (!els.length) return;
+    if (!window.IntersectionObserver) {
+      els.forEach(function(el) { el.classList.add('revealed'); });
+      return;
+    }
+    var obs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (!entry.isIntersecting) return;
+        var el = entry.target;
+        var delay = parseInt(el.getAttribute('data-delay') || 0);
+        setTimeout(function() { el.classList.add('revealed'); }, delay);
+        obs.unobserve(el);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(function(el) { obs.observe(el); });
+  })();
+</script>
 
 <script>
   document.querySelectorAll('.faq-btn').forEach(btn => {
