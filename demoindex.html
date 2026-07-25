@@ -68,6 +68,57 @@
     }
 
 
+    /* Hide native scrollbar on all sections */
+    .fp-section { scrollbar-width: none; -ms-overflow-style: none; }
+    .fp-section::-webkit-scrollbar { display: none; }
+
+    /* Dot nav */
+    #fp-dots {
+      position: fixed;
+      right: 1.25rem;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+    .fp-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      background: rgba(147, 51, 234, 0.25);
+      padding: 0;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    .fp-dot.fp-dot-active {
+      background: #9333ea;
+      width: 9px; height: 9px;
+      box-shadow: 0 0 8px rgba(147,51,234,.5);
+    }
+    .fp-dot::before {
+      content: attr(data-name);
+      position: absolute;
+      right: calc(100% + 10px);
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(30, 27, 75, 0.88);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 700;
+      font-family: 'Raleway', sans-serif;
+      padding: 3px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .fp-dot:hover::before { opacity: 1; }
+
     /* Slide counter badge */
     #fp-counter {
       position: fixed;
@@ -825,7 +876,23 @@
       s.addEventListener('scroll', onSectionScroll, { passive: true });
     });
 
-    function updateDots() {}
+    /* dots */
+    var dotContainer = document.createElement('div');
+    dotContainer.id = 'fp-dots';
+    sections.forEach(function(_, i) {
+      var dot = document.createElement('button');
+      dot.className = 'fp-dot' + (i === 0 ? ' fp-dot-active' : '');
+      dot.setAttribute('data-name', NAMES[i] || (i + 1));
+      dot.addEventListener('click', function() { goto(i); });
+      dotContainer.appendChild(dot);
+    });
+    document.body.appendChild(dotContainer);
+
+    function updateDots() {
+      document.querySelectorAll('.fp-dot').forEach(function(d, i) {
+        d.classList.toggle('fp-dot-active', i === current);
+      });
+    }
 
     function updateCounter() {
       var el = document.getElementById('fp-counter');
