@@ -786,16 +786,6 @@
       nav.style.transform  = 'translateY(-100%)';
       nav.style.opacity    = '0';
     }
-    function onSectionScroll(e) {
-      if (e.target !== sections[current]) return;
-      var cur = sections[current].scrollTop;
-      var now = Date.now();
-      var vel = (navLastTop - cur) / Math.max(now - navLastTime, 1);
-      if (cur <= 2)              navShow(false);
-      else if (cur > navLastTop) navHide();
-      else if (vel > 5)          navShow(true);
-      navLastTop = cur; navLastTime = now;
-    }
 
     /* initialise positions */
     sections[0].classList.add('fp-active');
@@ -872,10 +862,6 @@
       if (e.key === 'ArrowUp'   || e.key === 'PageUp')   { e.preventDefault(); goto(current - 1); }
     });
 
-    /* attach internal-scroll listener to all sections */
-    sections.forEach(function(s) {
-      s.addEventListener('scroll', onSectionScroll, { passive: true });
-    });
 
     /* dots */
     var dotContainer = document.createElement('div');
