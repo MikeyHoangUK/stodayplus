@@ -773,6 +773,32 @@
     var busy     = false;
     var LOCK_MS  = 920;
 
+    /* navbar hide/show */
+    var nav = document.querySelector('nav');
+    var navLastTop = 0, navLastTime = Date.now();
+    function navShow(fast) {
+      if (!nav) return;
+      nav.style.transition = fast ? 'transform .18s ease, opacity .15s ease' : 'transform .2s ease, opacity .2s ease';
+      nav.style.transform  = 'translateY(0)';
+      nav.style.opacity    = '1';
+    }
+    function navHide() {
+      if (!nav) return;
+      nav.style.transition = 'transform .55s ease, opacity .55s ease';
+      nav.style.transform  = 'translateY(-100%)';
+      nav.style.opacity    = '0';
+    }
+    function onSectionScroll(e) {
+      if (e.target !== sections[current]) return;
+      var cur = sections[current].scrollTop;
+      var now = Date.now();
+      var vel = (navLastTop - cur) / Math.max(now - navLastTime, 1);
+      if (cur <= 2)              navShow(false);
+      else if (cur > navLastTop) navHide();
+      else if (vel > 5)          navShow(true);
+      navLastTop = cur; navLastTime = now;
+    }
+
     /* initialise positions */
     sections[0].classList.add('fp-active');
 
@@ -788,6 +814,8 @@
       sections[current].classList.add('fp-active');
       /* reset internal scroll of newly active section */
       sections[current].scrollTop = 0;
+      navLastTop = 0;
+      navShow(false);
       updateDots();
       updateCounter();
       setTimeout(function() { busy = false; }, LOCK_MS);
@@ -838,6 +866,11 @@
       dotContainer.appendChild(dot);
     });
     document.body.appendChild(dotContainer);
+
+    /* attach internal-scroll listener to all sections */
+    sections.forEach(function(s) {
+      s.addEventListener('scroll', onSectionScroll, { passive: true });
+    });
 
     function updateDots() {
       document.querySelectorAll('.fp-dot').forEach(function(d, i) {
