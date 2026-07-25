@@ -797,6 +797,7 @@
     function goto(idx) {
       if (idx < 0 || idx >= sections.length || idx === current || busy) return;
       busy = true;
+      wheelBuf = 0;
       var prev = current;
       current = idx;
       sections.forEach(function(s, i) {
@@ -818,15 +819,31 @@
     /* expose globally for inline onclick */
     window.fpGoto = goto;
 
-    /* wheel */
+    /* wheel — accumulate delta before transitioning */
     var wrapper = document.getElementById('fp-wrapper');
+    var wheelBuf = 0, wheelTimer;
+    var THRESHOLD = 260; /* px to accumulate before slide flips */
     wrapper.addEventListener('wheel', function(e) {
       if (busy) { e.preventDefault(); return; }
-      var s       = sections[current];
-      var atBot   = s.scrollTop + s.clientHeight >= s.scrollHeight - 4;
-      var atTop   = s.scrollTop <= 0;
-      if (e.deltaY > 0 && atBot)  { e.preventDefault(); goto(current + 1); }
-      else if (e.deltaY < 0 && atTop) { e.preventDefault(); goto(current - 1); }
+      var s     = sections[current];
+      var atBot = s.scrollTop + s.clientHeight >= s.scrollHeight - 4;
+      var atTop = s.scrollTop <= 0;
+
+      if (e.deltaY > 0 && atBot) {
+        e.preventDefault();
+        wheelBuf += Math.abs(e.deltaY);
+        clearTimeout(wheelTimer);
+        wheelTimer = setTimeout(function() { wheelBuf = 0; }, 400);
+        if (wheelBuf >= THRESHOLD) { wheelBuf = 0; clearTimeout(wheelTimer); goto(current + 1); }
+      } else if (e.deltaY < 0 && atTop) {
+        e.preventDefault();
+        wheelBuf -= Math.abs(e.deltaY);
+        clearTimeout(wheelTimer);
+        wheelTimer = setTimeout(function() { wheelBuf = 0; }, 400);
+        if (wheelBuf <= -THRESHOLD) { wheelBuf = 0; clearTimeout(wheelTimer); goto(current - 1); }
+      } else {
+        wheelBuf = 0;
+      }
     }, { passive: false });
 
     /* touch */
