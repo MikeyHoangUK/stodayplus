@@ -1041,6 +1041,11 @@
       nav.style.opacity    = '0';
     }
 
+    /* hide nav on any scroll within slide 0 */
+    sections[0].addEventListener('scroll', function() {
+      if (sections[0].scrollTop > 2) navHide(); else navShow(false);
+    });
+
     /* initialise positions */
     sections[0].classList.add('fp-active');
 
@@ -1080,9 +1085,9 @@
       var atTop = s.scrollTop <= 0;
 
       var now = Date.now();
+      if (current === 0 && e.deltaY > 0) navHide();
       if (e.deltaY > 0 && atBot) {
         e.preventDefault();
-        if (current === 0) navHide();
         wheelBuf += Math.abs(e.deltaY);
         clearTimeout(wheelTimer);
         wheelTimer = setTimeout(function() { wheelBuf = 0; }, 400);
