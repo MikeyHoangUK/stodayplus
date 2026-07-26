@@ -349,7 +349,7 @@
 
       <!-- Carousel viewport -->
       <div style="flex:1;min-height:0;overflow:hidden;border-radius:1.5rem;box-shadow:0 28px 70px rgba(88,28,135,.18);">
-        <div id="tech-track" style="display:flex;height:100%;transition:transform .6s cubic-bezier(.77,0,.175,1);will-change:transform;">
+        <div id="tech-track" style="display:flex;width:100%;height:100%;transition:transform .6s cubic-bezier(.77,0,.175,1);will-change:transform;">
 
           <!-- SLIDE 1: Pomodoro+ -->
           <div style="min-width:100%;flex-shrink:0;height:100%;display:grid;grid-template-columns:60% 40%;overflow:hidden;">
@@ -780,7 +780,7 @@
     function goto(idx) {
       if (idx < 0 || idx >= total) return;
       cur = idx;
-      track.style.transform = 'translateX(-' + (cur * 100) + '%)';
+      track.style.transform = 'translateX(-' + (cur * track.parentElement.offsetWidth) + 'px)';
       counter.textContent   = String(cur + 1).padStart(2, '0');
       dotsEl.querySelectorAll('button').forEach(function(d, i) {
         d.style.background = i === cur ? '#9333ea' : 'rgba(147,51,234,.25)';
