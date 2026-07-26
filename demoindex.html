@@ -910,13 +910,24 @@
     document.getElementById('tech-prev').addEventListener('click', function() { goto(cur - 1); });
     document.getElementById('tech-next').addEventListener('click', function() { goto(cur + 1); });
 
-    /* swipe support */
+    /* touch swipe */
     var tx = 0;
     track.addEventListener('touchstart', function(e){ tx = e.touches[0].clientX; }, { passive:true });
     track.addEventListener('touchend',   function(e){
       var d = tx - e.changedTouches[0].clientX;
       if (Math.abs(d) > 40) goto(d > 0 ? cur + 1 : cur - 1);
     }, { passive:true });
+
+    /* trackpad / mouse horizontal scroll */
+    var lastWheel = 0;
+    track.parentElement.addEventListener('wheel', function(e) {
+      if (Math.abs(e.deltaX) < 20) return;
+      e.preventDefault();
+      var now = Date.now();
+      if (now - lastWheel < 680) return;
+      lastWheel = now;
+      goto(e.deltaX > 0 ? cur + 1 : cur - 1);
+    }, { passive: false });
 
     setWidths();
     window.addEventListener('resize', setWidths);
