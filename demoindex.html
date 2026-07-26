@@ -36,6 +36,14 @@
     .btn-ghost { background:rgba(255,255,255,.65); border:1px solid #e9d5ff; color:#6b21a8; font-weight:600; transition:background .2s ease, color .2s ease, border-color .2s ease; cursor:pointer; }
     .btn-ghost:hover { background:linear-gradient(135deg,#9333ea 0%,#3730a3 100%); color:#fff; border-color:transparent; }
 
+    /* Pomodoro+ hover comparison */
+    .pomo-compare { position:relative; height:92px; }
+    .pomo-cons, .pomo-pros { position:absolute; top:0; left:0; width:100%; transition:opacity .35s ease, transform .35s ease; }
+    .pomo-cons { opacity:1; transform:translateY(0); }
+    .pomo-pros { opacity:0; transform:translateY(8px); }
+    .pomo-compare:hover .pomo-cons { opacity:0; transform:translateY(-8px); }
+    .pomo-compare:hover .pomo-pros { opacity:1; transform:translateY(0); }
+
     /* ── Fullpage system ──────────────────────────────────────── */
     #fp-wrapper {
       position: fixed;
@@ -356,18 +364,34 @@
             <div style="height:100%;padding:1.5rem 2.25rem;background:white;display:flex;flex-direction:column;justify-content:center;overflow:hidden;box-sizing:border-box;">
               <p style="color:#9333ea;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.14em;margin:0 0 .3rem;">Technique 01 of 05</p>
               <h3 style="font-size:1.5rem;font-weight:900;color:#1e1b4b;margin:0 0 .625rem;line-height:1.15;">Pomodoro+</h3>
-              <p style="color:#6b7280;font-size:.8rem;line-height:1.6;margin:0 0 .4rem;"><strong style="color:#111827;font-weight:700;">What it is —</strong> The Pomodoro, upgraded for flow state. 25 or 45-min focus blocks with a 5-min break.</p>
-              <p style="color:#6b7280;font-size:.8rem;line-height:1.6;margin:0 0 .875rem;"><strong style="color:#111827;font-weight:700;">Why it works —</strong> Flow state maximises retention. Timed breaks protect it without killing momentum.</p>
+              <p style="color:#6b7280;font-size:.8rem;line-height:1.6;margin:0 0 .75rem;"><strong style="color:#111827;font-weight:700;">What it is —</strong> 45-min focus blocks with a 5-min break, built to reach and hold flow state.</p>
+              <div class="pomo-compare" style="margin:0 0 .875rem;">
+                <div class="pomo-cons">
+                  <p style="color:#ef4444;font-size:.55rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;margin:0 0 .5rem;">Original Pomodoro — the problem</p>
+                  <div style="display:flex;flex-direction:column;gap:.4rem;">
+                    <div style="display:flex;align-items:flex-start;gap:.5rem;"><span style="color:#ef4444;font-size:.65rem;font-weight:800;line-height:1.5;flex-shrink:0;">✕</span><span style="color:#6b7280;font-size:.75rem;line-height:1.5;">25 min ends before flow state begins</span></div>
+                    <div style="display:flex;align-items:flex-start;gap:.5rem;"><span style="color:#ef4444;font-size:.65rem;font-weight:800;line-height:1.5;flex-shrink:0;">✕</span><span style="color:#6b7280;font-size:.75rem;line-height:1.5;">Interrupts sessions at peak concentration</span></div>
+                    <div style="display:flex;align-items:flex-start;gap:.5rem;"><span style="color:#ef4444;font-size:.65rem;font-weight:800;line-height:1.5;flex-shrink:0;">✕</span><span style="color:#6b7280;font-size:.75rem;line-height:1.5;">Designed for distraction, not depth</span></div>
+                  </div>
+                </div>
+                <div class="pomo-pros">
+                  <p style="color:#9333ea;font-size:.55rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;margin:0 0 .5rem;">Pomodoro+ — the upgrade</p>
+                  <div style="display:flex;flex-direction:column;gap:.4rem;">
+                    <div style="display:flex;align-items:flex-start;gap:.5rem;"><span style="color:#9333ea;font-size:.65rem;font-weight:800;line-height:1.5;flex-shrink:0;">✓</span><span style="color:#6b7280;font-size:.75rem;line-height:1.5;">45 min reaches and sustains flow</span></div>
+                    <div style="display:flex;align-items:flex-start;gap:.5rem;"><span style="color:#9333ea;font-size:.65rem;font-weight:800;line-height:1.5;flex-shrink:0;">✓</span><span style="color:#6b7280;font-size:.75rem;line-height:1.5;">Breaks are earned, not forced</span></div>
+                    <div style="display:flex;align-items:flex-start;gap:.5rem;"><span style="color:#9333ea;font-size:.65rem;font-weight:800;line-height:1.5;flex-shrink:0;">✓</span><span style="color:#6b7280;font-size:.75rem;line-height:1.5;">Higher retention per session</span></div>
+                  </div>
+                </div>
+              </div>
               <span style="display:inline-flex;align-items:center;gap:.4rem;background:linear-gradient(135deg,#9333ea,#4338ca);color:white;font-size:.65rem;font-weight:800;padding:.4rem 1rem;border-radius:999px;width:fit-content;letter-spacing:.02em;">✦ Outcome: flow state without burnout</span>
             </div>
             <div style="height:100%;background:linear-gradient(145deg,#1e1b4b 0%,#312e81 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.875rem;padding:1.5rem;overflow:hidden;box-sizing:border-box;">
-              <p style="color:rgba(255,255,255,.35);font-size:.58rem;text-transform:uppercase;letter-spacing:.12em;margin:0;">Session comparison</p>
               <div style="display:flex;align-items:center;gap:1.25rem;">
 
                 <!-- Circle 1: 25 min focus -->
                 <!-- r=38, circumference≈239. Focus 25/30=83.3% → arc=199. Break 5/30=16.7% → arc=40 starting at -199 -->
                 <div style="display:flex;flex-direction:column;align-items:center;gap:.5rem;">
-                  <div style="position:relative;width:74px;height:74px;">
+                  <div style="position:relative;width:86px;height:86px;">
                     <svg style="width:100%;height:100%;transform:rotate(-90deg);" viewBox="0 0 100 100">
                       <defs><linearGradient id="pg1a" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#c084fc"/><stop offset="100%" stop-color="#818cf8"/></linearGradient></defs>
                       <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="9"/>
@@ -385,12 +409,12 @@
                   </div>
                 </div>
 
-                <div style="width:1px;height:64px;background:rgba(255,255,255,.1);"></div>
+                <div style="width:1px;height:74px;background:rgba(255,255,255,.1);"></div>
 
                 <!-- Circle 2: 45 min focus -->
                 <!-- Focus 45/50=90% → arc=215. Break 5/50=10% → arc=24 starting at -215 -->
                 <div style="display:flex;flex-direction:column;align-items:center;gap:.5rem;">
-                  <div style="position:relative;width:74px;height:74px;">
+                  <div style="position:relative;width:86px;height:86px;">
                     <svg style="width:100%;height:100%;transform:rotate(-90deg);" viewBox="0 0 100 100">
                       <defs><linearGradient id="pg1b" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#c084fc"/></linearGradient></defs>
                       <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="9"/>
