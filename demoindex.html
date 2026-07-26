@@ -36,13 +36,17 @@
     .btn-ghost { background:rgba(255,255,255,.65); border:1px solid #e9d5ff; color:#6b21a8; font-weight:600; transition:background .2s ease, color .2s ease, border-color .2s ease; cursor:pointer; }
     .btn-ghost:hover { background:linear-gradient(135deg,#9333ea 0%,#3730a3 100%); color:#fff; border-color:transparent; }
 
-    /* Pomodoro+ hover comparison */
-    .pomo-compare { position:relative; height:92px; }
-    .pomo-cons, .pomo-pros { position:absolute; top:0; left:0; width:100%; transition:opacity .35s ease, transform .35s ease; }
-    .pomo-cons { opacity:1; transform:translateY(0); }
-    .pomo-pros { opacity:0; transform:translateY(8px); }
-    .pomo-compare:hover .pomo-cons { opacity:0; transform:translateY(-8px); }
-    .pomo-compare:hover .pomo-pros { opacity:1; transform:translateY(0); }
+    /* Pomo animation */
+    @keyframes pomo-fadein { from { opacity:0; } to { opacity:1; } }
+    @keyframes pomo-float  { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-3px); } }
+    @keyframes pomo-shake-in {
+      0%   { transform:translateX(-14px) scale(.88); opacity:0; }
+      22%  { transform:translateX(8px)   scale(1.05); opacity:1; }
+      44%  { transform:translateX(-5px)  scale(.98); }
+      66%  { transform:translateX(3px)   scale(1.01); }
+      82%  { transform:translateX(-1px); }
+      100% { transform:translateX(0)     scale(1); }
+    }
 
     /* ── Fullpage system ──────────────────────────────────────── */
     #fp-wrapper {
@@ -368,11 +372,10 @@
               <p style="color:#6b7280;font-size:.8rem;line-height:1.6;margin:0 0 .875rem;"><strong style="color:#111827;font-weight:700;">Why it works —</strong> Flow state maximises retention. Timed breaks protect it without killing momentum.</p>
               <span style="display:inline-flex;align-items:center;gap:.4rem;background:linear-gradient(135deg,#9333ea,#4338ca);color:white;font-size:.65rem;font-weight:800;padding:.4rem 1rem;border-radius:999px;width:fit-content;letter-spacing:.02em;">✦ Outcome: flow state without burnout</span>
             </div>
-            <div style="height:100%;background:linear-gradient(145deg,#1e1b4b 0%,#312e81 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.875rem;padding:1.5rem;overflow:hidden;box-sizing:border-box;">
-              <div style="display:flex;align-items:center;gap:1.25rem;">
+            <div id="pomo-anim" style="height:100%;background:linear-gradient(145deg,#1e1b4b 0%,#312e81 100%);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:1.5rem;box-sizing:border-box;">
 
-                <!-- Circle 1: 25 min focus -->
-                <!-- r=38, circumference≈239. Focus 25/30=83.3% → arc=199. Break 5/30=16.7% → arc=40 starting at -199 -->
+              <!-- DEFAULT: two rings side by side -->
+              <div id="pomo-default" style="display:flex;align-items:center;gap:1.25rem;transition:opacity .4s ease;">
                 <div style="display:flex;flex-direction:column;align-items:center;gap:.5rem;">
                   <div style="position:relative;width:86px;height:86px;">
                     <svg style="width:100%;height:100%;transform:rotate(-90deg);" viewBox="0 0 100 100">
@@ -386,16 +389,9 @@
                       <span style="color:rgba(255,255,255,.3);font-size:.48rem;text-transform:uppercase;letter-spacing:.06em;">min</span>
                     </div>
                   </div>
-                  <div style="text-align:center;">
-                    <p style="color:#c084fc;font-size:.6rem;font-weight:800;margin:0 0 .15rem;letter-spacing:.02em;">Standard</p>
-                    <p style="color:rgba(248,113,113,.65);font-size:.55rem;margin:0;">+ 5 min break</p>
-                  </div>
+                  <p style="color:#c084fc;font-size:.58rem;font-weight:800;margin:0;text-align:center;">Standard</p>
                 </div>
-
-                <div style="width:1px;height:74px;background:rgba(255,255,255,.1);"></div>
-
-                <!-- Circle 2: 45 min focus -->
-                <!-- Focus 45/50=90% → arc=215. Break 5/50=10% → arc=24 starting at -215 -->
+                <div style="width:1px;height:70px;background:rgba(255,255,255,.1);flex-shrink:0;"></div>
                 <div style="display:flex;flex-direction:column;align-items:center;gap:.5rem;">
                   <div style="position:relative;width:86px;height:86px;">
                     <svg style="width:100%;height:100%;transform:rotate(-90deg);" viewBox="0 0 100 100">
@@ -409,31 +405,76 @@
                       <span style="color:rgba(255,255,255,.3);font-size:.48rem;text-transform:uppercase;letter-spacing:.06em;">min</span>
                     </div>
                   </div>
-                  <div style="text-align:center;">
-                    <p style="color:#818cf8;font-size:.6rem;font-weight:800;margin:0 0 .15rem;letter-spacing:.02em;">Deep work</p>
-                    <p style="color:rgba(248,113,113,.65);font-size:.55rem;margin:0;">+ 5 min break</p>
-                  </div>
+                  <p style="color:#818cf8;font-size:.58rem;font-weight:800;margin:0;text-align:center;">Pomodoro+</p>
                 </div>
+              </div>
 
-              </div>
-              <div class="pomo-compare" style="height:72px;width:100%;">
-                <div class="pomo-cons">
-                  <p style="color:rgba(248,113,113,.8);font-size:.52rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;margin:0 0 .35rem;">Original Pomodoro</p>
-                  <div style="display:flex;flex-direction:column;gap:.3rem;">
-                    <div style="display:flex;align-items:flex-start;gap:.4rem;"><span style="color:#f87171;font-size:.6rem;font-weight:800;line-height:1.4;flex-shrink:0;">✕</span><span style="color:rgba(255,255,255,.45);font-size:.65rem;line-height:1.4;">25 min ends before flow begins</span></div>
-                    <div style="display:flex;align-items:flex-start;gap:.4rem;"><span style="color:#f87171;font-size:.6rem;font-weight:800;line-height:1.4;flex-shrink:0;">✕</span><span style="color:rgba(255,255,255,.45);font-size:.65rem;line-height:1.4;">Interrupts peak concentration</span></div>
-                    <div style="display:flex;align-items:flex-start;gap:.4rem;"><span style="color:#f87171;font-size:.6rem;font-weight:800;line-height:1.4;flex-shrink:0;">✕</span><span style="color:rgba(255,255,255,.45);font-size:.65rem;line-height:1.4;">Designed for distraction, not depth</span></div>
+              <!-- STAGE 1: 25min centred, bigger + floating cons -->
+              <div id="pomo-stage1" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.75rem;padding:1.75rem 1.5rem;box-sizing:border-box;opacity:0;pointer-events:none;transition:opacity .5s ease;">
+                <div style="position:relative;width:110px;height:110px;">
+                  <svg style="width:100%;height:100%;transform:rotate(-90deg);" viewBox="0 0 100 100">
+                    <defs><linearGradient id="pg1c" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#c084fc"/><stop offset="100%" stop-color="#818cf8"/></linearGradient></defs>
+                    <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="9"/>
+                    <circle cx="50" cy="50" r="38" fill="none" stroke="url(#pg1c)" stroke-width="9" stroke-dasharray="199 999" stroke-linecap="round"/>
+                    <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(248,113,113,.55)" stroke-width="9" stroke-dasharray="40 999" stroke-dashoffset="-199" stroke-linecap="round"/>
+                  </svg>
+                  <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                    <span style="color:white;font-weight:900;font-size:1.7rem;line-height:1.1;">25</span>
+                    <span style="color:rgba(255,255,255,.3);font-size:.52rem;text-transform:uppercase;letter-spacing:.06em;">min</span>
                   </div>
                 </div>
-                <div class="pomo-pros">
-                  <p style="color:#c084fc;font-size:.52rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;margin:0 0 .35rem;">Pomodoro+</p>
-                  <div style="display:flex;flex-direction:column;gap:.3rem;">
-                    <div style="display:flex;align-items:flex-start;gap:.4rem;"><span style="color:#c084fc;font-size:.6rem;font-weight:800;line-height:1.4;flex-shrink:0;">✓</span><span style="color:rgba(255,255,255,.65);font-size:.65rem;line-height:1.4;">45 min reaches and sustains flow</span></div>
-                    <div style="display:flex;align-items:flex-start;gap:.4rem;"><span style="color:#c084fc;font-size:.6rem;font-weight:800;line-height:1.4;flex-shrink:0;">✓</span><span style="color:rgba(255,255,255,.65);font-size:.65rem;line-height:1.4;">Breaks are earned, not forced</span></div>
-                    <div style="display:flex;align-items:flex-start;gap:.4rem;"><span style="color:#c084fc;font-size:.6rem;font-weight:800;line-height:1.4;flex-shrink:0;">✓</span><span style="color:rgba(255,255,255,.65);font-size:.65rem;line-height:1.4;">Higher retention per session</span></div>
+                <div style="display:flex;flex-direction:column;gap:.35rem;width:100%;">
+                  <div data-anim="pomo-float 3.2s ease-in-out .9s infinite">
+                    <div data-anim="pomo-fadein .4s ease .15s both" style="display:flex;align-items:flex-start;gap:.4rem;">
+                      <span style="color:#f87171;font-size:.6rem;font-weight:800;line-height:1.5;flex-shrink:0;">✕</span><span style="color:rgba(255,255,255,.5);font-size:.65rem;line-height:1.5;">25 min ends before flow begins</span>
+                    </div>
+                  </div>
+                  <div data-anim="pomo-float 3.2s ease-in-out 1.1s infinite">
+                    <div data-anim="pomo-fadein .4s ease .3s both" style="display:flex;align-items:flex-start;gap:.4rem;">
+                      <span style="color:#f87171;font-size:.6rem;font-weight:800;line-height:1.5;flex-shrink:0;">✕</span><span style="color:rgba(255,255,255,.5);font-size:.65rem;line-height:1.5;">Interrupts peak concentration</span>
+                    </div>
+                  </div>
+                  <div data-anim="pomo-float 3.2s ease-in-out 1.3s infinite">
+                    <div data-anim="pomo-fadein .4s ease .45s both" style="display:flex;align-items:flex-start;gap:.4rem;">
+                      <span style="color:#f87171;font-size:.6rem;font-weight:800;line-height:1.5;flex-shrink:0;">✕</span><span style="color:rgba(255,255,255,.5);font-size:.65rem;line-height:1.5;">Designed for distraction, not depth</span>
+                    </div>
                   </div>
                 </div>
               </div>
+
+              <!-- STAGE 2: 45min centred, bigger + floating pros, ring enters with shake -->
+              <div id="pomo-stage2" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.75rem;padding:1.75rem 1.5rem;box-sizing:border-box;opacity:0;pointer-events:none;transition:opacity .5s ease;">
+                <div id="pomo-r45-big" style="position:relative;width:110px;height:110px;">
+                  <svg style="width:100%;height:100%;transform:rotate(-90deg);" viewBox="0 0 100 100">
+                    <defs><linearGradient id="pg1d" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#c084fc"/></linearGradient></defs>
+                    <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="9"/>
+                    <circle cx="50" cy="50" r="38" fill="none" stroke="url(#pg1d)" stroke-width="9" stroke-dasharray="215 999" stroke-linecap="round"/>
+                    <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(248,113,113,.55)" stroke-width="9" stroke-dasharray="24 999" stroke-dashoffset="-215" stroke-linecap="round"/>
+                  </svg>
+                  <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                    <span style="color:white;font-weight:900;font-size:1.7rem;line-height:1.1;">45</span>
+                    <span style="color:rgba(255,255,255,.3);font-size:.52rem;text-transform:uppercase;letter-spacing:.06em;">min</span>
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:.35rem;width:100%;">
+                  <div data-anim="pomo-float 3.2s ease-in-out .9s infinite">
+                    <div data-anim="pomo-fadein .4s ease .15s both" style="display:flex;align-items:flex-start;gap:.4rem;">
+                      <span style="color:#c084fc;font-size:.6rem;font-weight:800;line-height:1.5;flex-shrink:0;">✓</span><span style="color:rgba(255,255,255,.65);font-size:.65rem;line-height:1.5;">45 min reaches and sustains flow</span>
+                    </div>
+                  </div>
+                  <div data-anim="pomo-float 3.2s ease-in-out 1.1s infinite">
+                    <div data-anim="pomo-fadein .4s ease .3s both" style="display:flex;align-items:flex-start;gap:.4rem;">
+                      <span style="color:#c084fc;font-size:.6rem;font-weight:800;line-height:1.5;flex-shrink:0;">✓</span><span style="color:rgba(255,255,255,.65);font-size:.65rem;line-height:1.5;">Breaks are earned, not forced</span>
+                    </div>
+                  </div>
+                  <div data-anim="pomo-float 3.2s ease-in-out 1.3s infinite">
+                    <div data-anim="pomo-fadein .4s ease .45s both" style="display:flex;align-items:flex-start;gap:.4rem;">
+                      <span style="color:#c084fc;font-size:.6rem;font-weight:800;line-height:1.5;flex-shrink:0;">✓</span><span style="color:rgba(255,255,255,.65);font-size:.65rem;line-height:1.5;">Higher retention per session</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
 
@@ -875,6 +916,55 @@
 
     setWidths();
     window.addEventListener('resize', setWidths);
+  })();
+
+  /* ── Pomo hover animation ──────────────────────────────────── */
+  (function() {
+    var anim   = document.getElementById('pomo-anim');
+    if (!anim) return;
+    var dflt   = document.getElementById('pomo-default');
+    var s1     = document.getElementById('pomo-stage1');
+    var s2     = document.getElementById('pomo-stage2');
+    var r45big = document.getElementById('pomo-r45-big');
+    var timer, active = false;
+
+    function restartAnims(container) {
+      container.querySelectorAll('[data-anim]').forEach(function(el) {
+        el.style.animation = 'none';
+        void el.offsetWidth;
+        el.style.animation = el.getAttribute('data-anim');
+      });
+    }
+
+    function goDefault() {
+      active = false;
+      clearTimeout(timer);
+      dflt.style.opacity = '1'; dflt.style.pointerEvents = 'auto';
+      s1.style.opacity   = '0'; s1.style.pointerEvents   = 'none';
+      s2.style.opacity   = '0'; s2.style.pointerEvents   = 'none';
+    }
+
+    function goStage1() {
+      active = true;
+      dflt.style.opacity = '0'; dflt.style.pointerEvents = 'none';
+      s2.style.opacity   = '0'; s2.style.pointerEvents   = 'none';
+      restartAnims(s1);
+      s1.style.opacity = '1';
+      timer = setTimeout(goStage2, 2600);
+    }
+
+    function goStage2() {
+      if (!active) return;
+      s1.style.opacity = '0';
+      restartAnims(s2);
+      r45big.style.animation = 'none';
+      void r45big.offsetWidth;
+      r45big.style.animation = 'pomo-shake-in .65s cubic-bezier(.36,.07,.19,.97) both';
+      s2.style.opacity = '1';
+    }
+
+    anim.addEventListener('mouseenter', goStage1);
+    anim.addEventListener('mouseleave', goDefault);
   })();
 
   /* ── FAQ accordion ─────────────────────────────────────────── */
