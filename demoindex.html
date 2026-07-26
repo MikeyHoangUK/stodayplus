@@ -767,7 +767,23 @@
     var track   = document.getElementById('tech-track');
     var counter = document.getElementById('tech-counter');
     var dotsEl  = document.getElementById('tech-dots');
-    var total   = 5, cur = 0;
+    var total   = 5, cur = 0, slideW = 0;
+
+    /* pin every slide to an exact pixel width so translateX steps are lossless */
+    function setWidths() {
+      slideW = track.parentElement.offsetWidth;
+      var slides = track.children;
+      for (var i = 0; i < slides.length; i++) {
+        slides[i].style.width    = slideW + 'px';
+        slides[i].style.minWidth = slideW + 'px';
+      }
+      /* reposition without animation */
+      track.style.transition = 'none';
+      track.style.transform  = 'translateX(-' + (cur * slideW) + 'px)';
+      requestAnimationFrame(function() {
+        track.style.transition = 'transform .6s cubic-bezier(.77,0,.175,1)';
+      });
+    }
 
     /* build dots */
     for (var i = 0; i < total; i++) {
@@ -780,11 +796,11 @@
     function goto(idx) {
       if (idx < 0 || idx >= total) return;
       cur = idx;
-      track.style.transform = 'translateX(-' + (cur * track.parentElement.offsetWidth) + 'px)';
+      track.style.transform = 'translateX(-' + (cur * slideW) + 'px)';
       counter.textContent   = String(cur + 1).padStart(2, '0');
       dotsEl.querySelectorAll('button').forEach(function(d, i) {
-        d.style.background = i === cur ? '#9333ea' : 'rgba(147,51,234,.25)';
-        d.style.width  = i === cur ? '22px' : '7px';
+        d.style.background   = i === cur ? '#9333ea' : 'rgba(147,51,234,.25)';
+        d.style.width        = i === cur ? '22px' : '7px';
         d.style.borderRadius = i === cur ? '4px' : '50%';
       });
     }
@@ -799,6 +815,9 @@
       var d = tx - e.changedTouches[0].clientX;
       if (Math.abs(d) > 40) goto(d > 0 ? cur + 1 : cur - 1);
     }, { passive:true });
+
+    setWidths();
+    window.addEventListener('resize', setWidths);
   })();
 
   /* ── FAQ accordion ─────────────────────────────────────────── */
