@@ -360,23 +360,56 @@
               <p style="color:#6b7280;font-size:.8rem;line-height:1.6;margin:0 0 .875rem;"><strong style="color:#111827;font-weight:700;">Why it works —</strong> Timed pressure activates focus. Planned breaks prevent the fatigue that quietly destroys retention.</p>
               <span style="display:inline-flex;align-items:center;gap:.4rem;background:linear-gradient(135deg,#9333ea,#4338ca);color:white;font-size:.65rem;font-weight:800;padding:.4rem 1rem;border-radius:999px;width:fit-content;letter-spacing:.02em;">✦ Outcome: sustained focus without burnout</span>
             </div>
-            <div style="height:100%;background:linear-gradient(145deg,#1e1b4b 0%,#312e81 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.25rem;padding:1.75rem;overflow:hidden;box-sizing:border-box;">
-              <div style="position:relative;width:96px;height:96px;">
-                <svg style="width:100%;height:100%;transform:rotate(-90deg);" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="9"/>
-                  <circle cx="50" cy="50" r="38" fill="none" stroke="url(#pg1)" stroke-width="9" stroke-dasharray="239" stroke-dashoffset="60" stroke-linecap="round"/>
-                  <defs><linearGradient id="pg1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#c084fc"/><stop offset="100%" stop-color="#818cf8"/></linearGradient></defs>
-                </svg>
-                <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.1rem;">
-                  <span style="color:white;font-weight:900;font-size:1.875rem;line-height:1;">25</span>
-                  <span style="color:rgba(255,255,255,.35);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;">minutes</span>
+            <div style="height:100%;background:linear-gradient(145deg,#1e1b4b 0%,#312e81 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.875rem;padding:1.5rem;overflow:hidden;box-sizing:border-box;">
+              <p style="color:rgba(255,255,255,.35);font-size:.58rem;text-transform:uppercase;letter-spacing:.12em;margin:0;">Session comparison</p>
+              <div style="display:flex;align-items:center;gap:1.25rem;">
+
+                <!-- Circle 1: 25 min focus -->
+                <!-- r=38, circumference≈239. Focus 25/30=83.3% → arc=199. Break 5/30=16.7% → arc=40 starting at -199 -->
+                <div style="display:flex;flex-direction:column;align-items:center;gap:.5rem;">
+                  <div style="position:relative;width:74px;height:74px;">
+                    <svg style="width:100%;height:100%;transform:rotate(-90deg);" viewBox="0 0 100 100">
+                      <defs><linearGradient id="pg1a" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#c084fc"/><stop offset="100%" stop-color="#818cf8"/></linearGradient></defs>
+                      <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="9"/>
+                      <circle cx="50" cy="50" r="38" fill="none" stroke="url(#pg1a)" stroke-width="9" stroke-dasharray="199 999" stroke-linecap="round"/>
+                      <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(248,113,113,.55)" stroke-width="9" stroke-dasharray="40 999" stroke-dashoffset="-199" stroke-linecap="round"/>
+                    </svg>
+                    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                      <span style="color:white;font-weight:900;font-size:1.35rem;line-height:1.1;">25</span>
+                      <span style="color:rgba(255,255,255,.3);font-size:.48rem;text-transform:uppercase;letter-spacing:.06em;">min</span>
+                    </div>
+                  </div>
+                  <div style="text-align:center;">
+                    <p style="color:#c084fc;font-size:.6rem;font-weight:800;margin:0 0 .15rem;letter-spacing:.02em;">Standard</p>
+                    <p style="color:rgba(248,113,113,.65);font-size:.55rem;margin:0;">+ 5 min break</p>
+                  </div>
                 </div>
+
+                <div style="width:1px;height:64px;background:rgba(255,255,255,.1);"></div>
+
+                <!-- Circle 2: 45 min focus -->
+                <!-- Focus 45/50=90% → arc=215. Break 5/50=10% → arc=24 starting at -215 -->
+                <div style="display:flex;flex-direction:column;align-items:center;gap:.5rem;">
+                  <div style="position:relative;width:74px;height:74px;">
+                    <svg style="width:100%;height:100%;transform:rotate(-90deg);" viewBox="0 0 100 100">
+                      <defs><linearGradient id="pg1b" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#c084fc"/></linearGradient></defs>
+                      <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="9"/>
+                      <circle cx="50" cy="50" r="38" fill="none" stroke="url(#pg1b)" stroke-width="9" stroke-dasharray="215 999" stroke-linecap="round"/>
+                      <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(248,113,113,.55)" stroke-width="9" stroke-dasharray="24 999" stroke-dashoffset="-215" stroke-linecap="round"/>
+                    </svg>
+                    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                      <span style="color:white;font-weight:900;font-size:1.35rem;line-height:1.1;">45</span>
+                      <span style="color:rgba(255,255,255,.3);font-size:.48rem;text-transform:uppercase;letter-spacing:.06em;">min</span>
+                    </div>
+                  </div>
+                  <div style="text-align:center;">
+                    <p style="color:#818cf8;font-size:.6rem;font-weight:800;margin:0 0 .15rem;letter-spacing:.02em;">Deep work</p>
+                    <p style="color:rgba(248,113,113,.65);font-size:.55rem;margin:0;">+ 5 min break</p>
+                  </div>
+                </div>
+
               </div>
-              <div style="display:flex;flex-direction:column;gap:.7rem;width:100%;">
-                <div style="display:flex;align-items:center;gap:.75rem;"><span style="width:7px;height:7px;border-radius:50%;background:#c084fc;flex-shrink:0;"></span><span style="color:rgba(255,255,255,.75);font-size:.73rem;">Focus block — 25 min</span></div>
-                <div style="display:flex;align-items:center;gap:.75rem;"><span style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.18);flex-shrink:0;"></span><span style="color:rgba(255,255,255,.38);font-size:.73rem;">Short break — 5 min</span></div>
-                <div style="display:flex;align-items:center;gap:.75rem;"><span style="width:7px;height:7px;border-radius:50%;background:rgba(99,102,241,.45);flex-shrink:0;"></span><span style="color:rgba(255,255,255,.38);font-size:.73rem;">Deep session — 45–60 min</span></div>
-              </div>
+              <span style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.35);font-size:.56rem;font-weight:700;padding:.2rem .7rem;border-radius:999px;letter-spacing:.05em;">same break · more focus</span>
             </div>
           </div>
 
