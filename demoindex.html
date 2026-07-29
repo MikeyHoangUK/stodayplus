@@ -287,34 +287,53 @@
     </div>
   </section>
 
-  <!-- SLIDE 1: Proof Bar + Problem -->
-  <div class="fp-section" style="background:white;overflow-y:auto">
-    <div class="py-16 bg-white">
-      <div class="max-w-5xl mx-auto px-4 sm:px-6">
-        <div class="text-center mb-10">
-          <p class="text-purple-DEFAULT font-semibold text-sm uppercase tracking-widest mb-3">Sound familiar?</p>
-          <h2 class="text-3xl sm:text-4xl font-extrabold text-navy-dark">The grind isn't working.</h2>
-          <p class="text-gray-500 mt-4 max-w-2xl mx-auto">Most students study for hours and still forget everything before the exam. It's not a discipline problem. It's a method problem.</p>
-        </div>
-        <p class="text-sm font-extrabold text-gray-400 uppercase tracking-widest mb-6 text-center">The Average C/B- Student</p>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
-          <div class="bg-purple-light border border-purple-soft rounded-2xl p-6 text-center card-hover">
-            <div class="text-4xl mb-3">📖</div>
-            <h3 class="font-bold text-navy-dark mb-2">re-reads their notes</h3>
-            <p class="text-gray-500 text-sm">Feels productive. Achieves almost nothing. Your brain isn't being challenged — it's just skimming.</p>
-          </div>
-          <div class="bg-purple-light border border-purple-soft rounded-2xl p-6 text-center card-hover">
-            <div class="text-4xl mb-3">🖊️</div>
-            <h3 class="font-bold text-navy-dark mb-2">Copies out notes</h3>
-            <p class="text-gray-500 text-sm">You're busy, but you're not learning. Passive writing without retrieval is wasted time.</p>
-          </div>
-          <div class="bg-purple-light border border-purple-soft rounded-2xl p-6 text-center card-hover">
-            <div class="text-4xl mb-3">🎥</div>
-            <h3 class="font-bold text-navy-dark mb-2">Watches tutorials</h3>
-            <p class="text-gray-500 text-sm">It feels like studying. It isn't. Watching someone else understand something isn't the same as you understanding it.</p>
-          </div>
-        </div>
+  <!-- SLIDE 1: Problem -->
+  <div class="fp-section" id="problem-slide" style="background:#0e0c14;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+    <div style="max-width:640px;width:100%;margin:0 auto;padding:2.5rem 2rem;box-sizing:border-box;">
+
+      <!-- Header -->
+      <div style="margin-bottom:2.75rem;">
+        <p style="color:#a78bfa;font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.22em;margin:0 0 1rem;">Sound familiar?</p>
+        <h2 style="font-size:3rem;font-weight:900;color:white;line-height:1.05;margin:0 0 1rem;letter-spacing:-.025em;">The grind<br>isn't working.</h2>
+        <p style="color:rgba(255,255,255,.35);font-size:.83rem;line-height:1.72;margin:0;max-width:460px;">Hours of effort. Nothing retained before the exam.<br>It's not a discipline problem — it's a <em style="color:rgba(255,255,255,.55);">method</em> problem.</p>
       </div>
+
+      <!-- Label -->
+      <p style="font-size:.55rem;font-weight:800;color:rgba(255,255,255,.2);text-transform:uppercase;letter-spacing:.2em;margin:0 0 .5rem;">What 80% of students do</p>
+
+      <!-- Rows -->
+      <div style="display:flex;flex-direction:column;">
+
+        <div class="prob-row" style="display:flex;align-items:center;gap:1.25rem;padding:1.2rem 1rem;border-top:1px solid rgba(255,255,255,.06);border-radius:8px;position:relative;transition:background .25s ease,box-shadow .25s ease,opacity .3s ease;">
+          <span style="font-size:.65rem;font-weight:900;color:rgba(239,68,68,.45);width:1.4rem;text-align:center;flex-shrink:0;font-variant-numeric:tabular-nums;">01</span>
+          <span style="font-size:1rem;flex-shrink:0;">📖</span>
+          <span style="font-size:.87rem;font-weight:700;color:rgba(255,255,255,.72);flex:1;letter-spacing:-.005em;">Re-reads their notes</span>
+          <span class="prob-tag" style="font-size:.62rem;font-weight:700;color:#f87171;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:999px;padding:.25rem .75rem;white-space:nowrap;flex-shrink:0;opacity:0;transform:translateX(10px);transition:opacity .25s ease,transform .25s ease;">~2% retained</span>
+        </div>
+
+        <div class="prob-row" style="display:flex;align-items:center;gap:1.25rem;padding:1.2rem 1rem;border-top:1px solid rgba(255,255,255,.06);border-radius:8px;position:relative;transition:background .25s ease,box-shadow .25s ease,opacity .3s ease;">
+          <span style="font-size:.65rem;font-weight:900;color:rgba(239,68,68,.45);width:1.4rem;text-align:center;flex-shrink:0;font-variant-numeric:tabular-nums;">02</span>
+          <span style="font-size:1rem;flex-shrink:0;">🖊️</span>
+          <span style="font-size:.87rem;font-weight:700;color:rgba(255,255,255,.72);flex:1;letter-spacing:-.005em;">Copies out notes</span>
+          <span class="prob-tag" style="font-size:.62rem;font-weight:700;color:#f87171;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:999px;padding:.25rem .75rem;white-space:nowrap;flex-shrink:0;opacity:0;transform:translateX(10px);transition:opacity .25s ease,transform .25s ease;">busy ≠ learning</span>
+        </div>
+
+        <div class="prob-row" style="display:flex;align-items:center;gap:1.25rem;padding:1.2rem 1rem;border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06);border-radius:8px;position:relative;transition:background .25s ease,box-shadow .25s ease,opacity .3s ease;">
+          <span style="font-size:.65rem;font-weight:900;color:rgba(239,68,68,.45);width:1.4rem;text-align:center;flex-shrink:0;font-variant-numeric:tabular-nums;">03</span>
+          <span style="font-size:1rem;flex-shrink:0;">🎥</span>
+          <span style="font-size:.87rem;font-weight:700;color:rgba(255,255,255,.72);flex:1;letter-spacing:-.005em;">Watches tutorials</span>
+          <span class="prob-tag" style="font-size:.62rem;font-weight:700;color:#f87171;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:999px;padding:.25rem .75rem;white-space:nowrap;flex-shrink:0;opacity:0;transform:translateX(10px);transition:opacity .25s ease,transform .25s ease;">passive ≠ learning</span>
+        </div>
+
+      </div>
+
+      <!-- Bridge -->
+      <div style="display:flex;align-items:center;gap:1rem;margin-top:2.5rem;">
+        <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(147,51,234,.35));"></div>
+        <span style="color:rgba(255,255,255,.22);font-size:.58rem;text-transform:uppercase;letter-spacing:.15em;font-weight:700;">there's a better way</span>
+        <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(147,51,234,.35),transparent);"></div>
+      </div>
+
     </div>
   </div>
 
@@ -1007,6 +1026,56 @@
 
     anim.addEventListener('mouseenter', goStage1);
     anim.addEventListener('mouseleave', goDefault);
+  })();
+
+  /* ── Problem section interactivity ─────────────────────────── */
+  (function() {
+    var section = document.getElementById('problem-slide');
+    if (!section) return;
+    var rows = Array.from(section.querySelectorAll('.prob-row'));
+
+    function resetRows() {
+      rows.forEach(function(r) {
+        r.style.transition = 'none';
+        r.style.opacity = '0';
+        r.style.transform = 'translateX(-22px)';
+      });
+    }
+
+    function animateIn() {
+      rows.forEach(function(r, i) {
+        setTimeout(function() {
+          r.style.transition = 'opacity .5s ease, transform .5s ease, background .25s ease, box-shadow .25s ease';
+          r.style.opacity = '1';
+          r.style.transform = 'translateX(0)';
+        }, 160 + i * 140);
+      });
+    }
+
+    resetRows();
+
+    new MutationObserver(function() {
+      if (section.classList.contains('fp-active')) {
+        resetRows();
+        setTimeout(animateIn, 60);
+      }
+    }).observe(section, { attributes: true, attributeFilter: ['class'] });
+
+    rows.forEach(function(row) {
+      var tag = row.querySelector('.prob-tag');
+      row.addEventListener('mouseenter', function() {
+        row.style.background = 'rgba(239,68,68,.05)';
+        row.style.boxShadow = 'inset 3px 0 0 rgba(239,68,68,.65)';
+        if (tag) { tag.style.opacity = '1'; tag.style.transform = 'translateX(0)'; }
+        rows.forEach(function(other) { if (other !== row) other.style.opacity = '.3'; });
+      });
+      row.addEventListener('mouseleave', function() {
+        row.style.background = '';
+        row.style.boxShadow = '';
+        if (tag) { tag.style.opacity = '0'; tag.style.transform = 'translateX(10px)'; }
+        rows.forEach(function(other) { other.style.opacity = '1'; });
+      });
+    });
   })();
 
   /* ── FAQ accordion ─────────────────────────────────────────── */
