@@ -291,7 +291,7 @@
   <div class="fp-section" id="problem-slide" style="background:#f0ecff;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative;">
 
     <!-- Vignette overlay -->
-    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 72% 72% at 50% 50%,transparent 28%,rgba(12,8,35,.62) 100%);pointer-events:none;z-index:1;"></div>
+    <div id="prob-vignette" style="position:absolute;inset:0;background:radial-gradient(ellipse 72% 72% at 50% 50%,transparent 28%,rgba(12,8,35,.62) 100%);pointer-events:none;z-index:1;opacity:0;transition:opacity 1.2s ease;"></div>
 
     <div style="max-width:640px;width:100%;margin:0 auto;padding:2.5rem 2rem;box-sizing:border-box;position:relative;z-index:2;">
 
@@ -1037,6 +1037,7 @@
     var section = document.getElementById('problem-slide');
     if (!section) return;
     var rows = Array.from(section.querySelectorAll('.prob-row'));
+    var vignette = document.getElementById('prob-vignette');
 
     function resetRows() {
       rows.forEach(function(r) {
@@ -1044,6 +1045,7 @@
         r.style.opacity = '0';
         r.style.transform = 'translateX(-22px)';
       });
+      if (vignette) vignette.style.opacity = '0';
     }
 
     function animateIn() {
@@ -1054,6 +1056,7 @@
           r.style.transform = 'translateX(0)';
         }, 160 + i * 140);
       });
+      if (vignette) setTimeout(function() { vignette.style.opacity = '1'; }, 300);
     }
 
     resetRows();
