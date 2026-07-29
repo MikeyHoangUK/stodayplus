@@ -288,50 +288,54 @@
   </section>
 
   <!-- SLIDE 1: Problem -->
-  <div class="fp-section" id="problem-slide" style="background:linear-gradient(155deg,#3730a3 0%,#4338ca 100%);overflow:hidden;display:flex;align-items:center;justify-content:center;">
-    <div style="max-width:640px;width:100%;margin:0 auto;padding:2.5rem 2rem;box-sizing:border-box;">
+  <div class="fp-section" id="problem-slide" style="background:#f0ecff;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative;">
+
+    <!-- Vignette overlay -->
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 72% 72% at 50% 50%,transparent 28%,rgba(12,8,35,.62) 100%);pointer-events:none;z-index:1;"></div>
+
+    <div style="max-width:640px;width:100%;margin:0 auto;padding:2.5rem 2rem;box-sizing:border-box;position:relative;z-index:2;">
 
       <!-- Header -->
       <div style="margin-bottom:2.75rem;">
-        <p style="color:#c4b5fd;font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.22em;margin:0 0 1rem;">Sound familiar?</p>
-        <h2 style="font-size:3rem;font-weight:900;color:#ffffff;line-height:1.05;margin:0 0 1rem;letter-spacing:-.025em;">The grind<br>isn't working.</h2>
-        <p style="color:rgba(255,255,255,.55);font-size:.83rem;line-height:1.72;margin:0;max-width:460px;">Hours of effort. Nothing retained before the exam.<br>It's not a discipline problem — it's a <em style="color:rgba(255,255,255,.8);">method</em> problem.</p>
+        <p style="color:#9333ea;font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.22em;margin:0 0 1rem;">Sound familiar?</p>
+        <h2 style="font-size:3rem;font-weight:900;color:#1e1b4b;line-height:1.05;margin:0 0 1rem;letter-spacing:-.025em;">The grind<br>isn't working.</h2>
+        <p style="color:#4b5563;font-size:.83rem;line-height:1.72;margin:0;max-width:460px;">Hours of effort. Nothing retained before the exam.<br>It's not a discipline problem — it's a <em style="color:#1e1b4b;font-style:italic;">method</em> problem.</p>
       </div>
 
       <!-- Label -->
-      <p style="font-size:.55rem;font-weight:800;color:rgba(255,255,255,.38);text-transform:uppercase;letter-spacing:.2em;margin:0 0 .5rem;">What 80% of students do</p>
+      <p style="font-size:.55rem;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.2em;margin:0 0 .5rem;">What 80% of students do</p>
 
       <!-- Rows -->
       <div style="display:flex;flex-direction:column;">
 
-        <div class="prob-row" style="display:flex;align-items:center;gap:1.25rem;padding:1.2rem 1rem;border-top:1px solid rgba(255,255,255,.1);border-radius:8px;position:relative;transition:background .25s ease,box-shadow .25s ease,opacity .3s ease;">
-          <span style="font-size:.65rem;font-weight:900;color:rgba(239,68,68,.7);width:1.4rem;text-align:center;flex-shrink:0;font-variant-numeric:tabular-nums;">01</span>
+        <div class="prob-row" style="display:flex;align-items:center;gap:1.25rem;padding:1.2rem 1rem;border-top:1px solid rgba(30,27,75,.1);border-radius:8px;position:relative;transition:background .25s ease,box-shadow .25s ease,opacity .3s ease;">
+          <span style="font-size:.65rem;font-weight:900;color:#ef4444;width:1.4rem;text-align:center;flex-shrink:0;font-variant-numeric:tabular-nums;">01</span>
           <span style="font-size:1rem;flex-shrink:0;">📖</span>
-          <span style="font-size:.87rem;font-weight:700;color:rgba(255,255,255,.88);flex:1;letter-spacing:-.005em;">Re-reads their notes</span>
-          <span class="prob-tag" style="font-size:.62rem;font-weight:700;color:#f87171;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:999px;padding:.25rem .75rem;white-space:nowrap;flex-shrink:0;opacity:0;transform:translateX(10px);transition:opacity .25s ease,transform .25s ease;">~2% retained</span>
+          <span style="font-size:.87rem;font-weight:700;color:#1e1b4b;flex:1;letter-spacing:-.005em;">Re-reads their notes</span>
+          <span class="prob-tag" style="font-size:.62rem;font-weight:700;color:#dc2626;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:999px;padding:.25rem .75rem;white-space:nowrap;flex-shrink:0;opacity:0;transform:translateX(10px);transition:opacity .25s ease,transform .25s ease;">~2% retained</span>
         </div>
 
-        <div class="prob-row" style="display:flex;align-items:center;gap:1.25rem;padding:1.2rem 1rem;border-top:1px solid rgba(255,255,255,.1);border-radius:8px;position:relative;transition:background .25s ease,box-shadow .25s ease,opacity .3s ease;">
-          <span style="font-size:.65rem;font-weight:900;color:rgba(239,68,68,.7);width:1.4rem;text-align:center;flex-shrink:0;font-variant-numeric:tabular-nums;">02</span>
+        <div class="prob-row" style="display:flex;align-items:center;gap:1.25rem;padding:1.2rem 1rem;border-top:1px solid rgba(30,27,75,.1);border-radius:8px;position:relative;transition:background .25s ease,box-shadow .25s ease,opacity .3s ease;">
+          <span style="font-size:.65rem;font-weight:900;color:#ef4444;width:1.4rem;text-align:center;flex-shrink:0;font-variant-numeric:tabular-nums;">02</span>
           <span style="font-size:1rem;flex-shrink:0;">🖊️</span>
-          <span style="font-size:.87rem;font-weight:700;color:rgba(255,255,255,.88);flex:1;letter-spacing:-.005em;">Copies out notes</span>
-          <span class="prob-tag" style="font-size:.62rem;font-weight:700;color:#f87171;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:999px;padding:.25rem .75rem;white-space:nowrap;flex-shrink:0;opacity:0;transform:translateX(10px);transition:opacity .25s ease,transform .25s ease;">busy ≠ learning</span>
+          <span style="font-size:.87rem;font-weight:700;color:#1e1b4b;flex:1;letter-spacing:-.005em;">Copies out notes</span>
+          <span class="prob-tag" style="font-size:.62rem;font-weight:700;color:#dc2626;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:999px;padding:.25rem .75rem;white-space:nowrap;flex-shrink:0;opacity:0;transform:translateX(10px);transition:opacity .25s ease,transform .25s ease;">busy ≠ learning</span>
         </div>
 
-        <div class="prob-row" style="display:flex;align-items:center;gap:1.25rem;padding:1.2rem 1rem;border-top:1px solid rgba(255,255,255,.1);border-bottom:1px solid rgba(255,255,255,.1);border-radius:8px;position:relative;transition:background .25s ease,box-shadow .25s ease,opacity .3s ease;">
-          <span style="font-size:.65rem;font-weight:900;color:rgba(239,68,68,.7);width:1.4rem;text-align:center;flex-shrink:0;font-variant-numeric:tabular-nums;">03</span>
+        <div class="prob-row" style="display:flex;align-items:center;gap:1.25rem;padding:1.2rem 1rem;border-top:1px solid rgba(30,27,75,.1);border-bottom:1px solid rgba(30,27,75,.1);border-radius:8px;position:relative;transition:background .25s ease,box-shadow .25s ease,opacity .3s ease;">
+          <span style="font-size:.65rem;font-weight:900;color:#ef4444;width:1.4rem;text-align:center;flex-shrink:0;font-variant-numeric:tabular-nums;">03</span>
           <span style="font-size:1rem;flex-shrink:0;">🎥</span>
-          <span style="font-size:.87rem;font-weight:700;color:rgba(255,255,255,.88);flex:1;letter-spacing:-.005em;">Watches tutorials</span>
-          <span class="prob-tag" style="font-size:.62rem;font-weight:700;color:#f87171;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:999px;padding:.25rem .75rem;white-space:nowrap;flex-shrink:0;opacity:0;transform:translateX(10px);transition:opacity .25s ease,transform .25s ease;">passive ≠ learning</span>
+          <span style="font-size:.87rem;font-weight:700;color:#1e1b4b;flex:1;letter-spacing:-.005em;">Watches tutorials</span>
+          <span class="prob-tag" style="font-size:.62rem;font-weight:700;color:#dc2626;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:999px;padding:.25rem .75rem;white-space:nowrap;flex-shrink:0;opacity:0;transform:translateX(10px);transition:opacity .25s ease,transform .25s ease;">passive ≠ learning</span>
         </div>
 
       </div>
 
       <!-- Bridge -->
       <div style="display:flex;align-items:center;gap:1rem;margin-top:2.5rem;">
-        <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(167,139,250,.45));"></div>
-        <span style="color:rgba(255,255,255,.42);font-size:.58rem;text-transform:uppercase;letter-spacing:.15em;font-weight:700;">there's a better way</span>
-        <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(167,139,250,.45),transparent);"></div>
+        <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(147,51,234,.3));"></div>
+        <span style="color:#a78bfa;font-size:.58rem;text-transform:uppercase;letter-spacing:.15em;font-weight:700;">there's a better way</span>
+        <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(147,51,234,.3),transparent);"></div>
       </div>
 
     </div>
