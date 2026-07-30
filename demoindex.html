@@ -1045,7 +1045,7 @@
         r.style.opacity = '0';
         r.style.transform = 'translateX(-22px)';
       });
-      if (vignette) vignette.style.opacity = '0';
+      if (vignette) { vignette.style.transition = 'none'; vignette.style.opacity = '0'; }
     }
 
     function animateIn() {
@@ -1056,7 +1056,10 @@
           r.style.transform = 'translateX(0)';
         }, 160 + i * 140);
       });
-      if (vignette) setTimeout(function() { vignette.style.opacity = '1'; }, 300);
+      if (vignette) setTimeout(function() {
+        vignette.style.transition = 'opacity 6s ease';
+        vignette.style.opacity = '1';
+      }, 300);
     }
 
     resetRows();
@@ -1065,6 +1068,8 @@
       if (section.classList.contains('fp-active')) {
         resetRows();
         setTimeout(animateIn, 60);
+      } else {
+        if (vignette) { vignette.style.transition = 'opacity .5s ease'; vignette.style.opacity = '0'; }
       }
     }).observe(section, { attributes: true, attributeFilter: ['class'] });
 
