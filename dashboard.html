@@ -2205,13 +2205,15 @@ Answer: B
 A) Oxygen
 B) Carbon dioxide *
 C) Nitrogen
-D) Hydrogen" oninput="pasteOnInput()"></textarea>
+D) Hydrogen
+
+Tip: batching multiple topics in one paste? Drop a &quot;Topic: Folder Name&quot; line before each topic's questions and they'll be sorted into the right folders automatically." oninput="pasteOnInput()"></textarea>
               <div class="paste-detect-bar">
                 <span id="paste-detect-msg" class="paste-detect-msg">Paste questions above to get started</span>
               </div>
               <div class="paste-config-row">
                 <div class="paste-cfg-group">
-                  <label class="paste-cfg-lbl">Import to folder</label>
+                  <label class="paste-cfg-lbl">Import to folder (fallback if no "Topic:" lines used)</label>
                   <input id="paste-folder-inp" class="paste-folder-inp" list="paste-folder-list" placeholder="e.g. Cell Biology" oninput="pasteFolderInput()"/>
                   <datalist id="paste-folder-list"></datalist>
                 </div>
@@ -5038,6 +5040,34 @@ function pasteOnInput() {
 function parsePastedMCQs(text) {
   // Strip markdown bold/italic
   text = text.replace(/\*\*(.*?)\*\*/g, '$1').replace(/__(.*?)__/g, '$1').replace(/_(.*?)_/g, '$1');
+
+  // Split into per-folder segments on "Topic: X" / "Folder: X" marker lines, so one
+  // paste can carry questions for several folders at once (batched multi-topic gen).
+  var folderPat = /^#{0,4}\s*(?:topic|folder)\s*:\s*(.+?)\s*#*\s*$/i;
+  var lines = text.split('\n');
+  var segments = [];
+  var curFolder = null, curLines = [];
+  lines.forEach(function(line) {
+    var m = folderPat.exec(line.trim());
+    if (m) {
+      if (curLines.length) segments.push({ folder: curFolder, text: curLines.join('\n') });
+      curFolder = m[1].trim();
+      curLines = [];
+    } else {
+      curLines.push(line);
+    }
+  });
+  if (curLines.length) segments.push({ folder: curFolder, text: curLines.join('\n') });
+
+  var questions = [];
+  segments.forEach(function(seg) {
+    _parseSegmentMCQs(seg.text).forEach(function(q) { q.folder = seg.folder; questions.push(q); });
+  });
+
+  return { questions: questions };
+}
+
+function _parseSegmentMCQs(text) {
   var questions = [];
 
   // Primary: split on blank lines
@@ -5056,7 +5086,7 @@ function parsePastedMCQs(text) {
     fallback.forEach(function(b){ var q = _parseOneBlock(b); if (q) questions.push(q); });
   }
 
-  return { questions: questions };
+  return questions;
 }
 
 function _parseOneBlock(block) {
@@ -5143,8 +5173,10 @@ function pasteGoPreview() {
         + '<input class="paste-qopt-txt" value="' + esc(opt) + '" placeholder="Option ' + (oi+1) + '" oninput="pasteEditOption(' + idx + ',' + oi + ',this.value)" onclick="event.stopPropagation()"/>'
         + '</div>';
     }).join('');
+    var folderChip = q.folder ? '<span style="font-size:.6rem;font-weight:800;text-transform:uppercase;background:rgba(109,40,217,.09);color:#6d28d9;border:1px solid rgba(109,40,217,.18);border-radius:6px;padding:1px 7px;margin-left:6px">' + esc(q.folder) + '</span>' : '';
     card.innerHTML = '<div class="paste-qcard-top"><div class="paste-qnum">' + (idx+1) + '</div>'
       + '<textarea class="paste-qstem" rows="2" oninput="pasteEditStem(' + idx + ',this.value)">' + esc(q.stem) + '</textarea>'
+      + folderChip
       + '<button class="paste-skip-btn" id="pqskip-' + idx + '" onclick="pasteToggleSkip(' + idx + ')">Skip</button></div>'
       + '<div class="paste-qopts-list">' + optsHtml + '</div>'
       + '<input class="paste-hint-inp" placeholder="Hint — explain why the correct answer is right (optional)…" value="' + esc(q.hint||'') + '" oninput="pasteEditHint(' + idx + ',this.value)"/>'
@@ -5159,10 +5191,16 @@ function pasteGoPreview() {
 function _pasteUpdateSummary() {
   var active = _pasteQs.filter(function(q) { return !q.skipped; });
   var needsReview = active.filter(function(q) { return q.needsAnswer; }).length;
+  var folderSet = {};
+  active.forEach(function(q) { folderSet[q.folder || _pasteFolder] = true; });
+  var folderNames = Object.keys(folderSet);
+  var folderLabel = folderNames.length > 1
+    ? folderNames.length + ' folders detected (' + folderNames.join(', ') + ')'
+    : 'folder: "' + (folderNames[0] || _pasteFolder) + '"';
   document.getElementById('paste-preview-summary').textContent =
     active.length + ' question' + (active.length !== 1 ? 's' : '')
     + (needsReview ? ' · ' + needsReview + ' still need' + (needsReview !== 1 ? '' : 's') + ' an answer' : '')
-    + ' · folder: "' + _pasteFolder + '"';
+    + ' · ' + folderLabel;
 }
 
 function pastePickAnswer(qIdx, optIdx) {
@@ -5208,19 +5246,26 @@ function pasteDoImport() {
   if (!toImport.length) { alert('No questions ready to import. Please pick correct answers for any flagged questions.'); return; }
   var pasteSubj = ((document.getElementById('paste-subj-inp') || {}).value || '').trim();
   var base = Date.now();
+  var foldersUsed = {};
   toImport.forEach(function(q, i) {
     // Drop trailing empty option slots before saving
     var opts = q.options.filter(function(o){ return o.trim(); });
     while (opts.length < 4) opts.push('');
-    bank.push({ id: base + i, stem: q.stem, options: opts, correct: q.correct, difficulty: _pasteDiff, folder: _pasteFolder, hint: q.hint || '' });
+    var folder = q.folder || _pasteFolder;
+    bank.push({ id: base + i, stem: q.stem, options: opts, correct: q.correct, difficulty: _pasteDiff, folder: folder, hint: q.hint || '' });
+    foldersUsed[folder] = true;
   });
-  saveFolderMeta(_pasteFolder, pasteSubj);
-  ensureFolder(_pasteFolder, pasteSubj);
-  orgEnsureTopic(_pasteFolder, pasteSubj);
+  var folderNames = Object.keys(foldersUsed);
+  folderNames.forEach(function(f) {
+    saveFolderMeta(f, pasteSubj);
+    ensureFolder(f, pasteSubj);
+    orgEnsureTopic(f, pasteSubj);
+  });
   saveBank();
   renderBank();
   updateAvail();
-  document.getElementById('paste-done-msg').textContent = toImport.length + ' question' + (toImport.length !== 1 ? 's' : '') + ' imported to "' + _pasteFolder + '"!';
+  var folderMsg = folderNames.length > 1 ? folderNames.length + ' folders' : '"' + folderNames[0] + '"';
+  document.getElementById('paste-done-msg').textContent = toImport.length + ' question' + (toImport.length !== 1 ? 's' : '') + ' imported to ' + folderMsg + '!';
   document.getElementById('paste-step-2').style.display = 'none';
   document.getElementById('paste-step-3').style.display = 'block';
 }
