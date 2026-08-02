@@ -4602,6 +4602,7 @@ function deleteFolderFromEdit() {
   var snapOrg     = JSON.stringify(orgTopics);
   var snapMeta    = localStorage.getItem('sp_folder_meta');
   var snapScores  = localStorage.getItem('sp_folder_scores');
+  var snapRp      = JSON.stringify(rpData);
   if (typeof bank!=='undefined'){ bank=bank.filter(function(q){ return (q.folder||'General')!==name; }); if(typeof saveBank==='function') saveBank(); }
   if (typeof sqBank!=='undefined'){ sqBank=sqBank.filter(function(q){ return (q.folder||'General')!==name; }); if(typeof sqSave==='function') sqSave(); }
   if (typeof blurtoSessions!=='undefined'){ blurtoSessions=blurtoSessions.filter(function(s){ return s.topic!==name; }); if(typeof blurtoSave==='function') blurtoSave(); }
@@ -4610,9 +4611,10 @@ function deleteFolderFromEdit() {
   orgSaveTopics(); orgRenderBanner(); orgRenderTable();
   var meta=getFolderMeta(); delete meta[name]; localStorage.setItem('sp_folder_meta',JSON.stringify(meta));
   var scores=getFolderScores(); delete scores[name]; localStorage.setItem('sp_folder_scores',JSON.stringify(scores));
+  rpData = rpData.filter(function(x){ return x.topic.toLowerCase()!==name.toLowerCase(); }); rpSave();
   populateFolderDatalist();
   closeFolderEdit();
-  renderBank(); renderSqBank(); renderBlurtoBank();
+  renderBank(); renderSqBank(); renderBlurtoBank(); rpRenderAll();
   pushUndo('"' + name + '"', function() {
     bank = JSON.parse(snapBank); saveBank();
     sqBank = JSON.parse(snapSq); sqSave();
@@ -4621,8 +4623,9 @@ function deleteFolderFromEdit() {
     orgTopics = JSON.parse(snapOrg); orgSaveTopics();
     if (snapMeta)   localStorage.setItem('sp_folder_meta',   snapMeta);
     if (snapScores) localStorage.setItem('sp_folder_scores', snapScores);
+    rpData = JSON.parse(snapRp); rpSave();
     populateFolderDatalist(); orgRenderBanner(); orgRenderTable();
-    renderBank(); renderSqBank(); renderBlurtoBank();
+    renderBank(); renderSqBank(); renderBlurtoBank(); rpRenderAll();
   });
 }
 
