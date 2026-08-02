@@ -416,21 +416,24 @@
     /* Active quiz */
     #quiz-run-wrap{display:block;position:relative;width:100%}
     #quiz-run{max-width:660px;margin:0 auto}
-    #qz-def-panel{position:fixed;overflow-y:auto;z-index:999;background:rgba(250,243,224,.92);border:1.5px solid rgba(109,40,217,.18);border-radius:18px;padding:18px;font-family:'Raleway',sans-serif;box-shadow:0 8px 40px rgba(109,40,217,.1);animation:defPanelIn .22s cubic-bezier(.34,1.3,.64,1);display:none}
+    #qz-def-panel,#qz-rationale-panel{position:fixed;overflow-y:auto;z-index:999;background:rgba(250,243,224,.92);border:1.5px solid rgba(109,40,217,.18);border-radius:18px;padding:18px;font-family:'Raleway',sans-serif;box-shadow:0 8px 40px rgba(109,40,217,.1);animation:defPanelIn .22s cubic-bezier(.34,1.3,.64,1);display:none}
     @keyframes defPanelIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
     .qzd-eyebrow{font-size:.52rem;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#b09880;margin-bottom:8px}
     .qzd-term{font-size:1rem;font-weight:900;color:#4c1d95;margin-bottom:10px;line-height:1.2;word-break:break-word}
     .qzd-body{font-size:.78rem;color:#3d2e1a;line-height:1.65;font-weight:500}
     .qzd-source{font-size:.57rem;font-weight:800;color:#b09880;letter-spacing:.1em;text-transform:uppercase;margin-top:12px;display:flex;align-items:center;gap:5px}
+    .qzd-ref{font-size:.68rem;color:#6d28d9;font-weight:700;margin-top:14px;padding-top:12px;border-top:1px solid rgba(109,40,217,.14);word-break:break-word}
+    .qzd-ref a{color:inherit}
     .qzd-img{width:100%;border-radius:10px;margin-bottom:10px;object-fit:cover;max-height:120px}
     .qzd-close{position:absolute;top:10px;right:12px;background:none;border:none;font-size:.72rem;font-weight:900;color:#b09880;cursor:pointer;padding:2px 6px;border-radius:6px;transition:color .15s}
     .qzd-close:hover{color:#6d28d9}
     .qzd-spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(109,40,217,.2);border-top-color:#7c3aed;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
     .qzd-kb-hint{font-size:.57rem;color:#b09880;text-align:center;margin-top:12px;letter-spacing:.04em}
-    body.hc #qz-def-panel{background:#0f0d22!important;border-color:rgba(168,85,247,.32)!important}
+    body.hc #qz-def-panel,body.hc #qz-rationale-panel{background:#0f0d22!important;border-color:rgba(168,85,247,.32)!important}
     body.hc .qzd-term{color:#c084fc!important}
     body.hc .qzd-body{color:#c8b89a!important}
     body.hc .qzd-eyebrow,body.hc .qzd-source,body.hc .qzd-kb-hint,body.hc .qzd-close{color:#7a6448!important}
+    body.hc .qzd-ref{color:#c084fc!important;border-top-color:rgba(168,85,247,.18)!important}
     .quiz-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
     .q-prog-bar{height:3px;background:rgba(109,40,217,.15);border-radius:2px;margin-bottom:28px;overflow:hidden}
     .q-prog-fill{height:100%;background:linear-gradient(90deg,#7c3aed,#6366f1);border-radius:2px;transition:width .4s ease}
@@ -1683,7 +1686,7 @@
       .rp-cal-layout { flex-direction: column; }
       .rp-exam-panel { width: 100%; min-width: 0; position: static; }
       .panel.active { max-width: 100%; }
-      #qz-def-panel { display: none !important; }
+      #qz-def-panel, #qz-rationale-panel { display: none !important; }
     }
 
     /* ════════════════════════════════════════════════════════════
@@ -2451,7 +2454,10 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Folder Name&quot
               <div class="quiz-stem" id="qstem"></div>
               <div class="quiz-opts" id="qopts"></div>
               <div class="hint-area">
-                <div class="hint-toggle" id="hint-tog" onclick="toggleHint()">💡 Show hint</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <div class="hint-toggle" id="hint-tog" onclick="toggleHint()">💡 Show hint</div>
+                  <div class="hint-toggle" id="rationale-tog" style="display:none" onclick="qzRationaleToggle()">📝 Show rationale</div>
+                </div>
                 <div class="hint-txt" id="hint-txt"></div>
               </div>
             </div>
@@ -2467,6 +2473,12 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Folder Name&quot
             <div class="qzd-body" id="qzd-body"></div>
             <div class="qzd-source" id="qzd-source"></div>
             <div class="qzd-kb-hint">Select text · Ctrl+G to look up</div>
+          </div>
+          <div id="qz-rationale-panel">
+            <button class="qzd-close" onclick="qzRationaleClose()" title="Close">✕</button>
+            <div class="qzd-eyebrow">Rationale</div>
+            <div class="qzd-body" id="qzr-body"></div>
+            <div class="qzd-ref" id="qzr-ref" style="display:none"></div>
           </div>
           </div><!-- /quiz-run-wrap -->
 
@@ -3716,7 +3728,7 @@ function submitQ() {
   var q = { id: editId || Date.now(), stem: stem, options: opts, correct: parseInt(cr.value), hint: hint, difficulty: selDiff, folder: folderVal };
   if (editId) {
     var ix = bank.findIndex(function(x) { return x.id === editId; });
-    if (ix !== -1) bank[ix] = q;
+    if (ix !== -1) { q.rationale = bank[ix].rationale || ''; bank[ix] = q; }
     editId = null;
     document.getElementById('add-btn').textContent = 'Add Question to Bank';
   } else { bank.push(q); }
@@ -4242,6 +4254,9 @@ function showQ() {
   document.getElementById('hint-txt').textContent = q.hint || 'No hint available.';
   document.getElementById('hint-txt').classList.remove('show');
   document.getElementById('hint-tog').textContent = '💡 Show hint';
+  qzRationaleClose();
+  var ratTog = document.getElementById('rationale-tog');
+  if (ratTog) { ratTog.style.display = (prior && q.rationale) ? 'inline-flex' : 'none'; ratTog.textContent = '📝 Show rationale'; }
   if (prior) {
     document.querySelectorAll('.qopt').forEach(function(o) { o.classList.add('locked'); });
     document.getElementById('qcard').classList.add(prior.chosen === q.correct ? 'c-flash' : 'w-flash');
@@ -4274,6 +4289,8 @@ function answerQ(idx) {
   document.getElementById('qprog').style.width = (answeredCount / qzQs.length * 100) + '%';
   document.getElementById('next-btn').className = 'next-btn show';
   var nn = document.getElementById('qnav-next'); if (nn) nn.disabled = false;
+  var ratTog = document.getElementById('rationale-tog');
+  if (ratTog && q.rationale) ratTog.style.display = 'inline-flex';
   qzSaveSession();
 }
 
@@ -5411,7 +5428,10 @@ function importProcessRows(rows) {
     var hint = (norm['hint'] || norm['explanation'] || norm['hint/explanation'] || '').trim();
     var diff = (norm['difficulty'] || '').trim().toLowerCase();
     if (diff !== 'easy' && diff !== 'medium' && diff !== 'hard') diff = '';
-    qs.push({ stem: stem, options: options.slice(0,5), correct: correct, needsAnswer: correct === -1, hint: hint, difficulty: diff, skipped: false });
+    var folder = (norm['assessment topic'] || norm['topic'] || norm['folder'] || '').trim();
+    var rationale = (norm['answer rationale'] || norm['rationale'] || '').trim();
+    var reference = (norm['reference'] || norm['source'] || '').trim();
+    qs.push({ stem: stem, options: options.slice(0,5), correct: correct, needsAnswer: correct === -1, hint: hint, difficulty: diff, folder: folder, rationale: rationale, reference: reference, skipped: false });
   });
   _importQs = qs;
   var msg = document.getElementById('import-detect-msg');
@@ -5448,9 +5468,11 @@ function importGoPreview() {
         + '</div>';
     }).join('');
     var diffChip = (q.difficulty) ? '<span style="font-size:.6rem;font-weight:800;text-transform:uppercase;background:rgba(109,40,217,.09);color:#6d28d9;border:1px solid rgba(109,40,217,.18);border-radius:6px;padding:1px 7px;margin-left:6px">' + q.difficulty + '</span>' : '';
+    var folderChip = q.folder ? '<span style="font-size:.6rem;font-weight:800;text-transform:uppercase;background:rgba(109,40,217,.09);color:#6d28d9;border:1px solid rgba(109,40,217,.18);border-radius:6px;padding:1px 7px;margin-left:6px">' + esc(q.folder) + '</span>' : '';
+    var rationaleChip = q.rationale ? '<span style="font-size:.6rem;font-weight:800;text-transform:uppercase;background:rgba(99,102,241,.09);color:#4338ca;border:1px solid rgba(99,102,241,.18);border-radius:6px;padding:1px 7px;margin-left:6px">📝 Rationale</span>' : '';
     card.innerHTML = '<div class="paste-qcard-top"><div class="paste-qnum">' + (idx+1) + '</div>'
       + '<textarea class="paste-qstem" rows="2" oninput="importEditStem(' + idx + ',this.value)">' + esc(q.stem) + '</textarea>'
-      + diffChip
+      + diffChip + folderChip + rationaleChip
       + '<button class="paste-skip-btn" id="importskip-' + idx + '" onclick="importToggleSkip(' + idx + ')">Skip</button></div>'
       + '<div class="paste-qopts-list">' + optsHtml + '</div>'
       + '<input class="paste-hint-inp" placeholder="Hint — why is the correct answer right? (optional)…" value="' + esc(q.hint||'') + '" oninput="importEditHint(' + idx + ',this.value)"/>'
@@ -5465,10 +5487,16 @@ function importGoPreview() {
 function importUpdateSummary() {
   var active = _importQs.filter(function(q){ return !q.skipped; });
   var needsReview = active.filter(function(q){ return q.needsAnswer; }).length;
+  var folderSet = {};
+  active.forEach(function(q) { folderSet[q.folder || _importFolder] = true; });
+  var folderNames = Object.keys(folderSet);
+  var folderLabel = folderNames.length > 1
+    ? folderNames.length + ' folders detected (' + folderNames.join(', ') + ')'
+    : 'folder: "' + (folderNames[0] || _importFolder) + '"';
   document.getElementById('import-preview-summary').textContent =
     active.length + ' question' + (active.length !== 1 ? 's' : '')
     + (needsReview ? ' · ' + needsReview + ' still need' + (needsReview !== 1 ? '' : 's') + ' an answer' : '')
-    + ' · folder: "' + _importFolder + '"';
+    + ' · ' + folderLabel;
 }
 
 function importPickAnswer(qIdx, optIdx) {
@@ -5505,16 +5533,23 @@ function importDoImport() {
   if (!toImport.length) { alert('No questions ready to import. Please select the correct answer for any flagged questions, or skip them.'); return; }
   var importSubj = ((document.getElementById('import-subj-inp') || {}).value || '').trim();
   var base = Date.now();
+  var foldersUsed = {};
   toImport.forEach(function(q, i) {
     var opts = q.options.filter(function(o){ return o.trim(); });
     while (opts.length < 4) opts.push('');
-    bank.push({ id: base + i, stem: q.stem, options: opts, correct: q.correct, difficulty: q.difficulty || _importDiff, folder: _importFolder, hint: q.hint || '' });
+    var folder = q.folder || _importFolder;
+    bank.push({ id: base + i, stem: q.stem, options: opts, correct: q.correct, difficulty: q.difficulty || _importDiff, folder: folder, hint: q.hint || '', rationale: q.rationale || '', reference: q.reference || '' });
+    foldersUsed[folder] = true;
   });
-  saveFolderMeta(_importFolder, importSubj);
-  ensureFolder(_importFolder, importSubj);
-  orgEnsureTopic(_importFolder, importSubj);
+  var folderNames = Object.keys(foldersUsed);
+  folderNames.forEach(function(f) {
+    saveFolderMeta(f, importSubj);
+    ensureFolder(f, importSubj);
+    orgEnsureTopic(f, importSubj);
+  });
   saveBank(); renderBank(); updateAvail();
-  document.getElementById('import-done-msg').textContent = toImport.length + ' question' + (toImport.length !== 1 ? 's' : '') + ' imported to "' + _importFolder + '"!';
+  var folderMsg = folderNames.length > 1 ? folderNames.length + ' folders' : '"' + folderNames[0] + '"';
+  document.getElementById('import-done-msg').textContent = toImport.length + ' question' + (toImport.length !== 1 ? 's' : '') + ' imported to ' + folderMsg + '!';
   document.getElementById('import-step-2').style.display = 'none';
   document.getElementById('import-step-3').style.display = 'block';
 }
@@ -5536,43 +5571,52 @@ function importReset() {
 function importDownloadTemplate() {
   if (!window.XLSX) { alert('Excel library not loaded — please refresh.'); return; }
   var data = [
-    ['Question','Option A','Option B','Option C','Option D','Option E','Answer','Hint','Difficulty'],
+    ['Question','Assessment Topic','Option A','Option B','Option C','Option D','Option E','Answer','Answer Rationale','Reference','Hint','Difficulty'],
     [
       'What is the primary mechanism of ACE inhibitors in hypertension?',
+      'Cardiovascular system',
       'Block calcium channels in vascular smooth muscle',
       'Inhibit ACE reducing angiotensin II production',
       'Activate beta-2 receptors causing vasodilation',
       'Block aldosterone receptors in the kidney',
       'Directly relax arterial smooth muscle',
       'B',
+      'A: Incorrect — ACE inhibitors do not act on calcium channels; this is the mechanism of calcium channel blockers. B: Correct — ACE inhibitors block the conversion of angiotensin I to angiotensin II, reducing vasoconstriction and aldosterone-driven sodium/water retention. C: Incorrect — beta-2 agonism is unrelated to the renin-angiotensin system and is not how ACE inhibitors work. D: Incorrect — this describes aldosterone antagonists (e.g. spironolactone), not ACE inhibitors. E: Incorrect — ACE inhibitors do not act directly on smooth muscle; their vasodilatory effect is downstream of reduced angiotensin II.',
+      'BNF - ACE inhibitors: https://bnf.nice.org.uk/drugs/ramipril/',
       'ACE inhibitors prevent Ang I → Ang II conversion, reducing vasoconstriction and aldosterone secretion',
       'medium'
     ],
     [
       'Which BP target is recommended for most treated hypertensive patients?',
+      'Cardiovascular system',
       'Below 160/100 mmHg',
       'Below 140/90 mmHg',
       'Below 130/80 mmHg',
       'Below 120/70 mmHg',
       '',
       'C',
+      'A: Incorrect — <160/100 mmHg is too high and is not a standard treatment target. B: Incorrect — <140/90 mmHg is the general/older target for uncomplicated hypertension, but not the target for most treated patients with additional cardiovascular risk. C: Correct — NICE/ESC guidance recommends a target of <130/80 mmHg for most treated hypertensive patients with additional cardiovascular risk factors. D: Incorrect — <120/70 mmHg is overly aggressive and risks hypotension in most patients. E: Not applicable.',
+      'NICE NG136 - Hypertension in adults: https://www.nice.org.uk/guidance/ng136',
       'ESC/NICE guidelines target <130/80 mmHg for most patients with additional CV risk factors',
       'easy'
     ],
     [
       'A patient on an ACE inhibitor develops a dry cough. What is the best next step?',
+      'Cardiovascular system',
       'Add an antihistamine and continue',
       'Halve the dose and monitor',
       'Switch to an ARB',
       'Stop all antihypertensives',
       'Add a beta-blocker',
       'C',
+      'A: Incorrect — antihistamines do not address a bradykinin-mediated cough and simply continuing risks poor adherence. B: Incorrect — halving the dose does not reliably resolve the cough, as it is a class effect rather than dose-dependent. C: Correct — switching to an ARB avoids the bradykinin accumulation that causes the cough, while maintaining RAAS blockade. D: Incorrect — stopping all antihypertensives is unnecessary and leaves the patient\'s blood pressure unmanaged. E: Incorrect — adding a beta-blocker does not treat the underlying cause of the cough.',
+      'BNF - Ramipril, side-effects: https://bnf.nice.org.uk/drugs/ramipril/#side-effects',
       'ACE inhibitor cough (bradykinin-mediated) is a class effect — switching to an ARB (no bradykinin effect) resolves it',
       'hard'
     ],
   ];
   var ws = XLSX.utils.aoa_to_sheet(data);
-  ws['!cols'] = [42,22,22,22,22,22,8,52,10].map(function(w){ return { wch: w }; });
+  ws['!cols'] = [42,24,22,22,22,22,22,8,65,38,38,10].map(function(w){ return { wch: w }; });
   var wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Questions');
   XLSX.writeFile(wb, 'stoday_plus_template.xlsx');
@@ -5805,6 +5849,64 @@ window.addEventListener('resize', function() {
   var panel = document.getElementById('qz-def-panel');
   if (!panel || panel.style.display === 'none') return;
   if (!qzPositionPanel()) qzDefClose();
+});
+
+// ── Answer rationale (left-margin mirror of the Ctrl+G panel) ─────────────────
+function qzRationaleClose() {
+  var p = document.getElementById('qz-rationale-panel');
+  if (p) p.style.display = 'none';
+}
+
+function qzRationaleShow() {
+  var q = qzQs[qzIdx];
+  if (!q || !q.rationale) return;
+  var panel  = document.getElementById('qz-rationale-panel');
+  var bodyEl = document.getElementById('qzr-body');
+  var refEl  = document.getElementById('qzr-ref');
+  if (!panel || !bodyEl) return;
+  bodyEl.textContent = q.rationale;
+  if (q.reference) { refEl.textContent = '📎 ' + q.reference; refEl.style.display = 'block'; }
+  else { refEl.style.display = 'none'; }
+  if (!qzPositionRationalePanel()) return;
+  panel.style.display = 'block';
+}
+
+function qzRationaleToggle() {
+  var panel = document.getElementById('qz-rationale-panel');
+  if (panel && panel.style.display === 'block') qzRationaleClose();
+  else qzRationaleShow();
+}
+
+// Click outside the panel closes it (ignore the toggle button itself, or the
+// mousedown-then-click pair would close then immediately reopen it)
+document.addEventListener('mousedown', function(e) {
+  var panel = document.getElementById('qz-rationale-panel');
+  if (!panel || panel.style.display === 'none') return;
+  if (panel.contains(e.target)) return;
+  if (e.target.id === 'rationale-tog') return;
+  qzRationaleClose();
+});
+
+// Position panel in the left-margin space next to the quiz card
+function qzPositionRationalePanel() {
+  var panel = document.getElementById('qz-rationale-panel');
+  var quiz  = document.getElementById('quiz-run');
+  if (!panel || !quiz) return false;
+  var r = quiz.getBoundingClientRect();
+  var gap = 16;
+  var rightEdge = r.left - gap;
+  if (rightEdge < 156) return false; // not enough room in the left margin
+  panel.style.left   = '16px';
+  panel.style.right  = (window.innerWidth - rightEdge) + 'px';
+  panel.style.top    = Math.max(r.top, 16) + 'px';
+  panel.style.bottom = '16px';
+  return true;
+}
+
+window.addEventListener('resize', function() {
+  var panel = document.getElementById('qz-rationale-panel');
+  if (!panel || panel.style.display === 'none') return;
+  if (!qzPositionRationalePanel()) qzRationaleClose();
 });
 
 async function qzDefLookup() {
