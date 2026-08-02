@@ -10138,17 +10138,53 @@ function orgSetConf(id, next) {
 
 function orgDeleteTopic(id) {
   var t = orgTopics.find(function(x) { return x.id === id; });
-  if (!t || !confirm('Delete "' + t.topic_name + '" from the organiser?\n(MCQs and SAQs in this folder are kept — only the organiser row is removed.)')) return;
-  var snapOrg     = JSON.stringify(orgTopics);
+  if (!t) return;
+  var name = t.topic_name;
+  var mcqN = (typeof bank !== 'undefined' ? bank : []).filter(function(q) { return (q.folder || 'General') === name; }).length;
+  var saqN = (typeof sqBank !== 'undefined' ? sqBank : []).filter(function(q) { return (q.folder || 'General') === name; }).length;
+  var blN  = (typeof blurtoSessions !== 'undefined' ? blurtoSessions : []).filter(function(s) { return s.topic === name; }).length;
+  var parts = [];
+  if (mcqN > 0) parts.push(mcqN + ' MCQ question' + (mcqN !== 1 ? 's' : ''));
+  if (saqN > 0) parts.push(saqN + ' SAQ' + (saqN !== 1 ? 's' : ''));
+  if (blN  > 0) parts.push(blN  + ' Blurto session' + (blN  !== 1 ? 's' : ''));
+  var detail = parts.length ? '\n\nThis will permanently delete:\n• ' + parts.join('\n• ') : '';
+  if (!confirm('Delete folder "' + name + '" forever?' + detail + '\n\nThis cannot be undone.')) return;
+
+  var snapRp      = JSON.stringify(rpData);
+  var snapBank    = JSON.stringify(bank);
+  var snapSq      = JSON.stringify(sqBank);
+  var snapBlurto  = JSON.stringify(blurtoSessions);
   var snapFolders = localStorage.getItem('sp_folders');
-  orgTopics = orgTopics.filter(function(x) { return x.id !== id; });
-  orgSaveTopics();
-  saveAllFolders(getAllFolders().filter(function(f) { return f.name.toLowerCase() !== t.topic_name.toLowerCase(); }));
+  var snapOrg     = JSON.stringify(orgTopics);
+  var snapMeta    = localStorage.getItem('sp_folder_meta');
+  var snapScores  = localStorage.getItem('sp_folder_scores');
+  var snapSqsc    = localStorage.getItem('sp_saq_folder_scores');
+
+  rpData = rpData.filter(function(x) { return x.topic.toLowerCase() !== name.toLowerCase(); }); rpSave();
+  bank = bank.filter(function(q) { return (q.folder || 'General') !== name; }); saveBank();
+  sqBank = sqBank.filter(function(q) { return (q.folder || 'General') !== name; }); sqSave();
+  blurtoSessions = blurtoSessions.filter(function(s) { return s.topic !== name; }); blurtoSave();
+  saveAllFolders(getAllFolders().filter(function(f) { return f.name.toLowerCase() !== name.toLowerCase(); }));
+  orgTopics = orgTopics.filter(function(x) { return x.id !== id; }); orgSaveTopics();
+  var meta = getFolderMeta(); delete meta[name]; localStorage.setItem('sp_folder_meta', JSON.stringify(meta));
+  var scores = getFolderScores(); delete scores[name]; localStorage.setItem('sp_folder_scores', JSON.stringify(scores));
+  var sqsc = getSaqFolderScores(); delete sqsc[name]; localStorage.setItem('sp_saq_folder_scores', JSON.stringify(sqsc));
+
   populateFolderDatalist(); orgRenderBanner(); orgRenderTable();
-  pushUndo('"' + t.topic_name + '" topic', function() {
-    orgTopics = JSON.parse(snapOrg); orgSaveTopics();
+  rpRenderAll(); renderBank(); renderSqBank();
+
+  pushUndo('"' + name + '" + all content', function() {
+    rpData = JSON.parse(snapRp); rpSave();
+    bank = JSON.parse(snapBank); saveBank();
+    sqBank = JSON.parse(snapSq); sqSave();
+    blurtoSessions = JSON.parse(snapBlurto); blurtoSave();
     if (snapFolders) localStorage.setItem('sp_folders', snapFolders);
+    orgTopics = JSON.parse(snapOrg); orgSaveTopics();
+    if (snapMeta)   localStorage.setItem('sp_folder_meta',   snapMeta);
+    if (snapScores) localStorage.setItem('sp_folder_scores', snapScores);
+    if (snapSqsc)   localStorage.setItem('sp_saq_folder_scores', snapSqsc);
     populateFolderDatalist(); orgRenderBanner(); orgRenderTable();
+    renderBank(); renderSqBank(); rpRenderAll();
   });
 }
 
