@@ -7336,6 +7336,13 @@ function rpLoad() {
     });
     changed = true;
   });
+  // Prune: drop reminders for topics whose folder no longer exists (e.g. deleted
+  // before this cleanup was linked up, or via a path that missed it).
+  var validTopics = {};
+  (orgTopics || []).forEach(function(t) { validTopics[t.topic_name.toLowerCase()] = true; });
+  var before = rpData.length;
+  rpData = rpData.filter(function(x) { return validTopics[x.topic.toLowerCase()]; });
+  if (rpData.length !== before) changed = true;
   if (changed) rpSave();
 }
 function rpSave() { localStorage.setItem('sp_revplan', JSON.stringify(rpData)); if (typeof _scheduleSyncToSupabase === 'function') _scheduleSyncToSupabase(); }
