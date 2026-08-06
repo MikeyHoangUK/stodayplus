@@ -4449,6 +4449,25 @@ function ensureFolder(name, subject) {
   orgEnsureTopic(name, subject);
 }
 
+// Warn before a bulk import silently folds new questions into an existing
+// folder, so merging into a folder (and its tracked revision progress) is
+// always an explicit choice rather than something that just happens.
+function confirmFolderMerge(folderNames) {
+  var existing = getAllFolders();
+  var matches = folderNames.filter(function(name) {
+    return existing.some(function(f) { return f.name.toLowerCase() === name.toLowerCase(); });
+  });
+  if (!matches.length) return true;
+  var descs = matches.map(function(name) {
+    var n = (typeof bank !== 'undefined' ? bank : []).filter(function(q) { return (q.folder||'General').toLowerCase() === name.toLowerCase(); }).length;
+    return '"' + name + '" (' + n + ' existing question' + (n !== 1 ? 's' : '') + ')';
+  });
+  var msg = matches.length === 1
+    ? 'A folder named ' + descs[0] + ' already exists.\n\nThe new questions will be added to it, and its existing revision-planner progress will be kept as-is.\n\nContinue?'
+    : matches.length + ' of these folders already exist: ' + descs.join(', ') + '.\n\nNew questions will be added to them, and their existing revision-planner progress will be kept as-is.\n\nContinue?';
+  return confirm(msg);
+}
+
 function deleteSharedFolder(name) {
   if (!confirm('Remove "' + name + '" from all bots? (Existing questions are kept but folder will be hidden)')) return;
   var snap = localStorage.getItem('sp_folders');
@@ -5306,17 +5325,20 @@ function pasteDoImport() {
   var toImport = _pasteQs.filter(function(q) { return !q.skipped && q.correct !== -1; });
   if (!toImport.length) { alert('No questions ready to import. Please pick correct answers for any flagged questions.'); return; }
   var pasteSubj = ((document.getElementById('paste-subj-inp') || {}).value || '').trim();
-  var base = Date.now();
+
   var foldersUsed = {};
+  toImport.forEach(function(q) { foldersUsed[q.folder || _pasteFolder] = true; });
+  var folderNames = Object.keys(foldersUsed);
+  if (!confirmFolderMerge(folderNames)) return;
+
+  var base = Date.now();
   toImport.forEach(function(q, i) {
     // Drop trailing empty option slots before saving
     var opts = q.options.filter(function(o){ return o.trim(); });
     while (opts.length < 4) opts.push('');
     var folder = q.folder || _pasteFolder;
     bank.push({ id: base + i, stem: q.stem, options: opts, correct: q.correct, difficulty: _pasteDiff, folder: folder, hint: q.hint || '' });
-    foldersUsed[folder] = true;
   });
-  var folderNames = Object.keys(foldersUsed);
   folderNames.forEach(function(f) {
     saveFolderMeta(f, pasteSubj);
     ensureFolder(f, pasteSubj);
@@ -5576,16 +5598,19 @@ function importDoImport() {
   var toImport = _importQs.filter(function(q){ return !q.skipped && q.correct !== -1; });
   if (!toImport.length) { alert('No questions ready to import. Please select the correct answer for any flagged questions, or skip them.'); return; }
   var importSubj = ((document.getElementById('import-subj-inp') || {}).value || '').trim();
-  var base = Date.now();
+
   var foldersUsed = {};
+  toImport.forEach(function(q) { foldersUsed[q.folder || _importFolder] = true; });
+  var folderNames = Object.keys(foldersUsed);
+  if (!confirmFolderMerge(folderNames)) return;
+
+  var base = Date.now();
   toImport.forEach(function(q, i) {
     var opts = q.options.filter(function(o){ return o.trim(); });
     while (opts.length < 4) opts.push('');
     var folder = q.folder || _importFolder;
     bank.push({ id: base + i, stem: q.stem, options: opts, correct: q.correct, difficulty: q.difficulty || _importDiff, folder: folder, hint: q.hint || '', rationale: q.rationale || '', reference: q.reference || '' });
-    foldersUsed[folder] = true;
   });
-  var folderNames = Object.keys(foldersUsed);
   folderNames.forEach(function(f) {
     saveFolderMeta(f, importSubj);
     ensureFolder(f, importSubj);
@@ -9926,7 +9951,7 @@ function blurtoSaveSession() {
   var rating = blurtoSelfRating || 'got';
   var now = Date.now();
   // Push to revision planner using same pattern as rpAddFromQuiz
-  var exists = rpData.some(function(r) { return r.topic === topic; });
+  var exists = rpData.some(function(r) { return r.topic.toLowerCase() === topic.toLowerCase(); });
   if (!exists) {
     rpData.unshift({
       id: now + '-' + Math.random().toString(36).slice(2, 7),
