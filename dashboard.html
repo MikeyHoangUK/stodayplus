@@ -4565,18 +4565,52 @@ function saveFolderEdit() {
   if (newName !== oldName) {
     // Snapshot everything before touching state so we can roll back on any write failure
     var _snapLS = {};
-    ['sp_questions','sp_saqs','sp_blurto','sp_folder_scores','sp_topic_content','sp_notes_cache','sp_blurto_cache','sp_folders','sp_org_topics','sp_folder_meta'].forEach(function(k){ _snapLS[k] = localStorage.getItem(k); });
-    var _snapBank = JSON.stringify(bank), _snapSq = JSON.stringify(sqBank), _snapBlurto = JSON.stringify(blurtoSessions), _snapOrg = JSON.stringify(orgTopics);
+    ['sp_questions','sp_saqs','sp_blurto','sp_folder_scores','sp_topic_content','sp_notes_cache','sp_blurto_cache','sp_folders','sp_org_topics','sp_folder_meta','sp_revplan','sp_wrong_ids','sp_correct_ids'].forEach(function(k){ _snapLS[k] = localStorage.getItem(k); });
+    var _snapBank = JSON.stringify(bank), _snapSq = JSON.stringify(sqBank), _snapBlurto = JSON.stringify(blurtoSessions), _snapOrg = JSON.stringify(orgTopics), _snapRp = JSON.stringify(rpData);
     try {
       bank.forEach(function(q){ if((q.folder||'General')===oldName) q.folder=newName; }); saveBank();
       sqBank.forEach(function(q){ if((q.folder||'General')===oldName) q.folder=newName; }); sqSave();
       blurtoSessions.forEach(function(s){ if(s.topic===oldName) s.topic=newName; }); blurtoSave();
       var sc=getFolderScores(); if(sc[oldName]!==undefined){sc[newName]=sc[oldName];delete sc[oldName];localStorage.setItem('sp_folder_scores',JSON.stringify(sc));}
       var sqsc=getSaqFolderScores(); if(sqsc[oldName]!==undefined){sqsc[newName]=sqsc[oldName];delete sqsc[oldName];localStorage.setItem('sp_saq_folder_scores',JSON.stringify(sqsc));}
+      var wids=getWrongIds(); if(wids[oldName]!==undefined){wids[newName]=(wids[newName]||[]).concat(wids[oldName]).filter(function(v,i,a){return a.indexOf(v)===i;});delete wids[oldName];localStorage.setItem('sp_wrong_ids',JSON.stringify(wids));}
+      var cids=getCorrectIds(); if(cids[oldName]!==undefined){cids[newName]=(cids[newName]||[]).concat(cids[oldName]).filter(function(v,i,a){return a.indexOf(v)===i;});delete cids[oldName];localStorage.setItem('sp_correct_ids',JSON.stringify(cids));}
       var tc=JSON.parse(localStorage.getItem('sp_topic_content')||'{}'); if(tc[oldName.toLowerCase()]){tc[newName.toLowerCase()]=tc[oldName.toLowerCase()];delete tc[oldName.toLowerCase()];localStorage.setItem('sp_topic_content',JSON.stringify(tc));}
       var nc=JSON.parse(localStorage.getItem('sp_notes_cache')||'{}'); if(nc[oldName]){nc[newName]=nc[oldName];delete nc[oldName];localStorage.setItem('sp_notes_cache',JSON.stringify(nc));}
       var bc=JSON.parse(localStorage.getItem('sp_blurto_cache')||'{}'); if(bc[oldName]){bc[newName]=bc[oldName];delete bc[oldName];localStorage.setItem('sp_blurto_cache',JSON.stringify(bc));}
-      var ot=orgTopics.find(function(t){ return t.topic_name.toLowerCase()===oldName.toLowerCase(); }); if(ot) ot.topic_name=newName;
+      // Revision planner reminders — migrate to the new name. If the target name
+      // already had its own reminder (renaming into an existing folder = merge),
+      // combine them instead of leaving the old one orphaned, since rpLoad()'s
+      // prune would otherwise delete it on the next load (it no longer matches
+      // any folder name).
+      rpData.forEach(function(x){ if(x.topic.toLowerCase()===oldName.toLowerCase()) x.topic=newName; });
+      var rpByTopic = {}, rpKept = [];
+      rpData.forEach(function(x){
+        var key = x.topic.toLowerCase();
+        var existing = rpByTopic[key];
+        if (!existing) { rpByTopic[key]=x; rpKept.push(x); return; }
+        existing.doneReviews = (existing.doneReviews||[]).concat(x.doneReviews||[]);
+        if ((x.level||0) > (existing.level||0)) { existing.level=x.level; existing.nextReview=x.nextReview; }
+        else if ((x.level||0)===(existing.level||0) && x.nextReview < existing.nextReview) { existing.nextReview=x.nextReview; }
+      });
+      rpData = rpKept; rpSave();
+      var otOld=orgTopics.find(function(t){ return t.topic_name.toLowerCase()===oldName.toLowerCase(); });
+      var otTarget=orgTopics.find(function(t){ return t!==otOld && t.topic_name.toLowerCase()===newName.toLowerCase(); });
+      if (otOld && otTarget) {
+        // Renaming into an existing topic (merge) — combine progress onto the
+        // target instead of leaving a duplicate row with the old topic's stats.
+        otTarget.mcq_count      = (otTarget.mcq_count||0) + (otOld.mcq_count||0);
+        otTarget.saq_count      = (otTarget.saq_count||0) + (otOld.saq_count||0);
+        otTarget.blurting_count = (otTarget.blurting_count||0) + (otOld.blurting_count||0);
+        otTarget.mcq_sessions   = (otTarget.mcq_sessions||[]).concat(otOld.mcq_sessions||[]);
+        otTarget.saq_sessions   = (otTarget.saq_sessions||[]).concat(otOld.saq_sessions||[]);
+        otTarget.mcq_done      = otTarget.mcq_done || otOld.mcq_done;
+        otTarget.saq_done      = otTarget.saq_done || otOld.saq_done;
+        otTarget.blurting_done = otTarget.blurting_done || otOld.blurting_done;
+        orgTopics = orgTopics.filter(function(t){ return t!==otOld; });
+      } else if (otOld) {
+        otOld.topic_name = newName;
+      }
       if(bankFolder===oldName) bankFolder=newName;
       if(typeof sqCurrentFolder!=='undefined' && sqCurrentFolder===oldName) sqCurrentFolder=newName;
       var meta=getFolderMeta(); delete meta[oldName]; localStorage.setItem('sp_folder_meta',JSON.stringify(meta));
@@ -4584,7 +4618,7 @@ function saveFolderEdit() {
       // Roll back localStorage
       Object.keys(_snapLS).forEach(function(k){ if(_snapLS[k]!==null) localStorage.setItem(k,_snapLS[k]); else localStorage.removeItem(k); });
       // Roll back in-memory
-      bank = JSON.parse(_snapBank); sqBank = JSON.parse(_snapSq); blurtoSessions = JSON.parse(_snapBlurto); orgTopics = JSON.parse(_snapOrg);
+      bank = JSON.parse(_snapBank); sqBank = JSON.parse(_snapSq); blurtoSessions = JSON.parse(_snapBlurto); orgTopics = JSON.parse(_snapOrg); rpData = JSON.parse(_snapRp);
       if(bankFolder===newName) bankFolder=oldName;
       alert('Rename failed — all changes have been reversed.\n(' + err.message + ')');
       return;
@@ -4593,7 +4627,17 @@ function saveFolderEdit() {
 
   var list=getAllFolders();
   var entry=list.find(function(f){ return f.name.toLowerCase()===oldName.toLowerCase(); });
-  if (entry){ entry.name=newName; entry.subject=newSubj; } else { list.push({id:Date.now()+'-'+Math.random().toString(36).slice(2,5),name:newName,subject:newSubj,createdAt:Date.now()}); }
+  var target=list.find(function(f){ return f!==entry && f.name.toLowerCase()===newName.toLowerCase(); });
+  if (entry && target) {
+    // Renaming into an existing folder = merge: drop the old registry entry
+    // instead of leaving a second one with the same name (a duplicate, empty card).
+    list = list.filter(function(f){ return f!==entry; });
+    target.subject = newSubj;
+  } else if (entry) {
+    entry.name=newName; entry.subject=newSubj;
+  } else {
+    list.push({id:Date.now()+'-'+Math.random().toString(36).slice(2,5),name:newName,subject:newSubj,createdAt:Date.now()});
+  }
   saveAllFolders(list);
   saveFolderMeta(newName, newSubj);
 
@@ -4604,7 +4648,7 @@ function saveFolderEdit() {
   if (newSubj && orgSubjects.indexOf(newSubj)===-1){ orgSubjects.push(newSubj); orgSaveSubjects(); }
   populateSubjectDatalist(); populateFolderDatalist();
   closeFolderEdit();
-  renderBank(); renderSqBank();
+  renderBank(); renderSqBank(); rpRenderAll();
   if (document.getElementById('blurto-bank') && document.getElementById('blurto-bank').style.display!=='none') renderBlurtoBank();
 }
 
