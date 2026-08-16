@@ -1986,6 +1986,7 @@
         <!-- Shown only in demo/guest mode (no Supabase session) -->
         <button id="sp-sync-btn" onclick="window.location.href='login.html'" style="display:none;width:100%;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;border:none;border-radius:8px;padding:7px 8px;font-size:.68rem;font-weight:700;cursor:pointer;font-family:'Raleway',sans-serif">☁ Sign in to save to cloud</button>
         <button id="sp-reset-btn" onclick="spResetAccount()" style="display:none;width:100%;margin-top:5px;background:none;color:#dc2626;border:1px solid rgba(220,38,38,.25);border-radius:8px;padding:5px 8px;font-size:.63rem;font-weight:700;cursor:pointer;font-family:'Raleway',sans-serif">⚠ Reset my account data</button>
+        <button id="sp-clear-device-btn" onclick="spClearDeviceStorage()" style="display:none;width:100%;margin-top:5px;background:none;color:#b45309;border:1px solid rgba(180,83,9,.25);border-radius:8px;padding:5px 8px;font-size:.63rem;font-weight:700;cursor:pointer;font-family:'Raleway',sans-serif">🧹 Clear this device's storage</button>
       </div>
     </div>
   </nav>
@@ -2570,8 +2571,16 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Folder Name&quot
             <div class="org-focus" id="org-focus"></div>
             <div class="org-actions" id="org-actions-bar" style="display:none">
               <input class="org-search" id="org-search" placeholder="Search topics or subjects…" oninput="orgRenderTable()"/>
+              <button class="org-gear-btn" id="org-merge-btn" style="display:none;margin-left:0" onclick="orgOpenMergeModal()">🔀 Merge selected (<span id="org-merge-count">0</span>)</button>
+              <button class="org-gear-btn" style="margin-left:0" onclick="orgToggleAddTopic()">+ New topic</button>
               <button class="org-gear-btn" onclick="orgShowSetup()">⚙️ Subjects</button>
             </div>
+            <div class="org-subj-add-row" id="org-add-topic-row" style="display:none">
+              <input class="org-subj-inp" id="org-topic-inp" placeholder="Topic name…" onkeydown="if(event.key==='Enter')orgAddTopic()"/>
+              <select class="org-subj-inp" id="org-new-subj" style="width:140px"></select>
+              <button class="org-subj-add-btn" onclick="orgAddTopic()">+ Add</button>
+            </div>
+            <div id="org-add-topic-msg" class="rp-add-msg" style="display:none"></div>
             <div class="org-table-wrap">
               <table class="org-table">
                 <thead>
@@ -10696,22 +10705,25 @@ var _authMode  = 'signin';
 })();
 
 function _updateSyncUI() {
-  var syncBtn  = document.getElementById('sp-sync-btn');
-  var resetBtn = document.getElementById('sp-reset-btn');
-  var userEl   = document.getElementById('sp-sync-user');
-  var sta      = document.getElementById('sp-sync-status');
-  var warn     = document.getElementById('unsaved-warning');
+  var syncBtn      = document.getElementById('sp-sync-btn');
+  var resetBtn     = document.getElementById('sp-reset-btn');
+  var clearDevBtn  = document.getElementById('sp-clear-device-btn');
+  var userEl       = document.getElementById('sp-sync-user');
+  var sta          = document.getElementById('sp-sync-status');
+  var warn         = document.getElementById('unsaved-warning');
   if (_spUser) {
     // Signed in via Supabase — show account info, hide guest prompt
-    if (syncBtn)  syncBtn.style.display  = 'none';
-    if (resetBtn) resetBtn.style.display = 'block';
+    if (syncBtn)     syncBtn.style.display     = 'none';
+    if (resetBtn)    resetBtn.style.display    = 'block';
+    if (clearDevBtn) clearDevBtn.style.display = 'block';
     if (userEl)   { userEl.textContent = '☁ ' + _spUser.email; userEl.style.display = 'block'; }
     if (sta)      sta.textContent = 'Cloud sync active';
     if (warn)     warn.style.display = 'none';
   } else {
     // Demo / guest mode — offer sign-in
-    if (syncBtn)  syncBtn.style.display  = 'block';
-    if (resetBtn) resetBtn.style.display = 'none';
+    if (syncBtn)     syncBtn.style.display     = 'block';
+    if (resetBtn)    resetBtn.style.display    = 'none';
+    if (clearDevBtn) clearDevBtn.style.display = 'none';
     if (userEl)   userEl.style.display   = 'none';
     if (sta)      sta.textContent = '';
     if (warn)     warn.style.display = 'flex';
@@ -10738,6 +10750,19 @@ async function spResetAccount() {
   if (typeof renderBank   === 'function') renderBank();
   if (typeof renderSqBank === 'function') renderSqBank();
   _setSyncStatus('✓ Account reset');
+}
+
+function spClearDeviceStorage() {
+  if (!_spUser) return;
+  if (!confirm('Clear all data stored on this device?\n\nYour cloud data is untouched — it will reload fresh from the cloud after this page reloads.\n\nUse this on your phone to stop old phone data from bleeding into your cloud account.')) return;
+  var uid = _spUser.id;
+  _USER_DATA_KEYS.forEach(function(k) { localStorage.removeItem(k); });
+  localStorage.removeItem('sp_bank_cache_' + uid);
+  localStorage.removeItem('sp_saqs_cache_' + uid);
+  localStorage.removeItem('sp_bank_local_' + uid);
+  localStorage.removeItem('sp_saqs_local_' + uid);
+  localStorage.removeItem('sp_last_user_id');
+  location.reload();
 }
 
 // Keys that store per-user data — cleared when a different user signs in
@@ -10873,22 +10898,12 @@ async function _loadFromSupabase() {
       var fmr = await _spClient.from('user_data').select('folders, folder_meta').eq('user_id', uid).maybeSingle();
       if (!fmr.error && fmr.data) {
         if (fmr.data.folders && fmr.data.folders.length) {
-          var cloudFolders = fmr.data.folders;
-          var localFolders = getAllFolders();
-          // Merge: keep all unique folder names, prefer cloud subject if local has none
-          var mergedMap = {};
-          localFolders.forEach(function(f) { mergedMap[f.name] = f; });
-          cloudFolders.forEach(function(f) {
-            if (!mergedMap[f.name]) mergedMap[f.name] = f;
-            else if (!mergedMap[f.name].subject && f.subject) mergedMap[f.name].subject = f.subject;
-          });
-          localStorage.setItem('sp_folders', JSON.stringify(Object.values(mergedMap)));
+          // Cloud is the authority — overwrite local completely so stale phone folders don't bleed in
+          localStorage.setItem('sp_folders', JSON.stringify(fmr.data.folders));
         }
         if (fmr.data.folder_meta && Object.keys(fmr.data.folder_meta).length) {
-          var cloudMeta = fmr.data.folder_meta;
-          var localMeta = getFolderMeta();
-          var mergedMeta = Object.assign({}, cloudMeta, localMeta);
-          localStorage.setItem('sp_folder_meta', JSON.stringify(mergedMeta));
+          // Cloud wins for metadata too
+          localStorage.setItem('sp_folder_meta', JSON.stringify(fmr.data.folder_meta));
         }
         if (typeof renderBank === 'function') renderBank();
       }
