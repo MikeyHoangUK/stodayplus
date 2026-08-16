@@ -3201,6 +3201,9 @@ var POMO_T = { normal: 1800, plus: 2700, max: 3600 };
 var mode = localStorage.getItem('sp_mode') || 'chill';
 
 window.addEventListener('DOMContentLoaded', function() {
+  // Save the base path so navigating back to the planner restores the original URL
+  window._spDashBase = location.pathname;
+
   document.getElementById('sb-email').textContent = user;
   var uname = user.split('@')[0];
   uname = uname.charAt(0).toUpperCase() + uname.slice(1);
@@ -3228,6 +3231,27 @@ window.addEventListener('DOMContentLoaded', function() {
   updateNotesCacheUI();
   if (!navigator.onLine) document.getElementById('offline-banner').style.display = 'block';
   checkStorageUsage();
+
+  // Open the panel a stub page (poppy.html, sage.html, etc.) requested
+  var _bootPanel = sessionStorage.getItem('sp_boot_panel');
+  if (_bootPanel) {
+    sessionStorage.removeItem('sp_boot_panel');
+    var _bootNav = document.querySelector('.nav-item[onclick*="\'' + _bootPanel + '\'"]');
+    showPanel(_bootPanel, _bootNav, true); // _fromPop=true: don't pushState again
+    var _bootSlug = _PANEL_SLUGS[_bootPanel];
+    history.replaceState({ panel: _bootPanel }, '', _bootSlug ? '/' + _bootSlug : location.pathname);
+  } else {
+    // Set initial history state so popstate fires correctly on first Back press
+    history.replaceState({ panel: 'planner' }, '', location.pathname);
+  }
+});
+
+// Restore panel on browser back/forward
+window.addEventListener('popstate', function(e) {
+  var panelId = (e.state && e.state.panel) ? e.state.panel
+    : (_SLUG_TO_PANEL[location.pathname.replace('/', '')] || 'planner');
+  var navEl = document.querySelector('.nav-item[onclick*="\'' + panelId + '\'"]');
+  showPanel(panelId, navEl, true); // _fromPop=true: don't push another state
 });
 
 // ── MARVEL ENTRY ANIMATION ──
@@ -5028,7 +5052,10 @@ var PANEL_TITLES = {
   'blurto':  'Blurto<span class="tb-sub">Blurting Machine</span>',
   'finley':  'Finley<span class="tb-sub">Feynman Teaching</span>'
 };
-function showPanel(id, el) {
+// URL slug for each panel — drives history.pushState
+var _PANEL_SLUGS = { mcq: 'poppy', saqs: 'sage', blurto: 'blurto', finley: 'finley' };
+var _SLUG_TO_PANEL = { poppy: 'mcq', sage: 'saqs', blurto: 'blurto', finley: 'finley' };
+function showPanel(id, el, _fromPop) {
   if (sqCountdownTimer) {
     clearInterval(sqCountdownTimer); sqCountdownTimer = null;
     sqGenerating = false;
@@ -5061,6 +5088,12 @@ function showPanel(id, el) {
   });
   var tb = document.getElementById('topbar-tabs-' + id);
   if (tb) tb.style.display = 'flex';
+  // Update URL so back button and bookmarking work
+  if (!_fromPop) {
+    var _slug = _PANEL_SLUGS[id];
+    var _path = _slug ? '/' + _slug : (window._spDashBase || location.pathname);
+    history.pushState({ panel: id }, '', _path);
+  }
 }
 
 function goHome() {
