@@ -2481,6 +2481,7 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Folder Name&quot
             <div class="qzd-eyebrow">Rationale</div>
             <div class="qzd-body" id="qzr-body"></div>
             <div class="qzd-ref" id="qzr-ref" style="display:none"></div>
+            <div class="qzd-kb-hint">R to toggle</div>
           </div>
           </div><!-- /quiz-run-wrap -->
 
@@ -6402,6 +6403,16 @@ document.addEventListener('keydown', function(e) {
     if (!run || run.style.display === 'none') return;
     e.preventDefault();
     toggleHint();
+  }
+  if (e.key === 'r' || e.key === 'R') {
+    var tag = document.activeElement && document.activeElement.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    var run = document.getElementById('quiz-run-wrap');
+    if (!run || run.style.display === 'none') return;
+    var ratTog = document.getElementById('rationale-tog');
+    if (!ratTog || ratTog.style.display === 'none') return;
+    e.preventDefault();
+    qzRationaleToggle();
   }
   if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
     var tag = document.activeElement && document.activeElement.tagName;
