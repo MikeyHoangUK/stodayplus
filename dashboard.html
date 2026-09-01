@@ -6175,13 +6175,24 @@ function qzResumeSession() {
   if (!raw) return;
   try {
     var s = JSON.parse(raw);
+    // Jump straight to the quiz screen — resume banner can show from any panel/tab
+    var mcqPanel = document.getElementById('panel-mcq');
+    if (!mcqPanel || !mcqPanel.classList.contains('active')) {
+      showPanel('mcq', document.querySelector('.nav-item[onclick*="\'mcq\'"]'));
+    }
+    if (document.getElementById('sub-quiz').style.display === 'none') switchTab('quiz');
     qzQs = s.qzQs; qzIdx = s.qzIdx; qzScore = s.qzScore;
     qzAnswers = s.qzAnswers || []; qzWrongInSession = s.qzWrongInSession || [];
     qzAnswered = !!(qzAnswers[qzIdx]);
     document.getElementById('quiz-setup').style.display = 'none';
     document.getElementById('quiz-run-wrap').style.display = 'block';
     document.getElementById('quiz-results').style.display = 'none';
+    var _rb = document.getElementById('qz-resume-banner'); if (_rb) _rb.style.display = 'none';
     showQ();
+    setTimeout(function() {
+      var wrap = document.getElementById('quiz-run-wrap');
+      if (wrap) wrap.scrollIntoView({behavior:'smooth', block:'center'});
+    }, 60);
   } catch(e) { qzClearSession(); }
 }
 
