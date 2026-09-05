@@ -3244,7 +3244,7 @@ window.addEventListener('DOMContentLoaded', function() {
     var _bootNav = document.querySelector('.nav-item[onclick*="\'' + _bootPanel + '\'"]');
     showPanel(_bootPanel, _bootNav, true); // _fromPop=true: don't pushState again
     var _bootSlug = _PANEL_SLUGS[_bootPanel];
-    history.replaceState({ panel: _bootPanel }, '', _bootSlug ? '/' + _bootSlug : location.pathname);
+    history.replaceState({ panel: _bootPanel }, '', _bootSlug ? _spDirOf(location.pathname) + _bootSlug + '.html' : location.pathname);
   } else {
     // Set initial history state so popstate fires correctly on first Back press
     history.replaceState({ panel: 'planner' }, '', location.pathname);
@@ -3254,7 +3254,7 @@ window.addEventListener('DOMContentLoaded', function() {
 // Restore panel on browser back/forward
 window.addEventListener('popstate', function(e) {
   var panelId = (e.state && e.state.panel) ? e.state.panel
-    : (_SLUG_TO_PANEL[location.pathname.replace('/', '')] || 'planner');
+    : (_SLUG_TO_PANEL[_spSlugFromPath()] || 'planner');
   var navEl = document.querySelector('.nav-item[onclick*="\'' + panelId + '\'"]');
   showPanel(panelId, navEl, true); // _fromPop=true: don't push another state
 });
@@ -5060,6 +5060,14 @@ var PANEL_TITLES = {
 // URL slug for each panel — drives history.pushState
 var _PANEL_SLUGS = { mcq: 'poppy', saqs: 'sage', blurto: 'blurto', finley: 'finley' };
 var _SLUG_TO_PANEL = { poppy: 'mcq', sage: 'saqs', blurto: 'blurto', finley: 'finley' };
+// GitHub Pages serves this app from a subpath (e.g. /stodayplus/), so slug URLs must
+// stay relative to that directory and point at the real stub file (poppy.html, etc.)
+// — an absolute '/poppy' 404s because it skips the subpath and has no matching file.
+function _spDirOf(path) { return path.replace(/[^/]*$/, ''); }
+function _spSlugFromPath() {
+  var dir = _spDirOf(location.pathname);
+  return location.pathname.slice(dir.length).replace(/\.html$/, '');
+}
 function showPanel(id, el, _fromPop) {
   if (sqCountdownTimer) {
     clearInterval(sqCountdownTimer); sqCountdownTimer = null;
@@ -5096,7 +5104,7 @@ function showPanel(id, el, _fromPop) {
   // Update URL so back button and bookmarking work
   if (!_fromPop) {
     var _slug = _PANEL_SLUGS[id];
-    var _path = _slug ? '/' + _slug : (window._spDashBase || location.pathname);
+    var _path = _slug ? _spDirOf(location.pathname) + _slug + '.html' : (window._spDashBase || location.pathname);
     history.pushState({ panel: id }, '', _path);
   }
 }
