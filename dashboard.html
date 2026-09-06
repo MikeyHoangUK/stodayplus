@@ -7842,9 +7842,8 @@ function rpGoToTopic(tool, itemId) {
       updateAvail();
       qzWizInit();
     } else if (tool === 'saqs') {
-      var sqFolders = sqGetFolders();
-      var folder = sqFolders.indexOf(topic) !== -1 ? topic
-                 : (subject && sqFolders.indexOf(subject) !== -1 ? subject : null);
+      var folder = sqCountInFolder(topic) > 0 ? topic
+                 : (subject && sqCountInFolder(subject) > 0 ? subject : null);
       if (folder) {
         sqPracFolder(folder);
       } else {
@@ -8553,6 +8552,9 @@ function sqGetFolders() {
   sqBank.forEach(function(q) { var n = q.folder || 'General'; if (!seen[n]) { seen[n] = 1; f.push(n); } });
   return f.sort();
 }
+// sqGetFolders() lists every folder name known anywhere in the app (even MCQ-only ones
+// with zero SAQs) — use this to check whether a folder actually has SAQs in it.
+function sqCountInFolder(f) { return sqBank.filter(function(q) { return (q.folder || 'General') === f; }).length; }
 
 function sqSetType(d) {
   sqSelectedType = d;
@@ -10537,7 +10539,7 @@ function orgGoTool(tool, topicId) {
         }
       }
     } else if (tool === 'saqs') {
-      var sqFolder = sqGetFolders().indexOf(name) !== -1 ? name : null;
+      var sqFolder = sqCountInFolder(name) > 0 ? name : null;
       if (sqFolder && isSageUnlocked(sqFolder)) {
         sqPracFolder(sqFolder);
       } else if (sqFolder) {
