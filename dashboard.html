@@ -7845,7 +7845,25 @@ function rpGoToTopic(tool, itemId) {
       var sqFolders = sqGetFolders();
       var folder = sqFolders.indexOf(topic) !== -1 ? topic
                  : (subject && sqFolders.indexOf(subject) !== -1 ? subject : null);
-      if (folder) { sqPracFolder(folder); } else { sqTab('prac'); }
+      if (folder) {
+        sqPracFolder(folder);
+      } else {
+        // No SAQs exist for this topic yet — go straight to Generate instead of an empty practice screen
+        sqTab('gen');
+        var sqGenCached = orgGetContent(topic);
+        var sqGenEl = document.getElementById('sq-topic');
+        if (sqGenEl) {
+          if (sqGenCached) {
+            sqLoadedFiles = [{ name: sqGenCached.filename || topic, text: sqGenCached.text }];
+            sqRenderFileList();
+            sqGenEl.value = sqGenCached.text;
+            document.getElementById('sq-drop-idle').style.display = 'none';
+            sqSetStatus('✓ Loaded from cache — hit Generate when ready.', 'sok');
+          } else {
+            sqGenEl.value = topic; sqGenEl.focus();
+          }
+        }
+      }
     } else if (tool === 'finley') {
       finleyTab('teach');
       finleyShowScreen('setup');
@@ -10519,17 +10537,28 @@ function orgGoTool(tool, topicId) {
         }
       }
     } else if (tool === 'saqs') {
-      sqTab('gen');
-      var el = document.getElementById('sq-topic');
-      if (el) {
-        if (cached) {
-          sqLoadedFiles = [{ name: cached.filename || name, text: cached.text }];
-          sqRenderFileList();
-          el.value = cached.text;
-          document.getElementById('sq-drop-idle').style.display = 'none';
-          sqSetStatus('✓ Loaded from cache — hit Generate when ready.', 'sok');
-        } else {
-          el.value = name; el.focus();
+      var sqFolder = sqGetFolders().indexOf(name) !== -1 ? name : null;
+      if (sqFolder && isSageUnlocked(sqFolder)) {
+        sqPracFolder(sqFolder);
+      } else if (sqFolder) {
+        // SAQs exist but Sage isn't unlocked yet for this topic (MCQ threshold not met) —
+        // show the practice tab with the folder selected so the lock message is visible
+        sqTab('prac');
+        var sqSel = document.getElementById('sq-prac-folder');
+        if (sqSel) { sqSel.value = sqFolder; sqUpdateAvail(); }
+      } else {
+        sqTab('gen');
+        var el = document.getElementById('sq-topic');
+        if (el) {
+          if (cached) {
+            sqLoadedFiles = [{ name: cached.filename || name, text: cached.text }];
+            sqRenderFileList();
+            el.value = cached.text;
+            document.getElementById('sq-drop-idle').style.display = 'none';
+            sqSetStatus('✓ Loaded from cache — hit Generate when ready.', 'sok');
+          } else {
+            el.value = name; el.focus();
+          }
         }
       }
     } else if (tool === 'blurto') {
