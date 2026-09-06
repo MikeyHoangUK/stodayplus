@@ -2522,6 +2522,7 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Folder Name&quot
             <div class="res-btns">
               <button class="res-btn pri" onclick="retryQuiz()">Try Again</button>
               <button class="res-btn sec" onclick="exitQuizToFolder()">Exit to Topic</button>
+              <button class="res-btn sec" onclick="goToTodayTasks()">📅 Today's Tasks</button>
               <button class="res-btn sec" onclick="switchTab('bank')">Back to Bank</button>
             </div>
           </div>
@@ -5111,6 +5112,12 @@ function showPanel(id, el, _fromPop) {
 
 function goHome() {
   showPanel('planner', document.querySelector('.nav-item[onclick*="planner"]'));
+}
+
+function goToTodayTasks() {
+  if (document.fullscreenElement) document.exitFullscreen().catch(function(){});
+  goHome();
+  rpTab('today');
 }
 
 function switchTab(t) {
