@@ -43,7 +43,8 @@ Deno.serve(async (req: Request) => {
 
   try {
     const payload = await req.json()
-    payload.model = 'llama-3.3-70b-versatile'
+    // llama-3.3-70b-versatile was deprecated by Groq on 2026-08-16; gpt-oss-120b is their recommended replacement
+    payload.model = 'openai/gpt-oss-120b'
 
     const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
