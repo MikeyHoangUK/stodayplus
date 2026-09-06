@@ -7847,21 +7847,9 @@ function rpGoToTopic(tool, itemId) {
       if (folder) {
         sqPracFolder(folder);
       } else {
-        // No SAQs exist for this topic yet — go straight to Generate instead of an empty practice screen
-        sqTab('gen');
-        var sqGenCached = orgGetContent(topic);
-        var sqGenEl = document.getElementById('sq-topic');
-        if (sqGenEl) {
-          if (sqGenCached) {
-            sqLoadedFiles = [{ name: sqGenCached.filename || topic, text: sqGenCached.text }];
-            sqRenderFileList();
-            sqGenEl.value = sqGenCached.text;
-            document.getElementById('sq-drop-idle').style.display = 'none';
-            sqSetStatus('✓ Loaded from cache — hit Generate when ready.', 'sok');
-          } else {
-            sqGenEl.value = topic; sqGenEl.focus();
-          }
-        }
+        // No SAQs exist for this topic yet — jump to Generate exactly like clicking
+        // the folder's "+" button in the Sage bank would (same saved-notes lookup).
+        sqJumpToCreate(topic);
       }
     } else if (tool === 'finley') {
       finleyTab('teach');
@@ -10549,19 +10537,9 @@ function orgGoTool(tool, topicId) {
         var sqSel = document.getElementById('sq-prac-folder');
         if (sqSel) { sqSel.value = sqFolder; sqUpdateAvail(); }
       } else {
-        sqTab('gen');
-        var el = document.getElementById('sq-topic');
-        if (el) {
-          if (cached) {
-            sqLoadedFiles = [{ name: cached.filename || name, text: cached.text }];
-            sqRenderFileList();
-            el.value = cached.text;
-            document.getElementById('sq-drop-idle').style.display = 'none';
-            sqSetStatus('✓ Loaded from cache — hit Generate when ready.', 'sok');
-          } else {
-            el.value = name; el.focus();
-          }
-        }
+        // No SAQs exist for this topic yet — jump to Generate exactly like clicking
+        // the folder's "+" button in the Sage bank would (same saved-notes lookup).
+        sqJumpToCreate(name);
       }
     } else if (tool === 'blurto') {
       blurtoTabSwitch('session');
