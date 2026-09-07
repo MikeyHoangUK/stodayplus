@@ -199,29 +199,75 @@
           </button>
         </div>
         <div id="hero-panel" class="flex-shrink-0 w-full max-w-sm lg:max-w-md" style="will-change:transform">
-          <div class="rounded-2xl overflow-hidden shadow-2xl" style="border:1px solid rgba(109,40,217,.15)">
-            <div style="background:#1e1b4b;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.07)">
-              <div style="display:flex;align-items:center;gap:5px">
-                <div style="width:10px;height:10px;border-radius:50%;background:#f87171;opacity:.65"></div>
-                <div style="width:10px;height:10px;border-radius:50%;background:#fbbf24;opacity:.65"></div>
-                <div style="width:10px;height:10px;border-radius:50%;background:#4ade80;opacity:.65"></div>
+          <div class="rounded-2xl shadow-2xl" style="background:#fff;border:1px solid rgba(109,40,217,.12);padding:28px 22px">
+
+            <!-- Normal row -->
+            <div style="font-size:.6rem;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.09em;margin-bottom:12px">Normal students</div>
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:24px">
+              <!-- notes/pen chip -->
+              <div style="width:42px;height:42px;border-radius:11px;flex-shrink:0;background:rgba(156,163,175,.1);border:1px solid rgba(156,163,175,.25);display:flex;align-items:center;justify-content:center">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#9ca3af" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4" y="3" width="13" height="18" rx="2"/>
+                  <line x1="7.5" y1="8" x2="13.5" y2="8"/><line x1="7.5" y1="12" x2="13.5" y2="12"/><line x1="7.5" y1="16" x2="11" y2="16"/>
+                  <path d="M15 15l5-5 2 2-5 5h-2z"/>
+                </svg>
               </div>
-              <span style="color:rgba(255,255,255,.35);font-size:.63rem;font-weight:600;font-family:'Raleway',sans-serif;letter-spacing:.02em">stoday.plus — revision planner</span>
-              <div style="width:40px"></div>
+              <span style="color:#d1d5db;font-weight:700;font-size:.9rem;flex-shrink:0">→</span>
+              <!-- repeat/loop chip -->
+              <div style="width:42px;height:42px;border-radius:11px;flex-shrink:0;background:rgba(156,163,175,.1);border:1px solid rgba(156,163,175,.25);display:flex;align-items:center;justify-content:center">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#9ca3af" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3"/>
+                  <path d="M18 3v4h-4M6 21v-4h4"/>
+                </svg>
+              </div>
+              <span style="color:#d1d5db;font-weight:700;font-size:.9rem;flex-shrink:0">→</span>
+              <span style="color:#d1d5db;font-weight:800;font-size:1rem;flex-shrink:0;margin-right:2px">=</span>
+              <!-- B- result badge -->
+              <div style="width:46px;height:46px;border-radius:50%;flex-shrink:0;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.85rem;color:#6b7280">B-</div>
             </div>
-            <div style="padding:24px 20px;background:rgba(250,243,224,.97)">
-              <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:20px">
-                <span style="font-size:2.4rem;font-weight:900;background:linear-gradient(135deg,#6d28d9,#4338ca);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1">1</span>
-                <span style="font-size:.82rem;font-weight:700;color:#6e5438">topic due for review</span>
+
+            <div style="height:1px;background:rgba(0,0,0,.06);margin-bottom:24px"></div>
+
+            <!-- Stoday Plus row -->
+            <div style="font-size:.6rem;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:.09em;margin-bottom:12px">Stoday Plus students</div>
+            <div style="display:flex;align-items:center;gap:7px">
+              <!-- quiz chip -->
+              <div style="width:42px;height:42px;border-radius:11px;flex-shrink:0;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);display:flex;align-items:center;justify-content:center">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#7c3aed" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="3"/>
+                  <circle cx="7.5" cy="8.5" r="1.3"/><line x1="11" y1="8.5" x2="17" y2="8.5"/>
+                  <circle cx="7.5" cy="12.5" r="1.6" fill="#7c3aed"/><path d="M6.8 12.6l.5.5 1.1-1.2" stroke="#fff" stroke-width="1.1"/><line x1="11" y1="12.5" x2="17" y2="12.5"/>
+                  <circle cx="7.5" cy="16.5" r="1.3"/><line x1="11" y1="16.5" x2="17" y2="16.5"/>
+                </svg>
               </div>
-              <div style="background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:14px;padding:18px 18px">
-                <div style="font-size:.95rem;font-weight:800;color:#1c1208;margin-bottom:14px;line-height:1.3">Organic Reactions</div>
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;background:rgba(109,40,217,.05);border:1px solid rgba(109,40,217,.1);border-radius:9px">
-                  <span style="font-size:.72rem;font-weight:800;color:#6d28d9">📚 D3 — Active Recall with Poppy</span>
-                  <button style="font-size:.66rem;font-weight:800;background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:7px;padding:5px 11px;font-family:'Raleway',sans-serif;white-space:nowrap;flex-shrink:0">▶ Start</button>
+              <span style="color:#c4b5fd;font-weight:800;font-size:1rem;flex-shrink:0">+</span>
+              <!-- calendar chip -->
+              <div style="width:42px;height:42px;border-radius:11px;flex-shrink:0;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);display:flex;align-items:center;justify-content:center">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#7c3aed" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/>
+                  <line x1="7" y1="3" x2="7" y2="7"/><line x1="17" y1="3" x2="17" y2="7"/>
+                  <circle cx="7.5" cy="14" r="1" fill="#7c3aed" stroke="none"/><circle cx="12" cy="14" r="1" fill="#7c3aed" stroke="none"/>
+                  <circle cx="16.5" cy="14" r="1" fill="#7c3aed" stroke="none"/><circle cx="7.5" cy="17.5" r="1" fill="#7c3aed" stroke="none"/>
+                </svg>
+              </div>
+              <span style="color:#c4b5fd;font-weight:800;font-size:1rem;flex-shrink:0">+</span>
+              <!-- checklist chip with 20+ badge -->
+              <div style="position:relative;flex-shrink:0">
+                <div style="width:42px;height:42px;border-radius:11px;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);display:flex;align-items:center;justify-content:center">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#7c3aed" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="3"/>
+                    <path d="M6.3 8l1.1 1.1L9.6 6.7"/><line x1="12" y1="8" x2="18" y2="8"/>
+                    <path d="M6.3 13l1.1 1.1 2.2-2.4"/><line x1="12" y1="13" x2="18" y2="13"/>
+                    <line x1="6.3" y1="18" x2="8" y2="18"/><line x1="12" y1="18" x2="18" y2="18"/>
+                  </svg>
                 </div>
+                <div style="position:absolute;top:-8px;right:-9px;background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;font-size:.52rem;font-weight:800;border-radius:99px;padding:2px 5px;border:2px solid #fff;white-space:nowrap">20+</div>
               </div>
+              <span style="color:#a78bfa;font-weight:800;font-size:1rem;flex-shrink:0;margin-right:2px">=</span>
+              <!-- A* result badge -->
+              <div style="width:46px;height:46px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,#7c3aed,#4338ca);box-shadow:0 4px 16px rgba(124,58,237,.4);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.85rem;color:#fff">A*</div>
             </div>
+
           </div>
         </div>
       </div>
