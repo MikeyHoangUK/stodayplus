@@ -480,6 +480,8 @@
     @keyframes scoreIn{from{transform:scale(.35);opacity:0}to{transform:scale(1);opacity:1}}
     .score-pct{font-size:2.5rem;font-weight:900;line-height:1}
     .score-lbl{font-size:.68rem;color:#8a6e54;margin-top:4px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+    /* Poppy's results circle is always filled green (see showResults()) — its "score" label needs light text, unlike Sage's which still sits on a light cream fill */
+    #res-circle .score-lbl{color:rgba(255,255,255,.72)!important}
     .res-title{font-size:1.8rem;font-weight:900;margin-bottom:6px;letter-spacing:-.025em;line-height:1.1}
     .res-sub{color:#6e5438;font-size:.88rem;margin-bottom:18px;font-weight:600}
     .res-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:14px}
@@ -673,7 +675,7 @@
     body.hc .bank-empty{color:#a08878!important}
     body.hc .bank-empty h3{color:#c8b89a!important}
     /* Quiz results */
-    body.hc .score-circle{box-shadow:inset 0 0 0 17px #07060f,0 6px 32px rgba(109,40,217,.2)!important}
+    body.hc .score-circle{box-shadow:inset 0 0 0 17px #07060f,0 6px 32px rgba(109,40,217,.2)}
     body.hc .score-lbl{color:#a08878!important}
     body.hc .res-sub{color:#a08878!important}
     body.hc .res-btn.sec{background:rgba(255,255,255,.06)!important;border:1.5px solid rgba(168,85,247,.28)!important;color:#c8b89a!important}
@@ -4821,10 +4823,13 @@ function showResults() {
   else if (pct >= 50) { color=hc?'#fbbf24':'#b45309'; title='Good effort'; }
   else { color=hc?'#f87171':'#dc2626'; title='Keep going'; }
   var circle = document.getElementById('res-circle');
-  var innerBg = hc ? '#07060f' : 'rgba(250,243,224,.98)';
-  circle.style.background = 'conic-gradient(' + color + ' ' + pct + '%, rgba(168,85,247,.12) ' + pct + '%)';
-  circle.style.boxShadow = 'inset 0 0 0 17px ' + innerBg + ', 0 6px 32px ' + color + '28';
-  document.getElementById('res-pct').style.color = color;
+  // Circle is always a high-contrast green (not tier-colored) — a bright, consistent
+  // "reward" cue reads better than color-coding score tiers here.
+  var ringColor = hc ? '#4ade80' : '#22c55e';
+  var innerBg   = hc ? '#14532d' : '#15803d';
+  circle.style.background = 'conic-gradient(' + ringColor + ' ' + pct + '%, rgba(34,197,94,.15) ' + pct + '%)';
+  circle.style.boxShadow = 'inset 0 0 0 17px ' + innerBg + ', 0 6px 32px ' + ringColor + '40';
+  document.getElementById('res-pct').style.color = '#fff';
   document.getElementById('res-pct').textContent = pct + '%';
   document.getElementById('res-title').style.color = color;
   document.getElementById('res-title').textContent = title;
