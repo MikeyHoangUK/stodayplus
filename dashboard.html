@@ -5134,6 +5134,14 @@ function switchTab(t) {
   if (t !== 'quiz') { var _rb = document.getElementById('qz-resume-banner'); if (_rb) _rb.style.display = 'none'; }
   if (t === 'bank') { renderBank(); if (document.fullscreenElement) document.exitFullscreen().catch(function(){}); }
   if (t === 'quiz') {
+    // Entering the Quiz tab always lands on the setup wizard, not a stale results/run
+    // screen left over from whatever topic was quizzed last. qzResumeSession() (the
+    // "▶ Resume" banner button) restores an in-progress session after this by setting
+    // these same three elements itself, so it isn't affected by this reset.
+    document.getElementById('quiz-results').style.display = 'none';
+    document.getElementById('quiz-run-wrap').style.display = 'none';
+    document.getElementById('quiz-setup').style.display = 'block';
+    qzDefClose();
     populateFolderSelect(); updateAvail(); qzShowResumeBanner(); qzWizInit();
     var _qcel = document.getElementById('content');
     if (_qcel && _qcel.requestFullscreen && !document.fullscreenElement) _qcel.requestFullscreen().catch(function(){});
