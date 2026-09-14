@@ -35,15 +35,9 @@
       position: absolute; inset: 0; pointer-events: none;
       background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, .85) 50%, transparent 65%);
       transform: translateX(-150%);
-      animation: hero-chip-sweep 5s ease-in-out infinite;
+      transition: transform .6s ease;
     }
-    .hero-chip:nth-child(2) .hero-chip-shine { animation-delay: .9s; }
-    .hero-chip:nth-child(3) .hero-chip-shine { animation-delay: 1.8s; }
-    @keyframes hero-chip-sweep {
-      0%   { transform: translateX(-150%); }
-      10%  { transform: translateX(150%); }
-      100% { transform: translateX(150%); }
-    }
+    .hero-chip:hover .hero-chip-shine { transform: translateX(150%); }
     .gradient-dark  { background: linear-gradient(135deg, #1e1b4b 0%, #1e3a8a 100%); }
     .gradient-brand { background: linear-gradient(135deg, #9333ea 0%, #3730a3 100%); }
     .gradient-card  { background: linear-gradient(135deg, #9333ea 0%, #1e3a8a 100%); }
