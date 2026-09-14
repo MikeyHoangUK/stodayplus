@@ -23,6 +23,27 @@
   <style>
     html, body { overflow: hidden; height: 100%; margin: 0; padding: 0; }
     .gradient-hero  { background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #e0e7ff 100%); }
+    .hero-chip {
+      position: relative; display: inline-flex; align-items: center; gap: 6px;
+      font-size: .82rem; font-weight: 800; color: #1e1b4b;
+      padding: 8px 16px; border-radius: 999px; overflow: hidden; white-space: nowrap;
+      background: linear-gradient(135deg, #ffffff 0%, #f5f0ff 60%, #ede9fe 100%);
+      border: 1px solid rgba(124, 58, 237, .18);
+      box-shadow: 0 2px 10px rgba(109, 40, 217, .10), inset 0 1px 0 rgba(255, 255, 255, .8);
+    }
+    .hero-chip-shine {
+      position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, .85) 50%, transparent 65%);
+      transform: translateX(-150%);
+      animation: hero-chip-sweep 5s ease-in-out infinite;
+    }
+    .hero-chip:nth-child(2) .hero-chip-shine { animation-delay: .9s; }
+    .hero-chip:nth-child(3) .hero-chip-shine { animation-delay: 1.8s; }
+    @keyframes hero-chip-sweep {
+      0%   { transform: translateX(-150%); }
+      10%  { transform: translateX(150%); }
+      100% { transform: translateX(150%); }
+    }
     .gradient-dark  { background: linear-gradient(135deg, #1e1b4b 0%, #1e3a8a 100%); }
     .gradient-brand { background: linear-gradient(135deg, #9333ea 0%, #3730a3 100%); }
     .gradient-card  { background: linear-gradient(135deg, #9333ea 0%, #1e3a8a 100%); }
@@ -190,12 +211,10 @@
           <p class="text-sm font-bold text-navy-dark leading-relaxed mb-8 mx-auto lg:mx-0" style="letter-spacing:.005em">
             No extra hours. No burnout. Just effort that finally counts.
           </p>
-          <div class="flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 mb-8">
-            <span class="text-base font-bold text-navy-dark">A*s in exams</span>
-            <span class="text-purple-mid text-sm">·</span>
-            <span class="text-base font-bold text-navy-dark">Time for family</span>
-            <span class="text-purple-mid text-sm">·</span>
-            <span class="text-base font-bold text-navy-dark">Strong university offers</span>
+          <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 mb-8">
+            <span class="hero-chip"><span class="hero-chip-shine"></span>🎯 A*s in exams</span>
+            <span class="hero-chip"><span class="hero-chip-shine"></span>🏡 Time for family</span>
+            <span class="hero-chip"><span class="hero-chip-shine"></span>🎓 Strong university offers</span>
           </div>
           <button onclick="fpGoto(1)" class="btn-ghost inline-block px-8 py-3.5 rounded-xl text-sm">
             See how it works ↓
