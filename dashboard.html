@@ -238,6 +238,8 @@
     .diff-badge.easy{background:rgba(34,197,94,.15);color:#16a34a;border:1px solid rgba(34,197,94,.35)}
     .diff-badge.medium{background:rgba(202,138,4,.15);color:#b45309;border:1px solid rgba(202,138,4,.35)}
     .diff-badge.hard{background:rgba(220,38,38,.12);color:#dc2626;border:1px solid rgba(220,38,38,.3)}
+    .q-flag-badge{display:inline-flex;align-items:center;gap:3px;background:#facc15;color:#78350f;border:1px solid #eab308;border-radius:7px;padding:3px 8px;font-size:.62rem;font-weight:800;cursor:pointer;flex-shrink:0;transition:all .15s}
+    .q-flag-badge:hover{background:#fbbf24}
     .bank-empty{text-align:center;padding:72px 20px;color:#4a3824}
     .bank-empty .ei{font-size:2.8rem;margin-bottom:14px}
     /* ── Create sub-tabs ── */
@@ -445,7 +447,11 @@
     @keyframes fsBtnShake{0%,100%{transform:translate(0,0) rotate(0)}20%{transform:translate(-3px,-1px) rotate(-3deg)}40%{transform:translate(3px,1px) rotate(3deg)}60%{transform:translate(-2px,0) rotate(-2deg)}80%{transform:translate(1px,-1px) rotate(1deg)}}
     .fs-btn.shake{animation:fsBtnShake .48s ease}
     .quiz-topbar-mid{display:flex;align-items:center;gap:14px}
-    .quiz-card{background:rgba(250,243,224,.8);border:1px solid rgba(168,85,247,.14);border-radius:22px;padding:36px;margin-bottom:20px;transition:border-color .3s,box-shadow .3s}
+    .quiz-card{position:relative;background:rgba(250,243,224,.8);border:1px solid rgba(168,85,247,.14);border-radius:22px;padding:36px;margin-bottom:20px;transition:border-color .3s,box-shadow .3s}
+    .qflag-btn{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(109,40,217,.2);background:rgba(255,255,255,.5);color:rgba(109,40,217,.35);font-size:1.1rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s;padding:0}
+    .qflag-btn:hover{border-color:rgba(109,40,217,.45);color:#6d28d9;background:rgba(109,40,217,.08)}
+    .qflag-btn.flagged{background:#facc15;border-color:#eab308;color:#78350f;box-shadow:0 0 0 3px rgba(250,204,21,.25)}
+    .qflag-btn.flagged:hover{background:#fbbf24}
     .quiz-card.c-flash{border-color:rgba(99,102,241,.6);box-shadow:0 0 36px rgba(99,102,241,.16)}
     .quiz-card.w-flash{border-color:rgba(248,113,113,.5);box-shadow:0 0 36px rgba(248,113,113,.14)}
     .quiz-stem{font-size:1.05rem;font-weight:700;color:#1c1208;line-height:1.75;margin-bottom:26px}
@@ -640,6 +646,9 @@
     body.hc .qopt.w-opt .ot{color:#fca5a5!important}
     body.hc .quiz-card.c-flash{border-color:rgba(34,197,94,.7)!important;box-shadow:0 0 48px rgba(34,197,94,.22)!important}
     body.hc .quiz-card.w-flash{border-color:rgba(248,113,113,.65)!important;box-shadow:0 0 48px rgba(248,113,113,.2)!important}
+    body.hc .qflag-btn{border-color:rgba(168,85,247,.3)!important;color:rgba(168,85,247,.55)!important;background:rgba(255,255,255,.04)!important}
+    body.hc .qflag-btn:hover{border-color:rgba(168,85,247,.55)!important;color:#c084fc!important}
+    body.hc .qflag-btn.flagged{background:#facc15!important;border-color:#eab308!important;color:#78350f!important}
     /* Topbar & mode toggle */
     body.hc .tb-title{color:#e8dcc8!important}
     body.hc #pomo-display{background:rgba(255,255,255,.06)!important;border-color:rgba(168,85,247,.18)!important}
@@ -1753,6 +1762,7 @@
       /* ── Active quiz ── */
       #quiz-run       { padding: 0; }
       .quiz-card      { padding: 22px 18px; border-radius: 18px; margin-bottom: 14px; }
+      .qflag-btn      { width: 30px; height: 30px; font-size: .95rem; top: 10px; right: 10px; }
       #qstem          { font-size: .95rem; line-height: 1.7; }
       .qopt           {
         padding: 13px 14px; border-radius: 13px;
@@ -2456,6 +2466,7 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Folder Name&quot
               <span></span><span></span>
             </div>
             <div class="quiz-card" id="qcard">
+              <button class="qflag-btn" id="qflag-btn" onclick="toggleQuizFlag()" title="Flag this question for review" aria-label="Flag this question for review">☆</button>
               <div class="qcard-num" id="qcard-num">1</div>
               <div class="quiz-stem" id="qstem"></div>
               <div class="quiz-opts" id="qopts"></div>
@@ -3771,7 +3782,7 @@ function submitQ() {
   var q = { id: editId || Date.now(), stem: stem, options: opts, correct: parseInt(cr.value), hint: hint, difficulty: selDiff, folder: folderVal };
   if (editId) {
     var ix = bank.findIndex(function(x) { return x.id === editId; });
-    if (ix !== -1) { q.rationale = bank[ix].rationale || ''; bank[ix] = q; }
+    if (ix !== -1) { q.rationale = bank[ix].rationale || ''; q.flagged = !!bank[ix].flagged; bank[ix] = q; }
     editId = null;
     document.getElementById('add-btn').textContent = 'Add Question to Bank';
   } else { bank.push(q); }
@@ -4011,6 +4022,7 @@ function renderBank() {
       if (bankSearch.trim() && (q.stem||q.question||'').toLowerCase().indexOf(bankSearch.toLowerCase()) === -1) return false;
       return true;
     });
+    filtered.sort(function(a, b) { return (b.flagged?1:0) - (a.flagged?1:0); });
     if (filtered.length === 0) {
       list.innerHTML = '<div class="bank-empty"><div class="ei">🔍</div><h3>No matching questions</h3><p>Try a different difficulty filter.</p></div>';
       return;
@@ -4023,7 +4035,9 @@ function renderBank() {
       c.setAttribute('data-qid', q.id);
       c.innerHTML = '<div class="q-top">'
         + '<input type="checkbox" ' + (sel ? 'checked' : '') + ' onchange="bankToggleSelect(' + q.id + ', this.checked)" style="margin-right:6px;accent-color:#7c3aed;cursor:pointer;width:15px;height:15px;flex-shrink:0" aria-label="Select question ' + (i+1) + '">'
-        + '<div class="q-num">'+(i+1)+'</div><div class="q-stem-t">'+esc(q.stem||q.question||'')+'</div><div class="q-btns"><button class="q-btn edit" onclick="editQ('+q.id+')">Edit</button><button class="q-btn del" onclick="delQ('+q.id+')">Delete</button></div></div>'
+        + '<div class="q-num">'+(i+1)+'</div>'
+        + (q.flagged ? '<button class="q-flag-badge" onclick="toggleFlagQ('+q.id+')" title="Flagged for review — click to unflag">★ Flagged</button>' : '')
+        + '<div class="q-stem-t">'+esc(q.stem||q.question||'')+'</div><div class="q-btns"><button class="q-btn edit" onclick="editQ('+q.id+')">Edit</button><button class="q-btn del" onclick="delQ('+q.id+')">Delete</button></div></div>'
         + '<div class="q-meta"><span class="diff-badge '+q.difficulty+'">'+q.difficulty+'</span>'+(q.hint?'<span style="font-size:.7rem;color:#5a4230">💡 '+esc(q.hint)+'</span>':'')+'<button class="q-btn edit" style="margin-left:auto;padding:3px 9px;font-size:.68rem" onclick="moveFolder('+q.id+')">📁 Move</button></div>'
         + '<div class="q-move-row" id="mf-'+q.id+'"></div>';
       list.appendChild(c);
@@ -4278,6 +4292,8 @@ function showQ() {
   document.getElementById('qscore').textContent = '✓ '+qzScore+' / '+answeredCount;
   document.getElementById('qcard-num').textContent = (qzIdx+1);
   document.getElementById('qcard').className = 'quiz-card anim';
+  var flagBtn = document.getElementById('qflag-btn');
+  if (flagBtn) { flagBtn.classList.toggle('flagged', !!q.flagged); flagBtn.textContent = q.flagged ? '★' : '☆'; }
   document.getElementById('qstem').textContent = q.stem;
   var opts = document.getElementById('qopts'); opts.innerHTML = '';
   var displayOpts = q.options
@@ -4335,6 +4351,23 @@ function answerQ(idx) {
   var ratTog = document.getElementById('rationale-tog');
   if (ratTog && q.rationale) ratTog.style.display = 'inline-flex';
   qzSaveSession();
+}
+
+function toggleFlagQ(id) {
+  var q = bank.find(function(x) { return x.id === id; });
+  if (!q) return;
+  q.flagged = !q.flagged;
+  saveBank();
+  renderBank();
+  return q.flagged;
+}
+
+function toggleQuizFlag() {
+  var q = qzQs[qzIdx];
+  if (!q) return;
+  var flagged = toggleFlagQ(q.id);
+  var flagBtn = document.getElementById('qflag-btn');
+  if (flagBtn) { flagBtn.classList.toggle('flagged', !!flagged); flagBtn.textContent = flagged ? '★' : '☆'; }
 }
 
 function toggleHint() {
