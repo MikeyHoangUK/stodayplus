@@ -1432,6 +1432,7 @@
     .sq-hint-item:last-child{margin-bottom:0}
     .sq-hint-dot{color:#7c3aed;font-weight:900;flex-shrink:0}
     .sq-hint-kw{color:#6d28d9;font-weight:900;background:rgba(109,40,217,.12);border-radius:4px;padding:0 5px}
+    .sq-hint-kw.kw-primary{background:#6d28d9;color:#fff;box-shadow:0 0 0 1px rgba(109,40,217,.25)}
     .sq-hint-dash{color:#a78bfa;font-weight:400;opacity:.6}
     /* L1 self-mark */
     .sq-l1-compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
@@ -1460,7 +1461,9 @@
     .sq-blank-inp:focus{border-bottom-color:#6d28d9}
     .sq-blank-inp.bk-ok{border-bottom-color:#16a34a;color:#16a34a}
     .sq-blank-inp.bk-miss{border-bottom-color:#dc2626;color:#dc2626;text-decoration:line-through}
+    .sq-blank-inp.kw-primary{border-bottom-width:3px}
     .sq-blank-reveal{font-size:.78rem;font-weight:800;color:#16a34a;display:none;margin-left:4px;white-space:nowrap}
+    .sq-blank-reveal.kw-primary{text-decoration:underline}
     .sq-blank-row.b-miss-row .sq-blank-reveal{display:inline}
     .sq-l2-score-row{display:flex;align-items:baseline;gap:10px;margin:10px 0 4px;padding:10px 14px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.12);border-radius:10px}
     .sq-l2-score-num{font-size:1.6rem;font-weight:900}
@@ -1677,6 +1680,7 @@
     body.hc .rp-sched-item .rp-sched-dot{border-color:rgba(109,40,217,.35)!important}
     body.hc .rp-sched-line{background:rgba(109,40,217,.18)!important}
     body.hc .sq-hint-kw{color:#c084fc!important}
+    body.hc .sq-hint-kw.kw-primary{background:#a855f7!important;color:#1a0b2e!important}
     body.hc .sq-hint-dash{color:#7a6448!important}
     body.hc .sq-hint-item{color:#c8b89a!important}
     body.hc .rp-ql-note{color:#7a6448!important}
@@ -9104,7 +9108,9 @@ function sqExtractKeywords(line) {
     return b.length - a.length;
   });
   var picked = candidates.slice(0, 3);
+  var primaryWord = picked[0]; // most significant, before reordering for display
   picked.sort(function(a, b) { return line.indexOf(a) - line.indexOf(b); });
+  picked.primary = picked.indexOf(primaryWord);
   return picked;
 }
 
@@ -9199,12 +9205,13 @@ async function sqPrepareAIKeywords(questions) {
   if (!entries.length) return;
 
   var lines = entries.map(function(e, idx) {
-    return 'QUESTION ' + (idx + 1) + ':\n'
+    var qText = (e.q.question || '').replace(/"/g, "'").trim();
+    return 'QUESTION ' + (idx + 1) + (qText ? ' (being asked: "' + qText + '")' : '') + ':\n'
       + e.bullets.map(function(b, i) { return 'BULLET ' + (i + 1) + ': ' + b; }).join('\n');
   });
 
   // ── Step 1: free-form reasoning — model thinks without format constraints ──
-  var step1 = 'You are a Keyword Extraction Tutor. Identify the essential keywords from these exam markscheme bullet points.\n\nMETHOD:\n1. Delete Test: a word is a keyword ONLY if removing it makes the bullet lose its main point, become vague, or factually wrong. If deleting changes nothing — skip it.\n2. Focus on these 5 categories:\n   - Numbers / measurements (quantities, doses, levels, percentages)\n   - Technical / special names (drug names, conditions, specific terms)\n   - Action / decision words (what must be DONE — e.g. monitored, adjusted, avoided, referred)\n   - Condition / qualifier words ("what kind", "how much", "under what circumstance" — e.g. individual, optimal, resistant, underlying)\n   - Warning / expert-referral words (signal caution or specialist input)\n3. Pick 3–5 keywords per bullet. Never more than half the words in a line.\n4. Keywords must appear verbatim in the bullet text.\n5. Never pick stop-words (the, a, an, is, are, of, in, on, to, and, or, for, with, by, as, etc.).\n\nFor each question output:\nQUESTION [number]:\nBULLET 1: [exact text] | KEYWORDS: word1, word2, word3\nBULLET 2: [exact text] | KEYWORDS: word1, word2\n...\n\nMarkschemes:\n\n' + lines.join('\n\n');
+  var step1 = 'You are a Keyword Extraction Tutor. Identify the essential keywords from these exam markscheme bullet points.\n\nMETHOD:\n1. Delete Test: a word is a keyword ONLY if removing it makes the bullet lose its main point, become vague, or factually wrong. If deleting changes nothing — skip it.\n2. Focus on these 5 categories:\n   - Numbers / measurements (quantities, doses, levels, percentages)\n   - Technical / special names (drug names, conditions, specific terms)\n   - Action / decision words (what must be DONE — e.g. monitored, adjusted, avoided, referred)\n   - Condition / qualifier words ("what kind", "how much", "under what circumstance" — e.g. individual, optimal, resistant, underlying)\n   - Warning / expert-referral words (signal caution or specialist input)\n3. Use the question being asked as context for judging what actually matters in the answer — but only ever pick keywords from the bullet text itself, never from the question.\n4. Pick 3–5 keywords per bullet. Never more than half the words in a line.\n5. List each bullet\'s keywords in order of importance, MOST ESSENTIAL FIRST.\n6. Keywords must appear verbatim in the bullet text.\n7. Never pick stop-words (the, a, an, is, are, of, in, on, to, and, or, for, with, by, as, etc.).\n\nFor each question output:\nQUESTION [number]:\nBULLET 1: [exact text] | KEYWORDS (most essential first): word1, word2, word3\nBULLET 2: [exact text] | KEYWORDS (most essential first): word1, word2\n...\n\nMarkschemes:\n\n' + lines.join('\n\n');
 
   var d1 = await callAI({ messages: [{ role: 'user', content: step1 }], temperature: 0.15, max_tokens: 1800 });
   if (d1.error) throw new Error(d1.error.message || 'Step 1 failed');
@@ -9216,7 +9223,7 @@ async function sqPrepareAIKeywords(questions) {
   if (statusEl) statusEl.innerHTML = '<div class="sql-spinner"></div>Structuring keywords…';
 
   // ── Step 2: pure reformatting — no reasoning needed, just convert to JSON ──
-  var step2 = 'Convert the keyword analysis below into JSON. Return ONLY valid JSON — no markdown, no explanation, nothing else.\n\nRequired format:\n{"results":[{"q":1,"kws":[["kw1","kw2","kw3"],["kw1","kw2"],...]},...]}\n\n"q" is the QUESTION NUMBER from the analysis (the integer after "QUESTION", e.g. 1, 2, 3) — not any other id. One entry per question. One inner array per bullet in order. Keywords in the order they appear in the bullet.\n\nAnalysis:\n\n' + analysis;
+  var step2 = 'Convert the keyword analysis below into JSON. Return ONLY valid JSON — no markdown, no explanation, nothing else.\n\nRequired format:\n{"results":[{"q":1,"kws":[["kw1","kw2","kw3"],["kw1","kw2"],...]},...]}\n\n"q" is the QUESTION NUMBER from the analysis (the integer after "QUESTION", e.g. 1, 2, 3) — not any other id. One entry per question. One inner array per bullet in order. Keep each bullet\'s keywords in the exact order given in the analysis (most essential first).\n\nAnalysis:\n\n' + analysis;
 
   var d2 = await callAI({ messages: [{ role: 'user', content: step2 }], temperature: 0.0, max_tokens: 1200 });
   if (d2.error) throw new Error(d2.error.message || 'Step 2 failed');
@@ -9229,12 +9236,16 @@ async function sqPrepareAIKeywords(questions) {
     if (!entry || !Array.isArray(r.kws)) return;
     // Only trust an AI keyword if it actually appears in its bullet — anything
     // hallucinated/paraphrased falls back locally for just that bullet instead
-    // of silently producing no blank/hint for it.
+    // of silently producing no blank/hint for it. Whichever valid keyword
+    // survives in first position is the "primary" (most essential) one, since
+    // the AI was asked to order each bullet's list most-essential-first.
     var validated = entry.bullets.map(function(bulletText, bi) {
       var kws = (Array.isArray(r.kws[bi]) ? r.kws[bi] : []).filter(function(kw) {
         return kw && bulletText.toLowerCase().indexOf((''+kw).toLowerCase()) !== -1;
       });
-      return kws.length ? kws : sqExtractKeywords(bulletText);
+      if (!kws.length) return sqExtractKeywords(bulletText);
+      kws.primary = 0;
+      return kws;
     });
     _sqAIKeywords[entry.q.id] = validated;
   });
@@ -9257,7 +9268,10 @@ function sqL1RenderHints(q) {
     + '<span class="sq-hints-lbl">💡 Key points to cover' + (aiUsed ? ' <span style="font-size:.52rem;font-weight:700;opacity:.7">✨ AI</span>' : '') + '</span>';
   bullets.forEach(function(line, i) {
     var keywords = sqGetKeywords(q, i, line);
-    var display = keywords.map(function(kw) { return '<em class="sq-hint-kw">' + rpEsc(kw) + '</em>'; }).join(' <span class="sq-hint-dash">—</span> ');
+    var primaryIdx = typeof keywords.primary === 'number' ? keywords.primary : -1;
+    var display = keywords.map(function(kw, ki) {
+      return '<em class="sq-hint-kw' + (ki === primaryIdx ? ' kw-primary' : '') + '">' + rpEsc(kw) + '</em>';
+    }).join(' <span class="sq-hint-dash">—</span> ');
     html += '<div class="sq-hint-item"><span class="sq-hint-dot">•</span><span>' + display + '</span></div>';
   });
   html += '</div>';
@@ -9328,6 +9342,7 @@ function sqL1Confirm() {
 // already-escaped text (the old approach) meant a keyword next to "&"/"<"/">"
 // would silently never match, so that blank just never appeared.
 function sqBuildBlankRow(text, keywords, rowIdx) {
+  var primaryIdx = (keywords && typeof keywords.primary === 'number') ? keywords.primary : -1;
   var segs = [{ t: text, blank: false }];
   (keywords || []).forEach(function(kw, ki) {
     if (!kw) return;
@@ -9341,7 +9356,7 @@ function sqBuildBlankRow(text, keywords, rowIdx) {
       var after  = segs[s].t.slice(idx + kw.length);
       var repl = [];
       if (before) repl.push({ t: before, blank: false });
-      repl.push({ t: match, blank: true, ki: ki });
+      repl.push({ t: match, blank: true, ki: ki, primary: ki === primaryIdx });
       if (after) repl.push({ t: after, blank: false });
       segs.splice.apply(segs, [s, 1].concat(repl));
       break;
@@ -9349,8 +9364,8 @@ function sqBuildBlankRow(text, keywords, rowIdx) {
   });
   return segs.map(function(seg) {
     if (!seg.blank) return rpEsc(seg.t);
-    return '<input class="sq-blank-inp" id="sq-bi-' + rowIdx + '-' + seg.ki + '" data-kw="' + rpEsc(seg.t) + '" autocomplete="off" spellcheck="false" placeholder="——"/>'
-      + '<span class="sq-blank-reveal">' + rpEsc(seg.t) + '</span>';
+    return '<input class="sq-blank-inp' + (seg.primary ? ' kw-primary' : '') + '" id="sq-bi-' + rowIdx + '-' + seg.ki + '" data-kw="' + rpEsc(seg.t) + '" autocomplete="off" spellcheck="false" placeholder="——"/>'
+      + '<span class="sq-blank-reveal' + (seg.primary ? ' kw-primary' : '') + '">' + rpEsc(seg.t) + '</span>';
   }).join('');
 }
 
