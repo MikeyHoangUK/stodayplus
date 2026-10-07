@@ -9079,8 +9079,33 @@ function sqParseBullets(modelAnswer) {
 }
 
 function sqExtractKeywords(line) {
-  var words = line.match(/\b[a-zA-Z]{4,}\b/g) || [];
-  return words.filter(function(w) { return _sqStopWords.indexOf(w.toLowerCase()) === -1; }).slice(0, 2);
+  if (!line) return [];
+  // Numbers/measurements (e.g. "50mg", "20%") are never excludable — they're
+  // not letters, so the old letters-only regex could never pick them even
+  // though they're usually the most important part of a markscheme bullet.
+  var tokens = line.match(/\b\d+(?:\.\d+)?%?[a-zA-Z]{0,4}\b|\b[a-zA-Z]{4,}\b/g) || [];
+  var seen = {};
+  var candidates = [];
+  tokens.forEach(function(tok) {
+    var key = tok.toLowerCase();
+    if (seen[key]) return;
+    seen[key] = true;
+    var isNumeric = /\d/.test(tok);
+    if (!isNumeric && _sqStopWords.indexOf(key) !== -1) return;
+    candidates.push(tok);
+  });
+  // Rank by significance (numbers first, then more specific/longer words)
+  // rather than just grabbing whichever two words happen to come first —
+  // a bullet that opens with a filler clause was always losing its real
+  // keyword under the old "first two" rule.
+  candidates.sort(function(a, b) {
+    var aNum = /\d/.test(a), bNum = /\d/.test(b);
+    if (aNum !== bNum) return aNum ? -1 : 1;
+    return b.length - a.length;
+  });
+  var picked = candidates.slice(0, 3);
+  picked.sort(function(a, b) { return line.indexOf(a) - line.indexOf(b); });
+  return picked;
 }
 
 function sqBlankMatch(input, keyword) {
@@ -9161,16 +9186,25 @@ async function sqStartWithLevel(lv, n) {
 }
 
 async function sqPrepareAIKeywords(questions) {
-  var lines = questions.map(function(q) {
+  // Map responses back by POSITION (1, 2, 3…), not by echoing back our real
+  // question ids (e.g. "1738709512345_482913") — long arbitrary strings like
+  // that are exactly what LLMs mis-transcribe mid-reasoning, which used to
+  // silently break the id → keywords lookup and fall back to the dumb local
+  // extractor with no indication anything had gone wrong.
+  var entries = [];
+  questions.forEach(function(q) {
     var bullets = sqParseBullets(q.modelAnswer);
-    if (!bullets.length) return null;
-    return 'QUESTION ID: ' + q.id + '\n'
-      + bullets.map(function(b, i) { return 'BULLET ' + (i + 1) + ': ' + b; }).join('\n');
-  }).filter(Boolean);
-  if (!lines.length) return;
+    if (bullets.length) entries.push({ q: q, bullets: bullets });
+  });
+  if (!entries.length) return;
+
+  var lines = entries.map(function(e, idx) {
+    return 'QUESTION ' + (idx + 1) + ':\n'
+      + e.bullets.map(function(b, i) { return 'BULLET ' + (i + 1) + ': ' + b; }).join('\n');
+  });
 
   // ── Step 1: free-form reasoning — model thinks without format constraints ──
-  var step1 = 'You are a Keyword Extraction Tutor. Identify the essential keywords from these exam markscheme bullet points.\n\nMETHOD:\n1. Delete Test: a word is a keyword ONLY if removing it makes the bullet lose its main point, become vague, or factually wrong. If deleting changes nothing — skip it.\n2. Focus on these 5 categories:\n   - Numbers / measurements (quantities, doses, levels, percentages)\n   - Technical / special names (drug names, conditions, specific terms)\n   - Action / decision words (what must be DONE — e.g. monitored, adjusted, avoided, referred)\n   - Condition / qualifier words ("what kind", "how much", "under what circumstance" — e.g. individual, optimal, resistant, underlying)\n   - Warning / expert-referral words (signal caution or specialist input)\n3. Pick 3–5 keywords per bullet. Never more than half the words in a line.\n4. Keywords must appear verbatim in the bullet text.\n5. Never pick stop-words (the, a, an, is, are, of, in, on, to, and, or, for, with, by, as, etc.).\n\nFor each question output:\nQUESTION ID: [id]\nBULLET 1: [exact text] | KEYWORDS: word1, word2, word3\nBULLET 2: [exact text] | KEYWORDS: word1, word2\n...\n\nMarkschemes:\n\n' + lines.join('\n\n');
+  var step1 = 'You are a Keyword Extraction Tutor. Identify the essential keywords from these exam markscheme bullet points.\n\nMETHOD:\n1. Delete Test: a word is a keyword ONLY if removing it makes the bullet lose its main point, become vague, or factually wrong. If deleting changes nothing — skip it.\n2. Focus on these 5 categories:\n   - Numbers / measurements (quantities, doses, levels, percentages)\n   - Technical / special names (drug names, conditions, specific terms)\n   - Action / decision words (what must be DONE — e.g. monitored, adjusted, avoided, referred)\n   - Condition / qualifier words ("what kind", "how much", "under what circumstance" — e.g. individual, optimal, resistant, underlying)\n   - Warning / expert-referral words (signal caution or specialist input)\n3. Pick 3–5 keywords per bullet. Never more than half the words in a line.\n4. Keywords must appear verbatim in the bullet text.\n5. Never pick stop-words (the, a, an, is, are, of, in, on, to, and, or, for, with, by, as, etc.).\n\nFor each question output:\nQUESTION [number]:\nBULLET 1: [exact text] | KEYWORDS: word1, word2, word3\nBULLET 2: [exact text] | KEYWORDS: word1, word2\n...\n\nMarkschemes:\n\n' + lines.join('\n\n');
 
   var d1 = await callAI({ messages: [{ role: 'user', content: step1 }], temperature: 0.15, max_tokens: 1800 });
   if (d1.error) throw new Error(d1.error.message || 'Step 1 failed');
@@ -9182,7 +9216,7 @@ async function sqPrepareAIKeywords(questions) {
   if (statusEl) statusEl.innerHTML = '<div class="sql-spinner"></div>Structuring keywords…';
 
   // ── Step 2: pure reformatting — no reasoning needed, just convert to JSON ──
-  var step2 = 'Convert the keyword analysis below into JSON. Return ONLY valid JSON — no markdown, no explanation, nothing else.\n\nRequired format:\n{"results":[{"id":"QUESTION_ID","kws":[["kw1","kw2","kw3"],["kw1","kw2"],...]},...]}\n\nOne entry per QUESTION ID. One inner array per bullet in order. Keywords in the order they appear in the bullet.\n\nAnalysis:\n\n' + analysis;
+  var step2 = 'Convert the keyword analysis below into JSON. Return ONLY valid JSON — no markdown, no explanation, nothing else.\n\nRequired format:\n{"results":[{"q":1,"kws":[["kw1","kw2","kw3"],["kw1","kw2"],...]},...]}\n\n"q" is the QUESTION NUMBER from the analysis (the integer after "QUESTION", e.g. 1, 2, 3) — not any other id. One entry per question. One inner array per bullet in order. Keywords in the order they appear in the bullet.\n\nAnalysis:\n\n' + analysis;
 
   var d2 = await callAI({ messages: [{ role: 'user', content: step2 }], temperature: 0.0, max_tokens: 1200 });
   if (d2.error) throw new Error(d2.error.message || 'Step 2 failed');
@@ -9191,7 +9225,18 @@ async function sqPrepareAIKeywords(questions) {
   if (!m) throw new Error('No JSON in step 2 response');
   var parsed = JSON.parse(m[0]);
   (parsed.results || []).forEach(function(r) {
-    if (r.id && Array.isArray(r.kws)) _sqAIKeywords[r.id] = r.kws;
+    var entry = entries[(parseInt(r.q, 10) || 0) - 1];
+    if (!entry || !Array.isArray(r.kws)) return;
+    // Only trust an AI keyword if it actually appears in its bullet — anything
+    // hallucinated/paraphrased falls back locally for just that bullet instead
+    // of silently producing no blank/hint for it.
+    var validated = entry.bullets.map(function(bulletText, bi) {
+      var kws = (Array.isArray(r.kws[bi]) ? r.kws[bi] : []).filter(function(kw) {
+        return kw && bulletText.toLowerCase().indexOf((''+kw).toLowerCase()) !== -1;
+      });
+      return kws.length ? kws : sqExtractKeywords(bulletText);
+    });
+    _sqAIKeywords[entry.q.id] = validated;
   });
 }
 
@@ -9278,6 +9323,37 @@ function sqL1Confirm() {
 }
 
 // ── L2: Cloze / fill-in-the-blank ────────────────────────────────────────────
+// Splits the RAW (unescaped) bullet text on each keyword's position first,
+// then escapes each plain-text segment individually. Doing the match against
+// already-escaped text (the old approach) meant a keyword next to "&"/"<"/">"
+// would silently never match, so that blank just never appeared.
+function sqBuildBlankRow(text, keywords, rowIdx) {
+  var segs = [{ t: text, blank: false }];
+  (keywords || []).forEach(function(kw, ki) {
+    if (!kw) return;
+    var lowKw = ('' + kw).toLowerCase();
+    for (var s = 0; s < segs.length; s++) {
+      if (segs[s].blank) continue;
+      var idx = segs[s].t.toLowerCase().indexOf(lowKw);
+      if (idx === -1) continue;
+      var before = segs[s].t.slice(0, idx);
+      var match  = segs[s].t.slice(idx, idx + kw.length);
+      var after  = segs[s].t.slice(idx + kw.length);
+      var repl = [];
+      if (before) repl.push({ t: before, blank: false });
+      repl.push({ t: match, blank: true, ki: ki });
+      if (after) repl.push({ t: after, blank: false });
+      segs.splice.apply(segs, [s, 1].concat(repl));
+      break;
+    }
+  });
+  return segs.map(function(seg) {
+    if (!seg.blank) return rpEsc(seg.t);
+    return '<input class="sq-blank-inp" id="sq-bi-' + rowIdx + '-' + seg.ki + '" data-kw="' + rpEsc(seg.t) + '" autocomplete="off" spellcheck="false" placeholder="——"/>'
+      + '<span class="sq-blank-reveal">' + rpEsc(seg.t) + '</span>';
+  }).join('');
+}
+
 function sqL2RenderBlanks(q) {
   var bullets = sqParseBullets(q.modelAnswer);
   var aiUsed = !!_sqAIKeywords[q.id];
@@ -9286,13 +9362,7 @@ function sqL2RenderBlanks(q) {
   });
   var html = '<span class="sq-blanks-lbl">📝 Complete the key points' + (aiUsed ? ' <span style="font-size:.52rem;font-weight:700;opacity:.7">✨ AI</span>' : '') + '</span>';
   _sqL2Data.forEach(function(bd, i) {
-    var display = rpEsc(bd.text);
-    bd.keywords.forEach(function(kw, ki) {
-      display = display.replace(
-        new RegExp('\\b' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i'),
-        '<input class="sq-blank-inp" id="sq-bi-' + i + '-' + ki + '" data-kw="' + rpEsc(kw) + '" autocomplete="off" spellcheck="false" placeholder="——"/>'
-        + '<span class="sq-blank-reveal">' + rpEsc(kw) + '</span>');
-    });
+    var display = sqBuildBlankRow(bd.text, bd.keywords, i);
     html += '<div class="sq-blank-row" id="sq-bl-' + i + '"><span style="flex-shrink:0;color:#7c3aed;font-weight:900">•</span> ' + display + '</div>';
   });
   document.getElementById('sq-l2-blanks').innerHTML = html;
