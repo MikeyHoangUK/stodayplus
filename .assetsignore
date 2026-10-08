@@ -1,0 +1,19 @@
+# Tells Cloudflare Pages which files in the repo NOT to publish as public
+# static assets, even though the build output directory is set to "/".
+# Uses the same pattern syntax as .gitignore.
+
+# Git's own internal metadata — never meant to be served, and its pack
+# files can exceed Cloudflare's 25MiB per-asset limit.
+/.git
+
+# Supabase Edge Function source — deployed separately via the Supabase
+# CLI, not something the static frontend host needs to serve.
+/supabase/
+
+# Internal planning docs, not referenced by any page.
+/Core/About Me/
+/Core/MVP/
+/Core/Pre-Launch/
+/Core/Scientific Papers/
+/Stoday Plus - Google Docs.pdf
+/README.md
