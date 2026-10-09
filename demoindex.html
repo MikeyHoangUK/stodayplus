@@ -231,16 +231,16 @@
               <div style="width:40px"></div>
             </div>
 
-            <!-- Tab bar -->
-            <div style="background:#1e1b4b;display:flex;padding:0 14px;border-bottom:1px solid rgba(255,255,255,.05)">
-              <div style="padding:8px 12px;font-size:.67rem;font-weight:800;font-family:'Raleway',sans-serif;color:#c084fc;border-bottom:2px solid #c084fc;letter-spacing:.03em">Today</div>
-              <div style="padding:8px 12px;font-size:.67rem;font-weight:700;font-family:'Raleway',sans-serif;color:rgba(255,255,255,.3);border-bottom:2px solid transparent;letter-spacing:.03em">All Topics</div>
-              <div style="padding:8px 12px;font-size:.67rem;font-weight:700;font-family:'Raleway',sans-serif;color:rgba(255,255,255,.3);border-bottom:2px solid transparent;letter-spacing:.03em">Calendar</div>
+            <!-- Tab bar — hover each to preview that tab's content below -->
+            <div id="hero-tabbar" style="background:#1e1b4b;display:flex;padding:0 14px;border-bottom:1px solid rgba(255,255,255,.05)">
+              <div id="hero-tabbtn-today" data-tab="today" style="padding:8px 12px;font-size:.67rem;font-weight:800;font-family:'Raleway',sans-serif;color:#c084fc;border-bottom:2px solid #c084fc;letter-spacing:.03em;cursor:pointer">Today</div>
+              <div id="hero-tabbtn-all" data-tab="all" style="padding:8px 12px;font-size:.67rem;font-weight:700;font-family:'Raleway',sans-serif;color:rgba(255,255,255,.3);border-bottom:2px solid transparent;letter-spacing:.03em;cursor:pointer">All Topics</div>
+              <div id="hero-tabbtn-cal" data-tab="cal" style="padding:8px 12px;font-size:.67rem;font-weight:700;font-family:'Raleway',sans-serif;color:rgba(255,255,255,.3);border-bottom:2px solid transparent;letter-spacing:.03em;cursor:pointer">Calendar</div>
             </div>
 
             <!-- Content -->
             <div style="position:relative">
-              <div style="padding:20px 18px;max-height:430px;overflow:hidden;background:rgba(250,243,224,.97)">
+              <div id="hero-tab-today" style="padding:20px 18px;max-height:430px;overflow:hidden;background:rgba(250,243,224,.97)">
 
                 <!-- Due header -->
                 <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:18px">
@@ -313,6 +313,64 @@
                 </div>
 
               </div>
+
+              <!-- All Topics tab content -->
+              <div id="hero-tab-all" style="display:none;padding:20px 18px;max-height:430px;overflow:hidden;background:rgba(250,243,224,.97)">
+                <div style="font-size:.6rem;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.09em;margin-bottom:14px">5 topics tracked</div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:11px">
+                    <div><div style="font-size:.8rem;font-weight:800;color:#1c1208;margin-bottom:2px">Organic Reactions</div><span style="font-size:.54rem;font-weight:800;color:#6d28d9;text-transform:uppercase;letter-spacing:.05em">Chemistry</span></div>
+                    <span style="font-size:.68rem;font-weight:800;color:#16a34a;white-space:nowrap">🟢 82%</span>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:11px">
+                    <div><div style="font-size:.8rem;font-weight:800;color:#1c1208;margin-bottom:2px">Integration by Parts</div><span style="font-size:.54rem;font-weight:800;color:#6d28d9;text-transform:uppercase;letter-spacing:.05em">Maths</span></div>
+                    <span style="font-size:.68rem;font-weight:800;color:#b45309;white-space:nowrap">🟡 61%</span>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:11px">
+                    <div><div style="font-size:.8rem;font-weight:800;color:#1c1208;margin-bottom:2px">Cell Signalling</div><span style="font-size:.54rem;font-weight:800;color:#6d28d9;text-transform:uppercase;letter-spacing:.05em">Biology</span></div>
+                    <span style="font-size:.68rem;font-weight:800;color:#dc2626;white-space:nowrap">🔴 34%</span>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:11px">
+                    <div><div style="font-size:.8rem;font-weight:800;color:#1c1208;margin-bottom:2px">Thermodynamics</div><span style="font-size:.54rem;font-weight:800;color:#6d28d9;text-transform:uppercase;letter-spacing:.05em">Chemistry</span></div>
+                    <span style="font-size:.68rem;font-weight:800;color:#16a34a;white-space:nowrap">🟢 90%</span>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:11px">
+                    <div><div style="font-size:.8rem;font-weight:800;color:#1c1208;margin-bottom:2px">Macbeth Themes</div><span style="font-size:.54rem;font-weight:800;color:#6d28d9;text-transform:uppercase;letter-spacing:.05em">English</span></div>
+                    <span style="font-size:.68rem;font-weight:800;color:#b45309;white-space:nowrap">🟡 58%</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Calendar tab content -->
+              <div id="hero-tab-cal" style="display:none;padding:20px 18px;max-height:430px;overflow:hidden;background:rgba(250,243,224,.97)">
+                <div style="font-size:.6rem;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.09em;margin-bottom:14px">4 reviews scheduled this fortnight</div>
+                <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center;margin-bottom:8px">
+                  <span style="font-size:.52rem;font-weight:800;color:#9ca3af">M</span><span style="font-size:.52rem;font-weight:800;color:#9ca3af">T</span><span style="font-size:.52rem;font-weight:800;color:#9ca3af">W</span><span style="font-size:.52rem;font-weight:800;color:#9ca3af">T</span><span style="font-size:.52rem;font-weight:800;color:#9ca3af">F</span><span style="font-size:.52rem;font-weight:800;color:#9ca3af">S</span><span style="font-size:.52rem;font-weight:800;color:#9ca3af">S</span>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:8px">
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:.68rem;font-weight:700;color:#4a3820">6</div>
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:.68rem;font-weight:700;color:#4a3820">7</div>
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:.68rem;font-weight:700;color:#4a3820">8</div>
+                  <div style="aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:8px;font-size:.68rem;font-weight:900;color:#fff;background:linear-gradient(135deg,#7c3aed,#4338ca);box-shadow:0 2px 8px rgba(124,58,237,.4)">9<div style="width:4px;height:4px;border-radius:50%;background:#fff"></div></div>
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:.68rem;font-weight:700;color:#4a3820">10</div>
+                  <div style="aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:8px;font-size:.68rem;font-weight:700;color:#4a3820;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2)">11<div style="width:4px;height:4px;border-radius:50%;background:#7c3aed"></div></div>
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:.68rem;font-weight:700;color:#4a3820">12</div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:12px">
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:.68rem;font-weight:700;color:#4a3820">13</div>
+                  <div style="aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:8px;font-size:.68rem;font-weight:700;color:#4a3820;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2)">14<div style="width:4px;height:4px;border-radius:50%;background:#7c3aed"></div></div>
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:.68rem;font-weight:700;color:#4a3820">15</div>
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:.68rem;font-weight:700;color:#4a3820">16</div>
+                  <div style="aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:8px;font-size:.68rem;font-weight:700;color:#4a3820;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2)">17<div style="width:4px;height:4px;border-radius:50%;background:#7c3aed"></div></div>
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:.68rem;font-weight:700;color:#4a3820">18</div>
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:.68rem;font-weight:700;color:#4a3820">19</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <div style="width:4px;height:4px;border-radius:50%;background:#7c3aed"></div>
+                  <span style="font-size:.56rem;font-weight:700;color:#9ca3af">Review due</span>
+                </div>
+              </div>
+
               <!-- Fade to suggest more content below -->
               <div style="position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(to bottom,transparent,rgba(250,243,224,.97));pointer-events:none"></div>
             </div>
@@ -1202,6 +1260,38 @@
       if (!isOpen) { answer.classList.add('open'); icon.textContent = '−'; }
     });
   });
+
+  /* ── Hero tab hover preview ────────────────────────────────── */
+  (function() {
+    var bar = document.getElementById('hero-tabbar');
+    if (!bar) return;
+    var tabs = {
+      today: document.getElementById('hero-tabbtn-today'),
+      all:   document.getElementById('hero-tabbtn-all'),
+      cal:   document.getElementById('hero-tabbtn-cal')
+    };
+    var panels = {
+      today: document.getElementById('hero-tab-today'),
+      all:   document.getElementById('hero-tab-all'),
+      cal:   document.getElementById('hero-tab-cal')
+    };
+
+    function setActive(key) {
+      Object.keys(tabs).forEach(function(k) {
+        var active = k === key;
+        tabs[k].style.color             = active ? '#c084fc' : 'rgba(255,255,255,.3)';
+        tabs[k].style.borderBottomColor = active ? '#c084fc' : 'transparent';
+        tabs[k].style.fontWeight        = active ? '800' : '700';
+        panels[k].style.display         = active ? 'block' : 'none';
+      });
+    }
+
+    Object.keys(tabs).forEach(function(k) {
+      tabs[k].addEventListener('mouseenter', function() { setActive(k); });
+    });
+    /* revert to Today once the mouse leaves the whole tab bar */
+    bar.addEventListener('mouseleave', function() { setActive('today'); });
+  })();
 
   /* ── Hero parallax float ───────────────────────────────────── */
   (function() {
