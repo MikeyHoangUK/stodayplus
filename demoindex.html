@@ -1494,7 +1494,7 @@
     var cards = ['1', '2', '3', '4'].map(function(n) { return document.getElementById('fy-card-' + n); }).filter(Boolean);
     var repeatIcon = document.getElementById('fy-repeat');
     var timers = [];
-    var HOLD_MS = 300, STAGGER_MS = 380, REVEAL_MS = 480;
+    var HOLD_MS = 350, STAGGER_MS = 600, REVEAL_MS = 700;
     var GLOW = '0 0 0 1px rgba(192,132,252,.5), 0 6px 20px rgba(147,51,234,.25)';
 
     function sched(fn, ms) { var t = setTimeout(fn, ms); timers.push(t); return t; }
@@ -1520,7 +1520,7 @@
           c.style.transform = 'translateY(0)';
           c.style.boxShadow = GLOW;
           if (i === cards.length - 1 && repeatIcon) {
-            sched(function() { repeatIcon.style.animation = 'fy-spin .6s ease'; }, REVEAL_MS);
+            sched(function() { repeatIcon.style.animation = 'fy-spin .85s ease'; }, REVEAL_MS);
           }
         }, HOLD_MS + i * STAGGER_MS);
       });
