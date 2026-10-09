@@ -240,7 +240,7 @@
 
             <!-- Content -->
             <div style="position:relative">
-              <div id="hero-tab-today" style="padding:20px 18px;max-height:430px;overflow:hidden;background:rgba(250,243,224,.97)">
+              <div id="hero-tab-today" style="padding:20px 18px;min-height:430px;max-height:430px;overflow:hidden;background:rgba(250,243,224,.97)">
 
                 <!-- Due header -->
                 <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:18px">
@@ -315,7 +315,7 @@
               </div>
 
               <!-- All Topics tab content -->
-              <div id="hero-tab-all" style="display:none;padding:20px 18px;max-height:430px;overflow:hidden;background:rgba(250,243,224,.97)">
+              <div id="hero-tab-all" style="display:none;padding:20px 18px;min-height:430px;max-height:430px;overflow:hidden;background:rgba(250,243,224,.97)">
                 <div style="font-size:.6rem;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.09em;margin-bottom:14px">5 topics tracked</div>
                 <div style="display:flex;flex-direction:column;gap:8px">
                   <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:11px">
@@ -342,7 +342,7 @@
               </div>
 
               <!-- Calendar tab content -->
-              <div id="hero-tab-cal" style="display:none;padding:20px 18px;max-height:430px;overflow:hidden;background:rgba(250,243,224,.97)">
+              <div id="hero-tab-cal" style="display:none;padding:20px 18px;min-height:430px;max-height:430px;overflow:hidden;background:rgba(250,243,224,.97)">
                 <div style="font-size:.6rem;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.09em;margin-bottom:14px">4 reviews scheduled this fortnight</div>
                 <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center;margin-bottom:8px">
                   <span style="font-size:.52rem;font-weight:800;color:#9ca3af">M</span><span style="font-size:.52rem;font-weight:800;color:#9ca3af">T</span><span style="font-size:.52rem;font-weight:800;color:#9ca3af">W</span><span style="font-size:.52rem;font-weight:800;color:#9ca3af">T</span><span style="font-size:.52rem;font-weight:800;color:#9ca3af">F</span><span style="font-size:.52rem;font-weight:800;color:#9ca3af">S</span><span style="font-size:.52rem;font-weight:800;color:#9ca3af">S</span>
@@ -371,8 +371,9 @@
                 </div>
               </div>
 
-              <!-- Fade to suggest more content below -->
-              <div style="position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(to bottom,transparent,rgba(250,243,224,.97));pointer-events:none"></div>
+              <!-- Fade to suggest more content below — only meaningful on the Today
+                   tab, which is the only one that actually truncates -->
+              <div id="hero-tab-fade" style="position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(to bottom,transparent,rgba(250,243,224,.97));pointer-events:none"></div>
             </div>
 
           </div>
@@ -1275,6 +1276,7 @@
       all:   document.getElementById('hero-tab-all'),
       cal:   document.getElementById('hero-tab-cal')
     };
+    var fade = document.getElementById('hero-tab-fade');
 
     function setActive(key) {
       Object.keys(tabs).forEach(function(k) {
@@ -1284,6 +1286,7 @@
         tabs[k].style.fontWeight        = active ? '800' : '700';
         panels[k].style.display         = active ? 'block' : 'none';
       });
+      if (fade) fade.style.display = key === 'today' ? 'block' : 'none';
     }
 
     Object.keys(tabs).forEach(function(k) {
