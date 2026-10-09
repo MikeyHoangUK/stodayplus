@@ -802,22 +802,22 @@
                 <div style="display:flex;align-items:center;gap:.75rem;">
                   <span style="color:rgba(255,255,255,.35);font-size:.68rem;width:38px;flex-shrink:0;">Day 0</span>
                   <div style="flex:1;background:rgba(255,255,255,.07);border-radius:999px;height:6px;overflow:hidden;"><div id="sr-bar-0" data-w="22" style="width:22%;height:100%;background:rgba(239,68,68,.55);border-radius:999px;"></div></div>
-                  <span style="color:rgba(255,255,255,.25);font-size:.6rem;width:52px;text-align:right;">No review</span>
+                  <span id="sr-lbl-0" style="color:rgba(255,255,255,.25);font-size:.6rem;width:52px;text-align:right;">No review</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:.75rem;">
                   <span style="color:rgba(255,255,255,.35);font-size:.68rem;width:38px;flex-shrink:0;">Day 3</span>
                   <div style="flex:1;background:rgba(255,255,255,.07);border-radius:999px;height:6px;overflow:hidden;"><div id="sr-bar-1" data-w="52" style="width:52%;height:100%;background:#f59e0b;border-radius:999px;"></div></div>
-                  <span style="color:rgba(255,255,255,.25);font-size:.6rem;width:52px;text-align:right;">1 review</span>
+                  <span id="sr-lbl-1" style="color:rgba(255,255,255,.25);font-size:.6rem;width:52px;text-align:right;">1 review</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:.75rem;">
                   <span style="color:rgba(255,255,255,.35);font-size:.68rem;width:38px;flex-shrink:0;">Day 7</span>
                   <div style="flex:1;background:rgba(255,255,255,.07);border-radius:999px;height:6px;overflow:hidden;"><div id="sr-bar-2" data-w="74" style="width:74%;height:100%;background:#a78bfa;border-radius:999px;"></div></div>
-                  <span style="color:rgba(255,255,255,.25);font-size:.6rem;width:52px;text-align:right;">2 reviews</span>
+                  <span id="sr-lbl-2" style="color:rgba(255,255,255,.25);font-size:.6rem;width:52px;text-align:right;">2 reviews</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:.75rem;">
                   <span style="color:rgba(255,255,255,.35);font-size:.68rem;width:38px;flex-shrink:0;">Day 14+</span>
                   <div style="flex:1;background:rgba(255,255,255,.07);border-radius:999px;height:6px;overflow:hidden;"><div id="sr-bar-3" data-w="96" style="width:96%;height:100%;background:linear-gradient(90deg,#c084fc,#818cf8);border-radius:999px;"></div></div>
-                  <span style="color:#c084fc;font-size:.6rem;font-weight:700;width:52px;text-align:right;">Long-term</span>
+                  <span id="sr-lbl-3" style="color:#c084fc;font-size:.6rem;font-weight:700;width:52px;text-align:right;">Long-term</span>
                 </div>
               </div>
             </div>
@@ -1323,45 +1323,55 @@
   })();
 
   /* ── Spaced Repetition bar-growth animation (Technique 03) ───────────
-     Resting state (Day 0/3/7/14+ bars at their full widths) is untouched.
-     On hover: all four reset to 0 width, hold briefly, then grow out to
-     their real widths one after another (staggered), slowly, so each
-     line visibly shows up in turn rather than all snapping in at once. */
+     Resting state (Day 0/3/7/14+ bars + labels, all fully shown) is
+     untouched. On hover: all four bars reset to 0 width and their labels
+     hide, hold briefly, then each bar grows out in turn (staggered,
+     slowly) with its label only revealing once that bar lands — keeps
+     the reader guessing what each line means until it finishes. */
   (function() {
     var wrap = document.getElementById('sr-anim');
     if (!wrap) return;
-    var bars = ['sr-bar-0', 'sr-bar-1', 'sr-bar-2', 'sr-bar-3'].map(function(id) {
-      return document.getElementById(id);
-    }).filter(Boolean);
+    var rows = ['0', '1', '2', '3'].map(function(i) {
+      return { bar: document.getElementById('sr-bar-' + i), lbl: document.getElementById('sr-lbl-' + i) };
+    }).filter(function(r) { return r.bar && r.lbl; });
     var timers = [];
-    var GROW_MS = 1400, HOLD_MS = 300, STAGGER_MS = 420;
+    var GROW_MS = 1400, HOLD_MS = 300, STAGGER_MS = 420, LABEL_FADE_MS = 350;
 
     function clearTimers() { timers.forEach(clearTimeout); timers = []; }
 
     function reset() {
       clearTimers();
-      bars.forEach(function(b) {
-        b.style.transition = 'none';
-        b.style.width = '0%';
+      rows.forEach(function(r) {
+        r.bar.style.transition = 'none';
+        r.bar.style.width = '0%';
+        r.lbl.style.transition = 'none';
+        r.lbl.style.opacity = '0';
       });
     }
 
     wrap.addEventListener('mouseenter', function() {
       reset();
-      bars.forEach(function(b, i) {
-        var t = setTimeout(function() {
-          b.style.transition = 'width ' + (GROW_MS / 1000) + 's cubic-bezier(.22,1,.36,1)';
-          b.style.width = b.getAttribute('data-w') + '%';
-        }, HOLD_MS + i * STAGGER_MS);
-        timers.push(t);
+      rows.forEach(function(r, i) {
+        var start = HOLD_MS + i * STAGGER_MS;
+        var t1 = setTimeout(function() {
+          r.bar.style.transition = 'width ' + (GROW_MS / 1000) + 's cubic-bezier(.22,1,.36,1)';
+          r.bar.style.width = r.bar.getAttribute('data-w') + '%';
+        }, start);
+        var t2 = setTimeout(function() {
+          r.lbl.style.transition = 'opacity ' + (LABEL_FADE_MS / 1000) + 's ease';
+          r.lbl.style.opacity = '1';
+        }, start + GROW_MS);
+        timers.push(t1, t2);
       });
     });
 
     wrap.addEventListener('mouseleave', function() {
       clearTimers();
-      bars.forEach(function(b) {
-        b.style.transition = 'none';
-        b.style.width = b.getAttribute('data-w') + '%';
+      rows.forEach(function(r) {
+        r.bar.style.transition = 'none';
+        r.bar.style.width = r.bar.getAttribute('data-w') + '%';
+        r.lbl.style.transition = 'none';
+        r.lbl.style.opacity = '1';
       });
     });
   })();
