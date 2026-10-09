@@ -240,7 +240,7 @@
 
             <!-- Content -->
             <div style="position:relative">
-              <div id="hero-tab-today" style="padding:20px 18px;min-height:430px;max-height:430px;overflow:hidden;background:rgba(250,243,224,.97)">
+              <div id="hero-tab-today" style="padding:20px 18px;min-height:500px;max-height:500px;overflow:hidden;background:rgba(250,243,224,.97)">
 
                 <!-- Due header -->
                 <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:18px">
@@ -315,7 +315,49 @@
               </div>
 
               <!-- All Topics tab content -->
-              <div id="hero-tab-all" style="display:none;padding:20px 18px;min-height:430px;max-height:430px;overflow:hidden;background:rgba(250,243,224,.97)">
+              <div id="hero-tab-all" style="display:none;padding:20px 18px;min-height:500px;max-height:500px;overflow:hidden;background:rgba(250,243,224,.97)">
+
+                <!-- Attendance + Revision Progress — mirrors dashboard.html's
+                     orgRenderBanner(), the summary header shown above the real
+                     Topics table, scaled down to fit this card. -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+                  <div style="background:rgba(255,255,255,.55);border:1px solid rgba(168,85,247,.14);border-radius:13px;padding:12px 13px">
+                    <div style="font-size:.5rem;font-weight:800;color:#6e5438;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">📋 Attendance</div>
+                    <div style="font-size:1.3rem;font-weight:900;color:#1c1208;line-height:1;margin-bottom:7px">80%</div>
+                    <div style="background:rgba(168,85,247,.1);border-radius:99px;height:5px;overflow:hidden;margin-bottom:8px"><div style="height:100%;width:80%;border-radius:99px;background:linear-gradient(90deg,#7c3aed,#4338ca)"></div></div>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap">
+                      <span style="font-size:.5rem;font-weight:800;color:#16a34a;white-space:nowrap">✓ 4 attended</span>
+                      <span style="font-size:.5rem;font-weight:800;color:#dc2626;white-space:nowrap">✗ 1 missed</span>
+                    </div>
+                  </div>
+                  <div style="background:rgba(255,255,255,.55);border:1px solid rgba(168,85,247,.14);border-radius:13px;padding:12px 13px">
+                    <div style="font-size:.5rem;font-weight:800;color:#6e5438;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">📈 Progress</div>
+                    <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px">
+                      <div style="display:flex;align-items:center;gap:6px">
+                        <span style="font-size:.48rem;font-weight:700;color:#5a4230;white-space:nowrap;min-width:36px">🧠 MCQ</span>
+                        <div style="flex:1;background:rgba(168,85,247,.1);border-radius:99px;height:4px;overflow:hidden"><div style="height:100%;width:100%;border-radius:99px;background:linear-gradient(90deg,#7c3aed,#4338ca)"></div></div>
+                        <span style="font-size:.46rem;font-weight:800;color:#1c1208">100%</span>
+                      </div>
+                      <div style="display:flex;align-items:center;gap:6px">
+                        <span style="font-size:.48rem;font-weight:700;color:#5a4230;white-space:nowrap;min-width:36px">✍️ SAQ</span>
+                        <div style="flex:1;background:rgba(168,85,247,.1);border-radius:99px;height:4px;overflow:hidden"><div style="height:100%;width:60%;border-radius:99px;background:linear-gradient(90deg,#7c3aed,#4338ca)"></div></div>
+                        <span style="font-size:.46rem;font-weight:800;color:#1c1208">60%</span>
+                      </div>
+                      <div style="display:flex;align-items:center;gap:6px">
+                        <span style="font-size:.48rem;font-weight:700;color:#5a4230;white-space:nowrap;min-width:36px">📝 Blurt</span>
+                        <div style="flex:1;background:rgba(168,85,247,.1);border-radius:99px;height:4px;overflow:hidden"><div style="height:100%;width:40%;border-radius:99px;background:linear-gradient(90deg,#7c3aed,#4338ca)"></div></div>
+                        <span style="font-size:.46rem;font-weight:800;color:#1c1208">40%</span>
+                      </div>
+                      <div style="display:flex;align-items:center;gap:6px">
+                        <span style="font-size:.48rem;font-weight:700;color:#5a4230;white-space:nowrap;min-width:36px">🎓 Finley</span>
+                        <div style="flex:1;background:rgba(168,85,247,.1);border-radius:99px;height:4px;overflow:hidden"><div style="height:100%;width:20%;border-radius:99px;background:linear-gradient(90deg,#7c3aed,#4338ca)"></div></div>
+                        <span style="font-size:.46rem;font-weight:800;color:#1c1208">20%</span>
+                      </div>
+                    </div>
+                    <div style="font-size:.5rem;font-weight:800;color:#6d28d9;border-top:1px solid rgba(168,85,247,.12);padding-top:6px">Overall: 55% complete</div>
+                  </div>
+                </div>
+
                 <div style="font-size:.6rem;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.09em;margin-bottom:14px">5 topics tracked</div>
                 <!-- Rows mirror the real Topics table: a per-subject coloured tag
                      (same palette as the app), topic name, the same 🔴🟡🟢 confidence
@@ -377,7 +419,7 @@
               </div>
 
               <!-- Calendar tab content -->
-              <div id="hero-tab-cal" style="display:none;padding:22px 20px;min-height:430px;max-height:430px;overflow:hidden;background:rgba(250,243,224,.97)">
+              <div id="hero-tab-cal" style="display:none;padding:22px 20px;min-height:500px;max-height:500px;overflow:hidden;background:rgba(250,243,224,.97)">
                 <div style="display:flex;gap:18px;align-items:flex-start">
 
                   <!-- Left: this week, one row per day. Reminders use Stoday Plus's
