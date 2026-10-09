@@ -345,89 +345,79 @@
               <div id="hero-tab-cal" style="display:none;padding:18px 18px;min-height:430px;max-height:430px;overflow:hidden;background:rgba(250,243,224,.97)">
 
                 <!-- Clock + exam countdown, top right -->
-                <div style="display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-bottom:14px">
+                <div style="display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-bottom:16px">
                   <div style="text-align:right">
-                    <div style="font-size:.64rem;font-weight:900;color:#1c1208;line-height:1.1">4:26 PM</div>
-                    <div style="font-size:.42rem;font-weight:700;color:#9ca3af;letter-spacing:.04em">FRI, OCT 9</div>
+                    <div style="font-size:.76rem;font-weight:900;color:#1c1208;line-height:1.1">4:26 PM</div>
+                    <div style="font-size:.5rem;font-weight:700;color:#9ca3af;letter-spacing:.04em">FRI, OCT 9</div>
                   </div>
-                  <div style="width:1px;height:24px;background:rgba(0,0,0,.08);flex-shrink:0"></div>
-                  <div style="background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.22);border-radius:9px;padding:4px 9px;text-align:center;flex-shrink:0">
-                    <div style="font-size:.4rem;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em">Exams in</div>
-                    <div style="font-size:.66rem;font-weight:900;color:#16a34a;line-height:1.25">243 days</div>
+                  <div style="width:1px;height:28px;background:rgba(0,0,0,.08);flex-shrink:0"></div>
+                  <div style="background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.22);border-radius:10px;padding:5px 10px;text-align:center;flex-shrink:0">
+                    <div style="font-size:.46rem;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em">Exams in</div>
+                    <div style="font-size:.78rem;font-weight:900;color:#16a34a;line-height:1.25">243 days</div>
                   </div>
                 </div>
 
-                <!-- Calendar — smaller, sits in the lower-left of the panel -->
-                <!-- Month nav -->
+                <!-- Calendar — clean dots only, no text-in-cell, so it stays
+                     readable instead of a wall of 5px text -->
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
-                  <div style="width:17px;height:17px;border-radius:5px;background:rgba(255,255,255,.7);border:1px solid rgba(168,85,247,.15);display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:.5rem;flex-shrink:0">‹</div>
-                  <span style="font-size:.66rem;font-weight:900;color:#1c1208">October 2026</span>
-                  <div style="width:17px;height:17px;border-radius:5px;background:rgba(255,255,255,.7);border:1px solid rgba(168,85,247,.15);display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:.5rem;flex-shrink:0">›</div>
+                  <div style="width:18px;height:18px;border-radius:5px;background:rgba(255,255,255,.7);border:1px solid rgba(168,85,247,.15);display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:.52rem;flex-shrink:0">‹</div>
+                  <span style="font-size:.72rem;font-weight:900;color:#1c1208">October 2026</span>
+                  <div style="width:18px;height:18px;border-radius:5px;background:rgba(255,255,255,.7);border:1px solid rgba(168,85,247,.15);display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:.52rem;flex-shrink:0">›</div>
                 </div>
-                <!-- Weekday header -->
-                <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;margin-bottom:3px">
-                  <span style="font-size:.38rem;font-weight:800;color:#9ca3af;letter-spacing:.03em">MON</span><span style="font-size:.38rem;font-weight:800;color:#9ca3af;letter-spacing:.03em">TUE</span><span style="font-size:.38rem;font-weight:800;color:#9ca3af;letter-spacing:.03em">WED</span><span style="font-size:.38rem;font-weight:800;color:#9ca3af;letter-spacing:.03em">THU</span><span style="font-size:.38rem;font-weight:800;color:#9ca3af;letter-spacing:.03em">FRI</span><span style="font-size:.38rem;font-weight:800;color:#9ca3af;letter-spacing:.03em">SAT</span><span style="font-size:.38rem;font-weight:800;color:#9ca3af;letter-spacing:.03em">SUN</span>
+                <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center;margin-bottom:4px">
+                  <span style="font-size:.42rem;font-weight:800;color:#9ca3af;letter-spacing:.03em">M</span><span style="font-size:.42rem;font-weight:800;color:#9ca3af;letter-spacing:.03em">T</span><span style="font-size:.42rem;font-weight:800;color:#9ca3af;letter-spacing:.03em">W</span><span style="font-size:.42rem;font-weight:800;color:#9ca3af;letter-spacing:.03em">T</span><span style="font-size:.42rem;font-weight:800;color:#9ca3af;letter-spacing:.03em">F</span><span style="font-size:.42rem;font-weight:800;color:#9ca3af;letter-spacing:.03em">S</span><span style="font-size:.42rem;font-weight:800;color:#9ca3af;letter-spacing:.03em">S</span>
                 </div>
-                <!-- Month grid — October 2026. Chips reuse the same subjects/topics
-                     shown in the Today and All Topics tabs, so it reads as one
-                     consistent app, and "Subject · Topic" so it's instantly clear
-                     to a visitor instead of opaque clinical shorthand. -->
-                <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">
+                <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:14px">
                   <div></div><div></div><div></div>
-                  <div style="min-height:30px;padding:2px"><span style="font-size:.46rem;font-weight:700;color:#4a3820">1</span></div>
-                  <div style="min-height:30px;padding:2px"><span style="font-size:.46rem;font-weight:700;color:#4a3820">2</span></div>
-                  <div style="min-height:30px;padding:2px"><span style="font-size:.46rem;font-weight:700;color:#4a3820">3</span></div>
-                  <div style="min-height:30px;padding:2px"><span style="font-size:.46rem;font-weight:700;color:#4a3820">4</span></div>
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.58rem;font-weight:700;color:#4a3820">1</div>
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.58rem;font-weight:700;color:#4a3820">2</div>
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.58rem;font-weight:700;color:#4a3820">3</div>
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.58rem;font-weight:700;color:#4a3820">4</div>
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.58rem;font-weight:700;color:#4a3820">5</div>
+                  <div style="aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:6px;font-size:.58rem;font-weight:700;color:#4a3820">6<div style="width:4px;height:4px;border-radius:50%;background:#7c3aed"></div></div>
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.58rem;font-weight:700;color:#4a3820">7</div>
 
-                  <div style="min-height:30px;padding:2px"><span style="font-size:.46rem;font-weight:700;color:#4a3820">5</span></div>
-                  <div style="min-height:30px;padding:2px;border-radius:4px">
-                    <span style="font-size:.46rem;font-weight:700;color:#4a3820">6</span>
-                    <div style="margin-top:1px;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.25);border-radius:3px;padding:1px 2px;font-size:.34rem;font-weight:800;color:#6d28d9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Chemistry</div>
-                  </div>
-                  <div style="min-height:30px;padding:2px"><span style="font-size:.46rem;font-weight:700;color:#4a3820">7</span></div>
-                  <div style="min-height:30px;padding:2px"><span style="font-size:.46rem;font-weight:700;color:#4a3820">8</span></div>
-                  <div style="min-height:30px;padding:2px;border-radius:4px;background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.35)">
-                    <span style="font-size:.46rem;font-weight:800;color:#1c1208">9</span>
-                    <div style="margin-top:1px;background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.4);border-radius:3px;padding:1px 2px;font-size:.34rem;font-weight:800;color:#6d28d9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Maths</div>
-                  </div>
-                  <div style="min-height:30px;padding:2px;border-radius:4px">
-                    <span style="font-size:.46rem;font-weight:700;color:#4a3820">10</span>
-                    <div style="margin-top:1px;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.25);border-radius:3px;padding:1px 2px;font-size:.34rem;font-weight:800;color:#6d28d9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Chemistry</div>
-                  </div>
-                  <div style="min-height:30px;padding:2px"><span style="font-size:.46rem;font-weight:700;color:#4a3820">11</span></div>
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.58rem;font-weight:700;color:#4a3820">8</div>
+                  <div style="aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:6px;font-size:.58rem;font-weight:900;color:#fff;background:linear-gradient(135deg,#7c3aed,#4338ca);box-shadow:0 2px 8px rgba(124,58,237,.4)">9<div style="width:4px;height:4px;border-radius:50%;background:#fff"></div></div>
+                  <div style="aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:6px;font-size:.58rem;font-weight:700;color:#4a3820">10<div style="width:4px;height:4px;border-radius:50%;background:#7c3aed"></div></div>
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.58rem;font-weight:700;color:#4a3820">11</div>
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.58rem;font-weight:700;color:#4a3820">12</div>
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.58rem;font-weight:700;color:#4a3820">13</div>
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.58rem;font-weight:700;color:#4a3820">14</div>
 
-                  <div style="min-height:30px;padding:2px"><span style="font-size:.46rem;font-weight:700;color:#4a3820">12</span></div>
-                  <div style="min-height:30px;padding:2px"><span style="font-size:.46rem;font-weight:700;color:#4a3820">13</span></div>
-                  <div style="min-height:30px;padding:2px"><span style="font-size:.46rem;font-weight:700;color:#4a3820">14</span></div>
-                  <div style="min-height:30px;padding:2px"><span style="font-size:.46rem;font-weight:700;color:#4a3820">15</span></div>
-                  <div style="min-height:30px;padding:2px"><span style="font-size:.46rem;font-weight:700;color:#4a3820">16</span></div>
-                  <div style="min-height:30px;padding:2px"><span style="font-size:.46rem;font-weight:700;color:#4a3820">17</span></div>
-                  <div style="min-height:30px;padding:2px"><span style="font-size:.46rem;font-weight:700;color:#4a3820">18</span></div>
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.58rem;font-weight:700;color:#4a3820">15</div>
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.58rem;font-weight:700;color:#4a3820">16</div>
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.58rem;font-weight:700;color:#4a3820">17</div>
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.58rem;font-weight:700;color:#4a3820">18</div>
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.58rem;font-weight:700;color:#4a3820">19</div>
+                  <div style="aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:6px;font-size:.58rem;font-weight:700;color:#4a3820">20<div style="width:4px;height:4px;border-radius:50%;background:#7c3aed"></div></div>
+                  <div style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.58rem;font-weight:700;color:#4a3820">21</div>
+                </div>
 
-                  <div style="min-height:30px;padding:2px"><span style="font-size:.46rem;font-weight:700;color:#4a3820">19</span></div>
-                  <div style="min-height:30px;padding:2px;border-radius:4px">
-                    <span style="font-size:.46rem;font-weight:700;color:#4a3820">20</span>
-                    <div style="margin-top:1px;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.25);border-radius:3px;padding:1px 2px;font-size:.34rem;font-weight:800;color:#6d28d9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Biology</div>
+                <!-- Coming up — the readable part: subject + topic, normal size -->
+                <div style="font-size:.52rem;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Coming up</div>
+                <div style="display:flex;flex-direction:column;gap:7px">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:10px">
+                    <div>
+                      <div style="font-size:.76rem;font-weight:800;color:#1c1208;margin-bottom:1px">Integration by Parts</div>
+                      <span style="font-size:.52rem;font-weight:800;color:#6d28d9;text-transform:uppercase;letter-spacing:.04em">Maths</span>
+                    </div>
+                    <span style="font-size:.6rem;font-weight:800;color:#7c3aed;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:20px;padding:2px 9px;white-space:nowrap;flex-shrink:0">Today</span>
                   </div>
-                  <div style="min-height:30px;padding:2px"><span style="font-size:.46rem;font-weight:700;color:#4a3820">21</span></div>
-                  <div style="min-height:30px;padding:2px"><span style="font-size:.46rem;font-weight:700;color:#4a3820">22</span></div>
-                  <div style="min-height:30px;padding:2px"><span style="font-size:.46rem;font-weight:700;color:#4a3820">23</span></div>
-                  <div style="min-height:30px;padding:2px"><span style="font-size:.46rem;font-weight:700;color:#4a3820">24</span></div>
-                  <div style="min-height:30px;padding:2px;border-radius:4px">
-                    <span style="font-size:.46rem;font-weight:700;color:#4a3820">25</span>
-                    <div style="margin-top:1px;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.25);border-radius:3px;padding:1px 2px;font-size:.34rem;font-weight:800;color:#6d28d9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">English</div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:10px">
+                    <div>
+                      <div style="font-size:.76rem;font-weight:800;color:#1c1208;margin-bottom:1px">Organic Reactions</div>
+                      <span style="font-size:.52rem;font-weight:800;color:#6d28d9;text-transform:uppercase;letter-spacing:.04em">Chemistry</span>
+                    </div>
+                    <span style="font-size:.6rem;font-weight:700;color:#9ca3af;white-space:nowrap;flex-shrink:0">Tomorrow</span>
                   </div>
-
-                  <div style="min-height:30px;padding:2px"><span style="font-size:.46rem;font-weight:700;color:#4a3820">26</span></div>
-                  <div style="min-height:30px;padding:2px"><span style="font-size:.46rem;font-weight:700;color:#4a3820">27</span></div>
-                  <div style="min-height:30px;padding:2px"><span style="font-size:.46rem;font-weight:700;color:#4a3820">28</span></div>
-                  <div style="min-height:30px;padding:2px"><span style="font-size:.46rem;font-weight:700;color:#4a3820">29</span></div>
-                  <div style="min-height:30px;padding:2px;border-radius:4px">
-                    <span style="font-size:.46rem;font-weight:700;color:#4a3820">30</span>
-                    <div style="margin-top:1px;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.25);border-radius:3px;padding:1px 2px;font-size:.34rem;font-weight:800;color:#6d28d9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Chemistry</div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:10px">
+                    <div>
+                      <div style="font-size:.76rem;font-weight:800;color:#1c1208;margin-bottom:1px">Cell Signalling</div>
+                      <span style="font-size:.52rem;font-weight:800;color:#6d28d9;text-transform:uppercase;letter-spacing:.04em">Biology</span>
+                    </div>
+                    <span style="font-size:.6rem;font-weight:700;color:#9ca3af;white-space:nowrap;flex-shrink:0">Oct 20</span>
                   </div>
-                  <div style="min-height:30px;padding:2px"><span style="font-size:.46rem;font-weight:700;color:#4a3820">31</span></div>
-                  <div></div>
                 </div>
               </div>
 
