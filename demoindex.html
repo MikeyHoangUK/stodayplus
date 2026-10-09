@@ -240,7 +240,7 @@
 
             <!-- Content -->
             <div style="position:relative">
-              <div id="hero-tab-today" style="padding:20px 18px;min-height:500px;max-height:500px;overflow:hidden;background:rgba(250,243,224,.97)">
+              <div id="hero-tab-today" style="padding:20px 18px;min-height:430px;max-height:430px;overflow:hidden;background:rgba(250,243,224,.97)">
 
                 <!-- Due header -->
                 <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:18px">
@@ -315,7 +315,7 @@
               </div>
 
               <!-- All Topics tab content -->
-              <div id="hero-tab-all" style="display:none;padding:20px 18px;min-height:500px;max-height:500px;overflow:hidden;background:rgba(250,243,224,.97)">
+              <div id="hero-tab-all" style="display:none;padding:20px 18px;min-height:430px;max-height:430px;overflow:hidden;background:rgba(250,243,224,.97)">
 
                 <!-- Attendance + Revision Progress — mirrors dashboard.html's
                      orgRenderBanner(), the summary header shown above the real
@@ -419,7 +419,7 @@
               </div>
 
               <!-- Calendar tab content -->
-              <div id="hero-tab-cal" style="display:none;padding:22px 20px;min-height:500px;max-height:500px;overflow:hidden;background:rgba(250,243,224,.97)">
+              <div id="hero-tab-cal" style="display:none;padding:22px 20px;min-height:430px;max-height:430px;overflow:hidden;background:rgba(250,243,224,.97)">
                 <div style="display:flex;gap:18px;align-items:flex-start">
 
                   <!-- Left: this week, one row per day. Reminders use Stoday Plus's
@@ -1427,7 +1427,7 @@
         tabs[k].style.fontWeight        = active ? '800' : '700';
         panels[k].style.display         = active ? 'block' : 'none';
       });
-      if (fade) fade.style.display = key === 'today' ? 'block' : 'none';
+      if (fade) fade.style.display = (key === 'today' || key === 'all') ? 'block' : 'none';
     }
 
     /* Sticky: hovering a tab locks the panel on it; it stays locked until a
