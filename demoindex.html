@@ -840,21 +840,29 @@
                    finished curve; hover redraws it in 3 staged segments. -->
               <div style="position:relative;width:100%;max-width:220px;">
                 <svg viewBox="0 0 220 130" style="width:100%;height:auto;display:block;overflow:visible">
-                  <path id="dr-seg-a" d="M14,18 C50,20 85,70 100,108" fill="none" stroke="#f87171" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path id="dr-seg-b" d="M100,108 L108,22" fill="none" stroke="#c084fc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path id="dr-seg-c" d="M108,22 L206,26" fill="none" stroke="url(#dr-grad-c)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                   <defs>
                     <linearGradient id="dr-grad-c" x1="0" y1="0" x2="1" y2="0">
                       <stop offset="0%" stop-color="#c084fc"/>
                       <stop offset="100%" stop-color="#818cf8"/>
                     </linearGradient>
+                    <linearGradient id="dr-grad-fill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#c084fc" stop-opacity=".22"/>
+                      <stop offset="100%" stop-color="#c084fc" stop-opacity="0"/>
+                    </linearGradient>
                   </defs>
-                  <circle cx="14" cy="18" r="4" fill="#c084fc"/>
-                  <circle id="dr-dot-bottom" cx="100" cy="108" r="3.5" fill="#f87171"/>
-                  <circle id="dr-dot-catch" cx="108" cy="22" r="4" fill="#c084fc"/>
-                  <circle id="dr-dot-end" cx="206" cy="26" r="4" fill="#818cf8"/>
+                  <!-- faint reference baseline, always static -->
+                  <line x1="14" y1="114" x2="206" y2="114" stroke="rgba(255,255,255,.1)" stroke-width="1" stroke-dasharray="2,4"/>
+                  <!-- soft area fill under the full curve, revealed as the finishing touch -->
+                  <path id="dr-fill" d="M14,18 C50,20 85,70 100,108 C100,80 104,40 108,22 L206,26 L206,122 L14,122 Z" fill="url(#dr-grad-fill)"/>
+                  <path id="dr-seg-a" d="M14,18 C50,20 85,70 100,108" fill="none" stroke="#f87171" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path id="dr-seg-b" d="M100,108 C100,80 104,40 108,22" fill="none" stroke="#c084fc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path id="dr-seg-c" d="M108,22 L206,26" fill="none" stroke="url(#dr-grad-c)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="14" cy="18" r="4" fill="#c084fc" style="filter:drop-shadow(0 0 4px rgba(192,132,252,.7))"/>
+                  <circle id="dr-dot-bottom" cx="100" cy="108" r="3.5" fill="#f87171" style="filter:drop-shadow(0 0 4px rgba(248,113,113,.8))"/>
+                  <circle id="dr-dot-catch" cx="108" cy="22" r="4" fill="#c084fc" style="filter:drop-shadow(0 0 5px rgba(192,132,252,.8))"/>
+                  <circle id="dr-dot-end" cx="206" cy="26" r="4" fill="#818cf8" style="filter:drop-shadow(0 0 4px rgba(129,140,248,.7))"/>
                 </svg>
-                <span id="dr-crash-lbl" style="position:absolute;left:38%;top:80%;font-size:.52rem;font-weight:800;color:#f87171;white-space:nowrap">~0% retained</span>
+                <span id="dr-crash-lbl" style="position:absolute;left:45.5%;top:85%;transform:translateX(-50%);font-size:.5rem;font-weight:800;color:#f87171;background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.3);border-radius:999px;padding:2px 7px;white-space:nowrap">~0% retained</span>
               </div>
               <div style="display:flex;justify-content:space-between;width:100%;max-width:220px;padding:0 2px;box-sizing:border-box;">
                 <div style="text-align:center;">
@@ -1409,6 +1417,7 @@
     var dotCatch  = document.getElementById('dr-dot-catch');
     var dotEnd    = document.getElementById('dr-dot-end');
     var crashLbl  = document.getElementById('dr-crash-lbl');
+    var fillPath  = document.getElementById('dr-fill');
     var timers = [];
     var HOLD_MS = 300, EASE = 'cubic-bezier(.22,1,.36,1)';
 
@@ -1423,7 +1432,7 @@
         p.style.strokeDasharray = len;
         p.style.strokeDashoffset = len;
       });
-      [dotBottom, dotCatch, dotEnd, crashLbl].forEach(function(el) {
+      [dotBottom, dotCatch, dotEnd, crashLbl, fillPath].forEach(function(el) {
         el.style.transition = 'none';
         el.style.opacity = '0';
       });
@@ -1448,7 +1457,10 @@
           reveal(crashLbl, 300);
           drawSeg(segB, 350, function() {
             reveal(dotCatch, 250);
-            drawSeg(segC, 900, function() { reveal(dotEnd, 250); });
+            drawSeg(segC, 900, function() {
+              reveal(dotEnd, 250);
+              reveal(fillPath, 500);
+            });
           });
         });
       }, HOLD_MS);
@@ -1461,7 +1473,7 @@
         p.style.strokeDasharray = '';
         p.style.strokeDashoffset = '';
       });
-      [dotBottom, dotCatch, dotEnd, crashLbl].forEach(function(el) {
+      [dotBottom, dotCatch, dotEnd, crashLbl, fillPath].forEach(function(el) {
         el.style.transition = 'none';
         el.style.opacity = '1';
       });
