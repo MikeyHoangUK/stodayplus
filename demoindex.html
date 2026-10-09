@@ -364,7 +364,7 @@
                           <span style="font-size:.5rem;font-weight:800;color:#9ca3af;width:28px;flex-shrink:0;letter-spacing:.04em">TUE</span>
                           <span style="font-size:.78rem;font-weight:800;color:#1c1208">6</span>
                         </div>
-                        <span style="font-size:.56rem;font-weight:800;color:#16a34a;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.28);border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0;letter-spacing:.015em">D14 · Chem</span>
+                        <span style="font-size:.56rem;font-weight:800;color:#6d28d9;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.25);border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0;letter-spacing:.015em">D14 · Chem</span>
                       </div>
 
                       <div style="display:flex;align-items:center;gap:11px;padding:9px 12px">
@@ -381,7 +381,7 @@
                           <span style="font-size:.5rem;font-weight:900;color:#7c3aed;width:28px;flex-shrink:0;letter-spacing:.04em">FRI</span>
                           <span style="font-size:.78rem;font-weight:900;color:#1c1208">9</span>
                         </div>
-                        <span style="font-size:.56rem;font-weight:800;color:#b45309;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.32);border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0;letter-spacing:.015em">D1 · Maths</span>
+                        <span style="font-size:.56rem;font-weight:800;color:#6d28d9;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.25);border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0;letter-spacing:.015em">D1 · Maths</span>
                       </div>
 
                       <div style="display:flex;align-items:center;justify-content:space-between;gap:11px;padding:9px 12px;background:rgba(255,255,255,.55);border:1px solid rgba(168,85,247,.16);border-radius:10px">
@@ -389,7 +389,7 @@
                           <span style="font-size:.5rem;font-weight:800;color:#9ca3af;width:28px;flex-shrink:0;letter-spacing:.04em">SAT</span>
                           <span style="font-size:.78rem;font-weight:800;color:#1c1208">10</span>
                         </div>
-                        <span style="font-size:.56rem;font-weight:800;color:#dc2626;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.28);border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0;letter-spacing:.015em">D7 · Bio</span>
+                        <span style="font-size:.56rem;font-weight:800;color:#6d28d9;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.25);border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0;letter-spacing:.015em">D7 · Bio</span>
                       </div>
 
                       <div style="display:flex;align-items:center;gap:11px;padding:9px 12px">
@@ -402,8 +402,8 @@
                   <!-- Right: clock + exam countdown -->
                   <div style="flex-shrink:0;width:112px;display:flex;flex-direction:column;align-items:flex-end;gap:18px">
                     <div style="text-align:right">
-                      <div style="font-size:.92rem;font-weight:900;color:#1c1208;line-height:1.1">4:26 PM</div>
-                      <div style="font-size:.48rem;font-weight:700;color:#9ca3af;letter-spacing:.05em;margin-top:4px">FRI, OCT 9</div>
+                      <div id="hero-clock-time" style="font-size:.92rem;font-weight:900;color:#1c1208;line-height:1.1">4:26 PM</div>
+                      <div id="hero-clock-date" style="font-size:.48rem;font-weight:700;color:#9ca3af;letter-spacing:.05em;margin-top:4px">FRI, OCT 9</div>
                     </div>
                     <div style="background:#fff;border:1px solid rgba(124,58,237,.18);box-shadow:0 2px 12px rgba(109,40,217,.07);border-radius:12px;padding:12px 10px;text-align:center;width:100%">
                       <div style="font-size:.42rem;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em">Exams in</div>
@@ -1305,6 +1305,26 @@
       if (!isOpen) { answer.classList.add('open'); icon.textContent = '−'; }
     });
   });
+
+  /* ── Hero calendar clock — real local time, subtle live touch ──────── */
+  (function() {
+    var timeEl = document.getElementById('hero-clock-time');
+    var dateEl = document.getElementById('hero-clock-date');
+    if (!timeEl || !dateEl) return;
+    var DAYS = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    var MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    function tick() {
+      var now = new Date();
+      var h = now.getHours();
+      var ampm = h >= 12 ? 'PM' : 'AM';
+      var h12 = h % 12 || 12;
+      var mm = (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
+      timeEl.textContent = h12 + ':' + mm + ' ' + ampm;
+      dateEl.textContent = DAYS[now.getDay()] + ', ' + MONTHS[now.getMonth()] + ' ' + now.getDate();
+    }
+    tick();
+    setInterval(tick, 30000);
+  })();
 
   /* ── Hero tab hover preview ────────────────────────────────── */
   (function() {
