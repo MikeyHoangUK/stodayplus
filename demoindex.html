@@ -317,26 +317,61 @@
               <!-- All Topics tab content -->
               <div id="hero-tab-all" style="display:none;padding:20px 18px;min-height:430px;max-height:430px;overflow:hidden;background:rgba(250,243,224,.97)">
                 <div style="font-size:.6rem;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.09em;margin-bottom:14px">5 topics tracked</div>
+                <!-- Rows mirror the real Topics table: a per-subject coloured tag
+                     (same palette as the app), topic name, the same 🔴🟡🟢 confidence
+                     emoji the app uses, and a due-date badge colour-coded exactly
+                     like the app's (red = overdue/today, green = later) — and the
+                     due dates/confidence here match what the Today tab already shows. -->
                 <div style="display:flex;flex-direction:column;gap:8px">
                   <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:11px">
-                    <div><div style="font-size:.8rem;font-weight:800;color:#1c1208;margin-bottom:2px">Organic Reactions</div><span style="font-size:.54rem;font-weight:800;color:#6d28d9;text-transform:uppercase;letter-spacing:.05em">Chemistry</span></div>
-                    <span style="font-size:.68rem;font-weight:800;color:#16a34a;white-space:nowrap">🟢 82%</span>
+                    <div style="min-width:0">
+                      <span style="font-size:.52rem;font-weight:800;border-radius:6px;padding:2px 7px;white-space:nowrap;background:rgba(124,58,237,.12);color:#7c3aed">Chemistry</span>
+                      <div style="font-size:.8rem;font-weight:700;color:#1c1208;margin-top:4px">Organic Reactions</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:7px;flex-shrink:0">
+                      <span style="font-size:.82rem;line-height:1">🟢</span>
+                      <span style="font-size:.56rem;font-weight:800;border-radius:8px;padding:3px 8px;white-space:nowrap;background:rgba(220,38,38,.1);color:#dc2626">Overdue 1d</span>
+                    </div>
                   </div>
                   <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:11px">
-                    <div><div style="font-size:.8rem;font-weight:800;color:#1c1208;margin-bottom:2px">Integration by Parts</div><span style="font-size:.54rem;font-weight:800;color:#6d28d9;text-transform:uppercase;letter-spacing:.05em">Maths</span></div>
-                    <span style="font-size:.68rem;font-weight:800;color:#b45309;white-space:nowrap">🟡 61%</span>
+                    <div style="min-width:0">
+                      <span style="font-size:.52rem;font-weight:800;border-radius:6px;padding:2px 7px;white-space:nowrap;background:rgba(37,99,235,.12);color:#2563eb">Maths</span>
+                      <div style="font-size:.8rem;font-weight:700;color:#1c1208;margin-top:4px">Integration by Parts</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:7px;flex-shrink:0">
+                      <span style="font-size:.82rem;line-height:1">🟡</span>
+                      <span style="font-size:.56rem;font-weight:800;border-radius:8px;padding:3px 8px;white-space:nowrap;background:rgba(220,38,38,.1);color:#dc2626">Due today</span>
+                    </div>
                   </div>
                   <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:11px">
-                    <div><div style="font-size:.8rem;font-weight:800;color:#1c1208;margin-bottom:2px">Cell Signalling</div><span style="font-size:.54rem;font-weight:800;color:#6d28d9;text-transform:uppercase;letter-spacing:.05em">Biology</span></div>
-                    <span style="font-size:.68rem;font-weight:800;color:#dc2626;white-space:nowrap">🔴 34%</span>
+                    <div style="min-width:0">
+                      <span style="font-size:.52rem;font-weight:800;border-radius:6px;padding:2px 7px;white-space:nowrap;background:rgba(5,150,105,.12);color:#047857">Biology</span>
+                      <div style="font-size:.8rem;font-weight:700;color:#1c1208;margin-top:4px">Cell Signalling</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:7px;flex-shrink:0">
+                      <span style="font-size:.82rem;line-height:1">🔴</span>
+                      <span style="font-size:.56rem;font-weight:800;border-radius:8px;padding:3px 8px;white-space:nowrap;background:rgba(220,38,38,.1);color:#dc2626">Due today</span>
+                    </div>
                   </div>
                   <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:11px">
-                    <div><div style="font-size:.8rem;font-weight:800;color:#1c1208;margin-bottom:2px">Thermodynamics</div><span style="font-size:.54rem;font-weight:800;color:#6d28d9;text-transform:uppercase;letter-spacing:.05em">Chemistry</span></div>
-                    <span style="font-size:.68rem;font-weight:800;color:#16a34a;white-space:nowrap">🟢 90%</span>
+                    <div style="min-width:0">
+                      <span style="font-size:.52rem;font-weight:800;border-radius:6px;padding:2px 7px;white-space:nowrap;background:rgba(124,58,237,.12);color:#7c3aed">Chemistry</span>
+                      <div style="font-size:.8rem;font-weight:700;color:#1c1208;margin-top:4px">Thermodynamics</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:7px;flex-shrink:0">
+                      <span style="font-size:.82rem;line-height:1">🟢</span>
+                      <span style="font-size:.56rem;font-weight:800;border-radius:8px;padding:3px 8px;white-space:nowrap;background:rgba(22,163,74,.1);color:#16a34a">In 5 days</span>
+                    </div>
                   </div>
                   <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:11px">
-                    <div><div style="font-size:.8rem;font-weight:800;color:#1c1208;margin-bottom:2px">Macbeth Themes</div><span style="font-size:.54rem;font-weight:800;color:#6d28d9;text-transform:uppercase;letter-spacing:.05em">English</span></div>
-                    <span style="font-size:.68rem;font-weight:800;color:#b45309;white-space:nowrap">🟡 58%</span>
+                    <div style="min-width:0">
+                      <span style="font-size:.52rem;font-weight:800;border-radius:6px;padding:2px 7px;white-space:nowrap;background:rgba(234,88,12,.12);color:#c2410c">English</span>
+                      <div style="font-size:.8rem;font-weight:700;color:#1c1208;margin-top:4px">Macbeth Themes</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:7px;flex-shrink:0">
+                      <span style="font-size:.82rem;line-height:1">🟡</span>
+                      <span style="font-size:.56rem;font-weight:800;border-radius:8px;padding:3px 8px;white-space:nowrap;background:rgba(22,163,74,.1);color:#16a34a">In 12 days</span>
+                    </div>
                   </div>
                 </div>
               </div>
