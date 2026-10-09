@@ -797,26 +797,26 @@
               <p style="color:#6b7280;font-size:.8rem;line-height:1.6;margin:0 0 .875rem;"><strong style="color:#111827;font-weight:700;">Why it works —</strong> Each review lands right before you'd forget, resetting the Forgetting Curve and locking it into long-term memory. Nothing slips through.</p>
               <span style="display:inline-flex;align-items:center;gap:.4rem;background:linear-gradient(135deg,#9333ea,#4338ca);color:white;font-size:.65rem;font-weight:800;padding:.4rem 1rem;border-radius:999px;width:fit-content;letter-spacing:.02em;">✦ Outcome: retention on autopilot</span>
             </div>
-            <div style="height:100%;background:linear-gradient(145deg,#1e1b4b 0%,#312e81 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:1.75rem;overflow:hidden;box-sizing:border-box;">
+            <div id="sr-anim" style="height:100%;background:linear-gradient(145deg,#1e1b4b 0%,#312e81 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:1.75rem;overflow:hidden;box-sizing:border-box;">
               <div style="display:flex;flex-direction:column;gap:.875rem;width:100%;max-width:220px;">
                 <div style="display:flex;align-items:center;gap:.75rem;">
                   <span style="color:rgba(255,255,255,.35);font-size:.68rem;width:38px;flex-shrink:0;">Day 0</span>
-                  <div style="flex:1;background:rgba(255,255,255,.07);border-radius:999px;height:6px;overflow:hidden;"><div style="width:22%;height:100%;background:rgba(239,68,68,.55);border-radius:999px;"></div></div>
+                  <div style="flex:1;background:rgba(255,255,255,.07);border-radius:999px;height:6px;overflow:hidden;"><div id="sr-bar-0" data-w="22" style="width:22%;height:100%;background:rgba(239,68,68,.55);border-radius:999px;"></div></div>
                   <span style="color:rgba(255,255,255,.25);font-size:.6rem;width:52px;text-align:right;">No review</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:.75rem;">
                   <span style="color:rgba(255,255,255,.35);font-size:.68rem;width:38px;flex-shrink:0;">Day 3</span>
-                  <div style="flex:1;background:rgba(255,255,255,.07);border-radius:999px;height:6px;overflow:hidden;"><div style="width:52%;height:100%;background:#f59e0b;border-radius:999px;"></div></div>
+                  <div style="flex:1;background:rgba(255,255,255,.07);border-radius:999px;height:6px;overflow:hidden;"><div id="sr-bar-1" data-w="52" style="width:52%;height:100%;background:#f59e0b;border-radius:999px;"></div></div>
                   <span style="color:rgba(255,255,255,.25);font-size:.6rem;width:52px;text-align:right;">1 review</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:.75rem;">
                   <span style="color:rgba(255,255,255,.35);font-size:.68rem;width:38px;flex-shrink:0;">Day 7</span>
-                  <div style="flex:1;background:rgba(255,255,255,.07);border-radius:999px;height:6px;overflow:hidden;"><div style="width:74%;height:100%;background:#a78bfa;border-radius:999px;"></div></div>
+                  <div style="flex:1;background:rgba(255,255,255,.07);border-radius:999px;height:6px;overflow:hidden;"><div id="sr-bar-2" data-w="74" style="width:74%;height:100%;background:#a78bfa;border-radius:999px;"></div></div>
                   <span style="color:rgba(255,255,255,.25);font-size:.6rem;width:52px;text-align:right;">2 reviews</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:.75rem;">
                   <span style="color:rgba(255,255,255,.35);font-size:.68rem;width:38px;flex-shrink:0;">Day 14+</span>
-                  <div style="flex:1;background:rgba(255,255,255,.07);border-radius:999px;height:6px;overflow:hidden;"><div style="width:96%;height:100%;background:linear-gradient(90deg,#c084fc,#818cf8);border-radius:999px;"></div></div>
+                  <div style="flex:1;background:rgba(255,255,255,.07);border-radius:999px;height:6px;overflow:hidden;"><div id="sr-bar-3" data-w="96" style="width:96%;height:100%;background:linear-gradient(90deg,#c084fc,#818cf8);border-radius:999px;"></div></div>
                   <span style="color:#c084fc;font-size:.6rem;font-weight:700;width:52px;text-align:right;">Long-term</span>
                 </div>
               </div>
@@ -1320,6 +1320,50 @@
     });
 
     wrap.addEventListener('mouseleave', function() { snapTo('88px', '90%', false); });
+  })();
+
+  /* ── Spaced Repetition bar-growth animation (Technique 03) ───────────
+     Resting state (Day 0/3/7/14+ bars at their full widths) is untouched.
+     On hover: all four reset to 0 width, hold briefly, then grow out to
+     their real widths one after another (staggered), slowly, so each
+     line visibly shows up in turn rather than all snapping in at once. */
+  (function() {
+    var wrap = document.getElementById('sr-anim');
+    if (!wrap) return;
+    var bars = ['sr-bar-0', 'sr-bar-1', 'sr-bar-2', 'sr-bar-3'].map(function(id) {
+      return document.getElementById(id);
+    }).filter(Boolean);
+    var timers = [];
+    var GROW_MS = 1400, HOLD_MS = 300, STAGGER_MS = 420;
+
+    function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+
+    function reset() {
+      clearTimers();
+      bars.forEach(function(b) {
+        b.style.transition = 'none';
+        b.style.width = '0%';
+      });
+    }
+
+    wrap.addEventListener('mouseenter', function() {
+      reset();
+      bars.forEach(function(b, i) {
+        var t = setTimeout(function() {
+          b.style.transition = 'width ' + (GROW_MS / 1000) + 's cubic-bezier(.22,1,.36,1)';
+          b.style.width = b.getAttribute('data-w') + '%';
+        }, HOLD_MS + i * STAGGER_MS);
+        timers.push(t);
+      });
+    });
+
+    wrap.addEventListener('mouseleave', function() {
+      clearTimers();
+      bars.forEach(function(b) {
+        b.style.transition = 'none';
+        b.style.width = b.getAttribute('data-w') + '%';
+      });
+    });
   })();
 
   /* ── Method section interactivity ──────────────────────────── */
