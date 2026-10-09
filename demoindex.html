@@ -832,33 +832,42 @@
               <p style="color:#6b7280;font-size:.8rem;line-height:1.6;margin:0 0 .875rem;"><strong style="color:#111827;font-weight:700;">Why it works —</strong> Without review, retention crashes to almost 0% within 72 hours. Two reviews inside the window catch it before that cliff and lock it in for good.</p>
               <span style="display:inline-flex;align-items:center;gap:.4rem;background:linear-gradient(135deg,#9333ea,#4338ca);color:white;font-size:.65rem;font-weight:800;padding:.4rem 1rem;border-radius:999px;width:fit-content;letter-spacing:.02em;">✦ Outcome: nothing gets forgotten</span>
             </div>
-            <div style="height:100%;background:linear-gradient(145deg,#1e1b4b 0%,#312e81 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:1.75rem;overflow:hidden;box-sizing:border-box;">
-              <div style="display:flex;align-items:center;gap:0;">
-                <div style="display:flex;flex-direction:column;align-items:center;">
-                  <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#9333ea,#4338ca);display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px rgba(147,51,234,.5);">
-                    <span style="color:white;font-weight:900;font-size:.8rem;">L</span>
-                  </div>
-                  <p style="color:rgba(255,255,255,.4);font-size:.6rem;margin:.5rem 0 .1rem;text-align:center;">Learn</p>
-                  <p style="color:#c084fc;font-size:.65rem;font-weight:800;text-align:center;">Day 0</p>
+            <div id="dr-anim" style="height:100%;background:linear-gradient(145deg,#1e1b4b 0%,#312e81 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.9rem;padding:1.75rem;overflow:hidden;box-sizing:border-box;">
+              <!-- Forgetting-curve chart: a steep crash toward Day 3, caught by
+                   the review right at the cliff, then flat/locked in through
+                   Day 7+ — dramatizes the "crashes to almost 0%" claim in the
+                   copy instead of just stating it. Resting state shows the
+                   finished curve; hover redraws it in 3 staged segments. -->
+              <div style="position:relative;width:100%;max-width:220px;">
+                <svg viewBox="0 0 220 130" style="width:100%;height:auto;display:block;overflow:visible">
+                  <path id="dr-seg-a" d="M14,18 C50,20 85,70 100,108" fill="none" stroke="#f87171" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path id="dr-seg-b" d="M100,108 L108,22" fill="none" stroke="#c084fc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path id="dr-seg-c" d="M108,22 L206,26" fill="none" stroke="url(#dr-grad-c)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                  <defs>
+                    <linearGradient id="dr-grad-c" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stop-color="#c084fc"/>
+                      <stop offset="100%" stop-color="#818cf8"/>
+                    </linearGradient>
+                  </defs>
+                  <circle cx="14" cy="18" r="4" fill="#c084fc"/>
+                  <circle id="dr-dot-bottom" cx="100" cy="108" r="3.5" fill="#f87171"/>
+                  <circle id="dr-dot-catch" cx="108" cy="22" r="4" fill="#c084fc"/>
+                  <circle id="dr-dot-end" cx="206" cy="26" r="4" fill="#818cf8"/>
+                </svg>
+                <span id="dr-crash-lbl" style="position:absolute;left:38%;top:80%;font-size:.52rem;font-weight:800;color:#f87171;white-space:nowrap">~0% retained</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;width:100%;max-width:220px;padding:0 2px;box-sizing:border-box;">
+                <div style="text-align:center;">
+                  <p style="color:rgba(255,255,255,.4);font-size:.6rem;margin:0 0 .1rem;">Learn</p>
+                  <p style="color:#c084fc;font-size:.65rem;font-weight:800;">Day 0</p>
                 </div>
-                <div style="display:flex;flex-direction:column;align-items:center;gap:.2rem;padding:0 .75rem;margin-bottom:1.5rem;">
-                  <div style="height:1.5px;width:52px;background:linear-gradient(90deg,rgba(147,51,234,.4),rgba(192,132,252,.6));"></div>
-                  <span style="color:#f87171;font-size:.58rem;font-weight:700;white-space:nowrap;">≤ 3 days</span>
+                <div style="text-align:center;">
+                  <p style="color:rgba(255,255,255,.4);font-size:.6rem;margin:0 0 .1rem;">Review</p>
+                  <p style="color:#c084fc;font-size:.65rem;font-weight:800;">Day 3</p>
                 </div>
-                <div style="display:flex;flex-direction:column;align-items:center;">
-                  <div style="width:52px;height:52px;border-radius:50%;border:2px solid #c084fc;background:rgba(192,132,252,.12);display:flex;align-items:center;justify-content:center;">
-                    <span style="color:#c084fc;font-weight:900;font-size:.8rem;">R</span>
-                  </div>
-                  <p style="color:rgba(255,255,255,.4);font-size:.6rem;margin:.5rem 0 .1rem;text-align:center;">Review</p>
-                  <p style="color:#c084fc;font-size:.65rem;font-weight:800;text-align:center;">Day 3</p>
-                </div>
-                <div style="height:1.5px;width:40px;background:rgba(255,255,255,.1);margin:0 .5rem 1.5rem;"></div>
-                <div style="display:flex;flex-direction:column;align-items:center;">
-                  <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;">
-                    <span style="color:rgba(255,255,255,.8);font-weight:900;font-size:.95rem;">✓</span>
-                  </div>
-                  <p style="color:rgba(255,255,255,.4);font-size:.6rem;margin:.5rem 0 .1rem;text-align:center;">Locked in</p>
-                  <p style="color:rgba(255,255,255,.3);font-size:.65rem;font-weight:800;text-align:center;">Day 7+</p>
+                <div style="text-align:center;">
+                  <p style="color:rgba(255,255,255,.4);font-size:.6rem;margin:0 0 .1rem;">Locked in</p>
+                  <p style="color:rgba(255,255,255,.3);font-size:.65rem;font-weight:800;">Day 7+</p>
                 </div>
               </div>
             </div>
@@ -1377,6 +1386,84 @@
         r.bar.style.width = r.bar.getAttribute('data-w') + '%';
         r.lbl.style.transition = 'none';
         r.lbl.style.opacity = '1';
+      });
+    });
+  })();
+
+  /* ── 3-Day Retention forgetting-curve animation (Technique 04) ───────
+     Resting state shows the fully-drawn curve (crash + catch + flat tail,
+     all dots and the "~0% retained" label visible) untouched. On hover,
+     all three path segments reset to undrawn and the reveal dots/label
+     hide; the curve then redraws in sequence — slow dramatic crash down
+     to the Day 3 cliff, a quick snap back up (the review catching it),
+     then a steady flat draw through to Day 7+ — each dot/label appearing
+     exactly when the line reaches it. Mouseleave snaps back to the
+     resting look (dasharray/dashoffset cleared) ready to replay. */
+  (function() {
+    var wrap = document.getElementById('dr-anim');
+    if (!wrap) return;
+    var segA = document.getElementById('dr-seg-a');
+    var segB = document.getElementById('dr-seg-b');
+    var segC = document.getElementById('dr-seg-c');
+    var dotBottom = document.getElementById('dr-dot-bottom');
+    var dotCatch  = document.getElementById('dr-dot-catch');
+    var dotEnd    = document.getElementById('dr-dot-end');
+    var crashLbl  = document.getElementById('dr-crash-lbl');
+    var timers = [];
+    var HOLD_MS = 300, EASE = 'cubic-bezier(.22,1,.36,1)';
+
+    function sched(fn, ms) { var t = setTimeout(fn, ms); timers.push(t); return t; }
+    function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+
+    function reset() {
+      clearTimers();
+      [segA, segB, segC].forEach(function(p) {
+        var len = p.getTotalLength();
+        p.style.transition = 'none';
+        p.style.strokeDasharray = len;
+        p.style.strokeDashoffset = len;
+      });
+      [dotBottom, dotCatch, dotEnd, crashLbl].forEach(function(el) {
+        el.style.transition = 'none';
+        el.style.opacity = '0';
+      });
+    }
+
+    function drawSeg(path, duration, onDone) {
+      path.style.transition = 'stroke-dashoffset ' + (duration / 1000) + 's ' + EASE;
+      path.style.strokeDashoffset = '0';
+      sched(onDone, duration);
+    }
+
+    function reveal(el, duration) {
+      el.style.transition = 'opacity ' + (duration / 1000) + 's ease';
+      el.style.opacity = '1';
+    }
+
+    wrap.addEventListener('mouseenter', function() {
+      reset();
+      sched(function() {
+        drawSeg(segA, 1500, function() {
+          reveal(dotBottom, 300);
+          reveal(crashLbl, 300);
+          drawSeg(segB, 350, function() {
+            reveal(dotCatch, 250);
+            drawSeg(segC, 900, function() { reveal(dotEnd, 250); });
+          });
+        });
+      }, HOLD_MS);
+    });
+
+    wrap.addEventListener('mouseleave', function() {
+      clearTimers();
+      [segA, segB, segC].forEach(function(p) {
+        p.style.transition = 'none';
+        p.style.strokeDasharray = '';
+        p.style.strokeDashoffset = '';
+      });
+      [dotBottom, dotCatch, dotEnd, crashLbl].forEach(function(el) {
+        el.style.transition = 'none';
+        el.style.opacity = '1';
       });
     });
   })();
