@@ -1325,9 +1325,10 @@
   /* ── Spaced Repetition bar-growth animation (Technique 03) ───────────
      Resting state (Day 0/3/7/14+ bars + labels, all fully shown) is
      untouched. On hover: all four bars reset to 0 width and their labels
-     hide, hold briefly, then each bar grows out in turn (staggered,
-     slowly) with its label only revealing once that bar lands — keeps
-     the reader guessing what each line means until it finishes. */
+     hide, hold briefly, then rows play strictly ONE AT A TIME — bar N+1
+     doesn't start growing until bar N has finished and its label has
+     appeared, so each word lands exactly with its own bar instead of
+     several bars overlapping and the words bunching up near the end. */
   (function() {
     var wrap = document.getElementById('sr-anim');
     if (!wrap) return;
@@ -1335,7 +1336,7 @@
       return { bar: document.getElementById('sr-bar-' + i), lbl: document.getElementById('sr-lbl-' + i) };
     }).filter(function(r) { return r.bar && r.lbl; });
     var timers = [];
-    var GROW_MS = 1400, HOLD_MS = 300, STAGGER_MS = 420, LABEL_FADE_MS = 350;
+    var GROW_MS = 1100, HOLD_MS = 300, LABEL_FADE_MS = 300, GAP_MS = 150;
 
     function clearTimers() { timers.forEach(clearTimeout); timers = []; }
 
@@ -1349,20 +1350,24 @@
       });
     }
 
+    function playRow(i) {
+      if (i >= rows.length) return;
+      var r = rows[i];
+      r.bar.style.transition = 'width ' + (GROW_MS / 1000) + 's cubic-bezier(.22,1,.36,1)';
+      r.bar.style.width = r.bar.getAttribute('data-w') + '%';
+      var t1 = setTimeout(function() {
+        r.lbl.style.transition = 'opacity ' + (LABEL_FADE_MS / 1000) + 's ease';
+        r.lbl.style.opacity = '1';
+        var t2 = setTimeout(function() { playRow(i + 1); }, LABEL_FADE_MS + GAP_MS);
+        timers.push(t2);
+      }, GROW_MS);
+      timers.push(t1);
+    }
+
     wrap.addEventListener('mouseenter', function() {
       reset();
-      rows.forEach(function(r, i) {
-        var start = HOLD_MS + i * STAGGER_MS;
-        var t1 = setTimeout(function() {
-          r.bar.style.transition = 'width ' + (GROW_MS / 1000) + 's cubic-bezier(.22,1,.36,1)';
-          r.bar.style.width = r.bar.getAttribute('data-w') + '%';
-        }, start);
-        var t2 = setTimeout(function() {
-          r.lbl.style.transition = 'opacity ' + (LABEL_FADE_MS / 1000) + 's ease';
-          r.lbl.style.opacity = '1';
-        }, start + GROW_MS);
-        timers.push(t1, t2);
-      });
+      var t0 = setTimeout(function() { playRow(0); }, HOLD_MS);
+      timers.push(t0);
     });
 
     wrap.addEventListener('mouseleave', function() {
