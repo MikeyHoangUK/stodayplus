@@ -178,7 +178,7 @@
       <span class="text-gray-500 select-none text-xs">·</span>
       <a href="about.html" class="nav-link hover:text-white transition-colors">About</a>
       <span class="text-gray-500 select-none text-xs">·</span>
-      <button onclick="fpGoto(7)" class="nav-link hover:text-white transition-colors bg-transparent text-gray-300 text-sm font-medium" style="cursor:pointer;font-family:inherit">Build Your System</button>
+      <button onclick="fpGoto(8)" class="nav-link hover:text-white transition-colors bg-transparent text-gray-300 text-sm font-medium" style="cursor:pointer;font-family:inherit">Build Your System</button>
     </div>
     <div class="flex items-center gap-3">
       <a href="login.html" class="hidden sm:inline text-gray-300 hover:text-white text-sm transition-colors">Log in</a>
@@ -959,14 +959,22 @@
           <div><h3 class="font-extrabold text-navy-dark mb-1">Full Resource Bundle</h3><p class="text-gray-500 text-sm leading-relaxed">Scientific papers, revision guides, and supporting materials — everything behind the "why."</p></div>
         </div>
       </div>
-      <div id="wi-compound" class="rounded-2xl overflow-hidden shadow-xl max-w-2xl mx-auto mt-8">
-        <img src="Marketing/Store%20Page%20Esstls/1365=1.png" alt="1.01 to the power of 365" class="w-full" />
-      </div>
-      <p class="text-center text-gray-500 text-sm mt-4">1% better every day compounds into something extraordinary. The method matters.</p>
     </div>
   </section>
 
-  <!-- SLIDE 5: Sales Video -->
+  <!-- SLIDE 5: Motivation (compounding) -->
+  <section class="fp-section py-24" id="motivation" style="background:#f5f3ff;overflow-y:auto">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 text-center">
+      <p class="text-purple-DEFAULT font-semibold text-sm uppercase tracking-widest mb-3">The maths behind it</p>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-navy-dark mb-10">Small changes compound</h2>
+      <div id="wi-compound" class="rounded-2xl overflow-hidden shadow-xl max-w-2xl mx-auto">
+        <img src="Marketing/Store%20Page%20Esstls/1365=1.png" alt="1.01 to the power of 365" class="w-full" />
+      </div>
+      <p class="text-gray-500 text-sm mt-4">1% better every day compounds into something extraordinary. The method matters.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 6: Sales Video -->
   <section class="fp-section py-24 bg-white">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center">
       <p class="text-purple-DEFAULT font-semibold text-sm uppercase tracking-widest mb-3">See it in action</p>
@@ -987,7 +995,7 @@
     </div>
   </section>
 
-  <!-- SLIDE 6: About Mikey -->
+  <!-- SLIDE 7: About Mikey -->
   <section class="fp-section py-24 gradient-dark">
     <div class="max-w-5xl mx-auto px-4 sm:px-6">
       <div class="flex flex-col lg:flex-row items-center gap-12">
@@ -1011,7 +1019,7 @@
     </div>
   </section>
 
-  <!-- SLIDE 7: Pricing -->
+  <!-- SLIDE 8: Pricing -->
   <section class="fp-section py-24 bg-white" id="pricing" style="overflow-y:auto">
     <div class="max-w-4xl mx-auto px-4 sm:px-6">
       <div class="text-center mb-14">
@@ -1068,7 +1076,7 @@
     </div>
   </section>
 
-  <!-- SLIDE 8: FAQ -->
+  <!-- SLIDE 9: FAQ -->
   <section class="fp-section py-24" id="faq" style="background:#f5f3ff;overflow-y:auto">
     <div class="max-w-3xl mx-auto px-4 sm:px-6">
       <div class="text-center mb-12">
@@ -1107,7 +1115,7 @@
     </div>
   </section>
 
-  <!-- SLIDE 9: Final CTA + Footer -->
+  <!-- SLIDE 10: Final CTA + Footer -->
   <div class="fp-section" style="overflow-y:auto;background:#1e1b4b">
     <section class="py-24 gradient-dark text-center">
       <div class="max-w-3xl mx-auto px-4 sm:px-6">
@@ -1136,7 +1144,7 @@
               <ul class="space-y-2">
                 <li><button onclick="fpGoto(3)" class="text-gray-400 hover:text-white transition-colors bg-transparent" style="font-family:inherit;font-size:inherit;cursor:pointer">Techniques</button></li>
                 <li><button onclick="fpGoto(4)" class="text-gray-400 hover:text-white transition-colors bg-transparent" style="font-family:inherit;font-size:inherit;cursor:pointer">What's Included</button></li>
-                <li><button onclick="fpGoto(7)" class="text-gray-400 hover:text-white transition-colors bg-transparent" style="font-family:inherit;font-size:inherit;cursor:pointer">Pricing</button></li>
+                <li><button onclick="fpGoto(8)" class="text-gray-400 hover:text-white transition-colors bg-transparent" style="font-family:inherit;font-size:inherit;cursor:pointer">Pricing</button></li>
               </ul>
             </div>
             <div>
@@ -1144,7 +1152,7 @@
               <ul class="space-y-2">
                 <li><a href="about.html" class="text-gray-400 hover:text-white transition-colors">About Mikey</a></li>
                 <li><a href="join.html#free" class="text-gray-400 hover:text-white transition-colors">Free Resources</a></li>
-                <li><button onclick="fpGoto(8)" class="text-gray-400 hover:text-white transition-colors bg-transparent" style="font-family:inherit;font-size:inherit;cursor:pointer">FAQ</button></li>
+                <li><button onclick="fpGoto(9)" class="text-gray-400 hover:text-white transition-colors bg-transparent" style="font-family:inherit;font-size:inherit;cursor:pointer">FAQ</button></li>
               </ul>
             </div>
             <div>
@@ -1166,7 +1174,7 @@
 </div><!-- end #fp-wrapper -->
 
 <!-- Slide counter -->
-<div id="fp-counter">01 / 10</div>
+<div id="fp-counter">01 / 11</div>
 
 <script>
   /* ── Techniques carousel ───────────────────────────────────── */
@@ -1658,13 +1666,11 @@
 
   /* ── What's Included — staggered entrance ─────────────────────
      Mirrors the Problem/Method slides' pattern: resets on every re-entry
-     to this slide, then the 4 feature cards rise in one after another,
-     followed by the compounding-interest card. */
+     to this slide, then the 4 feature cards rise in one after another. */
   (function() {
     var section = document.getElementById('whats-included');
     if (!section) return;
     var cards = ['1', '2', '3', '4'].map(function(n) { return document.getElementById('wi-card-' + n); }).filter(Boolean);
-    var compound = document.getElementById('wi-compound');
 
     function resetEls() {
       cards.forEach(function(c) {
@@ -1672,11 +1678,6 @@
         c.style.opacity = '0';
         c.style.transform = 'translateY(26px)';
       });
-      if (compound) {
-        compound.style.transition = 'none';
-        compound.style.opacity = '0';
-        compound.style.transform = 'scale(.96)';
-      }
     }
 
     function animateIn() {
@@ -1687,11 +1688,6 @@
           c.style.transform = 'translateY(0)';
         }, 100 + i * 140);
       });
-      if (compound) setTimeout(function() {
-        compound.style.transition = 'opacity .6s ease, transform .6s cubic-bezier(.22,1,.36,1)';
-        compound.style.opacity = '1';
-        compound.style.transform = 'scale(1)';
-      }, 100 + cards.length * 140 + 120);
     }
 
     resetEls();
@@ -1699,6 +1695,39 @@
     new MutationObserver(function() {
       if (section.classList.contains('fp-active')) {
         resetEls();
+        setTimeout(animateIn, 60);
+      }
+    }).observe(section, { attributes: true, attributeFilter: ['class'] });
+  })();
+
+  /* ── Motivation — compounding card entrance ────────────────────
+     Same fade/scale-in treatment the compounding card used to get as
+     part of What's Included, now standalone on its own slide. */
+  (function() {
+    var section = document.getElementById('motivation');
+    if (!section) return;
+    var compound = document.getElementById('wi-compound');
+    if (!compound) return;
+
+    function resetEl() {
+      compound.style.transition = 'none';
+      compound.style.opacity = '0';
+      compound.style.transform = 'scale(.96)';
+    }
+
+    function animateIn() {
+      setTimeout(function() {
+        compound.style.transition = 'opacity .6s ease, transform .6s cubic-bezier(.22,1,.36,1)';
+        compound.style.opacity = '1';
+        compound.style.transform = 'scale(1)';
+      }, 150);
+    }
+
+    resetEl();
+
+    new MutationObserver(function() {
+      if (section.classList.contains('fp-active')) {
+        resetEl();
         setTimeout(animateIn, 60);
       }
     }).observe(section, { attributes: true, attributeFilter: ['class'] });
@@ -1795,7 +1824,7 @@
 
   /* ── Fullpage scroll system ────────────────────────────────── */
   (function() {
-    var NAMES = ['Home', 'Problem', 'Method', 'Techniques', 'Included', 'Watch', 'Mikey', 'Pricing', 'FAQ', 'Start'];
+    var NAMES = ['Home', 'Problem', 'Method', 'Techniques', 'Included', 'Motivation', 'Watch', 'Mikey', 'Pricing', 'FAQ', 'Start'];
     var sections = Array.from(document.querySelectorAll('#fp-wrapper > .fp-section'));
     var current  = 0;
     var busy     = false;
