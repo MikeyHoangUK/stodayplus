@@ -934,25 +934,31 @@
         <h2 class="text-3xl sm:text-4xl font-extrabold text-navy-dark">Everything inside Stoday Plus</h2>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-        <div class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-sm border border-purple-soft card-hover">
+        <div id="wi-card-1" class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-sm border border-purple-soft card-hover">
           <img src="Marketing/Store%20Page%20Esstls/1.png" alt="" class="w-16 h-16 rounded-xl flex-shrink-0 object-cover" />
           <div><h3 class="font-extrabold text-navy-dark mb-1">5 Novel Techniques Guide</h3><p class="text-gray-500 text-sm leading-relaxed">The full breakdown of every technique — how it works, why it works, and exactly how to use it in your next study session.</p></div>
         </div>
-        <div class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-sm border border-purple-soft card-hover">
+        <div id="wi-card-2" class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-sm border border-purple-soft card-hover">
           <img src="Marketing/Store%20Page%20Esstls/2.png" alt="" class="w-16 h-16 rounded-xl flex-shrink-0 object-cover" />
           <div><h3 class="font-extrabold text-navy-dark mb-1">The Stoday System</h3><p class="text-gray-500 text-sm leading-relaxed">A ready-to-use daily study framework. Plug your subjects in and never wonder "what should I be doing?" again.</p></div>
         </div>
-        <div class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-sm border border-purple-soft card-hover">
+        <div id="wi-card-3" class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-sm border border-purple-soft card-hover">
           <img src="Marketing/Store%20Page%20Esstls/3.png" alt="" class="w-16 h-16 rounded-xl flex-shrink-0 object-cover" />
           <div><h3 class="font-extrabold text-navy-dark mb-1">Blurting Sheet Template</h3><p class="text-gray-500 text-sm leading-relaxed">The active recall worksheet that replaces passive note-taking. Simple. Brutal. Effective.</p></div>
         </div>
-        <div class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-sm border border-purple-soft card-hover">
+        <div id="wi-card-4" class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-sm border border-purple-soft card-hover">
           <img src="Marketing/Store%20Page%20Esstls/4.png" alt="" class="w-16 h-16 rounded-xl flex-shrink-0 object-cover" />
           <div><h3 class="font-extrabold text-navy-dark mb-1">Full Resource Bundle</h3><p class="text-gray-500 text-sm leading-relaxed">Scientific papers, revision guides, and supporting materials — everything behind the "why."</p></div>
         </div>
       </div>
-      <div class="rounded-2xl overflow-hidden shadow-xl max-w-2xl mx-auto mt-8">
-        <img src="Marketing/Store%20Page%20Esstls/1365=1.png" alt="1.01 to the power of 365" class="w-full" />
+      <!-- Replaces the old off-brand stock-template image (navy swirl background,
+           drop-shadowed PowerPoint-style text) with an on-brand version using the
+           site's own gradient/typography, so it reads as part of the same product
+           instead of a pasted-in slide. -->
+      <div id="wi-compound" class="rounded-2xl overflow-hidden shadow-xl max-w-2xl mx-auto mt-8" style="background:linear-gradient(135deg,#1e1b4b 0%,#312e81 55%,#4338ca 100%);padding:2.75rem 2rem;text-align:center">
+        <div style="font-size:1.05rem;font-weight:800;color:rgba(255,255,255,.35);margin-bottom:.6rem;letter-spacing:.01em">1<sup style="font-size:.6em">365</sup> <span style="color:rgba(255,255,255,.25)">=</span> 1</div>
+        <div style="font-size:clamp(1.9rem,5.2vw,2.75rem);font-weight:900;color:#fff;letter-spacing:-.01em;line-height:1.1">1.01<sup style="font-size:.55em">365</sup> <span style="color:#c4b5fd">=</span> <span style="background:linear-gradient(135deg,#c084fc,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">37.78</span></div>
+        <p style="color:rgba(255,255,255,.55);font-style:italic;font-size:.95rem;margin-top:1.1rem">"Take action, or stay behind."</p>
       </div>
       <p class="text-center text-gray-500 text-sm mt-4">1% better every day compounds into something extraordinary. The method matters.</p>
     </div>
@@ -1646,6 +1652,54 @@
         rows.forEach(function(other) { other.style.opacity = '1'; });
       });
     });
+  })();
+
+  /* ── What's Included — staggered entrance ─────────────────────
+     Mirrors the Problem/Method slides' pattern: resets on every re-entry
+     to this slide, then the 4 feature cards rise in one after another,
+     followed by the compounding-interest card. */
+  (function() {
+    var section = document.getElementById('whats-included');
+    if (!section) return;
+    var cards = ['1', '2', '3', '4'].map(function(n) { return document.getElementById('wi-card-' + n); }).filter(Boolean);
+    var compound = document.getElementById('wi-compound');
+
+    function resetEls() {
+      cards.forEach(function(c) {
+        c.style.transition = 'none';
+        c.style.opacity = '0';
+        c.style.transform = 'translateY(26px)';
+      });
+      if (compound) {
+        compound.style.transition = 'none';
+        compound.style.opacity = '0';
+        compound.style.transform = 'scale(.96)';
+      }
+    }
+
+    function animateIn() {
+      cards.forEach(function(c, i) {
+        setTimeout(function() {
+          c.style.transition = 'opacity .55s cubic-bezier(.22,1,.36,1), transform .55s cubic-bezier(.22,1,.36,1)';
+          c.style.opacity = '1';
+          c.style.transform = 'translateY(0)';
+        }, 100 + i * 140);
+      });
+      if (compound) setTimeout(function() {
+        compound.style.transition = 'opacity .6s ease, transform .6s cubic-bezier(.22,1,.36,1)';
+        compound.style.opacity = '1';
+        compound.style.transform = 'scale(1)';
+      }, 100 + cards.length * 140 + 120);
+    }
+
+    resetEls();
+
+    new MutationObserver(function() {
+      if (section.classList.contains('fp-active')) {
+        resetEls();
+        setTimeout(animateIn, 60);
+      }
+    }).observe(section, { attributes: true, attributeFilter: ['class'] });
   })();
 
   /* ── FAQ accordion ─────────────────────────────────────────── */
