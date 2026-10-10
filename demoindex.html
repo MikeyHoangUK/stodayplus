@@ -40,6 +40,22 @@
     .hero-chip:hover .hero-chip-shine { transform: translateX(150%); }
     .gradient-dark  { background: linear-gradient(135deg, #1e1b4b 0%, #1e3a8a 100%); }
     .gradient-brand { background: linear-gradient(135deg, #9333ea 0%, #3730a3 100%); }
+    .wi-card { position: relative; overflow: hidden; transition: transform .25s ease, border-color .25s ease, background .25s ease; }
+    .wi-card:hover { transform: translateY(-4px); border-color: rgba(212,175,55,.35) !important; background: rgba(255,255,255,.08) !important; }
+    .wi-card-shine {
+      position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.16) 50%, transparent 65%);
+      transform: translateX(-150%);
+      transition: transform .7s ease;
+    }
+    .wi-card:hover .wi-card-shine { transform: translateX(150%); }
+    .wi-badge {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: linear-gradient(135deg, rgba(212,175,55,.16), rgba(212,175,55,.06));
+      border: 1px solid rgba(212,175,55,.4); color: #e8c47c;
+      font-size: .68rem; font-weight: 800; padding: .4rem 1rem;
+      border-radius: 999px; letter-spacing: .04em;
+    }
     .gradient-card  { background: linear-gradient(135deg, #9333ea 0%, #1e3a8a 100%); }
     .card-hover { transition: transform .2s ease, box-shadow .2s ease; }
     .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(147,51,234,.15); }
@@ -927,36 +943,41 @@
   </section>
 
   <!-- SLIDE 4: What's Included -->
-  <section class="fp-section py-24" id="whats-included" style="background:#f5f3ff;overflow-y:auto">
+  <section class="fp-section py-24 gradient-dark" id="whats-included" style="overflow-y:auto">
     <div class="max-w-5xl mx-auto px-4 sm:px-6">
       <div class="text-center mb-14">
-        <p class="text-purple-DEFAULT font-semibold text-sm uppercase tracking-widest mb-3">The full package</p>
-        <h2 class="text-3xl sm:text-4xl font-extrabold text-navy-dark">Everything inside Stoday Plus</h2>
+        <span class="wi-badge">✦ The Complete System</span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-4">Everything inside Stoday Plus</h2>
+        <p style="color:rgba(255,255,255,.5);font-size:.95rem;margin-top:.75rem;max-width:30rem;margin-left:auto;margin-right:auto">Every tool here was built and refined with one goal — giving you back your time, without cutting corners on what actually works.</p>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-        <div id="wi-card-1" class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-sm border border-purple-soft card-hover">
-          <div class="w-16 h-16 rounded-xl flex-shrink-0 flex items-center justify-center" style="background:linear-gradient(135deg,#9333ea,#3730a3)">
+        <div id="wi-card-1" class="wi-card rounded-2xl p-6 flex items-start gap-5" style="background:rgba(255,255,255,.055);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12)">
+          <div class="wi-card-shine"></div>
+          <div class="w-16 h-16 rounded-xl flex-shrink-0 flex items-center justify-center" style="background:linear-gradient(135deg,#9333ea,#3730a3);box-shadow:0 0 0 1px rgba(212,175,55,.3)">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2Z"/></svg>
           </div>
-          <div><h3 class="font-extrabold text-navy-dark mb-1">5 Science-Backed Techniques</h3><p class="text-gray-500 text-sm leading-relaxed">Four unique, research-backed steps that are both time-saving and effective — built to keep you improving without ever burning you out on revision.</p></div>
+          <div><h3 class="font-extrabold text-white mb-1">5 Science-Backed Techniques</h3><p style="color:rgba(255,255,255,.55)" class="text-sm leading-relaxed">Four unique, research-backed steps that are both time-saving and effective — built to keep you improving without ever burning you out on revision.</p></div>
         </div>
-        <div id="wi-card-2" class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-sm border border-purple-soft card-hover">
-          <div class="w-16 h-16 rounded-xl flex-shrink-0 flex items-center justify-center" style="background:linear-gradient(135deg,#9333ea,#3730a3)">
+        <div id="wi-card-2" class="wi-card rounded-2xl p-6 flex items-start gap-5" style="background:rgba(255,255,255,.055);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12)">
+          <div class="wi-card-shine"></div>
+          <div class="w-16 h-16 rounded-xl flex-shrink-0 flex items-center justify-center" style="background:linear-gradient(135deg,#9333ea,#3730a3);box-shadow:0 0 0 1px rgba(212,175,55,.3)">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           </div>
-          <div><h3 class="font-extrabold text-navy-dark mb-1">Built-In Revision Planner</h3><p class="text-gray-500 text-sm leading-relaxed">A calendar, an attendance tracker, automatic revision-date predictions, and an exam countdown — all working together, always up to date.</p></div>
+          <div><h3 class="font-extrabold text-white mb-1">Built-In Revision Planner</h3><p style="color:rgba(255,255,255,.55)" class="text-sm leading-relaxed">A calendar, an attendance tracker, automatic revision-date predictions, and an exam countdown — all working together, always up to date.</p></div>
         </div>
-        <div id="wi-card-3" class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-sm border border-purple-soft card-hover">
-          <div class="w-16 h-16 rounded-xl flex-shrink-0 flex items-center justify-center" style="background:linear-gradient(135deg,#9333ea,#3730a3)">
+        <div id="wi-card-3" class="wi-card rounded-2xl p-6 flex items-start gap-5" style="background:rgba(255,255,255,.055);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12)">
+          <div class="wi-card-shine"></div>
+          <div class="w-16 h-16 rounded-xl flex-shrink-0 flex items-center justify-center" style="background:linear-gradient(135deg,#9333ea,#3730a3);box-shadow:0 0 0 1px rgba(212,175,55,.3)">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           </div>
-          <div><h3 class="font-extrabold text-navy-dark mb-1">Automatic Study Timer + Music</h3><p class="text-gray-500 text-sm leading-relaxed">A Pomodoro+ timer that builds proper breaks in for you, paired with built-in science-backed focus music — all adapted to light or dark mode.</p></div>
+          <div><h3 class="font-extrabold text-white mb-1">Automatic Study Timer + Music</h3><p style="color:rgba(255,255,255,.55)" class="text-sm leading-relaxed">A Pomodoro+ timer that builds proper breaks in for you, paired with built-in science-backed focus music — all adapted to light or dark mode.</p></div>
         </div>
-        <div id="wi-card-4" class="bg-white rounded-2xl p-6 flex items-start gap-5 shadow-sm border border-purple-soft card-hover">
-          <div class="w-16 h-16 rounded-xl flex-shrink-0 flex items-center justify-center" style="background:linear-gradient(135deg,#9333ea,#3730a3)">
+        <div id="wi-card-4" class="wi-card rounded-2xl p-6 flex items-start gap-5" style="background:rgba(255,255,255,.055);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12)">
+          <div class="wi-card-shine"></div>
+          <div class="w-16 h-16 rounded-xl flex-shrink-0 flex items-center justify-center" style="background:linear-gradient(135deg,#9333ea,#3730a3);box-shadow:0 0 0 1px rgba(212,175,55,.3)">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
           </div>
-          <div><h3 class="font-extrabold text-navy-dark mb-1">A-Z Guidance, Zero Friction</h3><p class="text-gray-500 text-sm leading-relaxed">Clear instructions for every tool, no setup headaches, no wasted time. Just open it, sit down, revise, and leave.</p></div>
+          <div><h3 class="font-extrabold text-white mb-1">A-Z Guidance, Zero Friction</h3><p style="color:rgba(255,255,255,.55)" class="text-sm leading-relaxed">Clear instructions for every tool, no setup headaches, no wasted time. Just open it, sit down, revise, and leave.</p></div>
         </div>
       </div>
     </div>
@@ -1686,6 +1707,13 @@
           c.style.transition = 'opacity .55s cubic-bezier(.22,1,.36,1), transform .55s cubic-bezier(.22,1,.36,1)';
           c.style.opacity = '1';
           c.style.transform = 'translateY(0)';
+          // Once settled, drop the inline transition/transform entirely so the
+          // .wi-card:hover CSS rule (lift + gold border) can take over again —
+          // an inline style would otherwise permanently outrank it.
+          setTimeout(function() {
+            c.style.transition = '';
+            c.style.transform = '';
+          }, 560);
         }, 100 + i * 140);
       });
     }
