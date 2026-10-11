@@ -132,6 +132,15 @@
       100% { transform: scale(1) rotate(-2deg); }
     }
     .hero-slam { display: inline-block; transform-origin: left center; animation: hero-slam .38s cubic-bezier(.22,1,.36,1) both; }
+    @keyframes hero-ground-shake {
+      0%   { transform: translate(0,0); }
+      20%  { transform: translate(-1.5px, 1px); }
+      40%  { transform: translate(1.5px, -1px); }
+      60%  { transform: translate(-1px, .5px); }
+      80%  { transform: translate(.5px, -.5px); }
+      100% { transform: translate(0,0); }
+    }
+    .hero-ground-shake { animation: hero-ground-shake .3s ease-out; }
     @keyframes pomo-float  { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-3px); } }
     @keyframes pomo-shake-in {
       0%   { transform:translateX(-14px) scale(.88); opacity:0; }
@@ -1939,6 +1948,14 @@
         // to play.
         el.innerHTML = doneHTML + '<span class="hero-slam" style="' + seg.style + '">' + esc(seg.text) + '</span>' + caretHTML();
         segIdx++;
+        // Subtle "ground shake" on the paragraph itself, timed to when the
+        // word visually lands (~65% through the slam) rather than when it
+        // first pops in — a class-based animation on el, independent of its
+        // (frequently rebuilt) innerHTML, so it's unaffected by the typer.
+        setTimeout(function() {
+          el.classList.add('hero-ground-shake');
+          setTimeout(function() { el.classList.remove('hero-ground-shake'); }, 320);
+        }, 230);
         setTimeout(function() {
           doneHTML += '<span style="' + seg.style + 'transform:rotate(-2deg);">' + esc(seg.text) + '</span>';
           nextSegment();
