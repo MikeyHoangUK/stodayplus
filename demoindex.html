@@ -1638,21 +1638,23 @@
     var floats = Array.from(section.querySelectorAll('.method-float'));
     var shines = Array.from(section.querySelectorAll('.method-shine'));
 
+    var HOLD_MS = 150, STAGGER_MS = 320, REVEAL_MS = 900;
+
     function resetRows() {
       rows.forEach(function(r) {
         r.style.transition = 'none';
         r.style.opacity    = '0';
-        r.style.transform  = 'translateX(-110px)';
+        r.style.transform  = 'translateX(-130px)';
       });
     }
 
     function animateIn() {
       rows.forEach(function(r, i) {
         setTimeout(function() {
-          r.style.transition = 'opacity .55s cubic-bezier(.22,1,.36,1), transform .55s cubic-bezier(.22,1,.36,1)';
+          r.style.transition = 'opacity ' + (REVEAL_MS / 1000) + 's cubic-bezier(.19,1,.22,1), transform ' + (REVEAL_MS / 1000) + 's cubic-bezier(.19,1,.22,1)';
           r.style.opacity    = '1';
           r.style.transform  = 'translateX(0)';
-        }, 100 + i * 160);
+        }, HOLD_MS + i * STAGGER_MS);
       });
     }
 
