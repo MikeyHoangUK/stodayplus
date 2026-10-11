@@ -1742,34 +1742,38 @@
 
   /* ── What's Included — staggered entrance ─────────────────────
      Mirrors the Problem/Method slides' pattern: resets on every re-entry
-     to this slide, then the 4 feature cards rise in one after another. */
+     to this slide, then the 4 feature cards rise in one after another —
+     slow and with real separation between each (900ms glide, 320ms apart)
+     so they read as a clear one-by-one sequence instead of nearly
+     simultaneous, plus a bigger rise + scale-in pop for more vibrancy. */
   (function() {
     var section = document.getElementById('whats-included');
     if (!section) return;
     var cards = ['1', '2', '3', '4'].map(function(n) { return document.getElementById('wi-card-' + n); }).filter(Boolean);
+    var HOLD_MS = 150, STAGGER_MS = 320, REVEAL_MS = 900;
 
     function resetEls() {
       cards.forEach(function(c) {
         c.style.transition = 'none';
         c.style.opacity = '0';
-        c.style.transform = 'translateY(26px)';
+        c.style.transform = 'translateY(50px) scale(.94)';
       });
     }
 
     function animateIn() {
       cards.forEach(function(c, i) {
         setTimeout(function() {
-          c.style.transition = 'opacity .55s cubic-bezier(.22,1,.36,1), transform .55s cubic-bezier(.22,1,.36,1)';
+          c.style.transition = 'opacity ' + (REVEAL_MS / 1000) + 's cubic-bezier(.19,1,.22,1), transform ' + (REVEAL_MS / 1000) + 's cubic-bezier(.19,1,.22,1)';
           c.style.opacity = '1';
-          c.style.transform = 'translateY(0)';
+          c.style.transform = 'translateY(0) scale(1)';
           // Once settled, drop the inline transition/transform entirely so the
           // .wi-card:hover CSS rule (lift + gold border) can take over again —
           // an inline style would otherwise permanently outrank it.
           setTimeout(function() {
             c.style.transition = '';
             c.style.transform = '';
-          }, 560);
-        }, 100 + i * 140);
+          }, REVEAL_MS + 20);
+        }, HOLD_MS + i * STAGGER_MS);
       });
     }
 
