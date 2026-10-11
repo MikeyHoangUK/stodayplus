@@ -43,16 +43,7 @@
 
     /* ── What's Included — premium dark treatment ──────────────────────── */
     #whats-included.wi-premium {
-      /* Every neighbouring slide sits on a light lavender background, so a hard
-         cut straight into near-black read as a flash-cut. This top layer picks
-         up exactly where page 4 (Techniques, #f8f5ff) leaves off and dissolves
-         into the dark palette within the leading ~68px — fixed px, not a %,
-         so it stays a brief edge cue and never grows tall enough on a short
-         viewport to land under the (vertically centred) white heading text —
-         so as this slide rises into view the transition reads as a blend
-         rather than a jump cut. */
       background:
-        linear-gradient(180deg, #f8f5ff 0px, rgba(248,245,255,.55) 26px, transparent 68px),
         radial-gradient(ellipse 58% 48% at 12% -8%,  rgba(147,51,234,.5)  0%, transparent 62%),
         radial-gradient(ellipse 46% 38% at 92% 6%,   rgba(212,175,55,.24) 0%, transparent 58%),
         radial-gradient(ellipse 70% 58% at 50% 115%, rgba(67,56,202,.48)  0%, transparent 62%),
@@ -1937,12 +1928,36 @@
     /* initialise positions */
     sections[0].classList.add('fp-active');
 
+    /* Colour-wash veil for the Techniques <-> What's Included boundary (index
+       3 <-> 4) — those two slides sit on very different backgrounds (light
+       lavender vs. near-black), so cutting straight between them reads as a
+       flash-cut. Rather than touch either slide's own background, a transient
+       full-screen veil (page 4's exact colour) flashes in as the transition
+       starts and dissolves back out over it, so the colour change reads as a
+       blend. Lives entirely here in the transition system — neither slide is
+       modified. */
+    var blendVeil = document.createElement('div');
+    blendVeil.id = 'fp-blend-veil';
+    blendVeil.style.cssText = 'position:fixed;inset:0;z-index:150;pointer-events:none;opacity:0;background:#f8f5ff;';
+    document.body.appendChild(blendVeil);
+    function playBlendVeil(prev, next) {
+      var crossing = (prev === 3 && next === 4) || (prev === 4 && next === 3);
+      if (!crossing) return;
+      blendVeil.style.transition = 'opacity .14s ease';
+      blendVeil.style.opacity = '1';
+      setTimeout(function() {
+        blendVeil.style.transition = 'opacity .5s ease';
+        blendVeil.style.opacity = '0';
+      }, 290);
+    }
+
     function goto(idx) {
       if (idx < 0 || idx >= sections.length || idx === current || busy) return;
       busy = true;
       wheelBuf = 0;
       var prev = current;
       current = idx;
+      playBlendVeil(prev, current);
       sections.forEach(function(s, i) {
         s.classList.remove('fp-active', 'fp-above');
         if (i < current) s.classList.add('fp-above');
