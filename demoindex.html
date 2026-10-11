@@ -105,8 +105,18 @@
     .nav-link { position: relative; }
     .nav-link::after { content:''; position:absolute; bottom:-2px; left:0; width:0; height:2px; background:#c084fc; transition:width .2s; }
     .nav-link:hover::after { width:100%; }
-    .btn-ghost { background:rgba(255,255,255,.65); border:1px solid #e9d5ff; color:#6b21a8; font-weight:600; transition:background .2s ease, color .2s ease, border-color .2s ease; cursor:pointer; }
-    .btn-ghost:hover { background:linear-gradient(135deg,#9333ea 0%,#3730a3 100%); color:#fff; border-color:transparent; }
+    .btn-ghost {
+      background: #ffffff; border: none; color: #4c1d95; font-weight: 700;
+      box-shadow: 0 1px 2px rgba(17,10,40,.04), 0 6px 18px rgba(109,40,217,.14);
+      transition: background .25s ease, color .25s ease, box-shadow .25s ease, transform .25s ease;
+      cursor: pointer;
+    }
+    .btn-ghost:hover {
+      background: linear-gradient(135deg,#9333ea 0%,#3730a3 100%); color: #fff;
+      box-shadow: 0 10px 28px rgba(109,40,217,.38);
+      transform: translateY(-2px);
+    }
+    .btn-ghost:active { transform: translateY(0); }
 
     /* Method row float */
     @keyframes method-float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-6px); } }
@@ -266,7 +276,7 @@
             <span class="text-purple-DEFAULT">show up in results.</span>
           </h1>
           <div class="w-10 h-0.5 gradient-brand mx-auto lg:mx-0 mb-5 rounded-full"></div>
-          <p class="text-sm text-gray-500 max-w-lg leading-relaxed mb-8 mx-auto lg:mx-0">
+          <p class="max-w-lg mb-8 mx-auto lg:mx-0" style="font-size:1rem;line-height:1.7;color:#4b4458">
             You're already working hard enough. Stoday Plus turns 30 focused minutes a day into real progress — no extra hours, no burnout.
           </p>
           <button onclick="fpGoto(2)" class="btn-ghost inline-block px-8 py-3.5 rounded-xl text-sm">
