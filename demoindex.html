@@ -1929,10 +1929,20 @@
       var seg = segments[segIdx];
 
       if (seg.slam) {
-        doneHTML += '<span class="hero-slam" style="' + seg.style + '">' + esc(seg.text) + '</span>';
-        el.innerHTML = doneHTML + caretHTML();
+        // Render the animated version just once (don't fold it into doneHTML
+        // yet) — the trailing segment's typer rebuilds el.innerHTML from
+        // doneHTML on every keystroke tick, and if the "hero-slam" class were
+        // already baked in, each of those rebuilds would recreate the span
+        // from scratch and restart its CSS animation — the glitch. Instead,
+        // freeze it into doneHTML as a plain (unanimated) span, with the same
+        // settled transform, only after the animation has had its one chance
+        // to play.
+        el.innerHTML = doneHTML + '<span class="hero-slam" style="' + seg.style + '">' + esc(seg.text) + '</span>' + caretHTML();
         segIdx++;
-        setTimeout(nextSegment, 400); // hold for the slam animation to play out
+        setTimeout(function() {
+          doneHTML += '<span style="' + seg.style + 'transform:rotate(-2deg);">' + esc(seg.text) + '</span>';
+          nextSegment();
+        }, 400);
         return;
       }
 
