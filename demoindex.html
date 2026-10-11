@@ -154,6 +154,15 @@
       opacity: 0;
       pointer-events: none;
     }
+    /* What's Included (page 5) doesn't slide in/out like its neighbours — it
+       stays put and purely fades, since its background sits so far from the
+       light slides around it that a cross-fade reads far more convincing than
+       a hard slide-cut between two very different colours. */
+    #whats-included.fp-section,
+    #whats-included.fp-section.fp-active,
+    #whats-included.fp-section.fp-above {
+      transform: none;
+    }
 
 
     /* Hide native scrollbar on all sections */
@@ -1928,36 +1937,12 @@
     /* initialise positions */
     sections[0].classList.add('fp-active');
 
-    /* Colour-wash veil for the Techniques <-> What's Included boundary (index
-       3 <-> 4) — those two slides sit on very different backgrounds (light
-       lavender vs. near-black), so cutting straight between them reads as a
-       flash-cut. Rather than touch either slide's own background, a transient
-       full-screen veil (page 4's exact colour) flashes in as the transition
-       starts and dissolves back out over it, so the colour change reads as a
-       blend. Lives entirely here in the transition system — neither slide is
-       modified. */
-    var blendVeil = document.createElement('div');
-    blendVeil.id = 'fp-blend-veil';
-    blendVeil.style.cssText = 'position:fixed;inset:0;z-index:150;pointer-events:none;opacity:0;background:#f8f5ff;';
-    document.body.appendChild(blendVeil);
-    function playBlendVeil(prev, next) {
-      var crossing = (prev === 3 && next === 4) || (prev === 4 && next === 3);
-      if (!crossing) return;
-      blendVeil.style.transition = 'opacity .14s ease';
-      blendVeil.style.opacity = '1';
-      setTimeout(function() {
-        blendVeil.style.transition = 'opacity .5s ease';
-        blendVeil.style.opacity = '0';
-      }, 290);
-    }
-
     function goto(idx) {
       if (idx < 0 || idx >= sections.length || idx === current || busy) return;
       busy = true;
       wheelBuf = 0;
       var prev = current;
       current = idx;
-      playBlendVeil(prev, current);
       sections.forEach(function(s, i) {
         s.classList.remove('fp-active', 'fp-above');
         if (i < current) s.classList.add('fp-above');
