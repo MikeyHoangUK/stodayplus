@@ -124,6 +124,7 @@
     /* Pomo animation */
     @keyframes pomo-fadein { from { opacity:0; } to { opacity:1; } }
     @keyframes fy-spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
+    @keyframes hero-caret-blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
     @keyframes pomo-float  { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-3px); } }
     @keyframes pomo-shake-in {
       0%   { transform:translateX(-14px) scale(.88); opacity:0; }
@@ -276,9 +277,7 @@
             <span class="text-purple-DEFAULT">show up in results.</span>
           </h1>
           <div class="w-10 h-0.5 gradient-brand mx-auto lg:mx-0 mb-5 rounded-full"></div>
-          <p class="max-w-lg mb-8 mx-auto lg:mx-0" style="font-size:1rem;line-height:1.7;color:#4b4458">
-            You're already working hard enough. Stoday Plus <span style="font-weight:800;color:#1e1b4b;background-image:linear-gradient(rgba(192,132,252,.45),rgba(192,132,252,.45));background-repeat:no-repeat;background-size:100% 42%;background-position:0 88%;padding:0 .1em;">turns 30 focused minutes a day into</span> <span style="font-family:'Caveat',cursive;font-weight:700;font-size:1.8em;color:#dc2626;display:inline-block;transform:rotate(-2deg);line-height:1;">real progress</span> — no extra hours, no burnout.
-          </p>
+          <p id="hero-typed-desc" class="max-w-lg mb-8 mx-auto lg:mx-0" style="font-size:1rem;line-height:1.7;color:#4b4458;min-height:3.4em"></p>
           <button onclick="fpGoto(2)" class="btn-ghost inline-block px-8 py-3.5 rounded-xl text-sm">
             See how it works ↓
           </button>
@@ -1891,6 +1890,50 @@
     Object.keys(tabs).forEach(function(k) {
       tabs[k].addEventListener('mouseenter', function() { setActive(k); });
     });
+  })();
+
+  /* ── Hero description typing effect ────────────────────────────────
+     Builds the paragraph up character-by-character while still preserving
+     its mixed formatting (plain text / purple-highlight span / red doodle
+     span) — reveals happen per-segment so each span only ever contains its
+     own characters, never a half-built mix of two segments' markup. */
+  (function() {
+    var el = document.getElementById('hero-typed-desc');
+    if (!el) return;
+    var segments = [
+      { text: "You're already working hard enough. Stoday Plus ", style: '' },
+      { text: 'turns 30 focused minutes a day into', style: "font-weight:800;color:#1e1b4b;background-image:linear-gradient(rgba(192,132,252,.45),rgba(192,132,252,.45));background-repeat:no-repeat;background-size:100% 42%;background-position:0 88%;padding:0 .1em;" },
+      { text: ' ', style: '' },
+      { text: 'real progress', style: "font-family:'Caveat',cursive;font-weight:700;font-size:1.8em;color:#dc2626;display:inline-block;transform:rotate(-2deg);line-height:1;" },
+      { text: ' — no extra hours, no burnout.', style: '' }
+    ];
+    var totalLen = segments.reduce(function(n, s) { return n + s.text.length; }, 0);
+
+    function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+    function render(shownChars, caretOn) {
+      var html = '', remaining = shownChars;
+      for (var i = 0; i < segments.length; i++) {
+        var seg = segments[i];
+        if (remaining <= 0) break;
+        var take = Math.min(seg.text.length, remaining);
+        html += '<span style="' + seg.style + '">' + esc(seg.text.slice(0, take)) + '</span>';
+        remaining -= take;
+      }
+      if (caretOn) html += '<span style="display:inline-block;width:2px;height:1em;background:#7c3aed;vertical-align:text-bottom;margin-left:1px;animation:hero-caret-blink .8s step-start infinite;"></span>';
+      el.innerHTML = html;
+    }
+
+    var shown = 0;
+    render(0, true);
+    var typer = setInterval(function() {
+      shown++;
+      render(shown, true);
+      if (shown >= totalLen) {
+        clearInterval(typer);
+        render(totalLen, false); // drop the caret once finished
+      }
+    }, 22);
   })();
 
   /* ── Hero parallax float ───────────────────────────────────── */
