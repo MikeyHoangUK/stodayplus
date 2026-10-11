@@ -125,6 +125,13 @@
     @keyframes pomo-fadein { from { opacity:0; } to { opacity:1; } }
     @keyframes fy-spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
     @keyframes hero-caret-blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
+    @keyframes hero-slam {
+      0%   { transform: scale(2.6) rotate(-2deg); opacity: 0; }
+      55%  { transform: scale(.86) rotate(-2deg); opacity: 1; }
+      75%  { transform: scale(1.1) rotate(-2deg); }
+      100% { transform: scale(1) rotate(-2deg); }
+    }
+    .hero-slam { display: inline-block; animation: hero-slam .5s cubic-bezier(.17,.67,.3,1.33) both; }
     @keyframes pomo-float  { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-3px); } }
     @keyframes pomo-shake-in {
       0%   { transform:translateX(-14px) scale(.88); opacity:0; }
@@ -1893,10 +1900,13 @@
   })();
 
   /* ── Hero description typing effect ────────────────────────────────
-     Builds the paragraph up character-by-character while still preserving
-     its mixed formatting (plain text / purple-highlight span / red doodle
-     span) — reveals happen per-segment so each span only ever contains its
-     own characters, never a half-built mix of two segments' markup. */
+     Types the sentence out segment by segment (plain text / purple-
+     highlight span / red doodle span), character-by-character within each
+     — except "real progress", which instead appears all at once with a
+     slam-in animation (pop oversized, overshoot, settle) rather than being
+     typed letter by letter, since typing a big rotated word in one at a
+     time would look janky. The typer pauses to let that animation play
+     before continuing the rest of the sentence. */
   (function() {
     var el = document.getElementById('hero-typed-desc');
     if (!el) return;
@@ -1904,36 +1914,42 @@
       { text: "You're already working hard enough. Stoday Plus ", style: '' },
       { text: 'turns 30 focused minutes a day into', style: "font-weight:800;color:#1e1b4b;background-image:linear-gradient(rgba(192,132,252,.45),rgba(192,132,252,.45));background-repeat:no-repeat;background-size:100% 42%;background-position:0 88%;padding:0 .1em;" },
       { text: ' ', style: '' },
-      { text: 'real progress', style: "font-family:'Caveat',cursive;font-weight:700;font-size:1.8em;color:#dc2626;display:inline-block;transform:rotate(-2deg);line-height:1;" },
+      { text: 'real progress', style: "font-family:'Caveat',cursive;font-weight:700;font-size:1.8em;color:#dc2626;line-height:1;", slam: true },
       { text: ' — no extra hours, no burnout.', style: '' }
     ];
-    var totalLen = segments.reduce(function(n, s) { return n + s.text.length; }, 0);
 
     function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+    function caretHTML() { return '<span style="display:inline-block;width:2px;height:1em;background:#7c3aed;vertical-align:text-bottom;margin-left:1px;animation:hero-caret-blink .8s step-start infinite;"></span>'; }
 
-    function render(shownChars, caretOn) {
-      var html = '', remaining = shownChars;
-      for (var i = 0; i < segments.length; i++) {
-        var seg = segments[i];
-        if (remaining <= 0) break;
-        var take = Math.min(seg.text.length, remaining);
-        html += '<span style="' + seg.style + '">' + esc(seg.text.slice(0, take)) + '</span>';
-        remaining -= take;
+    var doneHTML = '';
+    var segIdx = 0;
+
+    function nextSegment() {
+      if (segIdx >= segments.length) { el.innerHTML = doneHTML; return; } // finished, no caret
+      var seg = segments[segIdx];
+
+      if (seg.slam) {
+        doneHTML += '<span class="hero-slam" style="' + seg.style + '">' + esc(seg.text) + '</span>';
+        el.innerHTML = doneHTML + caretHTML();
+        segIdx++;
+        setTimeout(nextSegment, 550); // hold for the slam animation to play out
+        return;
       }
-      if (caretOn) html += '<span style="display:inline-block;width:2px;height:1em;background:#7c3aed;vertical-align:text-bottom;margin-left:1px;animation:hero-caret-blink .8s step-start infinite;"></span>';
-      el.innerHTML = html;
+
+      var i = 0;
+      var timer = setInterval(function() {
+        i++;
+        el.innerHTML = doneHTML + '<span style="' + seg.style + '">' + esc(seg.text.slice(0, i)) + '</span>' + caretHTML();
+        if (i >= seg.text.length) {
+          clearInterval(timer);
+          doneHTML += '<span style="' + seg.style + '">' + esc(seg.text) + '</span>';
+          segIdx++;
+          nextSegment();
+        }
+      }, 22);
     }
 
-    var shown = 0;
-    render(0, true);
-    var typer = setInterval(function() {
-      shown++;
-      render(shown, true);
-      if (shown >= totalLen) {
-        clearInterval(typer);
-        render(totalLen, false); // drop the caret once finished
-      }
-    }, 22);
+    nextSegment();
   })();
 
   /* ── Hero parallax float ───────────────────────────────────── */
