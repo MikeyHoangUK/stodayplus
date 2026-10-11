@@ -126,12 +126,12 @@
     @keyframes fy-spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
     @keyframes hero-caret-blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
     @keyframes hero-slam {
-      0%   { transform: scale(2.6) rotate(-2deg); opacity: 0; }
-      55%  { transform: scale(.86) rotate(-2deg); opacity: 1; }
-      75%  { transform: scale(1.1) rotate(-2deg); }
+      0%   { transform: scale(1.35) rotate(-2deg); opacity: 0; }
+      65%  { transform: scale(.97) rotate(-2deg); opacity: 1; }
+      85%  { transform: scale(1.03) rotate(-2deg); }
       100% { transform: scale(1) rotate(-2deg); }
     }
-    .hero-slam { display: inline-block; animation: hero-slam .5s cubic-bezier(.17,.67,.3,1.33) both; }
+    .hero-slam { display: inline-block; transform-origin: left center; animation: hero-slam .38s cubic-bezier(.22,1,.36,1) both; }
     @keyframes pomo-float  { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-3px); } }
     @keyframes pomo-shake-in {
       0%   { transform:translateX(-14px) scale(.88); opacity:0; }
@@ -1932,7 +1932,7 @@
         doneHTML += '<span class="hero-slam" style="' + seg.style + '">' + esc(seg.text) + '</span>';
         el.innerHTML = doneHTML + caretHTML();
         segIdx++;
-        setTimeout(nextSegment, 550); // hold for the slam animation to play out
+        setTimeout(nextSegment, 400); // hold for the slam animation to play out
         return;
       }
 
