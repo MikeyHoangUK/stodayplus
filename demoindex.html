@@ -1935,7 +1935,7 @@
 
     var trail = document.createElement('div'); trail.id = 'cursor-trail';
     var planeWrap = document.createElement('div'); planeWrap.id = 'cursor-plane-wrap';
-    planeWrap.innerHTML = '<svg id="cursor-plane" width="22" height="22" viewBox="0 0 24 24"><path d="M22 2 15 22 11 13 2 9 22 2z" fill="#7c3aed"/><path d="M22 2 15 22 11 13z" fill="#5b21b6"/></svg>';
+    planeWrap.innerHTML = '<svg id="cursor-plane" width="22" height="22" viewBox="0 0 24 24"><path d="M22 2 15 22 11 13 2 9 22 2z" fill="#fff" stroke="#7c3aed" stroke-width="1.2" stroke-linejoin="round"/><path d="M22 2 15 22 11 13z" fill="#ede9fe"/></svg>';
     document.body.appendChild(trail);
     document.body.appendChild(planeWrap);
     var plane = document.getElementById('cursor-plane');
@@ -1961,8 +1961,14 @@
       planeWrap.style.transform = 'translate3d(' + px + 'px,' + py + 'px,0) rotate(' + (angle + 45) + 'deg)';
 
       var speed = Math.min(dist, 36);
+      // Anchor the trail at the plane's tail, not its centre pivot: the icon's
+      // tail sits ~6px back along the same backward axis the trail already
+      // points down, so nudge the origin that far before drawing the streak.
+      var backRad = (angle + 180) * Math.PI / 180;
+      var tailX = px + Math.cos(backRad) * 6;
+      var tailY = py + Math.sin(backRad) * 6;
       trail.style.opacity = String(Math.min(speed / 16, 1));
-      trail.style.transform = 'translate3d(' + px + 'px,' + py + 'px,0) rotate(' + (angle + 180) + 'deg) scaleX(' + (0.4 + speed / 30).toFixed(2) + ')';
+      trail.style.transform = 'translate3d(' + tailX + 'px,' + tailY + 'px,0) rotate(' + (angle + 180) + 'deg) scaleX(' + (0.4 + speed / 30).toFixed(2) + ')';
 
       requestAnimationFrame(tick);
     }
