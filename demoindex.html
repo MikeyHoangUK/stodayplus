@@ -125,6 +125,24 @@
     @keyframes pomo-fadein { from { opacity:0; } to { opacity:1; } }
     @keyframes fy-spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
     @keyframes hero-caret-blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
+
+    /* ── Custom cursor — real mouse devices only, native cursor left
+       completely untouched on touch/no-hover devices ── */
+    @media (hover: hover) and (pointer: fine) {
+      * { cursor: none !important; }
+    }
+    #cursor-dot {
+      position: fixed; top: 0; left: 0; width: 8px; height: 8px; margin: -4px 0 0 -4px;
+      background: #7c3aed; border-radius: 50%; pointer-events: none; z-index: 9999;
+      opacity: 0; transition: opacity .25s ease;
+    }
+    #cursor-ring-wrap { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9998; opacity: 0; transition: opacity .25s ease; }
+    #cursor-ring {
+      width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%;
+      border: 1.5px solid rgba(124,58,237,.45);
+      transition: transform .2s ease, border-color .2s ease, background-color .2s ease;
+    }
+    #cursor-ring.cursor-hover { transform: scale(1.7); border-color: rgba(124,58,237,.75); background-color: rgba(124,58,237,.08); }
     @keyframes hero-slam {
       0%   { transform: scale(1.35) rotate(-2deg); opacity: 0; }
       65%  { transform: scale(.97) rotate(-2deg); opacity: 1; }
@@ -1907,6 +1925,41 @@
     Object.keys(tabs).forEach(function(k) {
       tabs[k].addEventListener('mouseenter', function() { setActive(k); });
     });
+  })();
+
+  /* ── Custom cursor: dot + lagging ring, scales over clickable elements ──
+     Skips entirely on touch/no-hover devices (checked via matchMedia) so
+     nothing is created and the native cursor is left completely alone. */
+  (function() {
+    if (!window.matchMedia || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    var dot = document.createElement('div'); dot.id = 'cursor-dot';
+    var ringWrap = document.createElement('div'); ringWrap.id = 'cursor-ring-wrap';
+    var ring = document.createElement('div'); ring.id = 'cursor-ring';
+    ringWrap.appendChild(ring);
+    document.body.appendChild(dot);
+    document.body.appendChild(ringWrap);
+
+    var mx = 0, my = 0, rx = 0, ry = 0, active = false;
+    var HOVER_SELECTOR = 'a, button, [onclick], input, select, textarea, label, .wi-card, .qopt, .org-conf';
+
+    document.addEventListener('mousemove', function(e) {
+      mx = e.clientX; my = e.clientY;
+      if (!active) { active = true; rx = mx; ry = my; dot.style.opacity = '1'; ringWrap.style.opacity = '1'; }
+      dot.style.transform = 'translate3d(' + mx + 'px,' + my + 'px,0)';
+      var hovering = e.target && e.target.closest && e.target.closest(HOVER_SELECTOR);
+      ring.classList.toggle('cursor-hover', !!hovering);
+    });
+    document.addEventListener('mouseleave', function() { dot.style.opacity = '0'; ringWrap.style.opacity = '0'; });
+    document.addEventListener('mouseenter', function() { if (active) { dot.style.opacity = '1'; ringWrap.style.opacity = '1'; } });
+
+    function tick() {
+      rx += (mx - rx) * 0.18;
+      ry += (my - ry) * 0.18;
+      ringWrap.style.transform = 'translate3d(' + rx + 'px,' + ry + 'px,0)';
+      requestAnimationFrame(tick);
+    }
+    tick();
   })();
 
   /* ── Hero description typing effect ────────────────────────────────
