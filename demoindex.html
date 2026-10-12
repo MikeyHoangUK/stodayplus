@@ -126,23 +126,20 @@
     @keyframes fy-spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
     @keyframes hero-caret-blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
 
-    /* ── Custom cursor — real mouse devices only, native cursor left
-       completely untouched on touch/no-hover devices ── */
+    /* ── Custom cursor — paper airplane + wind trail, real mouse devices
+       only, native cursor left completely untouched on touch/no-hover ── */
     @media (hover: hover) and (pointer: fine) {
       * { cursor: none !important; }
     }
-    #cursor-dot {
-      position: fixed; top: 0; left: 0; width: 8px; height: 8px; margin: -4px 0 0 -4px;
-      background: #7c3aed; border-radius: 50%; pointer-events: none; z-index: 9999;
-      opacity: 0; transition: opacity .25s ease;
+    #cursor-trail {
+      position: fixed; top: 0; left: 0; width: 26px; height: 2px; margin: -1px 0 0 0;
+      background: linear-gradient(90deg, rgba(124,58,237,.55), transparent);
+      border-radius: 2px; pointer-events: none; z-index: 9997;
+      opacity: 0; transform-origin: left center;
     }
-    #cursor-ring-wrap { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9998; opacity: 0; transition: opacity .25s ease; }
-    #cursor-ring {
-      width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%;
-      border: 1.5px solid rgba(124,58,237,.45);
-      transition: transform .2s ease, border-color .2s ease, background-color .2s ease;
-    }
-    #cursor-ring.cursor-hover { transform: scale(1.7); border-color: rgba(124,58,237,.75); background-color: rgba(124,58,237,.08); }
+    #cursor-plane-wrap { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999; opacity: 0; transition: opacity .25s ease; }
+    #cursor-plane { display: block; margin: -11px 0 0 -11px; transition: transform .15s ease; filter: drop-shadow(0 1px 2px rgba(76,29,149,.3)); }
+    #cursor-plane.cursor-hover { transform: scale(1.3); }
     @keyframes hero-slam {
       0%   { transform: scale(1.35) rotate(-2deg); opacity: 0; }
       65%  { transform: scale(.97) rotate(-2deg); opacity: 1; }
@@ -1927,36 +1924,46 @@
     });
   })();
 
-  /* ── Custom cursor: dot + lagging ring, scales over clickable elements ──
+  /* ── Custom cursor: paper airplane + wind trail ──────────────────────
      Skips entirely on touch/no-hover devices (checked via matchMedia) so
-     nothing is created and the native cursor is left completely alone. */
+     nothing is created and the native cursor is left completely alone.
+     The plane glides toward the real cursor position with slight lag and
+     banks to face its direction of travel; a short streak trails behind
+     it, stretching/brightening with speed and fading out at rest. */
   (function() {
     if (!window.matchMedia || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
 
-    var dot = document.createElement('div'); dot.id = 'cursor-dot';
-    var ringWrap = document.createElement('div'); ringWrap.id = 'cursor-ring-wrap';
-    var ring = document.createElement('div'); ring.id = 'cursor-ring';
-    ringWrap.appendChild(ring);
-    document.body.appendChild(dot);
-    document.body.appendChild(ringWrap);
+    var trail = document.createElement('div'); trail.id = 'cursor-trail';
+    var planeWrap = document.createElement('div'); planeWrap.id = 'cursor-plane-wrap';
+    planeWrap.innerHTML = '<svg id="cursor-plane" width="22" height="22" viewBox="0 0 24 24"><path d="M22 2 15 22 11 13 2 9 22 2z" fill="#7c3aed"/><path d="M22 2 15 22 11 13z" fill="#5b21b6"/></svg>';
+    document.body.appendChild(trail);
+    document.body.appendChild(planeWrap);
+    var plane = document.getElementById('cursor-plane');
 
-    var mx = 0, my = 0, rx = 0, ry = 0, active = false;
+    var mx = 0, my = 0, px = 0, py = 0, angle = -45, active = false;
     var HOVER_SELECTOR = 'a, button, [onclick], input, select, textarea, label, .wi-card, .qopt, .org-conf';
 
     document.addEventListener('mousemove', function(e) {
       mx = e.clientX; my = e.clientY;
-      if (!active) { active = true; rx = mx; ry = my; dot.style.opacity = '1'; ringWrap.style.opacity = '1'; }
-      dot.style.transform = 'translate3d(' + mx + 'px,' + my + 'px,0)';
+      if (!active) { active = true; px = mx; py = my; planeWrap.style.opacity = '1'; }
       var hovering = e.target && e.target.closest && e.target.closest(HOVER_SELECTOR);
-      ring.classList.toggle('cursor-hover', !!hovering);
+      plane.classList.toggle('cursor-hover', !!hovering);
     });
-    document.addEventListener('mouseleave', function() { dot.style.opacity = '0'; ringWrap.style.opacity = '0'; });
-    document.addEventListener('mouseenter', function() { if (active) { dot.style.opacity = '1'; ringWrap.style.opacity = '1'; } });
+    document.addEventListener('mouseleave', function() { planeWrap.style.opacity = '0'; trail.style.opacity = '0'; });
+    document.addEventListener('mouseenter', function() { if (active) planeWrap.style.opacity = '1'; });
 
     function tick() {
-      rx += (mx - rx) * 0.18;
-      ry += (my - ry) * 0.18;
-      ringWrap.style.transform = 'translate3d(' + rx + 'px,' + ry + 'px,0)';
+      var dx = mx - px, dy = my - py;
+      var dist = Math.sqrt(dx * dx + dy * dy);
+      px += dx * 0.2;
+      py += dy * 0.2;
+      if (dist > 1.5) { angle = Math.atan2(dy, dx) * 180 / Math.PI; }
+      planeWrap.style.transform = 'translate3d(' + px + 'px,' + py + 'px,0) rotate(' + (angle + 45) + 'deg)';
+
+      var speed = Math.min(dist, 36);
+      trail.style.opacity = String(Math.min(speed / 16, 1));
+      trail.style.transform = 'translate3d(' + px + 'px,' + py + 'px,0) rotate(' + (angle + 180) + 'deg) scaleX(' + (0.4 + speed / 30).toFixed(2) + ')';
+
       requestAnimationFrame(tick);
     }
     tick();
