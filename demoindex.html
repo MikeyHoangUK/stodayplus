@@ -1944,9 +1944,19 @@
     document.body.appendChild(planeWrap);
     var plane = document.getElementById('cursor-plane');
 
-    var mx = 0, my = 0, px = 0, py = 0, lastPx = 0, lastPy = 0;
-    var angle = -45, active = false;
+    var mx = 0, my = 0, px = 0, py = 0, lastPx = 0, lastPy = 0, active = false;
     var HOVER_SELECTOR = 'a, button, [onclick], input, select, textarea, label, .wi-card, .qopt, .org-conf';
+
+    // The plane no longer rotates — it stays drawn as-is (nose fixed toward
+    // the upper-right, as drawn). With nothing rotating, the tail is always
+    // in the exact same spot relative to the plane, so the trail's offset
+    // and angle can just be fixed constants instead of recomputed every
+    // frame from a heading — removing the whole class of sync issues from
+    // trying to keep two independently-animated pieces aligned.
+    var TAIL_DEG = 135; // opposite the icon's fixed nose direction (-45deg)
+    var TAIL_RAD = TAIL_DEG * Math.PI / 180;
+    var TAIL_OFFSET_X = Math.cos(TAIL_RAD) * 6;
+    var TAIL_OFFSET_Y = Math.sin(TAIL_RAD) * 6;
 
     document.addEventListener('mousemove', function(e) {
       mx = e.clientX; my = e.clientY;
@@ -1961,31 +1971,13 @@
       lastPx = px; lastPy = py;
       px += (mx - px) * 0.2;
       py += (my - py) * 0.2;
+      planeWrap.style.transform = 'translate3d(' + px + 'px,' + py + 'px,0)';
 
-      // Orientation is the direction the plane's own (already-smoothed)
-      // position just moved this frame — NOT derived from the raw mouse at
-      // all. Two earlier attempts both failed because they read heading
-      // from a signal that moves differently than the visible glide (either
-      // "toward the raw mouse", or "raw mouse delta" with its own separate
-      // smoothing) — any mismatch between how the plane visibly moves and
-      // what drives its rotation reads as inconsistent/jittery. Since
-      // heading now comes from px/py's own motion, it's mathematically the
-      // same signal as the glide — they can't drift apart.
-      var vdx = px - lastPx, vdy = py - lastPy;
-      var vdist = Math.sqrt(vdx * vdx + vdy * vdy);
-      if (vdist > 0.12) { angle = Math.atan2(vdy, vdx) * 180 / Math.PI; }
-
-      planeWrap.style.transform = 'translate3d(' + px + 'px,' + py + 'px,0) rotate(' + (angle + 45) + 'deg)';
-
+      var vdist = Math.sqrt((px - lastPx) * (px - lastPx) + (py - lastPy) * (py - lastPy));
       var speed = Math.min(vdist * 9, 36);
-      // Anchor the trail at the plane's tail, not its centre pivot: the icon's
-      // tail sits ~6px back along the same backward axis the trail already
-      // points down, so nudge the origin that far before drawing the streak.
-      var backRad = (angle + 180) * Math.PI / 180;
-      var tailX = px + Math.cos(backRad) * 6;
-      var tailY = py + Math.sin(backRad) * 6;
+      var tailX = px + TAIL_OFFSET_X, tailY = py + TAIL_OFFSET_Y;
       trail.style.opacity = String(Math.min(speed / 16, 1));
-      trail.style.transform = 'translate3d(' + tailX + 'px,' + tailY + 'px,0) rotate(' + (angle + 180) + 'deg) scale(' + (0.5 + speed / 40).toFixed(2) + ')';
+      trail.style.transform = 'translate3d(' + tailX + 'px,' + tailY + 'px,0) rotate(' + TAIL_DEG + 'deg) scale(' + (0.5 + speed / 40).toFixed(2) + ')';
 
       requestAnimationFrame(tick);
     }
