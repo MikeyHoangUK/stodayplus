@@ -1945,7 +1945,7 @@
     var plane = document.getElementById('cursor-plane');
 
     var mx = 0, my = 0, lastMx = 0, lastMy = 0, px = 0, py = 0;
-    var svx = 0, svy = 0, angle = -45, active = false;
+    var angle = -45, active = false;
     var HOVER_SELECTOR = 'a, button, [onclick], input, select, textarea, label, .wi-card, .qopt, .org-conf';
 
     document.addEventListener('mousemove', function(e) {
@@ -1958,19 +1958,19 @@
     document.addEventListener('mouseenter', function() { if (active) planeWrap.style.opacity = '1'; });
 
     function tick() {
-      // Orientation comes from the mouse's own frame-to-frame velocity, NOT
-      // from "direction toward the mouse from the lagging plane position" —
-      // the latter conflates heading with how far behind the glide currently
-      // is, so after a sudden direction change the angle only caught up as
-      // slowly as the position did (the 1-2s lag). Lightly smoothed (fast
-      // lerp) just to kill single-frame jitter, independent of the slower
-      // position glide below.
+      // Orientation comes straight from the mouse's own raw frame-to-frame
+      // delta, with NO smoothing/lerp applied to it at all (a previous
+      // version added a fast lerp here to kill jitter, but that's still an
+      // extra multi-frame catch-up on top of the position glide — exactly
+      // the kind of lag being reported). This is "direction toward the
+      // mouse from the lagging plane position" was the original bug — that
+      // conflates heading with how far the glide still has to catch up.
+      // Reading the angle straight off the raw delta every frame means it's
+      // bounded only by requestAnimationFrame itself, in every direction.
       var vdx = mx - lastMx, vdy = my - lastMy;
       lastMx = mx; lastMy = my;
-      svx += (vdx - svx) * 0.5;
-      svy += (vdy - svy) * 0.5;
-      var vdist = Math.sqrt(svx * svx + svy * svy);
-      if (vdist > 0.4) { angle = Math.atan2(svy, svx) * 180 / Math.PI; }
+      var vdist = Math.sqrt(vdx * vdx + vdy * vdy);
+      if (vdist > 0.4) { angle = Math.atan2(vdy, vdx) * 180 / Math.PI; }
 
       px += (mx - px) * 0.2;
       py += (my - py) * 0.2;
