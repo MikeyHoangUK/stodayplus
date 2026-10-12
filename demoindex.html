@@ -1939,7 +1939,7 @@
       + '<path d="M0 11 Q12 12 28 15" stroke="#7c3aed" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".5"/>'
       + '</svg>';
     var planeWrap = document.createElement('div'); planeWrap.id = 'cursor-plane-wrap';
-    planeWrap.innerHTML = '<svg id="cursor-plane" width="22" height="22" viewBox="0 0 24 24"><path d="M22 2 15 22 11 13 2 9 22 2z" fill="#fff" stroke="#7c3aed" stroke-width="1.2" stroke-linejoin="round"/><path d="M22 2 15 22 11 13z" fill="#ede9fe"/></svg>';
+    planeWrap.innerHTML = '<svg id="cursor-plane" width="22" height="22" viewBox="0 0 24 24"><path d="M2 2 9 22 13 13 22 9 2 2z" fill="#fff" stroke="#7c3aed" stroke-width="1.2" stroke-linejoin="round"/><path d="M2 2 9 22 13 13z" fill="#ede9fe"/></svg>';
     document.body.appendChild(trail);
     document.body.appendChild(planeWrap);
     var plane = document.getElementById('cursor-plane');
@@ -1953,7 +1953,7 @@
     // and angle can just be fixed constants instead of recomputed every
     // frame from a heading — removing the whole class of sync issues from
     // trying to keep two independently-animated pieces aligned.
-    var TAIL_DEG = 135; // opposite the icon's fixed nose direction (-45deg)
+    var TAIL_DEG = 45; // opposite the icon's fixed nose direction (now -135deg, up-left)
     var TAIL_RAD = TAIL_DEG * Math.PI / 180;
     var TAIL_OFFSET_X = Math.cos(TAIL_RAD) * 6;
     var TAIL_OFFSET_Y = Math.sin(TAIL_RAD) * 6;
