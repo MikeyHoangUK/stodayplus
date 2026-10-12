@@ -1944,12 +1944,13 @@
     document.body.appendChild(planeWrap);
     var plane = document.getElementById('cursor-plane');
 
-    var mx = 0, my = 0, px = 0, py = 0, angle = -45, active = false;
+    var mx = 0, my = 0, lastMx = 0, lastMy = 0, px = 0, py = 0;
+    var svx = 0, svy = 0, angle = -45, active = false;
     var HOVER_SELECTOR = 'a, button, [onclick], input, select, textarea, label, .wi-card, .qopt, .org-conf';
 
     document.addEventListener('mousemove', function(e) {
       mx = e.clientX; my = e.clientY;
-      if (!active) { active = true; px = mx; py = my; planeWrap.style.opacity = '1'; }
+      if (!active) { active = true; px = mx; py = my; lastMx = mx; lastMy = my; planeWrap.style.opacity = '1'; }
       var hovering = e.target && e.target.closest && e.target.closest(HOVER_SELECTOR);
       plane.classList.toggle('cursor-hover', !!hovering);
     });
@@ -1957,14 +1958,25 @@
     document.addEventListener('mouseenter', function() { if (active) planeWrap.style.opacity = '1'; });
 
     function tick() {
-      var dx = mx - px, dy = my - py;
-      var dist = Math.sqrt(dx * dx + dy * dy);
-      px += dx * 0.2;
-      py += dy * 0.2;
-      if (dist > 1.5) { angle = Math.atan2(dy, dx) * 180 / Math.PI; }
+      // Orientation comes from the mouse's own frame-to-frame velocity, NOT
+      // from "direction toward the mouse from the lagging plane position" —
+      // the latter conflates heading with how far behind the glide currently
+      // is, so after a sudden direction change the angle only caught up as
+      // slowly as the position did (the 1-2s lag). Lightly smoothed (fast
+      // lerp) just to kill single-frame jitter, independent of the slower
+      // position glide below.
+      var vdx = mx - lastMx, vdy = my - lastMy;
+      lastMx = mx; lastMy = my;
+      svx += (vdx - svx) * 0.5;
+      svy += (vdy - svy) * 0.5;
+      var vdist = Math.sqrt(svx * svx + svy * svy);
+      if (vdist > 0.4) { angle = Math.atan2(svy, svx) * 180 / Math.PI; }
+
+      px += (mx - px) * 0.2;
+      py += (my - py) * 0.2;
       planeWrap.style.transform = 'translate3d(' + px + 'px,' + py + 'px,0) rotate(' + (angle + 45) + 'deg)';
 
-      var speed = Math.min(dist, 36);
+      var speed = Math.min(vdist * 3, 36);
       // Anchor the trail at the plane's tail, not its centre pivot: the icon's
       // tail sits ~6px back along the same backward axis the trail already
       // points down, so nudge the origin that far before drawing the streak.
