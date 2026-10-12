@@ -1944,13 +1944,13 @@
     document.body.appendChild(planeWrap);
     var plane = document.getElementById('cursor-plane');
 
-    var mx = 0, my = 0, lastMx = 0, lastMy = 0, px = 0, py = 0;
+    var mx = 0, my = 0, px = 0, py = 0, lastPx = 0, lastPy = 0;
     var angle = -45, active = false;
     var HOVER_SELECTOR = 'a, button, [onclick], input, select, textarea, label, .wi-card, .qopt, .org-conf';
 
     document.addEventListener('mousemove', function(e) {
       mx = e.clientX; my = e.clientY;
-      if (!active) { active = true; px = mx; py = my; lastMx = mx; lastMy = my; planeWrap.style.opacity = '1'; }
+      if (!active) { active = true; px = mx; py = my; lastPx = mx; lastPy = my; planeWrap.style.opacity = '1'; }
       var hovering = e.target && e.target.closest && e.target.closest(HOVER_SELECTOR);
       plane.classList.toggle('cursor-hover', !!hovering);
     });
@@ -1958,25 +1958,26 @@
     document.addEventListener('mouseenter', function() { if (active) planeWrap.style.opacity = '1'; });
 
     function tick() {
-      // Orientation comes straight from the mouse's own raw frame-to-frame
-      // delta, with NO smoothing/lerp applied to it at all (a previous
-      // version added a fast lerp here to kill jitter, but that's still an
-      // extra multi-frame catch-up on top of the position glide — exactly
-      // the kind of lag being reported). This is "direction toward the
-      // mouse from the lagging plane position" was the original bug — that
-      // conflates heading with how far the glide still has to catch up.
-      // Reading the angle straight off the raw delta every frame means it's
-      // bounded only by requestAnimationFrame itself, in every direction.
-      var vdx = mx - lastMx, vdy = my - lastMy;
-      lastMx = mx; lastMy = my;
-      var vdist = Math.sqrt(vdx * vdx + vdy * vdy);
-      if (vdist > 0.4) { angle = Math.atan2(vdy, vdx) * 180 / Math.PI; }
-
+      lastPx = px; lastPy = py;
       px += (mx - px) * 0.2;
       py += (my - py) * 0.2;
+
+      // Orientation is the direction the plane's own (already-smoothed)
+      // position just moved this frame — NOT derived from the raw mouse at
+      // all. Two earlier attempts both failed because they read heading
+      // from a signal that moves differently than the visible glide (either
+      // "toward the raw mouse", or "raw mouse delta" with its own separate
+      // smoothing) — any mismatch between how the plane visibly moves and
+      // what drives its rotation reads as inconsistent/jittery. Since
+      // heading now comes from px/py's own motion, it's mathematically the
+      // same signal as the glide — they can't drift apart.
+      var vdx = px - lastPx, vdy = py - lastPy;
+      var vdist = Math.sqrt(vdx * vdx + vdy * vdy);
+      if (vdist > 0.12) { angle = Math.atan2(vdy, vdx) * 180 / Math.PI; }
+
       planeWrap.style.transform = 'translate3d(' + px + 'px,' + py + 'px,0) rotate(' + (angle + 45) + 'deg)';
 
-      var speed = Math.min(vdist * 3, 36);
+      var speed = Math.min(vdist * 9, 36);
       // Anchor the trail at the plane's tail, not its centre pivot: the icon's
       // tail sits ~6px back along the same backward axis the trail already
       // points down, so nudge the origin that far before drawing the streak.
