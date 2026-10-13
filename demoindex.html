@@ -137,7 +137,10 @@
       pointer-events: none; z-index: 9996; opacity: 0; will-change: transform, opacity;
     }
     #cursor-plane-wrap { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999; opacity: 0; transition: opacity .25s ease; }
-    #cursor-plane { display: block; margin: -11px 0 0 -11px; transition: transform .15s ease; filter: drop-shadow(0 1px 2px rgba(76,29,149,.3)); }
+    /* No centering offset — the icon's top-left corner (where its nose sits,
+       since it's drawn pointing up-left) is the actual contact point, same
+       convention as a normal OS cursor's hotspot. */
+    #cursor-plane { display: block; margin: 0; transition: transform .15s ease; filter: drop-shadow(0 1px 2px rgba(76,29,149,.3)); }
     #cursor-plane.cursor-hover { transform: scale(1.3); }
     @keyframes hero-slam {
       0%   { transform: scale(1.35) rotate(-2deg); opacity: 0; }
