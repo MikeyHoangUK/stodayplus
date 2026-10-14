@@ -2244,10 +2244,13 @@
            for a frame (this is what caused the backward-direction glitch) */
         [incoming, outgoing].forEach(function(s) { s.style.transition = 'none'; });
         sections.forEach(function(s, i) {
+          /* incoming already has fp-active from the start of the reveal —
+             re-toggling it here would fire per-slide entrance animations
+             (e.g. the Included card stagger) a second time */
+          if (s === incoming) return;
           s.classList.remove('fp-active', 'fp-above');
           if (i < current) s.classList.add('fp-above');
         });
-        sections[current].classList.add('fp-active');
         sections[current].scrollTop = 0;
         [incoming, outgoing].forEach(function(s) {
           s.style.zIndex = '';
