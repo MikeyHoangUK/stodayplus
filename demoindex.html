@@ -931,7 +931,7 @@
             <div style="height:100%;padding:1.5rem 2.25rem;background:white;display:flex;flex-direction:column;justify-content:center;overflow:hidden;box-sizing:border-box;">
               <p style="color:#9333ea;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.14em;margin:0 0 .3rem;">Technique 04 of 05</p>
               <h3 style="font-size:1.5rem;font-weight:900;color:#1e1b4b;margin:0 0 .625rem;line-height:1.15;">3-Day Retention</h3>
-              <p style="color:#4b4458;font-size:.9rem;line-height:1.6;margin:0 0 .4rem;"><strong style="color:#111827;font-weight:700;">What it is —</strong> Review everything within 3 days of learning it — Stoday Plus reviews it twice inside that window. Miss it, and it's gone.</p>
+              <p style="color:#4b4458;font-size:.9rem;line-height:1.6;margin:0 0 .4rem;"><strong style="color:#111827;font-weight:700;">What it is —</strong> Review everything within 3 days of learning it — Stoday Plus reviews it twice inside that window.</p>
               <p style="color:#4b4458;font-size:.9rem;line-height:1.6;margin:0 0 .875rem;"><strong style="color:#111827;font-weight:700;">Why it works —</strong> Without review, retention crashes to almost 0% within 72 hours. Two reviews inside the window catch it before that cliff and lock it in for good.</p>
               <span style="display:inline-flex;align-items:center;gap:.4rem;background:linear-gradient(135deg,#9333ea,#4338ca);color:white;font-size:.65rem;font-weight:800;padding:.4rem 1rem;border-radius:999px;width:fit-content;letter-spacing:.02em;">✦ Outcome: nothing gets forgotten</span>
             </div>
@@ -1346,8 +1346,13 @@
     /* trackpad / mouse horizontal scroll */
     var lastWheel = 0;
     track.parentElement.addEventListener('wheel', function(e) {
-      if (Math.abs(e.deltaX) < 20) return;
+      /* horizontal-dominant gesture: consume it entirely so the residual
+         vertical noise in a trackpad swipe can't bubble up and trigger
+         the fullpage scroll's page-back navigation */
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
       e.preventDefault();
+      e.stopPropagation();
+      if (Math.abs(e.deltaX) < 20) return;
       var now = Date.now();
       if (now - lastWheel < 680) return;
       lastWheel = now;
