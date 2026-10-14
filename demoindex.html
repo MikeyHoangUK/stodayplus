@@ -2155,6 +2155,12 @@
 
     function goto(idx) {
       if (idx < 0 || idx >= sections.length || idx === current || busy) return;
+      /* Techniques <-> Included gets a circle-reveal instead of the usual
+         slide/fade — everything else keeps the normal transition untouched. */
+      if ((current === 3 && idx === 4) || (current === 4 && idx === 3)) {
+        circleReveal(idx);
+        return;
+      }
       busy = true;
       wheelBuf = 0;
       var prev = current;
@@ -2173,6 +2179,91 @@
       updateDots();
       updateCounter();
       setTimeout(function() { busy = false; }, LOCK_MS);
+    }
+
+    /* ── Circle-reveal transition (Techniques <-> Included only) ───────
+       Grows the incoming slide out from the point the user clicked (or
+       the screen centre for wheel/keyboard/touch nav) via a clip-path
+       circle, while the outgoing slide just sits still underneath until
+       the circle has fully covered the screen. */
+    var reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    var lastClickX = null, lastClickY = null, lastClickTime = 0;
+    document.addEventListener('pointerdown', function(e) {
+      lastClickX = e.clientX;
+      lastClickY = e.clientY;
+      lastClickTime = Date.now();
+    }, true);
+
+    function circleReveal(idx) {
+      busy = true;
+      wheelBuf = 0;
+      var prev = current;
+      var outgoing = sections[prev];
+      var incoming = sections[idx];
+      current = idx;
+
+      var fromClick = lastClickX !== null && (Date.now() - lastClickTime) < 400;
+      var ox = fromClick ? lastClickX : window.innerWidth / 2;
+      var oy = fromClick ? lastClickY : window.innerHeight / 2;
+      lastClickX = lastClickY = null;
+
+      var content = incoming.children[0];
+      incoming.style.zIndex = '5';
+      incoming.style.transform = 'translateY(0)';
+      incoming.style.pointerEvents = 'auto';
+      incoming.classList.add('fp-active');
+
+      var DURATION = reduceMotion ? 380 : 900;
+
+      if (reduceMotion) {
+        incoming.style.transition = 'none';
+        incoming.style.clipPath = 'none';
+        incoming.style.opacity = '0';
+        if (content) { content.style.transition = 'none'; content.style.opacity = '1'; }
+        requestAnimationFrame(function() {
+          incoming.style.transition = 'opacity ' + DURATION + 'ms ease';
+          incoming.style.opacity = '1';
+        });
+      } else {
+        incoming.style.transition = 'none';
+        incoming.style.opacity = '1';
+        incoming.style.clipPath = 'circle(0% at ' + ox + 'px ' + oy + 'px)';
+        if (content) { content.style.transition = 'none'; content.style.opacity = '0'; }
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            incoming.style.transition = 'clip-path ' + DURATION + 'ms cubic-bezier(.77,0,.18,1)';
+            incoming.style.clipPath = 'circle(150% at ' + ox + 'px ' + oy + 'px)';
+            if (content) {
+              content.style.transition = 'opacity .5s ease .3s';
+              content.style.opacity = '1';
+            }
+          });
+        });
+      }
+
+      setTimeout(function() {
+        /* hand back off to the normal class-driven state now the reveal's done */
+        sections.forEach(function(s, i) {
+          s.classList.remove('fp-active', 'fp-above');
+          if (i < current) s.classList.add('fp-above');
+        });
+        sections[current].classList.add('fp-active');
+        sections[current].scrollTop = 0;
+        [incoming, outgoing].forEach(function(s) {
+          s.style.zIndex = '';
+          s.style.transform = '';
+          s.style.opacity = '';
+          s.style.clipPath = '';
+          s.style.transition = '';
+          s.style.pointerEvents = '';
+        });
+        if (content) { content.style.transition = ''; content.style.opacity = ''; }
+        navLastTop = 0;
+        navHide();
+        updateDots();
+        updateCounter();
+        busy = false;
+      }, DURATION + 20);
     }
 
     /* expose globally for inline onclick */
