@@ -2155,10 +2155,10 @@
 
     function goto(idx) {
       if (idx < 0 || idx >= sections.length || idx === current || busy) return;
-      /* Techniques <-> Included gets a circle-reveal instead of the usual
+      /* Techniques <-> Included gets a curtain-rise instead of the usual
          slide/fade — everything else keeps the normal transition untouched. */
       if ((current === 3 && idx === 4) || (current === 4 && idx === 3)) {
-        circleReveal(idx);
+        curtainReveal(idx);
         return;
       }
       busy = true;
@@ -2181,20 +2181,20 @@
       setTimeout(function() { busy = false; }, LOCK_MS);
     }
 
-    /* ── Circle-reveal transition (Techniques <-> Included only) ───────
-       Grows the incoming slide out from the point the user clicked (or
-       the screen centre for wheel/keyboard/touch nav) via a clip-path
-       circle, while the outgoing slide just sits still underneath until
-       the circle has fully covered the screen. */
+    /* ── Curtain-rise transition (Techniques <-> Included only) ────────
+       The incoming slide rises up from the bottom edge and covers the
+       outgoing one in place, like a curtain coming up — same motion in
+       both directions (light rising over dark, dark rising over light)
+       so it always reads as "going deeper" / "coming back up" rather
+       than two different effects stitched together. The outgoing slide
+       doesn't move at all; it's simply covered. Text fades in only once
+       the curtain has fully landed. */
     var reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-    var lastClickX = null, lastClickY = null, lastClickTime = 0;
-    document.addEventListener('pointerdown', function(e) {
-      lastClickX = e.clientX;
-      lastClickY = e.clientY;
-      lastClickTime = Date.now();
-    }, true);
+    var CURTAIN_MS = reduceMotion ? 380 : 850;
+    var CURTAIN_EASE = 'cubic-bezier(.77,0,.175,1)';
+    var TEXT_DELAY_MS = 200, TEXT_FADE_MS = 500;
 
-    function circleReveal(idx) {
+    function curtainReveal(idx) {
       busy = true;
       wheelBuf = 0;
       var prev = current;
@@ -2202,44 +2202,40 @@
       var incoming = sections[idx];
       current = idx;
 
-      var fromClick = lastClickX !== null && (Date.now() - lastClickTime) < 400;
-      var ox = fromClick ? lastClickX : window.innerWidth / 2;
-      var oy = fromClick ? lastClickY : window.innerHeight / 2;
-      lastClickX = lastClickY = null;
-
       var content = incoming.children[0];
       incoming.style.zIndex = '5';
-      incoming.style.transform = 'translateY(0)';
       incoming.style.pointerEvents = 'auto';
       incoming.classList.add('fp-active');
 
-      var DURATION = reduceMotion ? 380 : 900;
-
       if (reduceMotion) {
         incoming.style.transition = 'none';
-        incoming.style.clipPath = 'none';
+        incoming.style.transform = 'translateY(0)';
         incoming.style.opacity = '0';
         if (content) { content.style.transition = 'none'; content.style.opacity = '1'; }
         requestAnimationFrame(function() {
-          incoming.style.transition = 'opacity ' + DURATION + 'ms ease';
+          incoming.style.transition = 'opacity ' + CURTAIN_MS + 'ms ease';
           incoming.style.opacity = '1';
         });
       } else {
         incoming.style.transition = 'none';
         incoming.style.opacity = '1';
-        incoming.style.clipPath = 'circle(0% at ' + ox + 'px ' + oy + 'px)';
+        incoming.style.transform = 'translateY(100%)';
         if (content) { content.style.transition = 'none'; content.style.opacity = '0'; }
         requestAnimationFrame(function() {
           requestAnimationFrame(function() {
-            incoming.style.transition = 'clip-path ' + DURATION + 'ms cubic-bezier(.77,0,.18,1)';
-            incoming.style.clipPath = 'circle(150% at ' + ox + 'px ' + oy + 'px)';
-            if (content) {
-              content.style.transition = 'opacity .5s ease .3s';
-              content.style.opacity = '1';
-            }
+            incoming.style.transition = 'transform ' + CURTAIN_MS + 'ms ' + CURTAIN_EASE;
+            incoming.style.transform = 'translateY(0)';
           });
         });
       }
+
+      /* background lands first, then the words appear on top */
+      setTimeout(function() {
+        if (content) {
+          content.style.transition = 'opacity ' + TEXT_FADE_MS + 'ms ease';
+          content.style.opacity = '1';
+        }
+      }, CURTAIN_MS + TEXT_DELAY_MS);
 
       setTimeout(function() {
         /* hand back off to the normal class-driven state now the reveal's done */
@@ -2253,7 +2249,6 @@
           s.style.zIndex = '';
           s.style.transform = '';
           s.style.opacity = '';
-          s.style.clipPath = '';
           s.style.transition = '';
           s.style.pointerEvents = '';
         });
@@ -2263,7 +2258,7 @@
         updateDots();
         updateCounter();
         busy = false;
-      }, DURATION + 20);
+      }, CURTAIN_MS + TEXT_DELAY_MS + TEXT_FADE_MS + 20);
     }
 
     /* expose globally for inline onclick */
