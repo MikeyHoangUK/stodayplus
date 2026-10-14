@@ -2238,7 +2238,11 @@
       }, CURTAIN_MS + TEXT_DELAY_MS);
 
       setTimeout(function() {
-        /* hand back off to the normal class-driven state now the reveal's done */
+        /* hand back off to the normal class-driven state now the reveal's done —
+           force the swap through with transitions off so losing the forced
+           z-index/classes can't animate a cross-fade of the wrong slide on top
+           for a frame (this is what caused the backward-direction glitch) */
+        [incoming, outgoing].forEach(function(s) { s.style.transition = 'none'; });
         sections.forEach(function(s, i) {
           s.classList.remove('fp-active', 'fp-above');
           if (i < current) s.classList.add('fp-above');
@@ -2249,10 +2253,13 @@
           s.style.zIndex = '';
           s.style.transform = '';
           s.style.opacity = '';
-          s.style.transition = '';
           s.style.pointerEvents = '';
         });
         if (content) { content.style.transition = ''; content.style.opacity = ''; }
+        /* flush the instant snap above before re-enabling transitions, so the
+           next normal (non-curtain) navigation still animates as usual */
+        void incoming.offsetHeight;
+        [incoming, outgoing].forEach(function(s) { s.style.transition = ''; });
         navLastTop = 0;
         navHide();
         updateDots();
