@@ -21,7 +21,7 @@
       }
     }
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900&family=Caveat:wght@600;700&display=swap" rel="stylesheet" />
   <style>
     html { scroll-behavior: smooth; }
     .gradient-hero  { background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #e0e7ff 100%); }
@@ -29,11 +29,38 @@
     .scroll-reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
     .scroll-reveal.revealed { opacity: 1; transform: translateY(0); }
 
-    /* Organiser / Quiz mockup tab-cycle */
-    .mock-tab { font-size:.68rem; font-weight:800; font-family:'Raleway',sans-serif; letter-spacing:.03em; padding:9px 13px; color:rgba(255,255,255,.32); border-bottom:2px solid transparent; transition:color .25s ease, border-color .25s ease; }
-    .mock-tab.is-active { color:#c084fc; border-bottom-color:#c084fc; }
-    .mock-pane { position:absolute; inset:0; padding:20px 18px; background:rgba(250,243,224,.97); opacity:0; transition:opacity .5s ease; pointer-events:none; }
-    .mock-pane.is-active { opacity:1; pointer-events:auto; }
+    /* ── Hero: typed description slam + shake (ported from demoindex.html) ── */
+    @keyframes hero-caret-blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
+    @keyframes hero-slam {
+      0%   { transform: scale(1.35) rotate(-2deg); opacity: 0; }
+      65%  { transform: scale(.97) rotate(-2deg); opacity: 1; }
+      85%  { transform: scale(1.03) rotate(-2deg); }
+      100% { transform: scale(1) rotate(-2deg); }
+    }
+    .hero-slam { display: inline-block; transform-origin: left center; animation: hero-slam .38s cubic-bezier(.22,1,.36,1) both; }
+    @keyframes hero-ground-shake {
+      0%   { transform: translate(0,0); }
+      20%  { transform: translate(-1.5px, 1px); }
+      40%  { transform: translate(1.5px, -1px); }
+      60%  { transform: translate(-1px, .5px); }
+      80%  { transform: translate(.5px, -.5px); }
+      100% { transform: translate(0,0); }
+    }
+    .hero-ground-shake { animation: hero-ground-shake .3s ease-out; }
+
+    /* ── Custom cursor — paper airplane + wind trail (ported from demoindex.html),
+       real mouse devices only, native cursor left untouched on touch/no-hover ── */
+    @media (hover: hover) and (pointer: fine) {
+      * { cursor: none !important; }
+    }
+    .cursor-dust {
+      position: fixed; top: 0; left: 0; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px;
+      border-radius: 50%; background: rgba(124,58,237,.55);
+      pointer-events: none; z-index: 9996; opacity: 0; will-change: transform, opacity;
+    }
+    #cursor-plane-wrap { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999; opacity: 0; transition: opacity .25s ease; }
+    #cursor-plane { display: block; margin: 0; transition: transform .15s ease; filter: drop-shadow(0 1px 2px rgba(76,29,149,.3)); }
+    #cursor-plane.cursor-hover { transform: scale(1.3); }
   </style>
 </head>
 <body class="font-sans bg-white text-gray-900 antialiased">
@@ -49,20 +76,18 @@
   </div>
 </nav>
 
-<!-- ── HERO ───────────────────────────────────────────────── -->
-<section class="gradient-hero min-h-screen flex items-center pt-14">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 w-full py-14">
-    <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
-
-      <!-- Left: copy + CTA -->
-      <div class="flex-1 text-center lg:text-left">
-        <h1 class="text-3xl sm:text-4xl lg:text-[2.9rem] font-extrabold text-navy-dark leading-tight mb-5">
-          Stop wondering what to revise.<br />
-          <span class="text-purple-DEFAULT">Your GCSE study plan, done for you.</span>
+<!-- ── HERO (ported from demoindex.html, slide 0) ────────────────────── -->
+<section class="gradient-hero min-h-screen flex flex-col justify-center pt-14">
+  <div class="max-w-7xl mx-auto pl-14 pr-4 sm:pl-32 sm:pr-6 w-full py-10">
+    <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-8">
+      <div class="w-full lg:w-1/2 text-center lg:text-left">
+        <h1 class="text-[2rem] sm:text-[2.5rem] lg:text-[3.25rem] font-black text-navy-dark mb-5" style="line-height:1.08;letter-spacing:-.02em">
+          Hard work<br />
+          should show up<br />
+          <span style="background:linear-gradient(135deg,#9333ea,#4338ca);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">in results.</span>
         </h1>
-        <p class="text-base text-gray-600 max-w-lg leading-relaxed mb-8 mx-auto lg:mx-0">
-          Organise your subjects, get Chemistry and Biology quizzes, and see exactly where you're weak — so revision time actually goes somewhere.
-        </p>
+        <div class="w-10 h-0.5 gradient-brand mx-auto lg:mx-0 mb-5 rounded-full"></div>
+        <p id="hero-typed-desc" class="max-w-lg mb-8 mx-auto lg:mx-0" style="font-size:1rem;line-height:1.7;color:#4b4458;min-height:3.4em"></p>
 
         <form id="trial-form" class="max-w-md mx-auto lg:mx-0">
           <div class="flex flex-col sm:flex-row gap-3">
@@ -76,9 +101,8 @@
         </form>
       </div>
 
-      <!-- Right: Organiser / Quiz mockup -->
-      <div id="hero-panel" class="flex-shrink-0 w-full max-w-sm lg:max-w-md" style="will-change:transform">
-        <div class="rounded-2xl overflow-hidden shadow-2xl" style="border:1px solid rgba(109,40,217,.15)">
+      <div id="hero-panel" class="w-full lg:w-1/2 max-w-lg lg:max-w-none lg:mt-6" style="will-change:transform">
+        <div class="rounded-2xl overflow-hidden shadow-2xl mx-auto" style="max-width:420px;border:1px solid rgba(109,40,217,.15)">
 
           <!-- Window chrome -->
           <div style="background:#1e1b4b;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.07)">
@@ -87,84 +111,260 @@
               <div style="width:10px;height:10px;border-radius:50%;background:#fbbf24;opacity:.65"></div>
               <div style="width:10px;height:10px;border-radius:50%;background:#4ade80;opacity:.65"></div>
             </div>
-            <span style="color:rgba(255,255,255,.35);font-size:.63rem;font-weight:600;font-family:'Raleway',sans-serif;letter-spacing:.02em">stoday.plus</span>
+            <span style="color:rgba(255,255,255,.35);font-size:.63rem;font-weight:600;font-family:'Raleway',sans-serif;letter-spacing:.02em">stoday.plus — revision planner</span>
             <div style="width:40px"></div>
           </div>
 
-          <!-- Tabs (auto-cycle) -->
-          <div style="background:#1e1b4b;display:flex;padding:0 14px;border-bottom:1px solid rgba(255,255,255,.05)">
-            <div id="mock-tabbtn-organiser" class="mock-tab is-active">Organiser</div>
-            <div id="mock-tabbtn-quiz" class="mock-tab">Quiz</div>
+          <!-- Tab bar — hover each to preview that tab's content below -->
+          <div id="hero-tabbar" style="background:#1e1b4b;display:flex;padding:0 14px;border-bottom:1px solid rgba(255,255,255,.05)">
+            <div id="hero-tabbtn-today" data-tab="today" style="padding:8px 12px;font-size:.67rem;font-weight:800;font-family:'Raleway',sans-serif;color:#c084fc;border-bottom:2px solid #c084fc;letter-spacing:.03em;cursor:pointer">Today</div>
+            <div id="hero-tabbtn-all" data-tab="all" style="padding:8px 12px;font-size:.67rem;font-weight:700;font-family:'Raleway',sans-serif;color:rgba(255,255,255,.3);border-bottom:2px solid transparent;letter-spacing:.03em;cursor:pointer">All Topics</div>
+            <div id="hero-tabbtn-cal" data-tab="cal" style="padding:8px 12px;font-size:.67rem;font-weight:700;font-family:'Raleway',sans-serif;color:rgba(255,255,255,.3);border-bottom:2px solid transparent;letter-spacing:.03em;cursor:pointer">Calendar</div>
           </div>
 
-          <!-- Panes -->
-          <div style="position:relative;height:400px;overflow:hidden">
+          <!-- Content -->
+          <div style="position:relative">
+            <div id="hero-tab-today" style="padding:20px 18px;min-height:430px;max-height:430px;overflow:hidden;background:rgba(250,243,224,.97)">
 
-            <!-- ORGANISER -->
-            <div id="mock-pane-organiser" class="mock-pane is-active">
-              <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:16px">
-                <span style="font-size:2.2rem;font-weight:900;background:linear-gradient(135deg,#6d28d9,#4338ca);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1">2</span>
-                <span style="font-size:.8rem;font-weight:700;color:#6e5438">topics due for review</span>
+              <!-- Due header -->
+              <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:18px">
+                <span style="font-size:2.4rem;font-weight:900;background:linear-gradient(135deg,#6d28d9,#4338ca);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1">3</span>
+                <span style="font-size:.82rem;font-weight:700;color:#6e5438">topics due for review</span>
               </div>
 
-              <div style="background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:14px;padding:14px 15px;margin-bottom:10px">
-                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px">
+              <!-- Card 1: Organic Reactions — overdue -->
+              <div style="background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:14px;padding:15px 16px;margin-bottom:9px">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:11px">
                   <div>
-                    <div style="font-size:.86rem;font-weight:800;color:#1c1208;margin-bottom:4px;line-height:1.3">Organic Reactions</div>
-                    <span style="font-size:.56rem;font-weight:800;background:rgba(109,40,217,.1);color:#6d28d9;border:1px solid rgba(109,40,217,.2);border-radius:20px;padding:2px 8px;letter-spacing:.05em;text-transform:uppercase">Chemistry</span>
+                    <div style="font-size:.88rem;font-weight:800;color:#1c1208;margin-bottom:4px;line-height:1.3">Organic Reactions</div>
+                    <span style="font-size:.57rem;font-weight:800;background:rgba(109,40,217,.1);color:#6d28d9;border:1px solid rgba(109,40,217,.2);border-radius:20px;padding:2px 8px;letter-spacing:.05em;text-transform:uppercase">Chemistry</span>
                   </div>
-                  <span style="font-size:.6rem;font-weight:800;color:#ef4444;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:20px;padding:2px 8px;white-space:nowrap;flex-shrink:0">1d overdue</span>
+                  <span style="font-size:.63rem;font-weight:800;color:#ef4444;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:20px;padding:2px 8px;white-space:nowrap;flex-shrink:0">1d overdue</span>
                 </div>
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;background:rgba(109,40,217,.05);border:1px solid rgba(109,40,217,.1);border-radius:9px">
-                  <span style="font-size:.65rem;font-weight:800;color:#6d28d9">📚 D3 — Active Recall</span>
-                  <button style="font-size:.6rem;font-weight:800;background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:7px;padding:4px 9px;font-family:'Raleway',sans-serif;white-space:nowrap">▶ Start</button>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;background:rgba(109,40,217,.05);border:1px solid rgba(109,40,217,.1);border-radius:9px;margin-bottom:9px">
+                  <span style="font-size:.67rem;font-weight:800;color:#6d28d9">📚 D3 — Active Recall with Poppy</span>
+                  <button style="font-size:.63rem;font-weight:800;background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:7px;padding:4px 9px;font-family:'Raleway',sans-serif;white-space:nowrap;flex-shrink:0">▶ Start</button>
+                </div>
+                <!-- Spaced repetition chain -->
+                <div style="display:flex;align-items:center;margin-top:12px">
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:12px;height:12px;border-radius:50%;background:#6d28d9;border:2px solid #6d28d9;box-shadow:0 0 5px rgba(109,40,217,.4)"></div><span style="font-size:.46rem;font-weight:700;color:#6e5438">D1</span></div>
+                  <div style="flex:1;height:2px;background:#6d28d9;max-width:32px;margin-bottom:11px"></div>
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:12px;height:12px;border-radius:50%;border:2px solid #7c3aed;background:rgba(124,58,237,.15)"></div><span style="font-size:.46rem;font-weight:700;color:#6e5438">D3</span></div>
+                  <div style="flex:1;height:2px;background:rgba(109,40,217,.12);max-width:32px;margin-bottom:11px"></div>
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:12px;height:12px;border-radius:50%;border:2px solid rgba(109,40,217,.25);background:transparent"></div><span style="font-size:.46rem;font-weight:700;color:#6e5438">D7</span></div>
+                  <div style="flex:1;height:2px;background:rgba(109,40,217,.12);max-width:32px;margin-bottom:11px"></div>
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:12px;height:12px;border-radius:50%;border:2px solid rgba(109,40,217,.25);background:transparent"></div><span style="font-size:.46rem;font-weight:700;color:#6e5438">D14</span></div>
+                  <div style="flex:1;height:2px;background:rgba(109,40,217,.12);max-width:32px;margin-bottom:11px"></div>
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:12px;height:12px;border-radius:50%;border:2px solid rgba(109,40,217,.25);background:transparent"></div><span style="font-size:.46rem;font-weight:700;color:#6e5438">D28</span></div>
                 </div>
               </div>
 
-              <div style="background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:14px;padding:14px 15px;margin-bottom:10px">
-                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px">
+              <!-- Card 2: Integration by Parts — due today -->
+              <div style="background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:14px;padding:15px 16px;margin-bottom:9px">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:11px">
                   <div>
-                    <div style="font-size:.86rem;font-weight:800;color:#1c1208;margin-bottom:4px;line-height:1.3">Cell Signalling</div>
-                    <span style="font-size:.56rem;font-weight:800;background:rgba(109,40,217,.1);color:#6d28d9;border:1px solid rgba(109,40,217,.2);border-radius:20px;padding:2px 8px;letter-spacing:.05em;text-transform:uppercase">Biology</span>
+                    <div style="font-size:.88rem;font-weight:800;color:#1c1208;margin-bottom:4px;line-height:1.3">Integration by Parts</div>
+                    <span style="font-size:.57rem;font-weight:800;background:rgba(109,40,217,.1);color:#6d28d9;border:1px solid rgba(109,40,217,.2);border-radius:20px;padding:2px 8px;letter-spacing:.05em;text-transform:uppercase">Maths</span>
                   </div>
-                  <span style="font-size:.6rem;font-weight:800;color:#7c3aed;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:20px;padding:2px 8px;white-space:nowrap;flex-shrink:0">Due today</span>
+                  <span style="font-size:.63rem;font-weight:800;color:#7c3aed;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:20px;padding:2px 8px;white-space:nowrap;flex-shrink:0">Due today</span>
                 </div>
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;background:rgba(109,40,217,.05);border:1px solid rgba(109,40,217,.1);border-radius:9px">
-                  <span style="font-size:.65rem;font-weight:800;color:#6d28d9">🧬 D1 — Blurting</span>
-                  <button style="font-size:.6rem;font-weight:800;background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:7px;padding:4px 9px;font-family:'Raleway',sans-serif;white-space:nowrap">▶ Start</button>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;background:rgba(109,40,217,.05);border:1px solid rgba(109,40,217,.1);border-radius:9px;margin-bottom:9px">
+                  <span style="font-size:.67rem;font-weight:800;color:#6d28d9">📝 D1 — Blurting with Blurto</span>
+                  <button style="font-size:.63rem;font-weight:800;background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:7px;padding:4px 9px;font-family:'Raleway',sans-serif;white-space:nowrap;flex-shrink:0">▶ Start</button>
+                </div>
+                <div style="display:flex;align-items:center;margin-top:10px">
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:12px;height:12px;border-radius:50%;border:2px solid #7c3aed;background:rgba(124,58,237,.15)"></div><span style="font-size:.46rem;font-weight:700;color:#6e5438">D1</span></div>
+                  <div style="flex:1;height:2px;background:rgba(109,40,217,.12);max-width:32px;margin-bottom:11px"></div>
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:12px;height:12px;border-radius:50%;border:2px solid rgba(109,40,217,.25);background:transparent"></div><span style="font-size:.46rem;font-weight:700;color:#6e5438">D3</span></div>
+                  <div style="flex:1;height:2px;background:rgba(109,40,217,.12);max-width:32px;margin-bottom:11px"></div>
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:12px;height:12px;border-radius:50%;border:2px solid rgba(109,40,217,.25);background:transparent"></div><span style="font-size:.46rem;font-weight:700;color:#6e5438">D7</span></div>
+                  <div style="flex:1;height:2px;background:rgba(109,40,217,.12);max-width:32px;margin-bottom:11px"></div>
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:12px;height:12px;border-radius:50%;border:2px solid rgba(109,40,217,.25);background:transparent"></div><span style="font-size:.46rem;font-weight:700;color:#6e5438">D14</span></div>
+                  <div style="flex:1;height:2px;background:rgba(109,40,217,.12);max-width:32px;margin-bottom:11px"></div>
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:12px;height:12px;border-radius:50%;border:2px solid rgba(109,40,217,.25);background:transparent"></div><span style="font-size:.46rem;font-weight:700;color:#6e5438">D28</span></div>
                 </div>
               </div>
 
-              <div style="background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:14px;padding:14px 15px;opacity:.45">
-                <div style="font-size:.86rem;font-weight:800;color:#1c1208;margin-bottom:4px">Equilibria</div>
-                <span style="font-size:.56rem;font-weight:800;background:rgba(109,40,217,.1);color:#6d28d9;border:1px solid rgba(109,40,217,.2);border-radius:20px;padding:2px 8px;letter-spacing:.05em;text-transform:uppercase">Chemistry</span>
+              <!-- Card 3: Cell Signalling — partially visible -->
+              <div style="background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:14px;padding:15px 16px;opacity:.5">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+                  <div>
+                    <div style="font-size:.88rem;font-weight:800;color:#1c1208;margin-bottom:4px;line-height:1.3">Cell Signalling</div>
+                    <span style="font-size:.57rem;font-weight:800;background:rgba(109,40,217,.1);color:#6d28d9;border:1px solid rgba(109,40,217,.2);border-radius:20px;padding:2px 8px;letter-spacing:.05em;text-transform:uppercase">Biology</span>
+                  </div>
+                  <span style="font-size:.63rem;font-weight:800;color:#7c3aed;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:20px;padding:2px 8px;white-space:nowrap;flex-shrink:0">Due today</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- All Topics tab content -->
+            <div id="hero-tab-all" style="display:none;padding:20px 18px;min-height:430px;max-height:430px;overflow:hidden;background:rgba(250,243,224,.97)">
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+                <div style="background:rgba(255,255,255,.55);border:1px solid rgba(168,85,247,.14);border-radius:13px;padding:12px 13px">
+                  <div style="font-size:.5rem;font-weight:800;color:#6e5438;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">📋 Attendance</div>
+                  <div style="font-size:1.3rem;font-weight:900;color:#1c1208;line-height:1;margin-bottom:7px">80%</div>
+                  <div style="background:rgba(168,85,247,.1);border-radius:99px;height:5px;overflow:hidden;margin-bottom:8px"><div style="height:100%;width:80%;border-radius:99px;background:linear-gradient(90deg,#7c3aed,#4338ca)"></div></div>
+                  <div style="display:flex;gap:10px;flex-wrap:wrap">
+                    <span style="font-size:.5rem;font-weight:800;color:#16a34a;white-space:nowrap">✓ 4 attended</span>
+                    <span style="font-size:.5rem;font-weight:800;color:#dc2626;white-space:nowrap">✗ 1 missed</span>
+                  </div>
+                </div>
+                <div style="background:rgba(255,255,255,.55);border:1px solid rgba(168,85,247,.14);border-radius:13px;padding:12px 13px">
+                  <div style="font-size:.5rem;font-weight:800;color:#6e5438;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">📈 Progress</div>
+                  <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px">
+                    <div style="display:flex;align-items:center;gap:6px">
+                      <span style="font-size:.48rem;font-weight:700;color:#5a4230;white-space:nowrap;min-width:36px">🧠 MCQ</span>
+                      <div style="flex:1;background:rgba(168,85,247,.1);border-radius:99px;height:4px;overflow:hidden"><div style="height:100%;width:100%;border-radius:99px;background:linear-gradient(90deg,#7c3aed,#4338ca)"></div></div>
+                      <span style="font-size:.46rem;font-weight:800;color:#1c1208">100%</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px">
+                      <span style="font-size:.48rem;font-weight:700;color:#5a4230;white-space:nowrap;min-width:36px">✍️ SAQ</span>
+                      <div style="flex:1;background:rgba(168,85,247,.1);border-radius:99px;height:4px;overflow:hidden"><div style="height:100%;width:60%;border-radius:99px;background:linear-gradient(90deg,#7c3aed,#4338ca)"></div></div>
+                      <span style="font-size:.46rem;font-weight:800;color:#1c1208">60%</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px">
+                      <span style="font-size:.48rem;font-weight:700;color:#5a4230;white-space:nowrap;min-width:36px">📝 Blurt</span>
+                      <div style="flex:1;background:rgba(168,85,247,.1);border-radius:99px;height:4px;overflow:hidden"><div style="height:100%;width:40%;border-radius:99px;background:linear-gradient(90deg,#7c3aed,#4338ca)"></div></div>
+                      <span style="font-size:.46rem;font-weight:800;color:#1c1208">40%</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px">
+                      <span style="font-size:.48rem;font-weight:700;color:#5a4230;white-space:nowrap;min-width:36px">🎓 Finley</span>
+                      <div style="flex:1;background:rgba(168,85,247,.1);border-radius:99px;height:4px;overflow:hidden"><div style="height:100%;width:20%;border-radius:99px;background:linear-gradient(90deg,#7c3aed,#4338ca)"></div></div>
+                      <span style="font-size:.46rem;font-weight:800;color:#1c1208">20%</span>
+                    </div>
+                  </div>
+                  <div style="font-size:.5rem;font-weight:800;color:#6d28d9;border-top:1px solid rgba(168,85,247,.12);padding-top:6px">Overall: 55% complete</div>
+                </div>
+              </div>
+
+              <div style="font-size:.6rem;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.09em;margin-bottom:14px">5 topics tracked</div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:11px">
+                  <div style="min-width:0">
+                    <span style="font-size:.52rem;font-weight:800;border-radius:6px;padding:2px 7px;white-space:nowrap;background:rgba(124,58,237,.12);color:#7c3aed">Chemistry</span>
+                    <div style="font-size:.8rem;font-weight:700;color:#1c1208;margin-top:4px">Organic Reactions</div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:7px;flex-shrink:0">
+                    <span style="font-size:.82rem;line-height:1">🟢</span>
+                    <span style="font-size:.56rem;font-weight:800;border-radius:8px;padding:3px 8px;white-space:nowrap;background:rgba(220,38,38,.1);color:#dc2626">Overdue 1d</span>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:11px">
+                  <div style="min-width:0">
+                    <span style="font-size:.52rem;font-weight:800;border-radius:6px;padding:2px 7px;white-space:nowrap;background:rgba(37,99,235,.12);color:#2563eb">Maths</span>
+                    <div style="font-size:.8rem;font-weight:700;color:#1c1208;margin-top:4px">Integration by Parts</div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:7px;flex-shrink:0">
+                    <span style="font-size:.82rem;line-height:1">🟡</span>
+                    <span style="font-size:.56rem;font-weight:800;border-radius:8px;padding:3px 8px;white-space:nowrap;background:rgba(220,38,38,.1);color:#dc2626">Due today</span>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:11px">
+                  <div style="min-width:0">
+                    <span style="font-size:.52rem;font-weight:800;border-radius:6px;padding:2px 7px;white-space:nowrap;background:rgba(5,150,105,.12);color:#047857">Biology</span>
+                    <div style="font-size:.8rem;font-weight:700;color:#1c1208;margin-top:4px">Cell Signalling</div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:7px;flex-shrink:0">
+                    <span style="font-size:.82rem;line-height:1">🔴</span>
+                    <span style="font-size:.56rem;font-weight:800;border-radius:8px;padding:3px 8px;white-space:nowrap;background:rgba(220,38,38,.1);color:#dc2626">Due today</span>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:11px">
+                  <div style="min-width:0">
+                    <span style="font-size:.52rem;font-weight:800;border-radius:6px;padding:2px 7px;white-space:nowrap;background:rgba(124,58,237,.12);color:#7c3aed">Chemistry</span>
+                    <div style="font-size:.8rem;font-weight:700;color:#1c1208;margin-top:4px">Thermodynamics</div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:7px;flex-shrink:0">
+                    <span style="font-size:.82rem;line-height:1">🟢</span>
+                    <span style="font-size:.56rem;font-weight:800;border-radius:8px;padding:3px 8px;white-space:nowrap;background:rgba(22,163,74,.1);color:#16a34a">In 5 days</span>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:11px">
+                  <div style="min-width:0">
+                    <span style="font-size:.52rem;font-weight:800;border-radius:6px;padding:2px 7px;white-space:nowrap;background:rgba(234,88,12,.12);color:#c2410c">English</span>
+                    <div style="font-size:.8rem;font-weight:700;color:#1c1208;margin-top:4px">Macbeth Themes</div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:7px;flex-shrink:0">
+                    <span style="font-size:.82rem;line-height:1">🟡</span>
+                    <span style="font-size:.56rem;font-weight:800;border-radius:8px;padding:3px 8px;white-space:nowrap;background:rgba(22,163,74,.1);color:#16a34a">In 12 days</span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <!-- QUIZ -->
-            <div id="mock-pane-quiz" class="mock-pane">
-              <span style="font-size:.56rem;font-weight:800;background:rgba(109,40,217,.1);color:#6d28d9;border:1px solid rgba(109,40,217,.2);border-radius:20px;padding:2px 8px;letter-spacing:.05em;text-transform:uppercase">Chemistry · Organic Reactions</span>
-              <p style="font-size:.88rem;font-weight:800;color:#1c1208;line-height:1.4;margin:12px 0 14px">
-                CH₃CH=CH₂ + HBr → CH₃CHBrCH₃<br/>What type of reaction is this?
-              </p>
-              <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px">
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;background:rgba(124,58,237,.1);border:1.5px solid #7c3aed;border-radius:10px">
-                  <span style="font-size:.75rem;font-weight:800;color:#1c1208">A — Addition</span>
-                  <span style="font-size:.7rem;color:#7c3aed;font-weight:900">✓</span>
+            <!-- Calendar tab content -->
+            <div id="hero-tab-cal" style="display:none;padding:22px 20px;min-height:430px;max-height:430px;overflow:hidden;background:rgba(250,243,224,.97)">
+              <div style="display:flex;gap:18px;align-items:flex-start">
+
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:.56rem;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.09em;margin-bottom:13px">This week</div>
+                  <div style="display:flex;flex-direction:column;gap:8px">
+
+                    <div style="display:flex;align-items:center;gap:11px;padding:9px 12px">
+                      <span style="font-size:.5rem;font-weight:800;color:#9ca3af;width:28px;flex-shrink:0;letter-spacing:.04em">MON</span>
+                      <span style="font-size:.78rem;font-weight:700;color:#4a3820">5</span>
+                    </div>
+
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:11px;padding:9px 12px;background:rgba(255,255,255,.55);border:1px solid rgba(168,85,247,.16);border-radius:10px">
+                      <div style="display:flex;align-items:center;gap:11px">
+                        <span style="font-size:.5rem;font-weight:800;color:#9ca3af;width:28px;flex-shrink:0;letter-spacing:.04em">TUE</span>
+                        <span style="font-size:.78rem;font-weight:800;color:#1c1208">6</span>
+                      </div>
+                      <span style="font-size:.56rem;font-weight:800;color:#6d28d9;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.25);border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0;letter-spacing:.015em">D14 · Chem</span>
+                    </div>
+
+                    <div style="display:flex;align-items:center;gap:11px;padding:9px 12px">
+                      <span style="font-size:.5rem;font-weight:800;color:#9ca3af;width:28px;flex-shrink:0;letter-spacing:.04em">WED</span>
+                      <span style="font-size:.78rem;font-weight:700;color:#4a3820">7</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:11px;padding:9px 12px">
+                      <span style="font-size:.5rem;font-weight:800;color:#9ca3af;width:28px;flex-shrink:0;letter-spacing:.04em">THU</span>
+                      <span style="font-size:.78rem;font-weight:700;color:#4a3820">8</span>
+                    </div>
+
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:11px;padding:9px 12px;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.3);border-radius:10px">
+                      <div style="display:flex;align-items:center;gap:11px">
+                        <span style="font-size:.5rem;font-weight:900;color:#7c3aed;width:28px;flex-shrink:0;letter-spacing:.04em">FRI</span>
+                        <span style="font-size:.78rem;font-weight:900;color:#1c1208">9</span>
+                      </div>
+                      <span style="font-size:.56rem;font-weight:800;color:#6d28d9;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.25);border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0;letter-spacing:.015em">D1 · Maths</span>
+                    </div>
+
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:11px;padding:9px 12px;background:rgba(255,255,255,.55);border:1px solid rgba(168,85,247,.16);border-radius:10px">
+                      <div style="display:flex;align-items:center;gap:11px">
+                        <span style="font-size:.5rem;font-weight:800;color:#9ca3af;width:28px;flex-shrink:0;letter-spacing:.04em">SAT</span>
+                        <span style="font-size:.78rem;font-weight:800;color:#1c1208">10</span>
+                      </div>
+                      <span style="font-size:.56rem;font-weight:800;color:#6d28d9;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.25);border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0;letter-spacing:.015em">D7 · Bio</span>
+                    </div>
+
+                    <div style="display:flex;align-items:center;gap:11px;padding:9px 12px">
+                      <span style="font-size:.5rem;font-weight:800;color:#9ca3af;width:28px;flex-shrink:0;letter-spacing:.04em">SUN</span>
+                      <span style="font-size:.78rem;font-weight:700;color:#4a3820">11</span>
+                    </div>
+                  </div>
                 </div>
-                <div style="padding:9px 12px;background:rgba(0,0,0,.025);border:1px solid rgba(0,0,0,.06);border-radius:10px">
-                  <span style="font-size:.75rem;font-weight:700;color:#6b5b45">B — Substitution</span>
+
+                <div style="flex-shrink:0;width:112px;display:flex;flex-direction:column;align-items:flex-end;gap:18px">
+                  <div style="text-align:right">
+                    <div id="hero-clock-time" style="font-size:.92rem;font-weight:900;color:#1c1208;line-height:1.1">4:26 PM</div>
+                    <div id="hero-clock-date" style="font-size:.48rem;font-weight:700;color:#9ca3af;letter-spacing:.05em;margin-top:4px">FRI, OCT 9</div>
+                  </div>
+                  <div style="background:#fff;border:1px solid rgba(124,58,237,.18);box-shadow:0 2px 12px rgba(109,40,217,.07);border-radius:12px;padding:12px 10px;text-align:center;width:100%">
+                    <div style="font-size:.42rem;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em">Exams in</div>
+                    <div style="font-size:1rem;font-weight:900;color:#16a34a;line-height:1.3;margin-top:4px">243</div>
+                    <div style="font-size:.42rem;font-weight:700;color:#9ca3af;margin-top:1px">days</div>
+                  </div>
                 </div>
-                <div style="padding:9px 12px;background:rgba(0,0,0,.025);border:1px solid rgba(0,0,0,.06);border-radius:10px">
-                  <span style="font-size:.75rem;font-weight:700;color:#6b5b45">C — Elimination</span>
-                </div>
-              </div>
-              <div style="font-size:.68rem;font-weight:700;color:#9a3412;background:rgba(251,146,60,.12);border:1px solid rgba(251,146,60,.25);border-radius:9px;padding:8px 10px;line-height:1.4">
-                ⚠ Missed 3 times — flagged as a weak spot
+
               </div>
             </div>
 
+            <div id="hero-tab-fade" style="position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(to bottom,transparent,rgba(250,243,224,.97));pointer-events:none"></div>
           </div>
+
         </div>
       </div>
 
@@ -195,7 +395,196 @@
 </footer>
 
 <script>
-  // ── Hero panel: mouse parallax + idle float ──────────────────
+  // ── Hero calendar clock — real local time (ported from demoindex.html) ──
+  (function() {
+    var timeEl = document.getElementById('hero-clock-time');
+    var dateEl = document.getElementById('hero-clock-date');
+    if (!timeEl || !dateEl) return;
+    var DAYS = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    var MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    function tick() {
+      var now = new Date();
+      var h = now.getHours();
+      var ampm = h >= 12 ? 'PM' : 'AM';
+      var h12 = h % 12 || 12;
+      var mm = (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
+      timeEl.textContent = h12 + ':' + mm + ' ' + ampm;
+      dateEl.textContent = DAYS[now.getDay()] + ', ' + MONTHS[now.getMonth()] + ' ' + now.getDate();
+    }
+    tick();
+    setInterval(tick, 30000);
+  })();
+
+  // ── Hero tab hover preview (ported from demoindex.html) ──────────────
+  (function() {
+    var bar = document.getElementById('hero-tabbar');
+    if (!bar) return;
+    var tabs = {
+      today: document.getElementById('hero-tabbtn-today'),
+      all:   document.getElementById('hero-tabbtn-all'),
+      cal:   document.getElementById('hero-tabbtn-cal')
+    };
+    var panels = {
+      today: document.getElementById('hero-tab-today'),
+      all:   document.getElementById('hero-tab-all'),
+      cal:   document.getElementById('hero-tab-cal')
+    };
+    var fade = document.getElementById('hero-tab-fade');
+
+    function setActive(key) {
+      Object.keys(tabs).forEach(function(k) {
+        var active = k === key;
+        tabs[k].style.color             = active ? '#c084fc' : 'rgba(255,255,255,.3)';
+        tabs[k].style.borderBottomColor = active ? '#c084fc' : 'transparent';
+        tabs[k].style.fontWeight        = active ? '800' : '700';
+        panels[k].style.display         = active ? 'block' : 'none';
+      });
+      if (fade) fade.style.display = (key === 'today' || key === 'all') ? 'block' : 'none';
+    }
+
+    Object.keys(tabs).forEach(function(k) {
+      tabs[k].addEventListener('mouseenter', function() { setActive(k); });
+    });
+  })();
+
+  // ── Custom cursor: paper airplane + wind trail (ported from demoindex.html) ──
+  (function() {
+    if (!window.matchMedia || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    var planeWrap = document.createElement('div'); planeWrap.id = 'cursor-plane-wrap';
+    planeWrap.innerHTML = '<svg id="cursor-plane" width="22" height="22" viewBox="0 0 24 24"><path d="M2 2 9 22 13 13 22 9 2 2z" fill="#fff" stroke="#7c3aed" stroke-width="1.2" stroke-linejoin="round"/><path d="M2 2 9 22 13 13z" fill="#ede9fe"/></svg>';
+    document.body.appendChild(planeWrap);
+    var plane = document.getElementById('cursor-plane');
+
+    var DUST_COUNT = 10;
+    var dust = [];
+    for (var i = 0; i < DUST_COUNT; i++) {
+      var d = document.createElement('div');
+      d.className = 'cursor-dust';
+      document.body.appendChild(d);
+      dust.push({ el: d, x: 0, y: 0, vx: 0, vy: 0, age: 0, maxAge: 1, active: false });
+    }
+
+    var mx = 0, my = 0, px = 0, py = 0, lastPx = 0, lastPy = 0, active = false;
+    var HOVER_SELECTOR = 'a, button, [onclick], input, select, textarea, label';
+
+    var TAIL_RAD = 45 * Math.PI / 180;
+    var TAIL_OFFSET_X = Math.cos(TAIL_RAD) * 6;
+    var TAIL_OFFSET_Y = Math.sin(TAIL_RAD) * 6;
+    var distSinceSpawn = 0;
+
+    document.addEventListener('mousemove', function(e) {
+      mx = e.clientX; my = e.clientY;
+      if (!active) { active = true; px = mx; py = my; lastPx = mx; lastPy = my; planeWrap.style.opacity = '1'; }
+      var hovering = e.target && e.target.closest && e.target.closest(HOVER_SELECTOR);
+      plane.classList.toggle('cursor-hover', !!hovering);
+    });
+    document.addEventListener('mouseleave', function() { planeWrap.style.opacity = '0'; });
+    document.addEventListener('mouseenter', function() { if (active) planeWrap.style.opacity = '1'; });
+
+    function spawnDust(x, y) {
+      var p = null;
+      for (var i = 0; i < dust.length; i++) { if (!dust[i].active) { p = dust[i]; break; } }
+      if (!p) return;
+      var jr = Math.random() * 2.5, ja = Math.random() * Math.PI * 2;
+      p.x = x + Math.cos(ja) * jr;
+      p.y = y + Math.sin(ja) * jr;
+      var da = Math.random() * Math.PI * 2, ds = 0.2 + Math.random() * 0.35;
+      p.vx = Math.cos(da) * ds;
+      p.vy = Math.sin(da) * ds;
+      p.age = 0;
+      p.maxAge = 24 + Math.random() * 16;
+      p.active = true;
+    }
+
+    function updateDust() {
+      for (var i = 0; i < dust.length; i++) {
+        var p = dust[i];
+        if (!p.active) continue;
+        p.age++;
+        var t = p.age / p.maxAge;
+        if (t >= 1) { p.active = false; p.el.style.opacity = '0'; continue; }
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vx *= 0.95; p.vy *= 0.95;
+        var fade = 1 - t;
+        p.el.style.opacity = String((fade * 0.65).toFixed(2));
+        p.el.style.transform = 'translate3d(' + p.x + 'px,' + p.y + 'px,0) scale(' + (0.5 + fade * 0.7).toFixed(2) + ')';
+      }
+    }
+
+    function tick() {
+      lastPx = px; lastPy = py;
+      px += (mx - px) * 0.2;
+      py += (my - py) * 0.2;
+      planeWrap.style.transform = 'translate3d(' + px + 'px,' + py + 'px,0)';
+
+      var vdx = px - lastPx, vdy = py - lastPy;
+      var vdist = Math.sqrt(vdx * vdx + vdy * vdy);
+      var tailX = px + TAIL_OFFSET_X, tailY = py + TAIL_OFFSET_Y;
+
+      distSinceSpawn += vdist;
+      if (distSinceSpawn > 4) { spawnDust(tailX, tailY); distSinceSpawn = 0; }
+
+      updateDust();
+      requestAnimationFrame(tick);
+    }
+    tick();
+  })();
+
+  // ── Hero description typing effect (ported from demoindex.html) ──────
+  (function() {
+    var el = document.getElementById('hero-typed-desc');
+    if (!el) return;
+    var segments = [
+      { text: "You're already working hard enough. Stoday Plus ", style: '' },
+      { text: 'turns 30 focused minutes a day into', style: "font-weight:800;color:#1e1b4b;background-image:linear-gradient(rgba(192,132,252,.45),rgba(192,132,252,.45));background-repeat:no-repeat;background-size:100% 42%;background-position:0 88%;padding:0 .1em;" },
+      { text: ' ', style: '' },
+      { text: 'real progress', style: "font-family:'Caveat',cursive;font-weight:700;font-size:1.8em;color:#dc2626;line-height:1;", slam: true },
+      { text: ' — no extra hours, no burnout.', style: '' }
+    ];
+
+    function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+    function caretHTML() { return '<span style="display:inline-block;width:2px;height:1em;background:#7c3aed;vertical-align:text-bottom;margin-left:1px;animation:hero-caret-blink .8s step-start infinite;"></span>'; }
+
+    var doneHTML = '';
+    var segIdx = 0;
+
+    function nextSegment() {
+      if (segIdx >= segments.length) { el.innerHTML = doneHTML; return; }
+      var seg = segments[segIdx];
+
+      if (seg.slam) {
+        el.innerHTML = doneHTML + '<span class="hero-slam" style="' + seg.style + '">' + esc(seg.text) + '</span>' + caretHTML();
+        segIdx++;
+        setTimeout(function() {
+          el.classList.add('hero-ground-shake');
+          setTimeout(function() { el.classList.remove('hero-ground-shake'); }, 320);
+        }, 230);
+        setTimeout(function() {
+          doneHTML += '<span style="' + seg.style + 'transform:rotate(-2deg);">' + esc(seg.text) + '</span>';
+          nextSegment();
+        }, 400);
+        return;
+      }
+
+      var i = 0;
+      var timer = setInterval(function() {
+        i++;
+        el.innerHTML = doneHTML + '<span style="' + seg.style + '">' + esc(seg.text.slice(0, i)) + '</span>' + caretHTML();
+        if (i >= seg.text.length) {
+          clearInterval(timer);
+          doneHTML += '<span style="' + seg.style + '">' + esc(seg.text) + '</span>';
+          segIdx++;
+          nextSegment();
+        }
+      }, 22);
+    }
+
+    nextSegment();
+  })();
+
+  // ── Hero parallax float (ported from demoindex.html) ─────────────────
   (function() {
     var panel = document.getElementById('hero-panel');
     if (!panel) return;
@@ -209,36 +598,12 @@
       timer = setTimeout(function() { active = false; }, 2000);
     });
     function tick() {
-      if (active) {
-        cx += (mx - cx) * 0.06;
-        cy += (my - cy) * 0.06;
-      } else {
-        phase += 0.007;
-        cx += (0 - cx) * 0.04;
-        cy += (Math.sin(phase) * 10 - cy) * 0.04;
-      }
+      if (active) { cx += (mx - cx) * 0.06; cy += (my - cy) * 0.06; }
+      else { phase += 0.007; cx += (0 - cx) * 0.04; cy += (Math.sin(phase) * 10 - cy) * 0.04; }
       panel.style.transform = 'translate(' + cx.toFixed(2) + 'px,' + cy.toFixed(2) + 'px)';
       requestAnimationFrame(tick);
     }
     tick();
-  })();
-
-  // ── Organiser / Quiz mockup: auto-cycle like a short clip ────
-  (function() {
-    var tabs  = { organiser: document.getElementById('mock-tabbtn-organiser'), quiz: document.getElementById('mock-tabbtn-quiz') };
-    var panes = { organiser: document.getElementById('mock-pane-organiser'),   quiz: document.getElementById('mock-pane-quiz') };
-    if (!tabs.organiser || !tabs.quiz) return;
-    var order = ['organiser', 'quiz'], i = 0;
-    function show(key) {
-      Object.keys(tabs).forEach(function(k) {
-        tabs[k].classList.toggle('is-active', k === key);
-        panes[k].classList.toggle('is-active', k === key);
-      });
-    }
-    setInterval(function() {
-      i = (i + 1) % order.length;
-      show(order[i]);
-    }, 3800);
   })();
 
   // ── Scroll reveal (parents section) ───────────────────────────
