@@ -640,14 +640,27 @@
     els.forEach(function(el) { obs.observe(el); });
   })();
 
-  // ── Trial signup form — not wired to a backend yet, just a
-  //    placeholder confirmation so the CTA isn't a dead link ──────
+  // ── Trial signup form — saves the email to a Google Sheet via an
+  //    Apps Script web app (no backend of our own needed) ──────────
   (function() {
     var form = document.getElementById('trial-form');
     var note = document.getElementById('trial-note');
     if (!form) return;
+    var SHEET_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzxfQv_WWEv6bjDzhePj4aygklgTpQFk45yqDTHZUokV_ktbHNC58Ewuceg266wtkv0Hw/exec';
+
     form.addEventListener('submit', function(e) {
       e.preventDefault();
+      var email = document.getElementById('trial-email').value;
+
+      // Apps Script web apps don't send CORS headers back, so the response
+      // is opaque to us either way -- fire the request and just assume
+      // success for the UI, same as before.
+      fetch(SHEET_ENDPOINT, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: new URLSearchParams({ email: email })
+      }).catch(function(err) { console.error('Trial signup save failed:', err); });
+
       note.textContent = "Thanks — we'll let you know the moment it's ready.";
       note.style.color = '#7c3aed';
       note.style.fontWeight = '700';
