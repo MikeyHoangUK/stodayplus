@@ -1981,6 +1981,9 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Topic Name&quot;
   var poppyBankSearch = '';
   var poppyCurSubTab = 'create';
 
+  function poppyBumpCounts(rows) {
+    (rows || []).forEach(function(r) { questionCounts[r.topic_id] = (questionCounts[r.topic_id] || 0) + 1; });
+  }
   function poppyFindTopic(name) {
     var n = (name || '').trim().toLowerCase();
     return topicsCache.find(function(t) { return (t.topic_name || '').trim().toLowerCase() === n; });
@@ -2060,6 +2063,7 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Topic Name&quot;
       }).select().single();
       if (ins.error) throw new Error(ins.error.message);
       poppyBankCache.unshift(ins.data);
+      poppyBumpCounts([ins.data]);
     } catch (e) { alert('Error: ' + e.message); return; }
     document.getElementById('q-stem').value = '';
     LTRS.forEach(function(l, i) { document.getElementById('o' + i).value = ''; });
@@ -2316,6 +2320,7 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Topic Name&quot;
       var saveRes = await sb.from('demo_questions').insert(rows).select();
       if (saveRes.error) throw new Error(saveRes.error.message);
       poppyBankCache = poppyBankCache.concat(saveRes.data);
+      poppyBumpCounts(saveRes.data);
       aiPendingQs = null;
       document.getElementById('ai-folder-pick').hidden = true;
       setAIStatus('✓ ' + rows.length + ' questions added to "' + topicName + '".', 'sok');
@@ -2421,8 +2426,9 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Topic Name&quot;
     });
     if (ansIdx >= 0 && correct === -1) {
       var aLine = lines[ansIdx];
-      if (useNumOpts) { var nm = aLine.match(/\b(\d+)\b/); if (nm) correct = parseInt(nm[1]) - 1; }
-      else { var lm = aLine.match(/[A-Ea-e]/); if (lm) correct = 'ABCDEabcde'.indexOf(lm[0]) % 5; }
+      var aLineAfterPrefix = aLine.replace(ansPat, '').trim();
+      if (useNumOpts) { var nm = aLineAfterPrefix.match(/\b(\d+)\b/); if (nm) correct = parseInt(nm[1]) - 1; }
+      else { var lm = aLineAfterPrefix.match(/[A-Ea-e]/); if (lm) correct = 'ABCDEabcde'.indexOf(lm[0]) % 5; }
       if (correct < 0 || correct >= options.length) {
         var aTxt = aLine.replace(ansPat, '').replace(/^[A-Ea-e\d][\.\)]\s*/, '').trim().toLowerCase();
         correct = -1;
@@ -2519,6 +2525,7 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Topic Name&quot;
       var saveRes = await sb.from('demo_questions').insert(rows).select();
       if (saveRes.error) throw new Error(saveRes.error.message);
       poppyBankCache = poppyBankCache.concat(saveRes.data);
+      poppyBumpCounts(saveRes.data);
       var folderNames = Object.keys(topicIdCache);
       var folderMsg = folderNames.length > 1 ? folderNames.length + ' topics' : '"' + folderNames[0] + '"';
       document.getElementById('paste-done-msg').textContent = toImport.length + ' question' + (toImport.length !== 1 ? 's' : '') + ' imported to ' + folderMsg + '!';
@@ -2591,8 +2598,10 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Topic Name&quot;
   }
   async function poppyDeleteQuestion(id) {
     if (!confirm('Delete this question?')) return;
+    var q = poppyBankCache.find(function(x) { return x.id === id; });
     await sb.from('demo_questions').delete().eq('id', id);
-    poppyBankCache = poppyBankCache.filter(function(q) { return q.id !== id; });
+    poppyBankCache = poppyBankCache.filter(function(x) { return x.id !== id; });
+    if (q && questionCounts[q.topic_id]) questionCounts[q.topic_id]--;
     renderBank();
   }
 
@@ -2763,6 +2772,7 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Topic Name&quot;
       var saveRes = await sb.from('demo_questions').insert(rows).select();
       if (saveRes.error) throw new Error(saveRes.error.message);
       poppyBankCache = poppyBankCache.concat(saveRes.data);
+      poppyBumpCounts(saveRes.data);
       var folderNames = Object.keys(topicIdCache);
       var folderMsg = folderNames.length > 1 ? folderNames.length + ' topics' : '"' + folderNames[0] + '"';
       document.getElementById('import-done-msg').textContent = toImport.length + ' question' + (toImport.length !== 1 ? 's' : '') + ' imported to ' + folderMsg + '!';
