@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" type="image/png" sizes="96x96" />
+  <title>Stoday Plus — Demo</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy:   { DEFAULT: '#1e3a8a', dark: '#1e1b4b', mid: '#3730a3' },
+            purple: { light: '#f3e8ff', soft: '#e9d5ff', mid: '#c084fc', DEFAULT: '#9333ea', deep: '#7e22ce', dark: '#6b21a8' }
+          },
+          fontFamily: { sans: ['Raleway', 'system-ui', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet" />
+  <style>
+    .gradient-brand { background: linear-gradient(135deg, #9333ea 0%, #3730a3 100%); }
+    [hidden] { display: none !important; }
+    .pill { font-size:.72rem; font-weight:800; padding:.4rem .9rem; border-radius:999px; border:1.5px solid #e5e7eb; color:#6b7280; cursor:pointer; transition:all .15s ease; background:#fff; }
+    .pill.sel { border-color:#9333ea; color:#fff; background:#9333ea; }
+    .opt-btn { display:block; width:100%; text-align:left; padding:.9rem 1.1rem; border-radius:12px; border:1.5px solid #e5e7eb; background:#fff; font-size:.88rem; font-weight:600; color:#1e1b4b; cursor:pointer; transition:all .15s ease; margin-bottom:.6rem; }
+    .opt-btn:hover:not(:disabled) { border-color:#c084fc; background:#faf5ff; }
+    .opt-btn.correct { border-color:#16a34a; background:#f0fdf4; color:#15803d; }
+    .opt-btn.wrong { border-color:#dc2626; background:#fef2f2; color:#b91c1c; }
+    .opt-btn:disabled { cursor:default; opacity:.85; }
+    .conf-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .conf-red { background:#ef4444; } .conf-amber { background:#f59e0b; } .conf-green { background:#22c55e; }
+    .spinner { width:16px; height:16px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; display:inline-block; vertical-align:middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body class="font-sans bg-gray-50 text-gray-900 antialiased">
+
+<!-- ── NAVBAR ─────────────────────────────────────────────── -->
+<nav style="background:#1e1b4b;" class="border-b border-white border-opacity-10">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
+    <a href="index.html" class="flex items-center gap-2">
+      <img src="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" alt="Stoday Plus" class="w-8 h-8 object-contain" />
+      <span class="text-white font-extrabold text-lg">Stoday <span class="text-purple-mid">Plus</span></span>
+    </a>
+    <div id="nav-user" class="flex items-center gap-3" hidden>
+      <span id="nav-user-email" class="text-gray-300 text-xs hidden sm:inline"></span>
+      <button onclick="authSignOut()" class="text-gray-300 hover:text-white text-xs font-semibold transition-colors">Log out</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ── AUTH SCREEN ────────────────────────────────────────── -->
+<div id="auth-screen" class="min-h-[calc(100vh-56px)] flex items-center justify-center px-4 py-16">
+  <div class="w-full max-w-sm bg-white border border-gray-200 rounded-2xl shadow-sm p-8">
+    <h1 id="auth-title" class="text-xl font-extrabold text-navy-dark mb-1">Sign in</h1>
+    <p id="auth-sub" class="text-gray-500 text-sm mb-6">Welcome back — your topics and quizzes load from the cloud.</p>
+
+    <div class="space-y-3 mb-4">
+      <input id="auth-email" type="email" placeholder="you@example.com" autocomplete="email"
+        class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" />
+      <input id="auth-pw" type="password" placeholder="Password" autocomplete="current-password"
+        class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" />
+    </div>
+    <p id="auth-status" class="text-xs mb-4 min-h-[1em]"></p>
+    <button id="auth-submit" onclick="authSubmit()" class="w-full gradient-brand text-white font-bold py-3 rounded-xl hover:opacity-90 transition-opacity text-sm">
+      Sign in
+    </button>
+    <p class="text-center text-xs text-gray-500 mt-5">
+      <span id="auth-toggle-txt">Don't have an account?</span>
+      <button onclick="authToggleMode()" class="text-purple-DEFAULT font-bold hover:underline"><span id="auth-toggle-link">Sign up</span></button>
+    </p>
+  </div>
+</div>
+
+<!-- ── APP SHELL ──────────────────────────────────────────── -->
+<div id="app-shell" hidden>
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+
+    <!-- Tabs -->
+    <div class="flex items-center gap-2 mb-8 border-b border-gray-200">
+      <button id="tab-btn-organiser" onclick="showTab('organiser')" class="px-4 py-3 text-sm font-bold border-b-2 border-purple-DEFAULT text-purple-DEFAULT">📋 Organiser</button>
+      <button id="tab-btn-poppy" onclick="showTab('poppy')" class="px-4 py-3 text-sm font-bold border-b-2 border-transparent text-gray-400 hover:text-gray-600">🧠 Poppy</button>
+    </div>
+
+    <!-- ══ ORGANISER TAB ══ -->
+    <div id="tab-organiser">
+      <div class="flex items-center justify-between mb-5">
+        <h2 class="text-xl font-extrabold text-navy-dark">Your topics</h2>
+        <button onclick="openAddTopic()" class="gradient-brand text-white text-sm font-bold px-4 py-2.5 rounded-xl hover:opacity-90 transition-opacity">+ Add topic</button>
+      </div>
+
+      <!-- Add topic form (toggle) -->
+      <div id="add-topic-form" class="bg-white border border-gray-200 rounded-2xl p-5 mb-5" hidden>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+          <input id="new-topic-subject" placeholder="Subject (e.g. Chemistry)" class="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" />
+          <input id="new-topic-name" placeholder="Topic (e.g. Organic Reactions)" class="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" />
+        </div>
+        <div class="flex items-center gap-3">
+          <input id="new-topic-due" type="date" class="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" />
+          <button onclick="submitAddTopic()" class="gradient-brand text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity">Save</button>
+          <button onclick="closeAddTopic()" class="text-gray-400 text-sm font-semibold px-2">Cancel</button>
+        </div>
+        <p id="add-topic-status" class="text-xs text-red-600 mt-2"></p>
+      </div>
+
+      <div id="topics-list" class="space-y-3"></div>
+      <div id="topics-empty" class="text-center py-16 text-gray-400 text-sm" hidden>
+        No topics yet — add one above, or generate a quiz in Poppy and we'll create it for you.
+      </div>
+    </div>
+
+    <!-- ══ POPPY TAB ══ -->
+    <div id="tab-poppy" hidden>
+
+      <!-- Step 1: pick/create topic + paste notes -->
+      <div id="poppy-setup">
+        <h2 class="text-xl font-extrabold text-navy-dark mb-1">Generate a quiz</h2>
+        <p class="text-gray-500 text-sm mb-5">Paste your notes, pick a topic, and Poppy writes exam-style questions from them.</p>
+
+        <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1.5">Topic</label>
+        <select id="poppy-topic-sel" onchange="poppyTopicSelChange()" class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT">
+          <option value="">— Choose an existing topic —</option>
+        </select>
+        <div id="poppy-new-topic-row" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+          <input id="poppy-new-subject" placeholder="Subject (e.g. Biology)" class="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" />
+          <input id="poppy-new-topicname" placeholder="New topic name" class="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" />
+        </div>
+
+        <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1.5">Your notes</label>
+        <textarea id="poppy-notes" rows="8" placeholder="Paste your notes here — the more detail, the better the questions."
+          class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT"></textarea>
+
+        <div class="flex flex-wrap items-center gap-6 mb-5">
+          <div>
+            <div class="text-xs font-bold text-gray-600 uppercase tracking-wide mb-1.5">Questions</div>
+            <div class="flex gap-2">
+              <div class="pill" data-g="count" data-v="3" onclick="poppyPick(this)">3</div>
+              <div class="pill sel" data-g="count" data-v="5" onclick="poppyPick(this)">5</div>
+              <div class="pill" data-g="count" data-v="10" onclick="poppyPick(this)">10</div>
+            </div>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-gray-600 uppercase tracking-wide mb-1.5">Difficulty</div>
+            <div class="flex gap-2">
+              <div class="pill" data-g="diff" data-v="easy" onclick="poppyPick(this)">Easy</div>
+              <div class="pill sel" data-g="diff" data-v="medium" onclick="poppyPick(this)">Medium</div>
+              <div class="pill" data-g="diff" data-v="hard" onclick="poppyPick(this)">Hard</div>
+            </div>
+          </div>
+        </div>
+
+        <button id="poppy-generate-btn" onclick="poppyGenerate()" class="gradient-brand text-white font-bold px-6 py-3 rounded-xl hover:opacity-90 transition-opacity text-sm">
+          ✨ Generate quiz
+        </button>
+        <p id="poppy-gen-status" class="text-sm mt-3 min-h-[1.2em]"></p>
+      </div>
+
+      <!-- Step 2: quiz in progress -->
+      <div id="poppy-quiz" hidden>
+        <div class="flex items-center justify-between mb-4">
+          <span id="poppy-quiz-progress" class="text-xs font-bold text-gray-400 uppercase tracking-wide"></span>
+          <span id="poppy-quiz-topic" class="text-xs font-bold text-purple-DEFAULT"></span>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-2xl p-6">
+          <p id="poppy-q-text" class="text-base font-bold text-navy-dark mb-5 leading-relaxed"></p>
+          <div id="poppy-q-options"></div>
+          <div id="poppy-q-hint" class="text-sm text-gray-500 bg-purple-light rounded-xl p-3 mt-2" hidden></div>
+        </div>
+        <div class="flex justify-end mt-4">
+          <button id="poppy-next-btn" onclick="poppyNextQuestion()" class="gradient-brand text-white font-bold px-6 py-2.5 rounded-xl hover:opacity-90 transition-opacity text-sm" hidden>Next →</button>
+        </div>
+      </div>
+
+      <!-- Step 3: results -->
+      <div id="poppy-results" class="text-center py-10" hidden>
+        <div class="text-5xl font-black text-navy-dark mb-2"><span id="poppy-score-text"></span></div>
+        <p id="poppy-score-sub" class="text-gray-500 text-sm mb-1"></p>
+        <p id="poppy-conf-update" class="text-sm font-bold mb-8"></p>
+        <button onclick="poppyBackToSetup()" class="gradient-brand text-white font-bold px-6 py-3 rounded-xl hover:opacity-90 transition-opacity text-sm">Generate another quiz</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ── Supabase client (same project + anon key as dashboard.html) ──────
+  var SUPABASE_URL = 'https://zdmnwykumprntbpfyour.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkbW53eWt1bXBybnRicGZ5b3VyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDc0MjAsImV4cCI6MjA5NzM4MzQyMH0.QBZ-4KR5da4O5YoOpErC_HLmYlL953YKIB50g52HkEg';
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  var currentSession = null;
+
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  // ── Auth ───────────────────────────────────────────────────────────
+  var authMode = 'signin';
+  function authToggleMode() {
+    authMode = authMode === 'signin' ? 'signup' : 'signin';
+    document.getElementById('auth-title').textContent = authMode === 'signup' ? 'Create account' : 'Sign in';
+    document.getElementById('auth-sub').textContent = authMode === 'signup'
+      ? 'Your topics and quizzes save automatically — no credit card needed.'
+      : 'Welcome back — your topics and quizzes load from the cloud.';
+    document.getElementById('auth-submit').textContent = authMode === 'signup' ? 'Create account' : 'Sign in';
+    document.getElementById('auth-toggle-txt').textContent = authMode === 'signup' ? 'Already have an account?' : "Don't have an account?";
+    document.getElementById('auth-toggle-link').textContent = authMode === 'signup' ? 'Sign in' : 'Sign up';
+    document.getElementById('auth-status').textContent = '';
+  }
+
+  async function authSubmit() {
+    var email = document.getElementById('auth-email').value.trim();
+    var pw = document.getElementById('auth-pw').value.trim();
+    var statusEl = document.getElementById('auth-status');
+    if (!email || !pw) { statusEl.className = 'text-xs mb-4 text-red-600'; statusEl.textContent = 'Please fill in both fields.'; return; }
+    var btn = document.getElementById('auth-submit');
+    btn.disabled = true;
+    var originalText = btn.textContent;
+    btn.innerHTML = '<span class="spinner"></span>';
+    statusEl.textContent = '';
+
+    var result = authMode === 'signup'
+      ? await sb.auth.signUp({ email: email, password: pw })
+      : await sb.auth.signInWithPassword({ email: email, password: pw });
+
+    btn.disabled = false;
+    btn.textContent = originalText;
+
+    if (result.error) {
+      statusEl.className = 'text-xs mb-4 text-red-600';
+      statusEl.textContent = result.error.message;
+      return;
+    }
+    if (authMode === 'signup' && !result.data.session) {
+      statusEl.className = 'text-xs mb-4 text-purple-deep font-semibold';
+      statusEl.textContent = 'Check your email to confirm your account, then sign in.';
+      return;
+    }
+    // onAuthStateChange handles the rest
+  }
+
+  async function authSignOut() {
+    await sb.auth.signOut();
+  }
+
+  sb.auth.onAuthStateChange(function(event, session) {
+    currentSession = session;
+    if (session) {
+      document.getElementById('auth-screen').hidden = true;
+      document.getElementById('app-shell').hidden = false;
+      document.getElementById('nav-user').hidden = false;
+      document.getElementById('nav-user-email').textContent = session.user.email;
+      bootApp();
+    } else {
+      document.getElementById('auth-screen').hidden = false;
+      document.getElementById('app-shell').hidden = true;
+      document.getElementById('nav-user').hidden = true;
+    }
+  });
+
+  // ── Tabs ───────────────────────────────────────────────────────────
+  function showTab(name) {
+    ['organiser', 'poppy'].forEach(function(t) {
+      document.getElementById('tab-' + t).hidden = t !== name;
+      var btn = document.getElementById('tab-btn-' + t);
+      btn.classList.toggle('border-purple-DEFAULT', t === name);
+      btn.classList.toggle('text-purple-DEFAULT', t === name);
+      btn.classList.toggle('border-transparent', t !== name);
+      btn.classList.toggle('text-gray-400', t !== name);
+    });
+    if (name === 'poppy') poppyPopulateTopicSelect();
+  }
+
+  // ── App boot ───────────────────────────────────────────────────────
+  var topicsCache = [];
+
+  async function bootApp() {
+    showTab('organiser');
+    await loadTopics();
+  }
+
+  // ── Organiser ──────────────────────────────────────────────────────
+  function openAddTopic() { document.getElementById('add-topic-form').hidden = false; }
+  function closeAddTopic() {
+    document.getElementById('add-topic-form').hidden = true;
+    document.getElementById('new-topic-subject').value = '';
+    document.getElementById('new-topic-name').value = '';
+    document.getElementById('new-topic-due').value = '';
+    document.getElementById('add-topic-status').textContent = '';
+  }
+
+  async function loadTopics() {
+    var uid = currentSession.user.id;
+    var res = await sb.from('demo_topics').select('*').eq('user_id', uid).order('due_date', { ascending: true, nullsFirst: false });
+    if (res.error) {
+      document.getElementById('topics-list').innerHTML = '<p class="text-red-600 text-sm">Couldn\'t load topics: ' + esc(res.error.message) + '</p>';
+      return;
+    }
+    topicsCache = res.data || [];
+    renderTopics();
+  }
+
+  function confClass(c) { return c === 'green' ? 'conf-green' : c === 'amber' ? 'conf-amber' : 'conf-red'; }
+
+  function dueBadge(dateStr) {
+    if (!dateStr) return '';
+    var due = new Date(dateStr + 'T00:00:00');
+    var today = new Date(); today.setHours(0,0,0,0);
+    var days = Math.round((due - today) / 86400000);
+    if (days < 0)  return '<span class="text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded-full px-2.5 py-1">' + Math.abs(days) + 'd overdue</span>';
+    if (days === 0) return '<span class="text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded-full px-2.5 py-1">Due today</span>';
+    return '<span class="text-xs font-bold text-green-700 bg-green-50 border border-green-200 rounded-full px-2.5 py-1">In ' + days + 'd</span>';
+  }
+
+  function renderTopics() {
+    var list = document.getElementById('topics-list');
+    var empty = document.getElementById('topics-empty');
+    if (!topicsCache.length) { list.innerHTML = ''; empty.hidden = false; return; }
+    empty.hidden = true;
+    list.innerHTML = topicsCache.map(function(t) {
+      return '<div class="bg-white border border-gray-200 rounded-2xl p-4 flex items-center gap-4">'
+        + '<span class="conf-dot ' + confClass(t.confidence) + '"></span>'
+        + '<div class="flex-1 min-w-0">'
+        +   '<span class="text-xs font-bold text-purple-DEFAULT bg-purple-light rounded-full px-2.5 py-0.5">' + esc(t.subject) + '</span>'
+        +   '<div class="font-bold text-navy-dark mt-1">' + esc(t.topic_name) + '</div>'
+        + '</div>'
+        + dueBadge(t.due_date)
+        + '<button onclick="poppyFromTopic(\'' + t.id + '\')" class="text-xs font-bold text-purple-DEFAULT hover:underline whitespace-nowrap">Practice →</button>'
+        + '<button onclick="deleteTopic(\'' + t.id + '\')" class="text-gray-300 hover:text-red-500 text-sm" aria-label="Delete topic">✕</button>'
+        + '</div>';
+    }).join('');
+  }
+
+  async function submitAddTopic() {
+    var subject = document.getElementById('new-topic-subject').value.trim();
+    var name = document.getElementById('new-topic-name').value.trim();
+    var due = document.getElementById('new-topic-due').value || null;
+    var statusEl = document.getElementById('add-topic-status');
+    if (!subject || !name) { statusEl.textContent = 'Please fill in both subject and topic name.'; return; }
+    var uid = currentSession.user.id;
+    var res = await sb.from('demo_topics').insert({ user_id: uid, subject: subject, topic_name: name, due_date: due, confidence: 'red' }).select().single();
+    if (res.error) { statusEl.textContent = res.error.message; return; }
+    topicsCache.push(res.data);
+    renderTopics();
+    closeAddTopic();
+  }
+
+  async function deleteTopic(id) {
+    if (!confirm('Delete this topic and its saved questions?')) return;
+    var res = await sb.from('demo_topics').delete().eq('id', id);
+    if (res.error) { alert('Could not delete: ' + res.error.message); return; }
+    topicsCache = topicsCache.filter(function(t) { return t.id !== id; });
+    renderTopics();
+  }
+
+  // ── Poppy ──────────────────────────────────────────────────────────
+  var poppyQuestions = [];
+  var poppyIdx = 0;
+  var poppyScore = 0;
+  var poppyTopicId = null;
+
+  function poppyPick(el) {
+    var g = el.dataset.g;
+    document.querySelectorAll('.pill[data-g="' + g + '"]').forEach(function(p) { p.classList.remove('sel'); });
+    el.classList.add('sel');
+  }
+  function poppyGetOpt(g) {
+    var s = document.querySelector('.pill.sel[data-g="' + g + '"]');
+    return s ? s.dataset.v : null;
+  }
+
+  function poppyPopulateTopicSelect() {
+    var sel = document.getElementById('poppy-topic-sel');
+    var current = sel.value;
+    sel.innerHTML = '<option value="">— Choose an existing topic —</option>'
+      + topicsCache.map(function(t) { return '<option value="' + t.id + '">' + esc(t.subject) + ' — ' + esc(t.topic_name) + '</option>'; }).join('')
+      + '<option value="__new__">+ New topic…</option>';
+    sel.value = current || '';
+    poppyTopicSelChange();
+  }
+  function poppyTopicSelChange() {
+    var v = document.getElementById('poppy-topic-sel').value;
+    document.getElementById('poppy-new-topic-row').hidden = v !== '__new__';
+  }
+  function poppyFromTopic(topicId) {
+    showTab('poppy');
+    poppyPopulateTopicSelect();
+    document.getElementById('poppy-topic-sel').value = topicId;
+    poppyTopicSelChange();
+  }
+
+  var DIFF_DESC = {
+    easy:   'EASY — tests exactly ONE concept or fact in isolation. The student only needs to recall or recognise a single definition, mechanism, or term. Do NOT combine ideas.',
+    medium: 'MEDIUM — tests the COMBINATION of exactly TWO concepts. The student must understand how two ideas relate or depend on each other. Do NOT test a single fact, and do NOT combine three or more ideas.',
+    hard:   'HARD — requires genuine application or synthesis, not just recall. Apply a concept to a tricky scenario, test a cause-and-effect chain, expose a common misconception, or compare two similar mechanisms to find a subtle distinction. The links must feel natural and genuinely examinable.'
+  };
+
+  async function poppyEnsureTopic() {
+    var sel = document.getElementById('poppy-topic-sel').value;
+    if (sel && sel !== '__new__') return sel;
+    var subject = document.getElementById('poppy-new-subject').value.trim();
+    var name = document.getElementById('poppy-new-topicname').value.trim();
+    if (!subject || !name) return null;
+    var uid = currentSession.user.id;
+    var res = await sb.from('demo_topics').insert({ user_id: uid, subject: subject, topic_name: name, confidence: 'red' }).select().single();
+    if (res.error) throw new Error(res.error.message);
+    topicsCache.push(res.data);
+    return res.data.id;
+  }
+
+  async function poppyGenerate() {
+    var statusEl = document.getElementById('poppy-gen-status');
+    var notes = document.getElementById('poppy-notes').value.trim();
+    if (!notes) { statusEl.className = 'text-sm mt-3 text-red-600'; statusEl.textContent = 'Paste some notes first.'; return; }
+    if (!currentSession) { statusEl.className = 'text-sm mt-3 text-red-600'; statusEl.textContent = 'Sign in to use AI features.'; return; }
+
+    var btn = document.getElementById('poppy-generate-btn');
+    btn.disabled = true;
+    statusEl.className = 'text-sm mt-3 text-gray-500';
+    statusEl.innerHTML = '<span class="spinner" style="border-color:rgba(124,58,237,.3);border-top-color:#7c3aed"></span> Generating…';
+
+    try {
+      poppyTopicId = await poppyEnsureTopic();
+      if (!poppyTopicId) throw new Error('Pick a topic, or fill in both subject and topic name for a new one.');
+
+      var n = poppyGetOpt('count') || '5';
+      var diff = poppyGetOpt('diff') || 'medium';
+
+      var sysPrompt = 'You are an expert educator writing exam MCQs for GCSE students.\n\n'
+        + 'STRICT RULES — every rule is mandatory:\n'
+        + '1. Each question must have EXACTLY 5 options\n'
+        + '2. Exactly one option is correct; all others must be plausible distractors — no obviously wrong answers\n'
+        + '3. Label the correct option by its 0-based index (0=first, 1=second, 2=third, 3=fourth, 4=fifth)\n'
+        + '4. ALL questions must match the requested difficulty — wrong difficulty = invalid\n'
+        + '5. MANDATORY TOPIC SPREAD — scan ALL content in the notes first, then pick a DIFFERENT top-level concept for each question. No sub-topic may appear in more than ONE question per batch.\n'
+        + '6. Hint field: explain WHY the correct answer is right (the underlying mechanism/reason) WITHOUT naming the correct option.\n'
+        + '7. Options format: plain answer text only — do NOT prefix with A / B / C / D / E. The app adds labels automatically.\n'
+        + '8. Respond with ONLY a valid JSON array. No markdown, no code fences, no explanation.\n\n'
+        + 'Output format:\n[\n  {"question":"...","options":["...","...","...","...","..."],"correct":0,"hint":"..."}\n]';
+      var userPrompt = 'Generate ' + n + ' MCQs from the notes below.\n'
+        + 'Difficulty: ' + DIFF_DESC[diff] + '\n\n'
+        + 'IMPORTANT: Before writing any question, mentally list every distinct concept area in the notes, then choose one UNIQUE concept per question.\n\n'
+        + 'Notes:\n' + notes.slice(0, 32000);
+
+      var res = await fetch(SUPABASE_URL + '/functions/v1/ai-proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + currentSession.access_token },
+        body: JSON.stringify({
+          messages: [{ role: 'system', content: sysPrompt }, { role: 'user', content: userPrompt }],
+          temperature: 0.85,
+          max_tokens: 4000
+        })
+      });
+      var data = await res.json();
+      if (!res.ok || data.error) throw new Error((data.error && data.error.message) || ('HTTP ' + res.status));
+
+      var raw = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || '').trim();
+      var jsonMatch = raw.match(/\[[\s\S]*\]/);
+      if (!jsonMatch) throw new Error('The AI didn\'t return valid questions — try again.');
+      var qs = JSON.parse(jsonMatch[0]);
+      if (!Array.isArray(qs) || !qs.length) throw new Error('No questions returned — try again.');
+      qs.forEach(function(q) {
+        if (Array.isArray(q.options)) q.options = q.options.map(function(o) { return String(o).replace(/^[A-Ea-e][).:\s]\s*/, '').trim(); });
+      });
+
+      // Save to demo_questions
+      var uid = currentSession.user.id;
+      var rows = qs.map(function(q) {
+        return { user_id: uid, topic_id: poppyTopicId, question: q.question, options: q.options, correct: q.correct, difficulty: diff, hint: q.hint || '' };
+      });
+      var saveRes = await sb.from('demo_questions').insert(rows).select();
+      if (saveRes.error) throw new Error('Generated OK, but saving failed: ' + saveRes.error.message);
+
+      poppyQuestions = saveRes.data;
+      poppyStartQuiz();
+    } catch (err) {
+      statusEl.className = 'text-sm mt-3 text-red-600';
+      statusEl.textContent = err.message;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function poppyStartQuiz() {
+    poppyIdx = 0; poppyScore = 0;
+    document.getElementById('poppy-setup').hidden = true;
+    document.getElementById('poppy-results').hidden = true;
+    document.getElementById('poppy-quiz').hidden = false;
+    var t = topicsCache.find(function(x) { return x.id === poppyTopicId; });
+    document.getElementById('poppy-quiz-topic').textContent = t ? (t.subject + ' — ' + t.topic_name) : '';
+    poppyRenderQuestion();
+  }
+
+  function poppyRenderQuestion() {
+    var q = poppyQuestions[poppyIdx];
+    document.getElementById('poppy-quiz-progress').textContent = 'Question ' + (poppyIdx + 1) + ' of ' + poppyQuestions.length;
+    document.getElementById('poppy-q-text').textContent = q.question;
+    document.getElementById('poppy-q-hint').hidden = true;
+    document.getElementById('poppy-next-btn').hidden = true;
+    var optsEl = document.getElementById('poppy-q-options');
+    optsEl.innerHTML = q.options.map(function(opt, i) {
+      return '<button class="opt-btn" data-i="' + i + '" onclick="poppyAnswer(' + i + ')">' + String.fromCharCode(65 + i) + '.  ' + esc(opt) + '</button>';
+    }).join('');
+  }
+
+  async function poppyAnswer(i) {
+    var q = poppyQuestions[poppyIdx];
+    var buttons = document.querySelectorAll('#poppy-q-options .opt-btn');
+    buttons.forEach(function(b) { b.disabled = true; });
+    buttons[q.correct].classList.add('correct');
+    var isCorrect = i === q.correct;
+    if (!isCorrect) buttons[i].classList.add('wrong');
+    else poppyScore++;
+
+    if (q.hint) {
+      var hintEl = document.getElementById('poppy-q-hint');
+      hintEl.hidden = false;
+      hintEl.textContent = '💡 ' + q.hint;
+    }
+    document.getElementById('poppy-next-btn').hidden = false;
+    document.getElementById('poppy-next-btn').textContent = (poppyIdx === poppyQuestions.length - 1) ? 'See results →' : 'Next →';
+
+    sb.from('demo_attempts').insert({
+      user_id: currentSession.user.id, question_id: q.id, topic_id: poppyTopicId, is_correct: isCorrect
+    }).then(function(){});
+  }
+
+  function poppyNextQuestion() {
+    poppyIdx++;
+    if (poppyIdx >= poppyQuestions.length) { poppyFinish(); return; }
+    poppyRenderQuestion();
+  }
+
+  async function poppyFinish() {
+    document.getElementById('poppy-quiz').hidden = true;
+    document.getElementById('poppy-results').hidden = false;
+    var pct = Math.round((poppyScore / poppyQuestions.length) * 100);
+    document.getElementById('poppy-score-text').textContent = poppyScore + ' / ' + poppyQuestions.length;
+    document.getElementById('poppy-score-sub').textContent = pct + '% correct';
+
+    var newConf = pct >= 80 ? 'green' : pct >= 50 ? 'amber' : 'red';
+    var confLabel = { green: '🟢 Confident', amber: '🟡 Getting there', red: '🔴 Needs more work' }[newConf];
+    document.getElementById('poppy-conf-update').innerHTML = 'Updated confidence: ' + confLabel;
+
+    var res = await sb.from('demo_topics').update({ confidence: newConf, updated_at: new Date().toISOString() }).eq('id', poppyTopicId).select().single();
+    if (!res.error) {
+      var idx = topicsCache.findIndex(function(t) { return t.id === poppyTopicId; });
+      if (idx > -1) topicsCache[idx] = res.data;
+      renderTopics();
+    }
+  }
+
+  function poppyBackToSetup() {
+    document.getElementById('poppy-results').hidden = true;
+    document.getElementById('poppy-setup').hidden = false;
+    document.getElementById('poppy-notes').value = '';
+    document.getElementById('poppy-gen-status').textContent = '';
+    poppyPopulateTopicSelect();
+  }
+</script>
+</body>
+</html>
