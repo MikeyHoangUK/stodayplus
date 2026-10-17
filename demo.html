@@ -22,7 +22,9 @@
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet" />
   <style>
-    .gradient-brand { background: linear-gradient(135deg, #9333ea 0%, #3730a3 100%); }
+    .gradient-brand { background: linear-gradient(135deg, #9333ea 0%, #3730a3 100%); box-shadow: 0 2px 12px rgba(124,58,237,.28); transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease; }
+    .gradient-brand:hover { transform: translateY(-1px); box-shadow: 0 5px 18px rgba(124,58,237,.35); }
+    .gradient-brand:active { transform: translateY(0); }
     body { background: #f0e4c6; color: #1c1208; }
     [hidden] { display: none !important; }
     .pill { font-size:.72rem; font-weight:800; padding:.4rem .9rem; border-radius:999px; border:1.5px solid #e5e7eb; color:#6b7280; cursor:pointer; transition:all .15s ease; background:#fff; }
@@ -34,6 +36,19 @@
     .opt-btn:disabled { cursor:default; opacity:.85; }
     .spinner { width:16px; height:16px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; display:inline-block; vertical-align:middle; }
     @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes slideUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    .anim { animation: slideUp .32s ease; }
+
+    /* Thin accent scrollbar */
+    html { scrollbar-width: thin; scrollbar-color: rgba(168,85,247,.3) transparent; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-thumb { background: rgba(168,85,247,.25); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(168,85,247,.4); }
+
+    /* Boot loading splash (avoids a flash of the sign-in form for returning users) */
+    #boot-loading { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    #boot-loading .bl-spinner { width: 30px; height: 30px; border: 3px solid rgba(147,51,234,.15); border-top-color: #9333ea; border-radius: 50%; animation: spin .8s linear infinite; }
+    body.hc #boot-loading .bl-spinner { border-color: rgba(168,85,247,.2); border-top-color: #a855f7; }
 
     /* ── Revision Planner look, ported from dashboard.html ───────────── */
     .mcq-tabs{display:flex;gap:2px;background:rgba(255,255,255,.7);border:1px solid rgba(168,85,247,.1);border-radius:12px;padding:4px}
@@ -49,7 +64,8 @@
     .rp-due-header{display:flex;align-items:baseline;gap:6px;margin-bottom:20px}
     .rp-due-count{font-size:2.4rem;font-weight:900;background:linear-gradient(135deg,#6d28d9,#4338ca);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
     .rp-due-lbl{font-size:.86rem;font-weight:700;color:#6e5438}
-    .rp-topic-card{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.14);border-radius:16px;padding:18px 20px;margin-bottom:12px}
+    .rp-topic-card{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.14);border-radius:16px;padding:18px 20px;margin-bottom:12px;box-shadow:0 2px 14px rgba(124,58,237,.055);transition:box-shadow .18s,border-color .18s}
+    .rp-topic-card:hover{box-shadow:0 4px 20px rgba(124,58,237,.1);border-color:rgba(168,85,247,.22)}
     .rp-card-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
     .rp-card-left{flex:1;min-width:0}
     .rp-card-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
@@ -60,8 +76,8 @@
     .rp-next-date{font-size:.68rem;font-weight:700;color:#6e5438;white-space:nowrap}
     .rp-method-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px 0;padding:8px 12px;background:rgba(109,40,217,.05);border:1px solid rgba(109,40,217,.1);border-radius:10px}
     .rp-method-pill{font-size:.71rem;font-weight:800;color:#6d28d9;display:flex;align-items:center;gap:5px;flex:1;min-width:0}
-    .rp-go-tool-btn{font-size:.68rem;font-weight:800;background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:8px;padding:5px 12px;cursor:pointer;font-family:'Raleway',sans-serif;white-space:nowrap;transition:opacity .15s;flex-shrink:0}
-    .rp-go-tool-btn:hover{opacity:.85}
+    .rp-go-tool-btn{font-size:.68rem;font-weight:800;background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:8px;padding:5px 12px;cursor:pointer;font-family:'Raleway',sans-serif;white-space:nowrap;transition:opacity .15s,transform .15s;flex-shrink:0}
+    .rp-go-tool-btn:hover{opacity:.85;transform:translateY(-1px)}
     .rp-del-btn{width:24px;height:24px;border-radius:50%;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.15);color:#ef4444;font-size:.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
     .rp-del-btn:hover{background:rgba(239,68,68,.15)}
 
@@ -82,16 +98,18 @@
     .org-actions{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
     .org-search{flex:1;min-width:140px;max-width:260px;padding:7px 12px;border:1px solid rgba(168,85,247,.2);border-radius:10px;background:rgba(255,255,255,.6);font-size:.74rem;font-family:'Raleway',sans-serif;color:#1c1208;outline:none}
     .org-search:focus{border-color:rgba(109,40,217,.4)}
-    .org-gear-btn{font-size:.68rem;font-weight:700;color:#6e5438;background:none;border:1px solid rgba(168,85,247,.15);border-radius:8px;padding:6px 10px;cursor:pointer;font-family:'Raleway',sans-serif;transition:all .15s;margin-left:auto}
-    .org-gear-btn:hover{background:rgba(168,85,247,.07);border-color:rgba(168,85,247,.28)}
-    .org-add-card{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:16px;padding:18px 20px;margin-bottom:18px}
+    .org-add-btn{font-size:.72rem;font-weight:800;color:#6d28d9;background:rgba(109,40,217,.1);border:1.5px solid rgba(109,40,217,.25);border-radius:20px;padding:7px 16px;cursor:pointer;font-family:'Raleway',sans-serif;transition:all .15s;margin-left:auto;white-space:nowrap}
+    .org-add-btn:hover{background:rgba(109,40,217,.18);border-color:rgba(109,40,217,.45);transform:translateY(-1px)}
+    .org-add-card{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:16px;padding:18px 20px;margin-bottom:18px;box-shadow:0 2px 14px rgba(124,58,237,.055)}
     .org-add-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}
     .org-add-grp{display:flex;flex-direction:column;gap:5px;flex:1;min-width:130px}
     .org-add-lbl{font-size:.6rem;font-weight:800;color:#6e5438;text-transform:uppercase;letter-spacing:.07em}
-    .org-add-inp{padding:8px 11px;border:1px solid rgba(168,85,247,.2);border-radius:10px;background:rgba(255,255,255,.7);font-size:.78rem;font-family:'Raleway',sans-serif;color:#1c1208;outline:none;width:100%;box-sizing:border-box}
+    .org-add-inp{padding:8px 11px;border:1px solid rgba(168,85,247,.2);border-radius:10px;background:rgba(255,255,255,.7);font-size:.78rem;font-family:'Raleway',sans-serif;color:#1c1208;outline:none;width:100%;box-sizing:border-box;transition:border-color .15s}
     .org-add-inp:focus{border-color:rgba(109,40,217,.4)}
-    .org-card-save-btn{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:10px;padding:9px 22px;font-size:.74rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;white-space:nowrap}
-    .org-cancel-btn{background:none;border:none;cursor:pointer;font-size:.74rem;color:#6e5438;font-family:'Raleway',sans-serif;padding:9px 8px}
+    .org-card-save-btn{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:10px;padding:9px 22px;font-size:.74rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;white-space:nowrap;transition:opacity .15s,transform .15s}
+    .org-card-save-btn:hover{opacity:.9;transform:translateY(-1px)}
+    .org-cancel-btn{background:none;border:none;cursor:pointer;font-size:.74rem;color:#6e5438;font-family:'Raleway',sans-serif;padding:9px 8px;transition:color .15s}
+    .org-cancel-btn:hover{color:#1c1208}
 
     .org-table-wrap{overflow-x:auto;border-radius:14px;border:1px solid rgba(168,85,247,.12)}
     .org-table{width:100%;border-collapse:collapse;min-width:560px}
@@ -140,7 +158,7 @@
     .rp-cal-cell.today .rp-cal-date{color:#6d28d9}
     .rp-cal-pill{font-size:.56rem;font-weight:700;background:rgba(109,40,217,.1);color:#6d28d9;border-radius:4px;padding:1px 4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;line-height:1.5}
     .rp-cal-more{font-size:.54rem;font-weight:700;color:#6e5438;opacity:.65;line-height:1}
-    .rp-cal-detail{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.14);border-radius:14px;padding:16px 20px}
+    .rp-cal-detail{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.14);border-radius:14px;padding:16px 20px;box-shadow:0 2px 14px rgba(124,58,237,.055)}
     .rp-cal-detail-hd{font-size:.78rem;font-weight:800;color:#6d28d9;margin-bottom:10px}
     .rp-cal-detail-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(168,85,247,.07)}
     .rp-cal-detail-row:last-child{border-bottom:none}
@@ -148,14 +166,14 @@
     .rp-cal-detail-tag{font-size:.58rem;font-weight:800;background:rgba(109,40,217,.08);color:#6d28d9;border-radius:12px;padding:2px 7px;flex-shrink:0}
     .rp-cal-rev-badge{font-size:.56rem;font-weight:800;background:rgba(5,150,105,.09);color:#047857;border-radius:12px;padding:2px 7px;flex-shrink:0;white-space:nowrap}
 
-    .rp-exam-panel{width:212px;min-width:212px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.14);border-radius:16px;padding:16px 15px}
+    .rp-exam-panel{width:212px;min-width:212px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.14);border-radius:16px;padding:16px 15px;box-shadow:0 2px 14px rgba(124,58,237,.055)}
     .rp-exam-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
     .rp-exam-hd-txt{font-size:.78rem;font-weight:900;color:#1c1208;letter-spacing:.02em}
     .rp-exam-toggle{width:22px;height:22px;border-radius:6px;background:rgba(109,40,217,.1);border:1px solid rgba(109,40,217,.2);color:#6d28d9;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;transition:background .15s;flex-shrink:0}
     .rp-exam-toggle:hover{background:rgba(109,40,217,.2)}
     .rp-exam-form{margin-bottom:12px;display:flex;flex-direction:column;gap:6px}
-    .rp-exam-submit{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:8px;padding:8px;font-size:.72rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:opacity .15s}
-    .rp-exam-submit:hover{opacity:.85}
+    .rp-exam-submit{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:8px;padding:8px;font-size:.72rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:opacity .15s,transform .15s}
+    .rp-exam-submit:hover{opacity:.85;transform:translateY(-1px)}
     .rp-exam-divider{height:1px;background:rgba(168,85,247,.1);margin:0 0 10px}
     .rp-exam-item{padding:9px 0;border-bottom:1px solid rgba(168,85,247,.07);position:relative}
     .rp-exam-item:last-child{border-bottom:none}
@@ -216,7 +234,8 @@
     body.hc .rp-clock-time{color:#e8dcc8!important}
     body.hc .rp-clock-date{color:#a08878!important}
     body.hc .rp-due-lbl{color:#a08878!important}
-    body.hc .rp-topic-card{background:#0f0d22!important;border-color:rgba(168,85,247,.35)!important}
+    body.hc .rp-topic-card{background:#0f0d22!important;border-color:rgba(168,85,247,.35)!important;box-shadow:0 0 0 1px rgba(168,85,247,.12),0 2px 12px rgba(0,0,0,.6)!important}
+    body.hc .rp-topic-card:hover{border-color:rgba(168,85,247,.5)!important}
     body.hc .rp-topic-name{color:#e8dcc8!important}
     body.hc .rp-next-date{color:#a08878!important}
     body.hc .rp-chain-lbl{color:#a08878!important}
@@ -234,8 +253,9 @@
     body.hc .rp-empty-sub{color:#a08878!important}
 
     body.hc .org-search,body.hc .org-add-inp{background:#0d0b1e!important;color:#e8dcc8!important;border-color:rgba(168,85,247,.32)!important}
-    body.hc .org-gear-btn{color:#a08878!important;border-color:rgba(168,85,247,.22)!important}
-    body.hc .org-add-card{background:#0f0d22!important;border-color:rgba(168,85,247,.35)!important}
+    body.hc .org-add-btn{background:rgba(168,85,247,.1)!important;border-color:rgba(168,85,247,.35)!important;color:#c084fc!important}
+    body.hc .org-add-btn:hover{background:rgba(168,85,247,.2)!important;border-color:rgba(168,85,247,.55)!important}
+    body.hc .org-add-card{background:#0f0d22!important;border-color:rgba(168,85,247,.35)!important;box-shadow:0 0 0 1px rgba(168,85,247,.12),0 2px 12px rgba(0,0,0,.6)!important}
     body.hc .org-add-lbl,body.hc .org-cancel-btn{color:#a08878!important}
     body.hc .org-table-wrap{border-color:rgba(168,85,247,.25)!important}
     body.hc .org-th{background:#0a0918!important;color:#a08878!important;border-bottom-color:rgba(168,85,247,.15)!important}
@@ -261,13 +281,13 @@
     body.hc .rp-cal-cell.today .rp-cal-date{color:#c084fc!important}
     body.hc .rp-cal-pill{background:rgba(168,85,247,.2)!important;color:#c084fc!important}
     body.hc .rp-cal-more{color:#a08878!important}
-    body.hc .rp-cal-detail{background:#0f0d22!important;border-color:rgba(168,85,247,.35)!important}
+    body.hc .rp-cal-detail{background:#0f0d22!important;border-color:rgba(168,85,247,.35)!important;box-shadow:0 0 0 1px rgba(168,85,247,.12),0 2px 12px rgba(0,0,0,.6)!important}
     body.hc .rp-cal-detail-hd{color:#c084fc!important}
     body.hc .rp-cal-detail-topic{color:#e8dcc8!important}
     body.hc .rp-cal-detail-tag{background:rgba(168,85,247,.16)!important;color:#c084fc!important}
     body.hc .rp-cal-rev-badge{background:rgba(16,185,129,.14)!important;color:#34d399!important}
 
-    body.hc .rp-exam-panel{background:#0f0d22!important;border-color:rgba(168,85,247,.35)!important}
+    body.hc .rp-exam-panel{background:#0f0d22!important;border-color:rgba(168,85,247,.35)!important;box-shadow:0 0 0 1px rgba(168,85,247,.12),0 2px 12px rgba(0,0,0,.6)!important}
     body.hc .rp-exam-hd-txt{color:#e8dcc8!important}
     body.hc .rp-exam-toggle{background:rgba(168,85,247,.14)!important;border-color:rgba(168,85,247,.3)!important;color:#c084fc!important}
     body.hc .rp-exam-divider{background:rgba(168,85,247,.12)!important}
@@ -281,6 +301,8 @@
     body.hc .mp-track{color:#e8dcc8!important}
     body.hc .mp-sub{color:#a08878!important}
     body.hc .mp-prev,body.hc .mp-next{background:rgba(168,85,247,.1)!important;border-color:rgba(168,85,247,.22)!important;color:#c084fc!important}
+    body.hc ::-webkit-scrollbar-thumb{background:rgba(168,85,247,.3)!important}
+    body.hc ::-webkit-scrollbar-thumb:hover{background:rgba(168,85,247,.5)!important}
 
     @media (max-width: 640px) {
       .rp-cal-layout { flex-direction: column; }
@@ -294,11 +316,15 @@
 
 <div id="mode-fade"></div>
 
+<!-- ── BOOT LOADING (avoids a flash of the sign-in form while we check for an existing session) ── -->
+<div id="boot-loading"><div class="bl-spinner"></div></div>
+
 <!-- ── AUTH SCREEN ────────────────────────────────────────── -->
-<div id="auth-screen" class="min-h-screen flex items-center justify-center px-4 py-16">
+<div id="auth-screen" class="min-h-screen flex items-center justify-center px-4 py-16" hidden>
   <div class="w-full max-w-sm bg-white border border-gray-200 rounded-2xl shadow-sm p-8">
-    <h1 id="auth-title" class="text-xl font-extrabold text-navy-dark mb-1">Sign in</h1>
-    <p id="auth-sub" class="text-gray-500 text-sm mb-6">Welcome back — your topics and quizzes load from the cloud.</p>
+    <img src="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" alt="Stoday Plus" class="w-12 h-12 object-contain mx-auto mb-4" />
+    <h1 id="auth-title" class="text-xl font-extrabold text-navy-dark mb-1 text-center">Sign in</h1>
+    <p id="auth-sub" class="text-gray-500 text-sm mb-6 text-center">Welcome back — your topics and quizzes load from the cloud.</p>
 
     <div class="space-y-3 mb-4">
       <input id="auth-email" type="email" placeholder="you@example.com" autocomplete="email"
@@ -351,7 +377,7 @@
     </div>
 
     <!-- ══ ORGANISER TAB ══ -->
-    <div id="tab-organiser">
+    <div id="tab-organiser" class="anim">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px">
         <div class="mcq-tabs">
           <div class="mcq-tab active" id="org-subtab-today" onclick="orgSubTab('today')">📅 Today</div>
@@ -365,15 +391,15 @@
       </div>
 
       <!-- TODAY -->
-      <div id="org-view-today">
+      <div id="org-view-today" class="anim">
         <div id="org-today-content"></div>
       </div>
 
       <!-- TOPICS -->
-      <div id="org-view-topics" hidden>
+      <div id="org-view-topics" class="anim" hidden>
         <div class="org-actions" id="org-actions-bar">
           <input class="org-search" id="org-search" placeholder="Search topics or subjects…" oninput="orgRenderTable()"/>
-          <button class="org-gear-btn" style="margin-left:0" onclick="orgToggleAddTopic()">+ New topic</button>
+          <button class="org-add-btn" style="margin-left:0" onclick="orgToggleAddTopic()">+ New topic</button>
         </div>
         <div class="org-add-card" id="add-topic-form" hidden>
           <div class="org-add-row">
@@ -419,7 +445,7 @@
       </div>
 
       <!-- CALENDAR -->
-      <div id="org-view-cal" hidden>
+      <div id="org-view-cal" class="anim" hidden>
         <div class="rp-cal-layout">
           <div id="rp-cal-content" style="flex:1;min-width:0"></div>
           <div class="rp-exam-panel">
@@ -442,7 +468,7 @@
     </div>
 
     <!-- ══ POPPY TAB ══ -->
-    <div id="tab-poppy" hidden>
+    <div id="tab-poppy" class="anim" hidden>
 
       <!-- Step 1: pick/create topic + paste notes -->
       <div id="poppy-setup">
@@ -493,7 +519,7 @@
           <span id="poppy-quiz-progress" class="text-xs font-bold text-gray-400 uppercase tracking-wide"></span>
           <span id="poppy-quiz-topic" class="text-xs font-bold text-purple-DEFAULT"></span>
         </div>
-        <div class="bg-white border border-gray-200 rounded-2xl p-6">
+        <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
           <p id="poppy-q-text" class="text-base font-bold text-navy-dark mb-5 leading-relaxed"></p>
           <div id="poppy-q-options"></div>
           <div id="poppy-q-hint" class="text-sm text-gray-500 bg-purple-light rounded-xl p-3 mt-2" hidden></div>
@@ -578,6 +604,7 @@
 
   sb.auth.onAuthStateChange(function(event, session) {
     currentSession = session;
+    document.getElementById('boot-loading').hidden = true;
     if (session) {
       document.getElementById('auth-screen').hidden = true;
       document.getElementById('app-shell').hidden = false;
