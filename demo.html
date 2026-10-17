@@ -166,31 +166,136 @@
     .rp-exam-empty{font-size:.72rem;color:#6e5438;opacity:.55;text-align:center;padding:18px 0;line-height:1.5}
     .cnt-red{color:#ef4444} .cnt-amber{color:#f59e0b} .cnt-purple{color:#6d28d9} .cnt-green{color:#16a34a} .cnt-past{color:#9ca3af}
 
+    /* ── Mode toggle + music player, ported from dashboard.html's sidebar ── */
+    #mode-fade{position:fixed;inset:0;z-index:8888;background:#000;opacity:0;pointer-events:none;transition:opacity .38s ease}
+    #mode-toggle{display:flex;align-items:center;background:rgba(255,255,255,.75);border:1px solid rgba(168,85,247,.12);border-radius:20px;padding:3px;gap:2px}
+    .mode-btn{padding:4px 11px;border-radius:16px;font-size:.68rem;font-weight:800;cursor:pointer;transition:all .2s;color:#6e5438}
+    .mode-btn.m-chill{background:linear-gradient(135deg,#1d4ed8,#7c3aed);color:#fff}
+    .mode-btn.m-hard{background:linear-gradient(135deg,#3b0764,#1e0035);color:#c084fc}
+
+    .music-player-mini{display:none;align-items:center;gap:7px;background:rgba(255,255,255,.75);border:1px solid rgba(168,85,247,.12);border-radius:20px;padding:4px 10px 4px 5px}
+    .mp-vinyl{width:26px;height:26px;min-width:26px;border-radius:50%;background:rgba(168,85,247,.14);border:1px solid rgba(168,85,247,.2);display:flex;align-items:center;justify-content:center;font-size:.72rem;transition:transform 2s linear}
+    .mp-vinyl.spin{animation:vinylSpin 3s linear infinite}
+    @keyframes vinylSpin{to{transform:rotate(360deg)}}
+    .mp-info{max-width:100px}
+    .mp-track{font-size:.66rem;font-weight:800;color:#1c1208;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
+    .mp-sub{font-size:.57rem;color:#6e5438;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .mp-prev,.mp-next{width:20px;height:20px;min-width:20px;border-radius:50%;background:rgba(109,40,217,.1);border:1px solid rgba(109,40,217,.22);color:#6d28d9;font-size:.56rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0}
+    .mp-prev:hover,.mp-next:hover{background:rgba(109,40,217,.2)}
+    .mp-play{width:24px;height:24px;min-width:24px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#4338ca);border:none;color:#fff;font-size:.64rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .15s}
+    .mp-play:hover{opacity:.82}
+    .mp-vol{-webkit-appearance:none;appearance:none;width:46px;height:3px;border-radius:2px;background:rgba(168,85,247,.25);outline:none;cursor:pointer}
+    .mp-vol::-webkit-slider-thumb{-webkit-appearance:none;width:9px;height:9px;border-radius:50%;background:#6d28d9;cursor:pointer}
+
+    /* ── Hardcore mode — dark theme, ported from dashboard.html's body.hc ── */
+    body.hc{background:#06060f!important;color:#e8dcc8!important}
+    body.hc .bg-gray-50{background:#06060f!important}
+    body.hc .bg-white{background:#0f0d22!important}
+    body.hc .border-gray-200{border-color:rgba(168,85,247,.3)!important}
+    body.hc .border-gray-300{border-color:rgba(168,85,247,.35)!important}
+    body.hc input,body.hc textarea,body.hc select{background:#0d0b1e!important;color:#e8dcc8!important}
+    body.hc input::placeholder,body.hc textarea::placeholder{color:#6b5c4a!important}
+    body.hc .text-navy-dark,body.hc .text-gray-900{color:#e8dcc8!important}
+    body.hc .text-gray-600{color:#c8b89a!important}
+    body.hc .text-gray-500{color:#a08878!important}
+    body.hc .text-gray-400{color:#7a6448!important}
+    body.hc .text-red-600{color:#f87171!important}
+    body.hc .pill{background:#0d0b1e!important;color:#c8b89a!important;border-color:rgba(168,85,247,.3)!important}
+    body.hc .pill.sel{background:#9333ea!important;color:#fff!important;border-color:#9333ea!important}
+    body.hc .opt-btn{background:#0d0b1e!important;border-color:rgba(168,85,247,.32)!important;color:#e8dcc8!important}
+    body.hc .opt-btn:hover:not(:disabled){background:rgba(168,85,247,.07)!important;border-color:rgba(168,85,247,.5)!important}
+    body.hc .opt-btn.correct{background:rgba(34,197,94,.14)!important;border-color:rgba(34,197,94,.5)!important;color:#4ade80!important}
+    body.hc .opt-btn.wrong{background:rgba(248,113,113,.13)!important;border-color:rgba(248,113,113,.5)!important;color:#fca5a5!important}
+    body.hc .bg-purple-light{background:rgba(168,85,247,.08)!important;color:#c8b89a!important}
+
+    body.hc .mcq-tabs{background:#0d0b1e!important;border-color:rgba(168,85,247,.3)!important}
+    body.hc .mcq-tab{color:#7a6448!important}
+    body.hc .mcq-tab.active{background:rgba(168,85,247,.18)!important;color:#c084fc!important}
+    body.hc .mcq-tab:hover:not(.active){color:#a08878!important;background:rgba(255,255,255,.04)!important}
+
+    body.hc .rp-clock-time{color:#e8dcc8!important}
+    body.hc .rp-clock-date{color:#a08878!important}
+    body.hc .rp-due-lbl{color:#a08878!important}
+    body.hc .rp-topic-card{background:#0f0d22!important;border-color:rgba(168,85,247,.35)!important}
+    body.hc .rp-topic-name{color:#e8dcc8!important}
+    body.hc .rp-next-date{color:#a08878!important}
+    body.hc .rp-chain-lbl{color:#a08878!important}
+    body.hc .rp-tag{background:rgba(168,85,247,.14)!important;color:#c084fc!important;border-color:rgba(168,85,247,.28)!important}
+    body.hc .rp-overdue{background:rgba(239,68,68,.12)!important;color:#f87171!important;border-color:rgba(239,68,68,.3)!important}
+    body.hc .rp-due-now{background:rgba(124,58,237,.14)!important;color:#c084fc!important;border-color:rgba(124,58,237,.3)!important}
+    body.hc .rp-method-row{background:rgba(168,85,247,.08)!important;border-color:rgba(168,85,247,.25)!important}
+    body.hc .rp-method-pill{color:#c084fc!important}
+    body.hc .rp-chain-line{background:rgba(168,85,247,.16)!important}
+    body.hc .rp-chain-line.done{background:#7c3aed!important}
+    body.hc .rp-dot{border-color:rgba(168,85,247,.25)!important}
+    body.hc .rp-dot.done{background:#7c3aed!important;border-color:#7c3aed!important}
+    body.hc .rp-dot.next{background:rgba(124,58,237,.25)!important;border-color:#7c3aed!important}
+    body.hc .rp-empty-title{color:#e8dcc8!important}
+    body.hc .rp-empty-sub{color:#a08878!important}
+
+    body.hc .org-search,body.hc .org-add-inp{background:#0d0b1e!important;color:#e8dcc8!important;border-color:rgba(168,85,247,.32)!important}
+    body.hc .org-gear-btn{color:#a08878!important;border-color:rgba(168,85,247,.22)!important}
+    body.hc .org-add-card{background:#0f0d22!important;border-color:rgba(168,85,247,.35)!important}
+    body.hc .org-add-lbl,body.hc .org-cancel-btn{color:#a08878!important}
+    body.hc .org-table-wrap{border-color:rgba(168,85,247,.25)!important}
+    body.hc .org-th{background:#0a0918!important;color:#a08878!important;border-bottom-color:rgba(168,85,247,.15)!important}
+    body.hc .org-th.sortable:hover{color:#c084fc!important}
+    body.hc .org-th.sort-asc .sort-arr,body.hc .org-th.sort-desc .sort-arr{color:#c084fc!important}
+    body.hc .org-td{border-bottom-color:rgba(168,85,247,.08)!important}
+    body.hc .org-tr:hover .org-td{background:rgba(168,85,247,.05)!important}
+    body.hc .org-topic-name{color:#e8dcc8!important}
+    body.hc .org-tool-btn{background:rgba(168,85,247,.08)!important;border-color:rgba(168,85,247,.25)!important;color:#c084fc!important}
+    body.hc .org-empty-title{color:#e8dcc8!important}
+    body.hc .org-empty-sub{color:#a08878!important}
+
+    body.hc .rp-cal-month{color:#e8dcc8!important}
+    body.hc .rp-cal-arrow{background:rgba(255,255,255,.05)!important;border-color:rgba(168,85,247,.25)!important;color:#c084fc!important}
+    body.hc .rp-cal-arrow:hover{background:rgba(168,85,247,.14)!important}
+    body.hc .rp-cal-dow{color:#a08878!important}
+    body.hc .rp-cal-cell{background:#0d0b1e!important;border-color:rgba(168,85,247,.22)!important}
+    body.hc .rp-cal-cell:hover:not(.rp-empty-cell){background:rgba(168,85,247,.12)!important;border-color:rgba(168,85,247,.28)!important}
+    body.hc .rp-cal-cell.today{background:rgba(109,40,217,.2)!important;border-color:rgba(109,40,217,.45)!important}
+    body.hc .rp-cal-cell.selected{background:rgba(109,40,217,.28)!important;border-color:rgba(168,85,247,.6)!important}
+    body.hc .rp-cal-cell.rp-empty-cell{background:transparent!important;border-color:transparent!important}
+    body.hc .rp-cal-date{color:#c8b89a!important}
+    body.hc .rp-cal-cell.today .rp-cal-date{color:#c084fc!important}
+    body.hc .rp-cal-pill{background:rgba(168,85,247,.2)!important;color:#c084fc!important}
+    body.hc .rp-cal-more{color:#a08878!important}
+    body.hc .rp-cal-detail{background:#0f0d22!important;border-color:rgba(168,85,247,.35)!important}
+    body.hc .rp-cal-detail-hd{color:#c084fc!important}
+    body.hc .rp-cal-detail-topic{color:#e8dcc8!important}
+    body.hc .rp-cal-detail-tag{background:rgba(168,85,247,.16)!important;color:#c084fc!important}
+    body.hc .rp-cal-rev-badge{background:rgba(16,185,129,.14)!important;color:#34d399!important}
+
+    body.hc .rp-exam-panel{background:#0f0d22!important;border-color:rgba(168,85,247,.35)!important}
+    body.hc .rp-exam-hd-txt{color:#e8dcc8!important}
+    body.hc .rp-exam-toggle{background:rgba(168,85,247,.14)!important;border-color:rgba(168,85,247,.3)!important;color:#c084fc!important}
+    body.hc .rp-exam-divider{background:rgba(168,85,247,.12)!important}
+    body.hc .rp-exam-item-name{color:#e8dcc8!important}
+    body.hc .rp-exam-date-txt{color:#a08878!important}
+    body.hc .rp-exam-empty{color:#a08878!important}
+
+    body.hc #mode-toggle{background:rgba(255,255,255,.06)!important;border-color:rgba(168,85,247,.2)!important}
+    body.hc .mode-btn{color:#a08878!important}
+    body.hc .music-player-mini{background:rgba(255,255,255,.04)!important;border-color:rgba(168,85,247,.18)!important}
+    body.hc .mp-track{color:#e8dcc8!important}
+    body.hc .mp-sub{color:#a08878!important}
+    body.hc .mp-prev,body.hc .mp-next{background:rgba(168,85,247,.1)!important;border-color:rgba(168,85,247,.22)!important;color:#c084fc!important}
+
     @media (max-width: 640px) {
       .rp-cal-layout { flex-direction: column; }
       .rp-exam-panel { width: 100%; min-width: 0; }
       .mcq-tab { padding: 6px 12px; font-size: .68rem; }
+      .music-player-mini .mp-info { display: none; }
     }
   </style>
 </head>
 <body class="font-sans bg-gray-50 text-gray-900 antialiased">
 
-<!-- ── NAVBAR ─────────────────────────────────────────────── -->
-<nav style="background:#1e1b4b;" class="border-b border-white border-opacity-10">
-  <div class="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
-    <a href="index.html" class="flex items-center gap-2">
-      <img src="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" alt="Stoday Plus" class="w-8 h-8 object-contain" />
-      <span class="text-white font-extrabold text-lg">Stoday <span class="text-purple-mid">Plus</span></span>
-    </a>
-    <div id="nav-user" class="flex items-center gap-3" hidden>
-      <span id="nav-user-email" class="text-gray-300 text-xs hidden sm:inline"></span>
-      <button onclick="authSignOut()" class="text-gray-300 hover:text-white text-xs font-semibold transition-colors">Log out</button>
-    </div>
-  </div>
-</nav>
+<div id="mode-fade"></div>
 
 <!-- ── AUTH SCREEN ────────────────────────────────────────── -->
-<div id="auth-screen" class="min-h-[calc(100vh-56px)] flex items-center justify-center px-4 py-16">
+<div id="auth-screen" class="min-h-screen flex items-center justify-center px-4 py-16">
   <div class="w-full max-w-sm bg-white border border-gray-200 rounded-2xl shadow-sm p-8">
     <h1 id="auth-title" class="text-xl font-extrabold text-navy-dark mb-1">Sign in</h1>
     <p id="auth-sub" class="text-gray-500 text-sm mb-6">Welcome back — your topics and quizzes load from the cloud.</p>
@@ -216,10 +321,33 @@
 <div id="app-shell" hidden>
   <div class="max-w-5xl mx-auto px-4 sm:px-6 py-8">
 
-    <!-- Tabs -->
-    <div class="flex items-center gap-2 mb-8 border-b border-gray-200">
-      <button id="tab-btn-organiser" onclick="showTab('organiser')" class="px-4 py-3 text-sm font-bold border-b-2 border-purple-DEFAULT text-purple-DEFAULT">📋 Organiser</button>
-      <button id="tab-btn-poppy" onclick="showTab('poppy')" class="px-4 py-3 text-sm font-bold border-b-2 border-transparent text-gray-400 hover:text-gray-600">🧠 Poppy</button>
+    <!-- Tabs + utility bar -->
+    <div class="flex items-center justify-between gap-3 mb-8 border-b border-gray-200 flex-wrap">
+      <div class="flex items-center gap-2">
+        <button id="tab-btn-organiser" onclick="showTab('organiser')" class="px-4 py-3 text-sm font-bold border-b-2 border-purple-DEFAULT text-purple-DEFAULT">📋 Organiser</button>
+        <button id="tab-btn-poppy" onclick="showTab('poppy')" class="px-4 py-3 text-sm font-bold border-b-2 border-transparent text-gray-400 hover:text-gray-600">🧠 Poppy</button>
+      </div>
+      <div class="flex items-center gap-2 py-2">
+        <div class="music-player-mini" id="music-player">
+          <div class="mp-vinyl" id="mp-vinyl">♪</div>
+          <div class="mp-info">
+            <div class="mp-track" id="mp-track">Loading…</div>
+            <div class="mp-sub" id="mp-sub">Lofi Hip-Hop</div>
+          </div>
+          <button class="mp-prev" onclick="lofiPrev()" title="Previous">⏮</button>
+          <button class="mp-play" id="mp-play" onclick="toggleLofi()">▶</button>
+          <button class="mp-next" onclick="lofiNext(false)" title="Next">⏭</button>
+          <input type="range" class="mp-vol" id="mp-vol" min="0" max="1" step="0.01" value="0.6" oninput="setLofiVolume(+this.value)" title="Volume"/>
+        </div>
+        <div id="mode-toggle">
+          <div class="mode-btn m-chill" id="btn-chill" onclick="setMode('chill')" title="Chill mode (press -)">☁ Chill</div>
+          <div class="mode-btn" id="btn-hard" onclick="setMode('hardcore')" title="Hardcore mode (press =)">⚡ Hardcore</div>
+        </div>
+        <div id="nav-user" class="flex items-center gap-2" hidden>
+          <span id="nav-user-email" class="text-gray-400 text-xs hidden sm:inline"></span>
+          <button onclick="authSignOut()" class="text-gray-400 hover:text-red-600 text-xs font-bold transition-colors">Log out</button>
+        </div>
+      </div>
     </div>
 
     <!-- ══ ORGANISER TAB ══ -->
@@ -460,6 +588,7 @@
       document.getElementById('auth-screen').hidden = false;
       document.getElementById('app-shell').hidden = true;
       document.getElementById('nav-user').hidden = true;
+      if (typeof stopLofi === 'function') stopLofi();
     }
   });
 
@@ -484,9 +613,203 @@
 
   async function bootApp() {
     rpStartClock();
+    applyMode(mode);
+    initLofi();
+    initHcm();
     await Promise.all([loadTopics(), loadExams(currentSession.user.id)]);
     showTab('organiser');
   }
+
+  // ── Mode (Chill / Hardcore), ported from dashboard.html ─────────────
+  var mode = localStorage.getItem('sp_mode') || 'chill';
+
+  function setMode(m) {
+    if (m === mode) return;
+    var fade = document.getElementById('mode-fade');
+    fade.style.pointerEvents = 'all';
+    fade.style.opacity = '0.72';
+    var outState = mode === 'hardcore' ? hcm : lofi;
+    var wasPlaying = outState.playing;
+    if (outState.audio && outState.playing) {
+      audioFadeOut(outState.audio, 350, null);
+      outState.playing = false;
+      _setPlayerUI('▶', false);
+    }
+    setTimeout(function() {
+      mode = m;
+      localStorage.setItem('sp_mode', m);
+      applyMode(m, wasPlaying);
+      setTimeout(function() {
+        fade.style.opacity = '0';
+        setTimeout(function() { fade.style.pointerEvents = 'none'; }, 420);
+      }, 60);
+    }, 400);
+  }
+
+  function applyMode(m, autoPlay) {
+    if (m === 'hardcore') {
+      document.body.classList.add('hc');
+      document.getElementById('btn-chill').className = 'mode-btn';
+      document.getElementById('btn-hard').className = 'mode-btn m-hard';
+    } else {
+      document.body.classList.remove('hc');
+      document.getElementById('btn-chill').className = 'mode-btn m-chill';
+      document.getElementById('btn-hard').className = 'mode-btn';
+    }
+    document.getElementById('music-player').style.display = 'flex';
+    var inPlaylist = m === 'hardcore' ? hcPlaylist : lofiPlaylist;
+    var inState    = m === 'hardcore' ? hcm : lofi;
+    var track = inPlaylist[inState.idx];
+    _updateTrackDisplay(track.title, track.artist);
+    if (autoPlay) {
+      if (!inState.audio) {
+        inState.audio = new Audio(track.file);
+        inState.audio.volume = 0;
+        inState.audio.addEventListener('ended', function() {
+          if (m === 'hardcore') hcmSetTrack((hcm.idx + 1) % hcPlaylist.length, true);
+          else lofiSetTrack((lofi.idx + 1) % lofiPlaylist.length, true);
+        });
+      }
+      audioFadeIn(inState.audio, inState.vol, 600);
+      inState.playing = true;
+      _setPlayerUI('⏸', true);
+    }
+  }
+
+  // ── Music Engine (chill + hardcore playlists), ported from dashboard.html ──
+  var lofiPlaylist = [
+    { file: 'lofi%20hip-hop/Ariel%20Shalom%20-%20Dream%20Loop.mp3',                  title: 'Dream Loop',             artist: 'Ariel Shalom' },
+    { file: 'lofi%20hip-hop/Aves%20-%20Sunshine%20-%20Instrumental%20version.mp3',   title: 'Sunshine',               artist: 'Aves' },
+    { file: 'lofi%20hip-hop/Aves%20-%20Velvet.mp3',                                  title: 'Velvet',                 artist: 'Aves' },
+    { file: 'lofi%20hip-hop/Damon%20Power%20-%20Canon%20in%20D%20Lo-Fi%20Remix.mp3', title: 'Canon in D Lo-Fi Remix', artist: 'Damon Power' },
+    { file: 'lofi%20hip-hop/Heron%20Vale%20-%20Mistletoe%20Glow.mp3',                title: 'Mistletoe Glow',         artist: 'Heron Vale' },
+    { file: 'lofi%20hip-hop/Lalinea%20-%20Will%20You%20Play%20with%20Me.mp3',        title: 'Will You Play with Me',  artist: 'Lalinea' },
+    { file: 'lofi%20hip-hop/Tomer%20Baruch%20-%20Some%20Notes.mp3',                  title: 'Some Notes',             artist: 'Tomer Baruch' },
+    { file: 'lofi%20hip-hop/Yestalgia%20-%20Morning%20Reset.mp3',                    title: 'Morning Reset',          artist: 'Yestalgia' }
+  ];
+  var hcPlaylist = [
+    { file: 'mozart%20music/Bishara%20Haroni%20-%20Turkish%20March%20Rondo%20Alla%20Turca.mp3',          title: 'Turkish March',              artist: 'Bishara Haroni' },
+    { file: 'mozart%20music/Brooklyn%20Classical%20-%20Queen%20of%20the%20Night%20Mozart.mp3',           title: 'Queen of the Night',         artist: 'Brooklyn Classical' },
+    { file: 'mozart%20music/Budapest%20Art%20Orchestra%20-%20Symphony%20No40%20in%20G%20Minor.mp3',      title: 'Symphony No. 40 in G Minor', artist: 'Budapest Art Orchestra' },
+    { file: 'mozart%20music/Carmel%20Quartet%20-%20Eine%20Kleine%20Nachtmusik.mp3',                       title: 'Eine Kleine Nachtmusik',     artist: 'Carmel Quartet' },
+    { file: 'mozart%20music/Carmel%20Quartet%20-%20String%20Quartet%20in%20B-flat%20Major%20K%20458%20%E2%80%9CHunt%E2%80%9D%20%20Allegro%20vivace%20assai.mp3', title: 'The Hunt Quartet', artist: 'Carmel Quartet' },
+    { file: 'mozart%20music/Will%20Van%20De%20Crommert%20-%20Modern%20Mozart.mp3',                        title: 'Modern Mozart',              artist: 'Will Van De Crommert' }
+  ];
+  var lofi = { idx: 0, playing: false, audio: null, vol: 0.6 };
+  var hcm  = { idx: 0, playing: false, audio: null, vol: 0.7 };
+
+  function _updateTrackDisplay(title, artist) {
+    var tEl = document.getElementById('mp-track');
+    var sEl = document.getElementById('mp-sub');
+    if (tEl) tEl.textContent = title;
+    if (sEl) sEl.textContent = artist;
+  }
+  function _setPlayerUI(icon, spin) {
+    var btn = document.getElementById('mp-play');
+    var vinyl = document.getElementById('mp-vinyl');
+    if (btn) btn.textContent = icon;
+    if (vinyl) { if (spin) vinyl.classList.add('spin'); else vinyl.classList.remove('spin'); }
+  }
+
+  function audioFadeOut(audioEl, duration, cb) {
+    if (!audioEl || audioEl.paused) { if (cb) cb(); return; }
+    var startVol = audioEl.volume; var steps = 20; var step = 0;
+    var t = setInterval(function() {
+      step++;
+      audioEl.volume = Math.max(0, startVol * (1 - step / steps));
+      if (step >= steps) { clearInterval(t); audioEl.pause(); audioEl.volume = startVol; if (cb) cb(); }
+    }, duration / steps);
+  }
+  function audioFadeIn(audioEl, targetVol, duration) {
+    if (!audioEl) return;
+    audioEl.volume = 0;
+    audioEl.play().catch(function() {});
+    var steps = 20; var step = 0;
+    var t = setInterval(function() {
+      step++;
+      audioEl.volume = Math.min(targetVol, targetVol * step / steps);
+      if (step >= steps) { clearInterval(t); audioEl.volume = targetVol; }
+    }, duration / steps);
+  }
+
+  function lofiSetTrack(idx, andPlay) {
+    lofi.idx = ((idx % lofiPlaylist.length) + lofiPlaylist.length) % lofiPlaylist.length;
+    var track = lofiPlaylist[lofi.idx];
+    if (lofi.audio) { lofi.audio.pause(); lofi.audio.src = ''; }
+    lofi.audio = new Audio(track.file);
+    lofi.audio.volume = lofi.vol;
+    lofi.audio.addEventListener('ended', function() { lofiSetTrack((lofi.idx + 1) % lofiPlaylist.length, true); });
+    if (mode !== 'hardcore') _updateTrackDisplay(track.title, track.artist);
+    if (andPlay) {
+      lofi.audio.play().catch(function() {});
+      lofi.playing = true;
+      if (mode !== 'hardcore') _setPlayerUI('⏸', true);
+    }
+  }
+
+  function hcmSetTrack(idx, andPlay) {
+    hcm.idx = ((idx % hcPlaylist.length) + hcPlaylist.length) % hcPlaylist.length;
+    var track = hcPlaylist[hcm.idx];
+    if (hcm.audio) { hcm.audio.pause(); hcm.audio.src = ''; }
+    hcm.audio = new Audio(track.file);
+    hcm.audio.volume = hcm.vol;
+    hcm.audio.addEventListener('ended', function() { hcmSetTrack((hcm.idx + 1) % hcPlaylist.length, true); });
+    if (mode === 'hardcore') _updateTrackDisplay(track.title, track.artist);
+    if (andPlay) {
+      hcm.audio.play().catch(function() {});
+      hcm.playing = true;
+      if (mode === 'hardcore') _setPlayerUI('⏸', true);
+    }
+  }
+
+  function initLofi() { lofiSetTrack(0, false); }
+  function initHcm()  { hcmSetTrack(0, false); }
+
+  function toggleLofi() {
+    var isHc = mode === 'hardcore';
+    var st = isHc ? hcm : lofi;
+    if (st.playing) {
+      if (st.audio) st.audio.pause();
+      st.playing = false;
+      _setPlayerUI('▶', false);
+    } else {
+      if (!st.audio) { if (isHc) hcmSetTrack(0, false); else lofiSetTrack(0, false); }
+      st.audio.play().catch(function() {});
+      st.playing = true;
+      _setPlayerUI('⏸', true);
+    }
+  }
+
+  function lofiPrev() {
+    if (mode === 'hardcore') hcmSetTrack(hcm.idx - 1, hcm.playing);
+    else lofiSetTrack(lofi.idx - 1, lofi.playing);
+  }
+
+  function lofiNext(fromEnd) {
+    if (mode === 'hardcore') hcmSetTrack(hcm.idx + 1, hcm.playing || fromEnd);
+    else lofiSetTrack(lofi.idx + 1, lofi.playing || fromEnd);
+  }
+
+  function stopLofi() {
+    if (lofi.audio) { lofi.audio.pause(); lofi.playing = false; }
+    if (hcm.audio) { hcm.audio.pause(); hcm.playing = false; }
+    _setPlayerUI('▶', false);
+  }
+
+  function setLofiVolume(v) {
+    if (mode === 'hardcore') { hcm.vol = v; if (hcm.audio) hcm.audio.volume = v; }
+    else { lofi.vol = v; if (lofi.audio) lofi.audio.volume = v; }
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === '-' || e.key === '=' || e.key === 'm' || e.key === 'M') {
+      var tag = document.activeElement && document.activeElement.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      if (e.key === '-') setMode('chill');
+      else if (e.key === '=') setMode('hardcore');
+      else toggleLofi();
+    }
+  });
 
   // ── Revision Planner constants (ported from dashboard.html) ─────────
   var RP_LABELS = ['D1','D3','D7','D14','D28','D56','D84','D112','D140+'];
