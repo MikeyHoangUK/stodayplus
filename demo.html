@@ -31,10 +31,146 @@
     .opt-btn.correct { border-color:#16a34a; background:#f0fdf4; color:#15803d; }
     .opt-btn.wrong { border-color:#dc2626; background:#fef2f2; color:#b91c1c; }
     .opt-btn:disabled { cursor:default; opacity:.85; }
-    .conf-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-    .conf-red { background:#ef4444; } .conf-amber { background:#f59e0b; } .conf-green { background:#22c55e; }
     .spinner { width:16px; height:16px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; display:inline-block; vertical-align:middle; }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Revision Planner look, ported from dashboard.html ───────────── */
+    .mcq-tabs{display:flex;gap:2px;background:rgba(255,255,255,.7);border:1px solid rgba(168,85,247,.1);border-radius:12px;padding:4px}
+    .mcq-tab{padding:7px 18px;border-radius:8px;font-size:.72rem;font-weight:800;cursor:pointer;transition:background .18s,color .18s;color:#6e5438;letter-spacing:.04em;white-space:nowrap}
+    .mcq-tab.active{background:rgba(109,40,217,.14);color:#6d28d9}
+    .mcq-tab:hover:not(.active){color:#b09880;background:rgba(255,255,255,.7)}
+
+    .rp-clock-wrap{text-align:right;flex-shrink:0}
+    .rp-clock-time{font-size:1.6rem;font-weight:900;color:#1c1208;letter-spacing:.02em;font-variant-numeric:tabular-nums;line-height:1}
+    .rp-clock-sec{font-size:.78rem;font-weight:700;opacity:.32}
+    .rp-clock-date{font-size:.6rem;font-weight:800;color:#6e5438;opacity:.58;margin-top:5px;letter-spacing:.06em;text-transform:uppercase}
+
+    .rp-due-header{display:flex;align-items:baseline;gap:6px;margin-bottom:20px}
+    .rp-due-count{font-size:2.4rem;font-weight:900;background:linear-gradient(135deg,#6d28d9,#4338ca);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+    .rp-due-lbl{font-size:.86rem;font-weight:700;color:#6e5438}
+    .rp-topic-card{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.14);border-radius:16px;padding:18px 20px;margin-bottom:12px}
+    .rp-card-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+    .rp-card-left{flex:1;min-width:0}
+    .rp-card-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+    .rp-topic-name{font-size:.95rem;font-weight:800;color:#1c1208;margin-bottom:5px;line-height:1.3}
+    .rp-tag{display:inline-block;font-size:.6rem;font-weight:800;background:rgba(109,40,217,.1);color:#6d28d9;border:1px solid rgba(109,40,217,.2);border-radius:20px;padding:2px 8px;letter-spacing:.05em;text-transform:uppercase}
+    .rp-overdue{font-size:.68rem;font-weight:800;color:#ef4444;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:20px;padding:2px 8px;white-space:nowrap}
+    .rp-due-now{font-size:.68rem;font-weight:800;color:#7c3aed;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:20px;padding:2px 8px;white-space:nowrap}
+    .rp-next-date{font-size:.68rem;font-weight:700;color:#6e5438;white-space:nowrap}
+    .rp-method-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px 0;padding:8px 12px;background:rgba(109,40,217,.05);border:1px solid rgba(109,40,217,.1);border-radius:10px}
+    .rp-method-pill{font-size:.71rem;font-weight:800;color:#6d28d9;display:flex;align-items:center;gap:5px;flex:1;min-width:0}
+    .rp-go-tool-btn{font-size:.68rem;font-weight:800;background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:8px;padding:5px 12px;cursor:pointer;font-family:'Raleway',sans-serif;white-space:nowrap;transition:opacity .15s;flex-shrink:0}
+    .rp-go-tool-btn:hover{opacity:.85}
+    .rp-del-btn{width:24px;height:24px;border-radius:50%;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.15);color:#ef4444;font-size:.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+    .rp-del-btn:hover{background:rgba(239,68,68,.15)}
+
+    .rp-chain{display:flex;align-items:center;gap:0}
+    .rp-chain-item{display:flex;flex-direction:column;align-items:center;gap:4px}
+    .rp-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(109,40,217,.25);background:transparent;transition:all .2s;flex-shrink:0}
+    .rp-dot.done{background:#6d28d9;border-color:#6d28d9;box-shadow:0 0 6px rgba(109,40,217,.35)}
+    .rp-dot.next{border-color:#7c3aed;background:rgba(124,58,237,.12);box-shadow:0 0 0 3px rgba(124,58,237,.12)}
+    .rp-chain-lbl{font-size:.52rem;font-weight:700;color:#6e5438;letter-spacing:.02em;white-space:nowrap}
+    .rp-chain-line{flex:1;height:2px;background:rgba(109,40,217,.12);min-width:10px;max-width:38px;margin-bottom:14px}
+    .rp-chain-line.done{background:#6d28d9}
+
+    .rp-empty{text-align:center;padding:56px 24px}
+    .rp-empty-icon{font-size:2.4rem;margin-bottom:12px}
+    .rp-empty-title{font-size:1.1rem;font-weight:900;color:#1c1208;margin-bottom:6px}
+    .rp-empty-sub{font-size:.8rem;color:#6e5438;font-weight:500}
+
+    .org-actions{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+    .org-search{flex:1;min-width:140px;max-width:260px;padding:7px 12px;border:1px solid rgba(168,85,247,.2);border-radius:10px;background:rgba(255,255,255,.6);font-size:.74rem;font-family:'Raleway',sans-serif;color:#1c1208;outline:none}
+    .org-search:focus{border-color:rgba(109,40,217,.4)}
+    .org-gear-btn{font-size:.68rem;font-weight:700;color:#6e5438;background:none;border:1px solid rgba(168,85,247,.15);border-radius:8px;padding:6px 10px;cursor:pointer;font-family:'Raleway',sans-serif;transition:all .15s;margin-left:auto}
+    .org-gear-btn:hover{background:rgba(168,85,247,.07);border-color:rgba(168,85,247,.28)}
+    .org-add-card{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:16px;padding:18px 20px;margin-bottom:18px}
+    .org-add-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}
+    .org-add-grp{display:flex;flex-direction:column;gap:5px;flex:1;min-width:130px}
+    .org-add-lbl{font-size:.6rem;font-weight:800;color:#6e5438;text-transform:uppercase;letter-spacing:.07em}
+    .org-add-inp{padding:8px 11px;border:1px solid rgba(168,85,247,.2);border-radius:10px;background:rgba(255,255,255,.7);font-size:.78rem;font-family:'Raleway',sans-serif;color:#1c1208;outline:none;width:100%;box-sizing:border-box}
+    .org-add-inp:focus{border-color:rgba(109,40,217,.4)}
+    .org-card-save-btn{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:10px;padding:9px 22px;font-size:.74rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;white-space:nowrap}
+    .org-cancel-btn{background:none;border:none;cursor:pointer;font-size:.74rem;color:#6e5438;font-family:'Raleway',sans-serif;padding:9px 8px}
+
+    .org-table-wrap{overflow-x:auto;border-radius:14px;border:1px solid rgba(168,85,247,.12)}
+    .org-table{width:100%;border-collapse:collapse;min-width:560px}
+    .org-th{font-size:.58rem;font-weight:800;color:#6e5438;text-transform:uppercase;letter-spacing:.07em;padding:9px 10px;background:rgba(250,243,224,.85);border-bottom:1px solid rgba(168,85,247,.1);text-align:left;white-space:nowrap;user-select:none}
+    .org-th.center{text-align:center}
+    .org-th.sortable{cursor:pointer;transition:color .15s}
+    .org-th.sortable:hover{color:#7c3aed}
+    .org-th .sort-arr{margin-left:3px;opacity:.3;font-style:normal;font-size:.8em}
+    .org-th.sort-asc .sort-arr,.org-th.sort-desc .sort-arr{opacity:1;color:#7c3aed}
+    .org-td{padding:8px 10px;border-bottom:1px solid rgba(168,85,247,.06);vertical-align:middle}
+    .org-tr:last-child .org-td{border-bottom:none}
+    .org-tr:hover .org-td{background:rgba(168,85,247,.025)}
+    .org-subj-tag{font-size:.58rem;font-weight:800;border-radius:6px;padding:2px 7px;white-space:nowrap}
+    .org-topic-name{font-size:.8rem;font-weight:700;color:#1c1208}
+    .org-conf{width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;margin:0 auto;background:transparent;transition:transform .12s;font-family:inherit}
+    .org-conf:hover{transform:scale(1.25)}
+    .org-due-badge{font-size:.62rem;font-weight:800;border-radius:8px;padding:3px 8px;white-space:nowrap;display:inline-block}
+    .org-due-badge.overdue{background:rgba(220,38,38,.1);color:#dc2626}
+    .org-due-badge.today{background:rgba(220,38,38,.1);color:#dc2626}
+    .org-due-badge.soon{background:rgba(234,179,8,.1);color:#b45309}
+    .org-due-badge.later{background:rgba(22,163,74,.1);color:#16a34a}
+    .org-due-badge.none{background:rgba(0,0,0,.05);color:#9ca3af}
+    .org-action-btns{display:flex;gap:4px;align-items:center}
+    .org-tool-btn{padding:4px 5px;border-radius:7px;border:1px solid rgba(168,85,247,.2);background:rgba(109,40,217,.05);color:#6d28d9;font-size:.72rem;cursor:pointer;font-family:'Raleway',sans-serif;transition:all .15s;line-height:1}
+    .org-tool-btn:hover{background:rgba(109,40,217,.14);border-color:rgba(109,40,217,.4)}
+    .org-del-btn{padding:4px 7px;border-radius:7px;border:1px solid rgba(220,38,38,.18);background:rgba(220,38,38,.04);color:#dc2626;font-size:.72rem;cursor:pointer;font-family:'Raleway',sans-serif;transition:all .15s;line-height:1}
+    .org-del-btn:hover{background:rgba(220,38,38,.12);border-color:rgba(220,38,38,.35)}
+    .org-empty{text-align:center;padding:64px 24px}
+    .org-empty-icon{font-size:2.4rem;margin-bottom:14px}
+    .org-empty-title{font-size:1.05rem;font-weight:900;color:#1c1208;margin-bottom:8px}
+    .org-empty-sub{font-size:.8rem;color:#6e5438;font-weight:500;line-height:1.6;max-width:320px;margin:0 auto}
+
+    .rp-cal-layout{display:flex;gap:20px;align-items:flex-start}
+    .rp-cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .rp-cal-month{font-size:1rem;font-weight:900;color:#1c1208}
+    .rp-cal-arrow{width:28px;height:28px;border-radius:8px;border:1px solid rgba(168,85,247,.18);background:rgba(255,255,255,.5);cursor:pointer;color:#6d28d9;font-size:.9rem;font-weight:700;transition:background .15s;display:flex;align-items:center;justify-content:center}
+    .rp-cal-arrow:hover{background:rgba(168,85,247,.12)}
+    .rp-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:14px}
+    .rp-cal-dow{text-align:center;font-size:.58rem;font-weight:800;color:#6e5438;letter-spacing:.06em;text-transform:uppercase;padding:5px 0}
+    .rp-cal-cell{min-height:58px;border-radius:9px;padding:6px 5px;background:rgba(255,255,255,.3);border:1px solid transparent;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+    .rp-cal-cell:hover:not(.rp-empty-cell){background:rgba(168,85,247,.08);border-color:rgba(168,85,247,.18)}
+    .rp-cal-cell.today{background:rgba(109,40,217,.07);border-color:rgba(109,40,217,.22)}
+    .rp-cal-cell.selected{background:rgba(109,40,217,.13);border-color:rgba(109,40,217,.4)!important}
+    .rp-cal-cell.rp-empty-cell{background:transparent;border-color:transparent;cursor:default;pointer-events:none}
+    .rp-cal-date{font-size:.7rem;font-weight:800;color:#4a3820;line-height:1;margin-bottom:4px}
+    .rp-cal-cell.today .rp-cal-date{color:#6d28d9}
+    .rp-cal-pill{font-size:.56rem;font-weight:700;background:rgba(109,40,217,.1);color:#6d28d9;border-radius:4px;padding:1px 4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;line-height:1.5}
+    .rp-cal-more{font-size:.54rem;font-weight:700;color:#6e5438;opacity:.65;line-height:1}
+    .rp-cal-detail{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.14);border-radius:14px;padding:16px 20px}
+    .rp-cal-detail-hd{font-size:.78rem;font-weight:800;color:#6d28d9;margin-bottom:10px}
+    .rp-cal-detail-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(168,85,247,.07)}
+    .rp-cal-detail-row:last-child{border-bottom:none}
+    .rp-cal-detail-topic{font-size:.82rem;font-weight:700;color:#1c1208;flex:1}
+    .rp-cal-detail-tag{font-size:.58rem;font-weight:800;background:rgba(109,40,217,.08);color:#6d28d9;border-radius:12px;padding:2px 7px;flex-shrink:0}
+    .rp-cal-rev-badge{font-size:.56rem;font-weight:800;background:rgba(5,150,105,.09);color:#047857;border-radius:12px;padding:2px 7px;flex-shrink:0;white-space:nowrap}
+
+    .rp-exam-panel{width:212px;min-width:212px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.14);border-radius:16px;padding:16px 15px}
+    .rp-exam-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .rp-exam-hd-txt{font-size:.78rem;font-weight:900;color:#1c1208;letter-spacing:.02em}
+    .rp-exam-toggle{width:22px;height:22px;border-radius:6px;background:rgba(109,40,217,.1);border:1px solid rgba(109,40,217,.2);color:#6d28d9;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;transition:background .15s;flex-shrink:0}
+    .rp-exam-toggle:hover{background:rgba(109,40,217,.2)}
+    .rp-exam-form{margin-bottom:12px;display:flex;flex-direction:column;gap:6px}
+    .rp-exam-submit{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:8px;padding:8px;font-size:.72rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:opacity .15s}
+    .rp-exam-submit:hover{opacity:.85}
+    .rp-exam-divider{height:1px;background:rgba(168,85,247,.1);margin:0 0 10px}
+    .rp-exam-item{padding:9px 0;border-bottom:1px solid rgba(168,85,247,.07);position:relative}
+    .rp-exam-item:last-child{border-bottom:none}
+    .rp-exam-item-name{font-size:.74rem;font-weight:800;color:#1c1208;padding-right:18px;line-height:1.3;margin-bottom:3px}
+    .rp-exam-countdown{font-size:1.55rem;font-weight:900;line-height:1;margin-bottom:2px}
+    .rp-exam-date-txt{font-size:.58rem;font-weight:600;color:#6e5438;opacity:.75}
+    .rp-exam-del{position:absolute;top:9px;right:0;background:none;border:none;color:#ef4444;opacity:.3;cursor:pointer;font-size:.65rem;line-height:1;padding:2px;transition:opacity .15s}
+    .rp-exam-del:hover{opacity:.8}
+    .rp-exam-empty{font-size:.72rem;color:#6e5438;opacity:.55;text-align:center;padding:18px 0;line-height:1.5}
+    .cnt-red{color:#ef4444} .cnt-amber{color:#f59e0b} .cnt-purple{color:#6d28d9} .cnt-green{color:#16a34a} .cnt-past{color:#9ca3af}
+
+    @media (max-width: 640px) {
+      .rp-cal-layout { flex-direction: column; }
+      .rp-exam-panel { width: 100%; min-width: 0; }
+      .mcq-tab { padding: 6px 12px; font-size: .68rem; }
+    }
   </style>
 </head>
 <body class="font-sans bg-gray-50 text-gray-900 antialiased">
@@ -88,28 +224,92 @@
 
     <!-- ══ ORGANISER TAB ══ -->
     <div id="tab-organiser">
-      <div class="flex items-center justify-between mb-5">
-        <h2 class="text-xl font-extrabold text-navy-dark">Your topics</h2>
-        <button onclick="openAddTopic()" class="gradient-brand text-white text-sm font-bold px-4 py-2.5 rounded-xl hover:opacity-90 transition-opacity">+ Add topic</button>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px">
+        <div class="mcq-tabs">
+          <div class="mcq-tab active" id="org-subtab-today" onclick="orgSubTab('today')">📅 Today</div>
+          <div class="mcq-tab" id="org-subtab-topics" onclick="orgSubTab('topics')">🗂 Topics</div>
+          <div class="mcq-tab" id="org-subtab-cal" onclick="orgSubTab('cal')">🗓 Calendar</div>
+        </div>
+        <div class="rp-clock-wrap">
+          <div class="rp-clock-time"><span id="rp-clock-hm">--:--</span><span class="rp-clock-sec" id="rp-clock-sec"></span></div>
+          <div class="rp-clock-date" id="rp-clock-date"></div>
+        </div>
       </div>
 
-      <!-- Add topic form (toggle) -->
-      <div id="add-topic-form" class="bg-white border border-gray-200 rounded-2xl p-5 mb-5" hidden>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-          <input id="new-topic-subject" placeholder="Subject (e.g. Chemistry)" class="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" />
-          <input id="new-topic-name" placeholder="Topic (e.g. Organic Reactions)" class="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" />
-        </div>
-        <div class="flex items-center gap-3">
-          <input id="new-topic-due" type="date" class="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT" />
-          <button onclick="submitAddTopic()" class="gradient-brand text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity">Save</button>
-          <button onclick="closeAddTopic()" class="text-gray-400 text-sm font-semibold px-2">Cancel</button>
-        </div>
-        <p id="add-topic-status" class="text-xs text-red-600 mt-2"></p>
+      <!-- TODAY -->
+      <div id="org-view-today">
+        <div id="org-today-content"></div>
       </div>
 
-      <div id="topics-list" class="space-y-3"></div>
-      <div id="topics-empty" class="text-center py-16 text-gray-400 text-sm" hidden>
-        No topics yet — add one above, or generate a quiz in Poppy and we'll create it for you.
+      <!-- TOPICS -->
+      <div id="org-view-topics" hidden>
+        <div class="org-actions" id="org-actions-bar">
+          <input class="org-search" id="org-search" placeholder="Search topics or subjects…" oninput="orgRenderTable()"/>
+          <button class="org-gear-btn" style="margin-left:0" onclick="orgToggleAddTopic()">+ New topic</button>
+        </div>
+        <div class="org-add-card" id="add-topic-form" hidden>
+          <div class="org-add-row">
+            <div class="org-add-grp">
+              <label class="org-add-lbl">Subject</label>
+              <input id="new-topic-subject" class="org-add-inp" placeholder="e.g. Chemistry"/>
+            </div>
+            <div class="org-add-grp">
+              <label class="org-add-lbl">Topic</label>
+              <input id="new-topic-name" class="org-add-inp" placeholder="e.g. Organic Reactions"/>
+            </div>
+            <div class="org-add-grp" style="flex:0 0 160px;min-width:140px">
+              <label class="org-add-lbl">First review</label>
+              <input id="new-topic-due" type="date" class="org-add-inp"/>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button class="org-card-save-btn" onclick="submitAddTopic()">Save</button>
+            <button class="org-cancel-btn" onclick="closeAddTopic()">Cancel</button>
+          </div>
+          <p id="add-topic-status" class="text-xs text-red-600 mt-2"></p>
+        </div>
+        <div class="org-table-wrap">
+          <table class="org-table">
+            <thead>
+              <tr>
+                <th class="org-th sortable" id="org-th-subj" onclick="orgSort('subject')">Subject<span class="sort-arr" id="org-arr-subj"></span></th>
+                <th class="org-th sortable" id="org-th-topic" onclick="orgSort('topic')">Topic<span class="sort-arr" id="org-arr-topic"></span></th>
+                <th class="org-th center">Qs</th>
+                <th class="org-th center">Conf</th>
+                <th class="org-th">Next Due</th>
+                <th class="org-th">Go</th>
+              </tr>
+            </thead>
+            <tbody id="org-tbody"></tbody>
+          </table>
+        </div>
+        <div id="org-empty" class="org-empty" hidden>
+          <div class="org-empty-icon">📋</div>
+          <div class="org-empty-title">No topics yet</div>
+          <div class="org-empty-sub">Add one above, or generate a quiz in Poppy and we'll create it for you.</div>
+        </div>
+      </div>
+
+      <!-- CALENDAR -->
+      <div id="org-view-cal" hidden>
+        <div class="rp-cal-layout">
+          <div id="rp-cal-content" style="flex:1;min-width:0"></div>
+          <div class="rp-exam-panel">
+            <div class="rp-exam-hd">
+              <span class="rp-exam-hd-txt">📌 Exams</span>
+              <button class="rp-exam-toggle" id="rp-exam-toggle" onclick="rpExamToggleForm()" title="Add exam">＋</button>
+            </div>
+            <div id="rp-exam-form" class="rp-exam-form" hidden>
+              <input id="rp-exam-name" class="org-add-inp" type="text" placeholder="Exam name"
+                     onkeydown="if(event.key==='Enter')document.getElementById('rp-exam-date').focus()"/>
+              <input id="rp-exam-date" class="org-add-inp" type="date"
+                     onkeydown="if(event.key==='Enter')rpExamAdd()"/>
+              <button class="rp-exam-submit" onclick="rpExamAdd()">Add exam →</button>
+            </div>
+            <div class="rp-exam-divider" id="rp-exam-divider" hidden></div>
+            <div id="rp-exam-list"></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -195,6 +395,9 @@
   var currentSession = null;
 
   function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function tomorrowStr() { return new Date(Date.now() + 86400000).toISOString().slice(0, 10); }
+  function todayMidnightMs() { var d = new Date(); d.setHours(0,0,0,0); return d.getTime(); }
+  function todayEodMs() { var d = new Date(); d.setHours(23,59,59,999); return d.getTime(); }
 
   // ── Auth ───────────────────────────────────────────────────────────
   var authMode = 'signin';
@@ -260,7 +463,7 @@
     }
   });
 
-  // ── Tabs ───────────────────────────────────────────────────────────
+  // ── Top-level tabs ────────────────────────────────────────────────
   function showTab(name) {
     ['organiser', 'poppy'].forEach(function(t) {
       document.getElementById('tab-' + t).hidden = t !== name;
@@ -271,18 +474,187 @@
       btn.classList.toggle('text-gray-400', t !== name);
     });
     if (name === 'poppy') poppyPopulateTopicSelect();
+    if (name === 'organiser') renderOrganiser();
   }
 
   // ── App boot ───────────────────────────────────────────────────────
   var topicsCache = [];
+  var questionCounts = {};
+  var examsCache = [];
 
   async function bootApp() {
+    rpStartClock();
+    await Promise.all([loadTopics(), loadExams(currentSession.user.id)]);
     showTab('organiser');
-    await loadTopics();
   }
 
-  // ── Organiser ──────────────────────────────────────────────────────
-  function openAddTopic() { document.getElementById('add-topic-form').hidden = false; }
+  // ── Revision Planner constants (ported from dashboard.html) ─────────
+  var RP_LABELS = ['D1','D3','D7','D14','D28','D56','D84','D112','D140+'];
+  var RP_BASE = [1, 3, 7, 14, 28, 56, 84, 112];
+  function rpIntervalDays(level) { if (level < RP_BASE.length) return RP_BASE[level]; return 112 + (level - 7) * 28; }
+  function rpChainHTML(level) {
+    var maxDot = 8, html = '<div class="rp-chain">';
+    for (var i = 0; i <= maxDot; i++) {
+      var cls = 'rp-dot';
+      if (i < level) cls += ' done'; else if (i === level) cls += ' next';
+      html += '<div class="rp-chain-item"><div class="' + cls + '"></div><div class="rp-chain-lbl">' + RP_LABELS[i] + '</div></div>';
+      if (i < maxDot) html += '<div class="rp-chain-line' + (i < level ? ' done' : '') + '"></div>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  var ORG_COLORS = [
+    { bg:'rgba(124,58,237,.12)', text:'#7c3aed' }, { bg:'rgba(37,99,235,.12)',  text:'#2563eb' },
+    { bg:'rgba(5,150,105,.12)',  text:'#047857' }, { bg:'rgba(234,88,12,.12)',  text:'#c2410c' },
+    { bg:'rgba(219,39,119,.12)', text:'#be185d' }, { bg:'rgba(6,182,212,.12)',  text:'#0e7490' },
+    { bg:'rgba(217,119,6,.12)',  text:'#b45309' }, { bg:'rgba(99,102,241,.12)', text:'#4338ca' },
+    { bg:'rgba(20,184,166,.12)', text:'#0f766e' }, { bg:'rgba(239,68,68,.12)',  text:'#b91c1c' }
+  ];
+  function orgSubjectColor(subject) {
+    var s = String(subject || ''), h = 0;
+    for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+    return ORG_COLORS[Math.abs(h) % ORG_COLORS.length];
+  }
+  function confEmoji(c) { return c === 'green' ? '🟢' : c === 'amber' ? '🟡' : '🔴'; }
+  function orgDueBadge(dateStr) {
+    if (!dateStr) return '<span class="org-due-badge none">—</span>';
+    var due = new Date(dateStr + 'T00:00:00').getTime();
+    var diff = Math.round((due - todayMidnightMs()) / 86400000);
+    if (diff < 0) return '<span class="org-due-badge overdue">Overdue ' + Math.abs(diff) + 'd</span>';
+    if (diff === 0) return '<span class="org-due-badge today">Due today</span>';
+    if (diff <= 3) return '<span class="org-due-badge soon">In ' + diff + ' day' + (diff > 1 ? 's' : '') + '</span>';
+    return '<span class="org-due-badge later">In ' + diff + ' days</span>';
+  }
+
+  // ── Organiser sub-tabs ───────────────────────────────────────────────
+  var currentOrgSubTab = 'today';
+  function orgSubTab(t) {
+    currentOrgSubTab = t;
+    ['today','topics','cal'].forEach(function(x) {
+      document.getElementById('org-view-' + x).hidden = x !== t;
+      document.getElementById('org-subtab-' + x).classList.toggle('active', x === t);
+    });
+    if (t === 'today') renderToday();
+    if (t === 'topics') orgRenderTable();
+    if (t === 'cal') { rpRenderCal(); renderExams(); }
+  }
+  function renderOrganiser() { orgSubTab(currentOrgSubTab); }
+
+  async function loadTopics() {
+    var uid = currentSession.user.id;
+    var results = await Promise.all([
+      sb.from('demo_topics').select('*').eq('user_id', uid).order('due_date', { ascending: true, nullsFirst: false }),
+      sb.from('demo_questions').select('topic_id').eq('user_id', uid)
+    ]);
+    var topicsRes = results[0], qRes = results[1];
+    if (topicsRes.error) {
+      document.getElementById('org-today-content').innerHTML = '<p class="text-red-600 text-sm">Couldn\'t load topics: ' + esc(topicsRes.error.message) + '</p>';
+      return;
+    }
+    topicsCache = topicsRes.data || [];
+    questionCounts = {};
+    (qRes.data || []).forEach(function(q) { questionCounts[q.topic_id] = (questionCounts[q.topic_id] || 0) + 1; });
+  }
+
+  // ── Today view ────────────────────────────────────────────────────
+  function renderToday() {
+    var el = document.getElementById('org-today-content');
+    var due = topicsCache.filter(function(t) {
+      if (!t.due_date) return false;
+      return new Date(t.due_date + 'T00:00:00').getTime() <= todayEodMs();
+    });
+    if (!due.length) {
+      el.innerHTML = '<div class="rp-empty"><div class="rp-empty-icon">🎉</div><div class="rp-empty-title">All caught up!</div>'
+        + '<div class="rp-empty-sub">No reviews due today. Come back tomorrow, or jump into Poppy to start a new topic.</div></div>';
+      return;
+    }
+    var html = '<div class="rp-due-header"><span class="rp-due-count">' + due.length + '</span><span class="rp-due-lbl"> topic' + (due.length !== 1 ? 's' : '') + ' due for review</span></div>';
+    due.forEach(function(t) {
+      var dueMidnight = new Date(t.due_date + 'T00:00:00').getTime();
+      var overdueDays = Math.max(0, Math.floor((todayMidnightMs() - dueMidnight) / 86400000));
+      var badge = overdueDays > 0 ? '<span class="rp-overdue">' + overdueDays + 'd overdue</span>' : '<span class="rp-due-now">Due today</span>';
+      var dLabel = RP_LABELS[Math.min(t.level || 0, 8)];
+      html += '<div class="rp-topic-card">'
+        + '<div class="rp-card-top"><div class="rp-card-left">'
+        + '<div class="rp-topic-name">' + esc(t.topic_name) + '</div>'
+        + (t.subject ? '<span class="rp-tag">' + esc(t.subject) + '</span>' : '')
+        + '</div><div class="rp-card-right">' + badge + '</div></div>'
+        + '<div class="rp-method-row"><span class="rp-method-pill">📖 ' + dLabel + ' — Review with Poppy</span>'
+        + '<button class="rp-go-tool-btn" onclick="poppyFromTopic(\'' + t.id + '\')">▶ Start</button></div>'
+        + rpChainHTML(t.level || 0)
+        + '</div>';
+    });
+    el.innerHTML = html;
+  }
+
+  // ── Topics table ─────────────────────────────────────────────────
+  var orgSortCol = null, orgSortDir = 1;
+  function orgSort(col) {
+    if (orgSortCol === col) {
+      orgSortDir = orgSortDir === 1 ? -1 : (function() { orgSortCol = null; return 1; })();
+    } else {
+      orgSortCol = col; orgSortDir = 1;
+    }
+    ['subj','topic'].forEach(function(c) {
+      var th = document.getElementById('org-th-' + c), arr = document.getElementById('org-arr-' + c);
+      var mapped = c === 'subj' ? 'subject' : 'topic';
+      th.classList.remove('sort-asc','sort-desc');
+      if (orgSortCol === mapped) { th.classList.add(orgSortDir === 1 ? 'sort-asc' : 'sort-desc'); arr.textContent = orgSortDir === 1 ? ' ↑' : ' ↓'; }
+      else arr.textContent = '';
+    });
+    orgRenderTable();
+  }
+
+  function orgRenderTable() {
+    var tbody = document.getElementById('org-tbody');
+    var emptyEl = document.getElementById('org-empty');
+    var search = ((document.getElementById('org-search') || {}).value || '').toLowerCase().trim();
+    var list = topicsCache.filter(function(t) {
+      if (search && t.topic_name.toLowerCase().indexOf(search) === -1 && (t.subject || '').toLowerCase().indexOf(search) === -1) return false;
+      return true;
+    });
+    if (orgSortCol) {
+      list.sort(function(a, b) {
+        var av = orgSortCol === 'subject' ? (a.subject || '') : a.topic_name;
+        var bv = orgSortCol === 'subject' ? (b.subject || '') : b.topic_name;
+        return av.toLowerCase().localeCompare(bv.toLowerCase()) * orgSortDir;
+      });
+    }
+    emptyEl.hidden = list.length !== 0;
+    document.querySelector('.org-table-wrap').hidden = list.length === 0;
+
+    tbody.innerHTML = list.map(function(t) {
+      var sc = orgSubjectColor(t.subject);
+      return '<tr class="org-tr">'
+        + '<td class="org-td"><span class="org-subj-tag" style="background:' + sc.bg + ';color:' + sc.text + '">' + esc(t.subject || '—') + '</span></td>'
+        + '<td class="org-td"><div class="org-topic-name">' + esc(t.topic_name) + '</div></td>'
+        + '<td class="org-td" style="text-align:center">' + (questionCounts[t.id] || 0) + '</td>'
+        + '<td class="org-td" style="text-align:center"><button class="org-conf" onclick="orgCycleConf(\'' + t.id + '\')" title="Tap to change confidence">' + confEmoji(t.confidence) + '</button></td>'
+        + '<td class="org-td">' + orgDueBadge(t.due_date) + '</td>'
+        + '<td class="org-td"><div class="org-action-btns">'
+        + '<button class="org-tool-btn" onclick="poppyFromTopic(\'' + t.id + '\')" title="Open in Poppy">🧠</button>'
+        + '<button class="org-del-btn" onclick="deleteTopic(\'' + t.id + '\')" title="Delete">✕</button>'
+        + '</div></td>'
+        + '</tr>';
+    }).join('');
+  }
+
+  async function orgCycleConf(id) {
+    var t = topicsCache.find(function(x) { return x.id === id; });
+    if (!t) return;
+    var order = ['red','amber','green'];
+    var next = order[(order.indexOf(t.confidence) + 1) % 3];
+    var res = await sb.from('demo_topics').update({ confidence: next }).eq('id', id).select().single();
+    if (!res.error) { t.confidence = res.data.confidence; orgRenderTable(); }
+  }
+
+  // ── Add / delete topic ───────────────────────────────────────────
+  function orgToggleAddTopic() {
+    var f = document.getElementById('add-topic-form');
+    f.hidden = !f.hidden;
+    if (!f.hidden) document.getElementById('new-topic-subject').focus();
+  }
   function closeAddTopic() {
     document.getElementById('add-topic-form').hidden = true;
     document.getElementById('new-topic-subject').value = '';
@@ -291,60 +663,18 @@
     document.getElementById('add-topic-status').textContent = '';
   }
 
-  async function loadTopics() {
-    var uid = currentSession.user.id;
-    var res = await sb.from('demo_topics').select('*').eq('user_id', uid).order('due_date', { ascending: true, nullsFirst: false });
-    if (res.error) {
-      document.getElementById('topics-list').innerHTML = '<p class="text-red-600 text-sm">Couldn\'t load topics: ' + esc(res.error.message) + '</p>';
-      return;
-    }
-    topicsCache = res.data || [];
-    renderTopics();
-  }
-
-  function confClass(c) { return c === 'green' ? 'conf-green' : c === 'amber' ? 'conf-amber' : 'conf-red'; }
-
-  function dueBadge(dateStr) {
-    if (!dateStr) return '';
-    var due = new Date(dateStr + 'T00:00:00');
-    var today = new Date(); today.setHours(0,0,0,0);
-    var days = Math.round((due - today) / 86400000);
-    if (days < 0)  return '<span class="text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded-full px-2.5 py-1">' + Math.abs(days) + 'd overdue</span>';
-    if (days === 0) return '<span class="text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded-full px-2.5 py-1">Due today</span>';
-    return '<span class="text-xs font-bold text-green-700 bg-green-50 border border-green-200 rounded-full px-2.5 py-1">In ' + days + 'd</span>';
-  }
-
-  function renderTopics() {
-    var list = document.getElementById('topics-list');
-    var empty = document.getElementById('topics-empty');
-    if (!topicsCache.length) { list.innerHTML = ''; empty.hidden = false; return; }
-    empty.hidden = true;
-    list.innerHTML = topicsCache.map(function(t) {
-      return '<div class="bg-white border border-gray-200 rounded-2xl p-4 flex items-center gap-4">'
-        + '<span class="conf-dot ' + confClass(t.confidence) + '"></span>'
-        + '<div class="flex-1 min-w-0">'
-        +   '<span class="text-xs font-bold text-purple-DEFAULT bg-purple-light rounded-full px-2.5 py-0.5">' + esc(t.subject) + '</span>'
-        +   '<div class="font-bold text-navy-dark mt-1">' + esc(t.topic_name) + '</div>'
-        + '</div>'
-        + dueBadge(t.due_date)
-        + '<button onclick="poppyFromTopic(\'' + t.id + '\')" class="text-xs font-bold text-purple-DEFAULT hover:underline whitespace-nowrap">Practice →</button>'
-        + '<button onclick="deleteTopic(\'' + t.id + '\')" class="text-gray-300 hover:text-red-500 text-sm" aria-label="Delete topic">✕</button>'
-        + '</div>';
-    }).join('');
-  }
-
   async function submitAddTopic() {
     var subject = document.getElementById('new-topic-subject').value.trim();
     var name = document.getElementById('new-topic-name').value.trim();
-    var due = document.getElementById('new-topic-due').value || null;
+    var due = document.getElementById('new-topic-due').value || tomorrowStr();
     var statusEl = document.getElementById('add-topic-status');
     if (!subject || !name) { statusEl.textContent = 'Please fill in both subject and topic name.'; return; }
     var uid = currentSession.user.id;
     var res = await sb.from('demo_topics').insert({ user_id: uid, subject: subject, topic_name: name, due_date: due, confidence: 'red' }).select().single();
     if (res.error) { statusEl.textContent = res.error.message; return; }
     topicsCache.push(res.data);
-    renderTopics();
     closeAddTopic();
+    renderOrganiser();
   }
 
   async function deleteTopic(id) {
@@ -352,7 +682,167 @@
     var res = await sb.from('demo_topics').delete().eq('id', id);
     if (res.error) { alert('Could not delete: ' + res.error.message); return; }
     topicsCache = topicsCache.filter(function(t) { return t.id !== id; });
-    renderTopics();
+    renderOrganiser();
+  }
+
+  // ── Calendar ──────────────────────────────────────────────────────
+  var rpCalYear = new Date().getFullYear(), rpCalMonth = new Date().getMonth(), rpCalSel = null;
+  function rpBuildMap() {
+    var map = {};
+    topicsCache.forEach(function(t) {
+      if (!t.due_date) return;
+      var d = new Date(t.due_date + 'T00:00:00');
+      var key = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
+      if (!map[key]) map[key] = [];
+      map[key].push(t);
+    });
+    return map;
+  }
+  function rpRenderCal() {
+    var el = document.getElementById('rp-cal-content');
+    var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    var DOWS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    var today = new Date();
+    var map = rpBuildMap();
+    var firstDay = new Date(rpCalYear, rpCalMonth, 1);
+    var daysInMon = new Date(rpCalYear, rpCalMonth + 1, 0).getDate();
+    var startDow = (firstDay.getDay() + 6) % 7;
+
+    var html = '<div class="rp-cal-nav"><button class="rp-cal-arrow" onclick="rpCalNav(-1)">‹</button>'
+      + '<div class="rp-cal-month">' + MONTHS[rpCalMonth] + ' ' + rpCalYear + '</div>'
+      + '<button class="rp-cal-arrow" onclick="rpCalNav(1)">›</button></div><div class="rp-cal-grid">';
+    DOWS.forEach(function(d) { html += '<div class="rp-cal-dow">' + d + '</div>'; });
+    for (var i = 0; i < startDow; i++) html += '<div class="rp-cal-cell rp-empty-cell"></div>';
+    for (var d = 1; d <= daysInMon; d++) {
+      var isToday = d === today.getDate() && rpCalMonth === today.getMonth() && rpCalYear === today.getFullYear();
+      var key = rpCalYear + '-' + rpCalMonth + '-' + d;
+      var isSel = rpCalSel === key;
+      var topicsForDay = map[key] || [];
+      var cls = 'rp-cal-cell' + (isToday ? ' today' : '') + (isSel ? ' selected' : '');
+      html += '<div class="' + cls + '" onclick="rpCalSelect(' + d + ')"><div class="rp-cal-date">' + d + '</div>';
+      topicsForDay.slice(0, 2).forEach(function(t) {
+        var dlbl = RP_LABELS[Math.min(t.level || 0, 8)];
+        html += '<div class="rp-cal-pill">📖 ' + dlbl + ' · ' + esc(t.topic_name) + '</div>';
+      });
+      if (topicsForDay.length > 2) html += '<div class="rp-cal-more">+' + (topicsForDay.length - 2) + ' more</div>';
+      html += '</div>';
+    }
+    var total = startDow + daysInMon, tail = (7 - (total % 7)) % 7;
+    for (var i2 = 0; i2 < tail; i2++) html += '<div class="rp-cal-cell rp-empty-cell"></div>';
+    html += '</div>';
+
+    if (rpCalSel) {
+      var selTopics = map[rpCalSel] || [];
+      if (selTopics.length) {
+        var parts = rpCalSel.split('-');
+        var dLabel = parts[2] + ' ' + MONTHS[parseInt(parts[1], 10)];
+        html += '<div class="rp-cal-detail"><div class="rp-cal-detail-hd">' + dLabel + '</div>';
+        selTopics.forEach(function(t) {
+          var revLabel = '📖 ' + RP_LABELS[Math.min(t.level || 0, 8)] + ' — Review session';
+          html += '<div class="rp-cal-detail-row"><div class="rp-cal-detail-topic">' + esc(t.topic_name) + '</div>'
+            + '<span class="rp-cal-rev-badge">' + revLabel + '</span>'
+            + (t.subject ? '<span class="rp-cal-detail-tag">' + esc(t.subject) + '</span>' : '')
+            + '</div>';
+        });
+        html += '</div>';
+      }
+    }
+    el.innerHTML = html;
+  }
+  function rpCalNav(dir) {
+    rpCalMonth += dir;
+    if (rpCalMonth > 11) { rpCalMonth = 0; rpCalYear++; }
+    if (rpCalMonth < 0) { rpCalMonth = 11; rpCalYear--; }
+    rpCalSel = null;
+    rpRenderCal();
+  }
+  function rpCalSelect(d) {
+    var key = rpCalYear + '-' + rpCalMonth + '-' + d;
+    rpCalSel = rpCalSel === key ? null : key;
+    rpRenderCal();
+  }
+
+  // ── Exam tracker ──────────────────────────────────────────────────
+  async function loadExams(uid) {
+    var res = await sb.from('demo_exams').select('*').eq('user_id', uid).order('exam_date', { ascending: true });
+    examsCache = res.data || [];
+  }
+  function rpExamToggleForm() {
+    var form = document.getElementById('rp-exam-form');
+    var div = document.getElementById('rp-exam-divider');
+    var btn = document.getElementById('rp-exam-toggle');
+    var opening = form.hidden;
+    form.hidden = !opening;
+    div.hidden = !opening;
+    btn.textContent = opening ? '✕' : '＋';
+    if (opening) document.getElementById('rp-exam-name').focus();
+  }
+  async function rpExamAdd() {
+    var name = (document.getElementById('rp-exam-name').value || '').trim();
+    var date = document.getElementById('rp-exam-date').value;
+    if (!name || !date) return;
+    var uid = currentSession.user.id;
+    var res = await sb.from('demo_exams').insert({ user_id: uid, exam_name: name, exam_date: date }).select().single();
+    if (res.error) { alert(res.error.message); return; }
+    examsCache.push(res.data);
+    examsCache.sort(function(a, b) { return a.exam_date < b.exam_date ? -1 : a.exam_date > b.exam_date ? 1 : 0; });
+    document.getElementById('rp-exam-name').value = '';
+    document.getElementById('rp-exam-date').value = '';
+    rpExamToggleForm();
+    renderExams();
+  }
+  async function rpExamDelete(id) {
+    var res = await sb.from('demo_exams').delete().eq('id', id);
+    if (res.error) { alert(res.error.message); return; }
+    examsCache = examsCache.filter(function(x) { return x.id !== id; });
+    renderExams();
+  }
+  function examDaysLeft(dateStr) {
+    var today = new Date(); today.setHours(0,0,0,0);
+    var d = new Date(dateStr + 'T00:00:00');
+    return Math.round((d - today) / 86400000);
+  }
+  function examFmtDate(dateStr) {
+    var d = new Date(dateStr + 'T00:00:00');
+    var M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return d.getDate() + ' ' + M[d.getMonth()] + ' ' + d.getFullYear();
+  }
+  function renderExams() {
+    var el = document.getElementById('rp-exam-list');
+    if (!examsCache.length) { el.innerHTML = '<div class="rp-exam-empty">No exams yet.<br/>Hit ＋ to add one.</div>'; return; }
+    el.innerHTML = examsCache.map(function(exam) {
+      var days = examDaysLeft(exam.exam_date);
+      var cls, label;
+      if (days < 0) { cls = 'cnt-past'; label = 'Done'; }
+      else if (days === 0) { cls = 'cnt-red'; label = 'Today!'; }
+      else if (days <= 7) { cls = 'cnt-red'; label = days + 'd left'; }
+      else if (days <= 30) { cls = 'cnt-amber'; label = days + ' days'; }
+      else if (days <= 90) { cls = 'cnt-purple'; label = days + ' days'; }
+      else { cls = 'cnt-green'; label = days + ' days'; }
+      return '<div class="rp-exam-item">'
+        + '<button class="rp-exam-del" onclick="rpExamDelete(\'' + exam.id + '\')" title="Remove">✕</button>'
+        + '<div class="rp-exam-item-name">' + esc(exam.exam_name) + '</div>'
+        + '<div class="rp-exam-countdown ' + cls + '">' + label + '</div>'
+        + '<div class="rp-exam-date-txt">' + examFmtDate(exam.exam_date) + '</div>'
+        + '</div>';
+    }).join('');
+  }
+
+  // ── Clock ─────────────────────────────────────────────────────────
+  var rpClockInterval = null;
+  function rpStartClock() {
+    if (rpClockInterval) return;
+    function tick() {
+      var now = new Date();
+      var hmEl = document.getElementById('rp-clock-hm');
+      var secEl = document.getElementById('rp-clock-sec');
+      var dayEl = document.getElementById('rp-clock-date');
+      if (hmEl) hmEl.textContent = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      if (secEl) secEl.textContent = ':' + String(now.getSeconds()).padStart(2, '0');
+      if (dayEl) dayEl.textContent = now.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+    }
+    tick();
+    rpClockInterval = setInterval(tick, 1000);
   }
 
   // ── Poppy ──────────────────────────────────────────────────────────
@@ -404,7 +894,7 @@
     var name = document.getElementById('poppy-new-topicname').value.trim();
     if (!subject || !name) return null;
     var uid = currentSession.user.id;
-    var res = await sb.from('demo_topics').insert({ user_id: uid, subject: subject, topic_name: name, confidence: 'red' }).select().single();
+    var res = await sb.from('demo_topics').insert({ user_id: uid, subject: subject, topic_name: name, due_date: tomorrowStr(), confidence: 'red' }).select().single();
     if (res.error) throw new Error(res.error.message);
     topicsCache.push(res.data);
     return res.data.id;
@@ -542,14 +1032,31 @@
 
     var newConf = pct >= 80 ? 'green' : pct >= 50 ? 'amber' : 'red';
     var confLabel = { green: '🟢 Confident', amber: '🟡 Getting there', red: '🔴 Needs more work' }[newConf];
-    document.getElementById('poppy-conf-update').innerHTML = 'Updated confidence: ' + confLabel;
 
-    var res = await sb.from('demo_topics').update({ confidence: newConf, updated_at: new Date().toISOString() }).eq('id', poppyTopicId).select().single();
-    if (!res.error) {
-      var idx = topicsCache.findIndex(function(t) { return t.id === poppyTopicId; });
-      if (idx > -1) topicsCache[idx] = res.data;
-      renderTopics();
+    // Spaced-repetition advance (ported from dashboard.html's rpMarkDone):
+    // fail (<50%) resets the chain to D1 tomorrow; pass advances one step on the existing chain.
+    var t = topicsCache.find(function(x) { return x.id === poppyTopicId; });
+    var level = t ? (t.level || 0) : 0;
+    var cycleStart = t && t.cycle_start ? new Date(t.cycle_start) : new Date();
+    var newLevel, newCycleStart, newDue;
+    if (pct < 50) {
+      newLevel = 0; newCycleStart = new Date(); newDue = new Date(Date.now() + 86400000);
+    } else {
+      newLevel = level + 1; newCycleStart = cycleStart;
+      newDue = new Date(cycleStart.getTime() + rpIntervalDays(newLevel) * 86400000);
     }
+    var dLabel = RP_LABELS[Math.min(newLevel, 8)];
+    document.getElementById('poppy-conf-update').innerHTML = 'Updated confidence: ' + confLabel + ' &nbsp;·&nbsp; Next review: ' + dLabel;
+
+    var res = await sb.from('demo_topics').update({
+      confidence: newConf, level: newLevel, cycle_start: newCycleStart.toISOString(),
+      due_date: newDue.toISOString().slice(0, 10), updated_at: new Date().toISOString()
+    }).eq('id', poppyTopicId).select().single();
+    if (!res.error) {
+      var idx = topicsCache.findIndex(function(x) { return x.id === poppyTopicId; });
+      if (idx > -1) topicsCache[idx] = res.data;
+    }
+    renderOrganiser();
   }
 
   function poppyBackToSetup() {

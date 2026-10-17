@@ -38,15 +38,32 @@ create table if not exists demo_attempts (
   answered_at   timestamptz not null default now()
 );
 
+create table if not exists demo_exams (
+  id          uuid primary key default gen_random_uuid(),
+  user_id     uuid not null references auth.users(id) on delete cascade,
+  exam_name   text not null,
+  exam_date   date not null,
+  created_at  timestamptz not null default now()
+);
+
+-- Added 2026-10-17: spaced-repetition fields (D1->D3->D7->D14->D28->D56->D84->D112,
+-- +28/level after), so the Organiser can match dashboard.html's Revision Planner
+-- (Today/Topics/Calendar tabs + review chain).
+alter table demo_topics add column if not exists level int not null default 0;
+alter table demo_topics add column if not exists cycle_start timestamptz not null default now();
+
 -- Row Level Security: every user can only ever read/write their own rows.
 alter table demo_topics    enable row level security;
 alter table demo_questions enable row level security;
 alter table demo_attempts  enable row level security;
+alter table demo_exams     enable row level security;
 
 create policy "own topics"    on demo_topics    for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "own questions" on demo_questions for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "own attempts"  on demo_attempts  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "own exams"     on demo_exams     for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 create index if not exists demo_topics_user_idx    on demo_topics(user_id);
 create index if not exists demo_questions_topic_idx on demo_questions(topic_id);
 create index if not exists demo_attempts_question_idx on demo_attempts(question_id);
+create index if not exists demo_exams_user_idx on demo_exams(user_id);
