@@ -52,21 +52,21 @@
 
     /* ── Revision Planner look, ported from dashboard.html ───────────── */
     .mcq-tabs{display:flex;gap:2px;background:rgba(255,255,255,.7);border:1px solid rgba(168,85,247,.1);border-radius:12px;padding:4px}
-    .mcq-tab{padding:7px 18px;border-radius:8px;font-size:.72rem;font-weight:800;cursor:pointer;transition:background .18s,color .18s;color:#6e5438;letter-spacing:.04em;white-space:nowrap}
-    .mcq-tab.active{background:rgba(109,40,217,.14);color:#6d28d9}
+    .mcq-tab{padding:7px 18px;border-radius:8px;font-size:.72rem;font-weight:800;cursor:pointer;transition:max-width .22s ease,padding .22s ease,opacity .18s ease,background .18s,color .18s;color:#6e5438;letter-spacing:.04em;overflow:hidden;white-space:nowrap;max-width:200px}
+    .mcq-tab.active{background:rgba(109,40,217,.14);color:#6d28d9;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
     .mcq-tab:hover:not(.active){color:#b09880;background:rgba(255,255,255,.7)}
 
-    .rp-clock-wrap{text-align:right;flex-shrink:0}
+    .rp-clock-wrap{text-align:right;flex-shrink:0;padding-left:20px}
     .rp-clock-time{font-size:1.6rem;font-weight:900;color:#1c1208;letter-spacing:.02em;font-variant-numeric:tabular-nums;line-height:1}
     .rp-clock-sec{font-size:.78rem;font-weight:700;opacity:.32}
     .rp-clock-date{font-size:.6rem;font-weight:800;color:#6e5438;opacity:.58;margin-top:5px;letter-spacing:.06em;text-transform:uppercase}
 
-    .rp-due-header{display:flex;align-items:baseline;gap:6px;margin-bottom:20px}
+    .rp-due-header{display:flex;align-items:baseline;gap:6px;margin-bottom:24px}
     .rp-due-count{font-size:2.4rem;font-weight:900;background:linear-gradient(135deg,#6d28d9,#4338ca);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
-    .rp-due-lbl{font-size:.86rem;font-weight:700;color:#6e5438}
-    .rp-topic-card{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.14);border-radius:16px;padding:18px 20px;margin-bottom:12px;box-shadow:0 2px 14px rgba(124,58,237,.055);transition:box-shadow .18s,border-color .18s}
-    .rp-topic-card:hover{box-shadow:0 4px 20px rgba(124,58,237,.1);border-color:rgba(168,85,247,.22)}
-    .rp-card-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+    .rp-due-lbl{font-size:.88rem;font-weight:700;color:#6e5438}
+    .rp-topic-card{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.14);border-radius:16px;padding:20px 22px;margin-bottom:12px;transition:box-shadow .2s}
+    .rp-topic-card:hover{box-shadow:0 2px 16px rgba(109,40,217,.08)}
+    .rp-card-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
     .rp-card-left{flex:1;min-width:0}
     .rp-card-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
     .rp-topic-name{font-size:.95rem;font-weight:800;color:#1c1208;margin-bottom:5px;line-height:1.3}
@@ -76,8 +76,8 @@
     .rp-next-date{font-size:.68rem;font-weight:700;color:#6e5438;white-space:nowrap}
     .rp-method-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px 0;padding:8px 12px;background:rgba(109,40,217,.05);border:1px solid rgba(109,40,217,.1);border-radius:10px}
     .rp-method-pill{font-size:.71rem;font-weight:800;color:#6d28d9;display:flex;align-items:center;gap:5px;flex:1;min-width:0}
-    .rp-go-tool-btn{font-size:.68rem;font-weight:800;background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:8px;padding:5px 12px;cursor:pointer;font-family:'Raleway',sans-serif;white-space:nowrap;transition:opacity .15s,transform .15s;flex-shrink:0}
-    .rp-go-tool-btn:hover{opacity:.85;transform:translateY(-1px)}
+    .rp-go-tool-btn{font-size:.68rem;font-weight:800;background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:8px;padding:5px 12px;cursor:pointer;font-family:'Raleway',sans-serif;white-space:nowrap;transition:opacity .15s;flex-shrink:0}
+    .rp-go-tool-btn:hover{opacity:.85}
     .rp-del-btn{width:24px;height:24px;border-radius:50%;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.15);color:#ef4444;font-size:.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
     .rp-del-btn:hover{background:rgba(239,68,68,.15)}
 
@@ -98,18 +98,15 @@
     .org-actions{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
     .org-search{flex:1;min-width:140px;max-width:260px;padding:7px 12px;border:1px solid rgba(168,85,247,.2);border-radius:10px;background:rgba(255,255,255,.6);font-size:.74rem;font-family:'Raleway',sans-serif;color:#1c1208;outline:none}
     .org-search:focus{border-color:rgba(109,40,217,.4)}
-    .org-add-btn{font-size:.72rem;font-weight:800;color:#6d28d9;background:rgba(109,40,217,.1);border:1.5px solid rgba(109,40,217,.25);border-radius:20px;padding:7px 16px;cursor:pointer;font-family:'Raleway',sans-serif;transition:all .15s;margin-left:auto;white-space:nowrap}
-    .org-add-btn:hover{background:rgba(109,40,217,.18);border-color:rgba(109,40,217,.45);transform:translateY(-1px)}
-    .org-add-card{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:16px;padding:18px 20px;margin-bottom:18px;box-shadow:0 2px 14px rgba(124,58,237,.055)}
+    .org-gear-btn{font-size:.68rem;font-weight:700;color:#6e5438;background:none;border:1px solid rgba(168,85,247,.15);border-radius:8px;padding:6px 10px;cursor:pointer;font-family:'Raleway',sans-serif;transition:all .15s;margin-left:auto}
+    .org-gear-btn:hover{background:rgba(168,85,247,.07);border-color:rgba(168,85,247,.28)}
+    .org-add-card{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:16px;padding:18px 20px;margin-bottom:18px}
     .org-add-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}
     .org-add-grp{display:flex;flex-direction:column;gap:5px;flex:1;min-width:130px}
     .org-add-lbl{font-size:.6rem;font-weight:800;color:#6e5438;text-transform:uppercase;letter-spacing:.07em}
-    .org-add-inp{padding:8px 11px;border:1px solid rgba(168,85,247,.2);border-radius:10px;background:rgba(255,255,255,.7);font-size:.78rem;font-family:'Raleway',sans-serif;color:#1c1208;outline:none;width:100%;box-sizing:border-box;transition:border-color .15s}
-    .org-add-inp:focus{border-color:rgba(109,40,217,.4)}
-    .org-card-save-btn{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:10px;padding:9px 22px;font-size:.74rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;white-space:nowrap;transition:opacity .15s,transform .15s}
-    .org-card-save-btn:hover{opacity:.9;transform:translateY(-1px)}
-    .org-cancel-btn{background:none;border:none;cursor:pointer;font-size:.74rem;color:#6e5438;font-family:'Raleway',sans-serif;padding:9px 8px;transition:color .15s}
-    .org-cancel-btn:hover{color:#1c1208}
+    .org-add-inp{padding:8px 11px;border:1px solid rgba(168,85,247,.2);border-radius:10px;background:rgba(255,255,255,.7);font-size:.78rem;font-family:'Raleway',sans-serif;color:#1c1208;outline:none;width:100%;box-sizing:border-box}
+    .org-card-save-btn{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:10px;padding:9px 22px;font-size:.74rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;white-space:nowrap}
+    .org-cancel-btn{background:none;border:none;cursor:pointer;font-size:.74rem;color:#6e5438;font-family:'Raleway',sans-serif;padding:9px 8px}
 
     .org-table-wrap{overflow-x:auto;border-radius:14px;border:1px solid rgba(168,85,247,.12)}
     .org-table{width:100%;border-collapse:collapse;min-width:560px}
@@ -158,7 +155,7 @@
     .rp-cal-cell.today .rp-cal-date{color:#6d28d9}
     .rp-cal-pill{font-size:.56rem;font-weight:700;background:rgba(109,40,217,.1);color:#6d28d9;border-radius:4px;padding:1px 4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;line-height:1.5}
     .rp-cal-more{font-size:.54rem;font-weight:700;color:#6e5438;opacity:.65;line-height:1}
-    .rp-cal-detail{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.14);border-radius:14px;padding:16px 20px;box-shadow:0 2px 14px rgba(124,58,237,.055)}
+    .rp-cal-detail{background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.14);border-radius:14px;padding:16px 20px}
     .rp-cal-detail-hd{font-size:.78rem;font-weight:800;color:#6d28d9;margin-bottom:10px}
     .rp-cal-detail-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(168,85,247,.07)}
     .rp-cal-detail-row:last-child{border-bottom:none}
@@ -166,14 +163,14 @@
     .rp-cal-detail-tag{font-size:.58rem;font-weight:800;background:rgba(109,40,217,.08);color:#6d28d9;border-radius:12px;padding:2px 7px;flex-shrink:0}
     .rp-cal-rev-badge{font-size:.56rem;font-weight:800;background:rgba(5,150,105,.09);color:#047857;border-radius:12px;padding:2px 7px;flex-shrink:0;white-space:nowrap}
 
-    .rp-exam-panel{width:212px;min-width:212px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.14);border-radius:16px;padding:16px 15px;box-shadow:0 2px 14px rgba(124,58,237,.055)}
+    .rp-exam-panel{width:212px;min-width:212px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.14);border-radius:16px;padding:16px 15px}
     .rp-exam-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
     .rp-exam-hd-txt{font-size:.78rem;font-weight:900;color:#1c1208;letter-spacing:.02em}
     .rp-exam-toggle{width:22px;height:22px;border-radius:6px;background:rgba(109,40,217,.1);border:1px solid rgba(109,40,217,.2);color:#6d28d9;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;transition:background .15s;flex-shrink:0}
     .rp-exam-toggle:hover{background:rgba(109,40,217,.2)}
     .rp-exam-form{margin-bottom:12px;display:flex;flex-direction:column;gap:6px}
-    .rp-exam-submit{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:8px;padding:8px;font-size:.72rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:opacity .15s,transform .15s}
-    .rp-exam-submit:hover{opacity:.85;transform:translateY(-1px)}
+    .rp-exam-submit{background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:none;border-radius:8px;padding:8px;font-size:.72rem;font-weight:800;cursor:pointer;font-family:'Raleway',sans-serif;transition:opacity .15s}
+    .rp-exam-submit:hover{opacity:.85}
     .rp-exam-divider{height:1px;background:rgba(168,85,247,.1);margin:0 0 10px}
     .rp-exam-item{padding:9px 0;border-bottom:1px solid rgba(168,85,247,.07);position:relative}
     .rp-exam-item:last-child{border-bottom:none}
@@ -259,7 +256,7 @@
     body.hc .opt-btn.wrong{background:rgba(248,113,113,.13)!important;border-color:rgba(248,113,113,.5)!important;color:#fca5a5!important}
     body.hc .bg-purple-light{background:rgba(168,85,247,.08)!important;color:#c8b89a!important}
 
-    body.hc .mcq-tabs{background:#0d0b1e!important;border-color:rgba(168,85,247,.3)!important}
+    body.hc .mcq-tabs{background:#0d0b1e!important;border-color:rgba(168,85,247,.38)!important}
     body.hc .mcq-tab{color:#7a6448!important}
     body.hc .mcq-tab.active{background:rgba(168,85,247,.18)!important;color:#c084fc!important}
     body.hc .mcq-tab:hover:not(.active){color:#a08878!important;background:rgba(255,255,255,.04)!important}
@@ -267,14 +264,13 @@
     body.hc .rp-clock-time{color:#e8dcc8!important}
     body.hc .rp-clock-date{color:#a08878!important}
     body.hc .rp-due-lbl{color:#a08878!important}
-    body.hc .rp-topic-card{background:#0f0d22!important;border-color:rgba(168,85,247,.35)!important;box-shadow:0 0 0 1px rgba(168,85,247,.12),0 2px 12px rgba(0,0,0,.6)!important}
-    body.hc .rp-topic-card:hover{border-color:rgba(168,85,247,.5)!important}
+    body.hc .rp-topic-card{background:#0f0d22!important;border-color:rgba(168,85,247,.4)!important;box-shadow:0 0 0 1px rgba(168,85,247,.12),0 2px 12px rgba(0,0,0,.6)!important}
     body.hc .rp-topic-name{color:#e8dcc8!important}
     body.hc .rp-next-date{color:#a08878!important}
     body.hc .rp-chain-lbl{color:#a08878!important}
     body.hc .rp-tag{background:rgba(168,85,247,.14)!important;color:#c084fc!important;border-color:rgba(168,85,247,.28)!important}
     body.hc .rp-overdue{background:rgba(239,68,68,.12)!important;color:#f87171!important;border-color:rgba(239,68,68,.3)!important}
-    body.hc .rp-due-now{background:rgba(124,58,237,.14)!important;color:#c084fc!important;border-color:rgba(124,58,237,.3)!important}
+    body.hc .rp-due-now{background:rgba(124,58,237,.12)!important;color:#c084fc!important;border-color:rgba(124,58,237,.3)!important}
     body.hc .rp-method-row{background:rgba(168,85,247,.08)!important;border-color:rgba(168,85,247,.25)!important}
     body.hc .rp-method-pill{color:#c084fc!important}
     body.hc .rp-chain-line{background:rgba(168,85,247,.16)!important}
@@ -286,10 +282,8 @@
     body.hc .rp-empty-sub{color:#a08878!important}
 
     body.hc .org-search,body.hc .org-add-inp{background:#0d0b1e!important;color:#e8dcc8!important;border-color:rgba(168,85,247,.32)!important}
-    body.hc .org-add-btn{background:rgba(168,85,247,.1)!important;border-color:rgba(168,85,247,.35)!important;color:#c084fc!important}
-    body.hc .org-add-btn:hover{background:rgba(168,85,247,.2)!important;border-color:rgba(168,85,247,.55)!important}
-    body.hc .org-add-card{background:#0f0d22!important;border-color:rgba(168,85,247,.35)!important;box-shadow:0 0 0 1px rgba(168,85,247,.12),0 2px 12px rgba(0,0,0,.6)!important}
-    body.hc .org-add-lbl,body.hc .org-cancel-btn{color:#a08878!important}
+    body.hc .org-gear-btn{color:#a08878!important;border-color:rgba(168,85,247,.2)!important}
+    body.hc .org-add-card{background:#0f0d22!important;border-color:rgba(168,85,247,.4)!important}
     body.hc .org-table-wrap{border-color:rgba(168,85,247,.25)!important}
     body.hc .org-th{background:#0a0918!important;color:#a08878!important;border-bottom-color:rgba(168,85,247,.15)!important}
     body.hc .org-th.sortable:hover{color:#c084fc!important}
@@ -297,15 +291,15 @@
     body.hc .org-td{border-bottom-color:rgba(168,85,247,.08)!important}
     body.hc .org-tr:hover .org-td{background:rgba(168,85,247,.05)!important}
     body.hc .org-topic-name{color:#e8dcc8!important}
-    body.hc .org-tool-btn{background:rgba(168,85,247,.08)!important;border-color:rgba(168,85,247,.25)!important;color:#c084fc!important}
+    body.hc .org-tool-btn{background:rgba(168,85,247,.07)!important;border-color:rgba(168,85,247,.25)!important;color:#c084fc!important}
     body.hc .org-empty-title{color:#e8dcc8!important}
     body.hc .org-empty-sub{color:#a08878!important}
 
     body.hc .rp-cal-month{color:#e8dcc8!important}
-    body.hc .rp-cal-arrow{background:rgba(255,255,255,.05)!important;border-color:rgba(168,85,247,.25)!important;color:#c084fc!important}
-    body.hc .rp-cal-arrow:hover{background:rgba(168,85,247,.14)!important}
+    body.hc .rp-cal-arrow{background:rgba(255,255,255,.05)!important;border-color:rgba(168,85,247,.22)!important;color:#c084fc!important}
+    body.hc .rp-cal-arrow:hover{background:rgba(168,85,247,.12)!important}
     body.hc .rp-cal-dow{color:#a08878!important}
-    body.hc .rp-cal-cell{background:#0d0b1e!important;border-color:rgba(168,85,247,.22)!important}
+    body.hc .rp-cal-cell{background:#0d0b1e!important;border-color:rgba(168,85,247,.28)!important}
     body.hc .rp-cal-cell:hover:not(.rp-empty-cell){background:rgba(168,85,247,.12)!important;border-color:rgba(168,85,247,.28)!important}
     body.hc .rp-cal-cell.today{background:rgba(109,40,217,.2)!important;border-color:rgba(109,40,217,.45)!important}
     body.hc .rp-cal-cell.selected{background:rgba(109,40,217,.28)!important;border-color:rgba(168,85,247,.6)!important}
@@ -314,17 +308,18 @@
     body.hc .rp-cal-cell.today .rp-cal-date{color:#c084fc!important}
     body.hc .rp-cal-pill{background:rgba(168,85,247,.2)!important;color:#c084fc!important}
     body.hc .rp-cal-more{color:#a08878!important}
-    body.hc .rp-cal-detail{background:#0f0d22!important;border-color:rgba(168,85,247,.35)!important;box-shadow:0 0 0 1px rgba(168,85,247,.12),0 2px 12px rgba(0,0,0,.6)!important}
+    body.hc .rp-cal-detail{background:#0f0d22!important;border-color:rgba(168,85,247,.4)!important;box-shadow:0 0 0 1px rgba(168,85,247,.12),0 2px 12px rgba(0,0,0,.6)!important}
     body.hc .rp-cal-detail-hd{color:#c084fc!important}
     body.hc .rp-cal-detail-topic{color:#e8dcc8!important}
-    body.hc .rp-cal-detail-tag{background:rgba(168,85,247,.16)!important;color:#c084fc!important}
-    body.hc .rp-cal-rev-badge{background:rgba(16,185,129,.14)!important;color:#34d399!important}
+    body.hc .rp-cal-detail-tag{background:rgba(168,85,247,.15)!important;color:#c084fc!important}
+    body.hc .rp-cal-rev-badge{background:rgba(16,185,129,.12)!important;color:#34d399!important}
 
-    body.hc .rp-exam-panel{background:#0f0d22!important;border-color:rgba(168,85,247,.35)!important;box-shadow:0 0 0 1px rgba(168,85,247,.12),0 2px 12px rgba(0,0,0,.6)!important}
+    body.hc .rp-exam-panel{background:#0f0d22!important;border-color:rgba(168,85,247,.4)!important;box-shadow:0 0 0 1px rgba(168,85,247,.12),0 2px 12px rgba(0,0,0,.6)!important}
     body.hc .rp-exam-hd-txt{color:#e8dcc8!important}
-    body.hc .rp-exam-toggle{background:rgba(168,85,247,.14)!important;border-color:rgba(168,85,247,.3)!important;color:#c084fc!important}
-    body.hc .rp-exam-divider{background:rgba(168,85,247,.12)!important}
+    body.hc .rp-exam-toggle{background:rgba(168,85,247,.12)!important;border-color:rgba(168,85,247,.3)!important;color:#c084fc!important}
+    body.hc .rp-exam-divider{background:rgba(168,85,247,.1)!important}
     body.hc .rp-exam-item-name{color:#e8dcc8!important}
+    body.hc .rp-exam-countdown{color:#e8dcc8!important}
     body.hc .rp-exam-date-txt{color:#a08878!important}
     body.hc .rp-exam-empty{color:#a08878!important}
 
@@ -409,8 +404,8 @@
     <div class="sb-nav">
       <div class="sb-sec">
         <div class="sb-lbl">Study Tools</div>
-        <button class="nav-item active" id="tab-btn-organiser" onclick="showTab('organiser')" aria-label="Organiser">
-          <span>📋</span> Organiser
+        <button class="nav-item active" id="tab-btn-organiser" onclick="showTab('organiser')" aria-label="Revision Planner">
+          <span>📋</span> Revision Planner
         </button>
         <button class="nav-item" id="tab-btn-poppy" onclick="showTab('poppy')" aria-label="Poppy — MCQ maker">
           <span>🧠</span> Poppy
@@ -445,7 +440,7 @@
   <div id="main">
     <header id="topbar">
       <button id="sb-toggle" onclick="toggleSidebar()" title="Menu" aria-label="Open navigation menu">☰</button>
-      <span class="tb-title" id="tb-title">Organiser<span class="tb-sub">Spaced Repetition</span></span>
+      <span class="tb-title" id="tb-title">Revision Planner<span class="tb-sub">Spaced Repetition</span></span>
       <div style="flex:1"></div>
       <div id="mode-toggle">
         <div class="mode-btn m-chill" id="btn-chill" onclick="setMode('chill')" title="Chill mode (press -)">☁ Chill</div>
@@ -478,7 +473,7 @@
       <div id="org-view-topics" class="anim" hidden>
         <div class="org-actions" id="org-actions-bar">
           <input class="org-search" id="org-search" placeholder="Search topics or subjects…" oninput="orgRenderTable()"/>
-          <button class="org-add-btn" style="margin-left:0" onclick="orgToggleAddTopic()">+ New topic</button>
+          <button class="org-gear-btn" style="margin-left:0" onclick="orgToggleAddTopic()">+ New topic</button>
         </div>
         <div class="org-add-card" id="add-topic-form" hidden>
           <div class="org-add-row">
@@ -705,7 +700,7 @@
 
   // ── Top-level tabs ────────────────────────────────────────────────
   var TAB_TITLES = {
-    organiser: 'Organiser<span class="tb-sub">Spaced Repetition</span>',
+    organiser: 'Revision Planner<span class="tb-sub">Spaced Repetition</span>',
     poppy: 'Poppy<span class="tb-sub">AI Quiz Maker</span>'
   };
   function showTab(name) {
