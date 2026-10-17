@@ -185,26 +185,59 @@
     .rp-exam-empty{font-size:.72rem;color:#6e5438;opacity:.55;text-align:center;padding:18px 0;line-height:1.5}
     .cnt-red{color:#ef4444} .cnt-amber{color:#f59e0b} .cnt-purple{color:#6d28d9} .cnt-green{color:#16a34a} .cnt-past{color:#9ca3af}
 
-    /* ── Mode toggle + music player, ported from dashboard.html's sidebar ── */
+    /* ── App shell layout (sidebar + topbar), ported exactly from dashboard.html ── */
+    #app-shell{display:flex;height:100vh;overflow:hidden}
+    .sb-overlay{position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:999;opacity:0;pointer-events:none;transition:opacity .28s ease}
+    .sb-overlay.show{opacity:1;pointer-events:auto}
+    #sidebar{position:fixed;left:0;top:0;height:100%;width:210px;min-width:210px;background:#e6d4ab;border-right:1px solid rgba(168,85,247,.14);display:flex;flex-direction:column;overflow-y:auto;z-index:1000;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1)}
+    #sidebar.open{transform:translateX(0)}
+    .sb-logo{padding:16px 14px;border-bottom:1px solid rgba(168,85,247,.1);display:flex;align-items:center;gap:10px}
+    .sb-logo img{width:36px;height:36px;object-fit:contain;flex-shrink:0}
+    .sb-logo span{font-weight:900;font-size:.86rem;color:#1c1208;letter-spacing:.01em}
+    .sb-logo em{color:#6d28d9;font-style:normal}
+    .sb-nav{padding:10px 8px;flex:1}
+    .sb-sec{margin-bottom:14px}
+    .sb-lbl{font-size:.6rem;font-weight:700;letter-spacing:.1em;color:#4a3824;text-transform:uppercase;padding:0 8px;margin-bottom:4px}
+    .nav-item{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:8px;cursor:pointer;transition:background .15s;font-size:.78rem;font-weight:700;color:#6e5438;margin-bottom:2px;user-select:none;background:none;border:none;width:100%;text-align:left;font-family:'Raleway',sans-serif}
+    .nav-item:hover{background:rgba(168,85,247,.1);color:#4a3820}
+    .nav-item.active{background:rgba(168,85,247,.18);color:#6d28d9}
+    .sb-user{padding:12px 14px;border-top:1px solid rgba(168,85,247,.1);font-size:.72rem}
+    .sb-email{color:#5a4230;word-break:break-all}
+    .logout-link{color:#ef4444;cursor:pointer;font-weight:700;margin-top:4px;display:inline-block}
+    .logout-link:hover{text-decoration:underline}
+
+    .music-player{padding:12px 14px 10px;border-top:1px solid rgba(200,160,100,.1);display:flex;flex-direction:column;gap:8px;background:rgba(255,240,200,.03)}
+    .mp-top{display:flex;align-items:center;gap:9px}
+    .mp-vinyl{width:34px;height:34px;min-width:34px;border-radius:50%;background:rgba(168,85,247,.14);border:1px solid rgba(168,85,247,.2);display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:transform 2s linear;flex-shrink:0}
+    .mp-vinyl.spin{animation:vinylSpin 3s linear infinite}
+    @keyframes vinylSpin{to{transform:rotate(360deg)}}
+    .mp-info{flex:1;min-width:0}
+    .mp-track{font-size:.76rem;font-weight:800;color:#1c1208;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+    .mp-sub{font-size:.64rem;color:#5a4230;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .mp-controls{display:flex;align-items:center;gap:7px}
+    .mp-play{width:28px;height:28px;min-width:28px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#4338ca);border:none;color:#fff;font-size:.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .15s;flex-shrink:0}
+    .mp-play:hover{opacity:.82}
+    .mp-prev,.mp-next{width:22px;height:22px;min-width:22px;border-radius:50%;background:rgba(109,40,217,.1);border:1px solid rgba(109,40,217,.22);color:#6d28d9;font-size:.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;padding:0}
+    .mp-prev:hover,.mp-next:hover{background:rgba(109,40,217,.2)}
+    .mp-vol{-webkit-appearance:none;appearance:none;flex:1;min-width:0;height:3px;border-radius:2px;background:rgba(168,85,247,.25);outline:none;cursor:pointer}
+    .mp-vol::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:#6d28d9;cursor:pointer}
+
+    #main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#f0e4c6}
+    #topbar{height:58px;min-height:58px;background:rgba(238,224,192,.96);backdrop-filter:blur(16px);border-bottom:1px solid rgba(168,85,247,.09);display:flex;align-items:center;padding:0 28px;gap:16px}
+    #sb-toggle{width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid rgba(168,85,247,.2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s;color:#6d28d9;font-size:1.1rem;flex-shrink:0;line-height:1}
+    #sb-toggle:hover{background:rgba(168,85,247,.15)}
+    .tb-title{font-weight:900;font-size:.85rem;color:#1c1208;letter-spacing:.06em;text-transform:uppercase;display:flex;flex-direction:column;gap:1px;line-height:1;user-select:none}
+    .tb-sub{font-size:.52rem;font-weight:600;opacity:.5;letter-spacing:.05em;text-transform:uppercase;line-height:1}
+    #content{flex:1;overflow-y:auto;padding:48px 56px;scrollbar-width:thin;scrollbar-color:rgba(168,85,247,.2) transparent}
+    #content::-webkit-scrollbar{width:4px}
+    #content::-webkit-scrollbar-thumb{background:rgba(168,85,247,.2);border-radius:2px}
+
+    /* ── Mode toggle, ported from dashboard.html ── */
     #mode-fade{position:fixed;inset:0;z-index:8888;background:#000;opacity:0;pointer-events:none;transition:opacity .38s ease}
     #mode-toggle{display:flex;align-items:center;background:rgba(255,255,255,.75);border:1px solid rgba(168,85,247,.12);border-radius:20px;padding:3px;gap:2px}
     .mode-btn{padding:4px 11px;border-radius:16px;font-size:.68rem;font-weight:800;cursor:pointer;transition:all .2s;color:#6e5438}
     .mode-btn.m-chill{background:linear-gradient(135deg,#1d4ed8,#7c3aed);color:#fff}
     .mode-btn.m-hard{background:linear-gradient(135deg,#3b0764,#1e0035);color:#c084fc}
-
-    .music-player-mini{display:none;align-items:center;gap:7px;background:rgba(255,255,255,.75);border:1px solid rgba(168,85,247,.12);border-radius:20px;padding:4px 10px 4px 5px}
-    .mp-vinyl{width:26px;height:26px;min-width:26px;border-radius:50%;background:rgba(168,85,247,.14);border:1px solid rgba(168,85,247,.2);display:flex;align-items:center;justify-content:center;font-size:.72rem;transition:transform 2s linear}
-    .mp-vinyl.spin{animation:vinylSpin 3s linear infinite}
-    @keyframes vinylSpin{to{transform:rotate(360deg)}}
-    .mp-info{max-width:100px}
-    .mp-track{font-size:.66rem;font-weight:800;color:#1c1208;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
-    .mp-sub{font-size:.57rem;color:#6e5438;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .mp-prev,.mp-next{width:20px;height:20px;min-width:20px;border-radius:50%;background:rgba(109,40,217,.1);border:1px solid rgba(109,40,217,.22);color:#6d28d9;font-size:.56rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0}
-    .mp-prev:hover,.mp-next:hover{background:rgba(109,40,217,.2)}
-    .mp-play{width:24px;height:24px;min-width:24px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#4338ca);border:none;color:#fff;font-size:.64rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .15s}
-    .mp-play:hover{opacity:.82}
-    .mp-vol{-webkit-appearance:none;appearance:none;width:46px;height:3px;border-radius:2px;background:rgba(168,85,247,.25);outline:none;cursor:pointer}
-    .mp-vol::-webkit-slider-thumb{-webkit-appearance:none;width:9px;height:9px;border-radius:50%;background:#6d28d9;cursor:pointer}
 
     /* ── Hardcore mode — dark theme, ported from dashboard.html's body.hc ── */
     body.hc{background:#06060f!important;color:#e8dcc8!important}
@@ -295,20 +328,38 @@
     body.hc .rp-exam-date-txt{color:#a08878!important}
     body.hc .rp-exam-empty{color:#a08878!important}
 
+    body.hc #main,body.hc #content{background:#06060f!important;color:#e8dcc8!important}
+    body.hc #sidebar{background:#040410!important;border-color:rgba(168,85,247,.22)!important}
+    body.hc #topbar{background:rgba(3,3,12,.96)!important;border-color:rgba(168,85,247,.22)!important}
+    body.hc .nav-item{color:#a08878!important}
+    body.hc .nav-item:hover{background:rgba(168,85,247,.1)!important;color:#c8b89a!important}
+    body.hc .nav-item.active{color:#a855f7!important}
+    body.hc .sb-logo span{color:#e8dcc8!important}
+    body.hc .sb-logo em,body.hc #sb-toggle{color:#a855f7!important}
+    body.hc .sb-email{color:#a08878!important}
+    body.hc .sb-lbl{color:#6b5c4a!important}
+    body.hc .tb-title{color:#e8dcc8!important}
     body.hc #mode-toggle{background:rgba(255,255,255,.06)!important;border-color:rgba(168,85,247,.2)!important}
     body.hc .mode-btn{color:#a08878!important}
-    body.hc .music-player-mini{background:rgba(255,255,255,.04)!important;border-color:rgba(168,85,247,.18)!important}
+    body.hc .music-player{background:rgba(255,240,200,.03)!important;border-color:rgba(168,85,247,.1)!important}
     body.hc .mp-track{color:#e8dcc8!important}
     body.hc .mp-sub{color:#a08878!important}
     body.hc .mp-prev,body.hc .mp-next{background:rgba(168,85,247,.1)!important;border-color:rgba(168,85,247,.22)!important;color:#c084fc!important}
     body.hc ::-webkit-scrollbar-thumb{background:rgba(168,85,247,.3)!important}
     body.hc ::-webkit-scrollbar-thumb:hover{background:rgba(168,85,247,.5)!important}
 
+    @media (max-width: 800px) {
+      #content { padding: 32px 24px; }
+      #topbar  { padding: 0 16px; gap: 10px; }
+    }
     @media (max-width: 640px) {
       .rp-cal-layout { flex-direction: column; }
       .rp-exam-panel { width: 100%; min-width: 0; }
       .mcq-tab { padding: 6px 12px; font-size: .68rem; }
-      .music-player-mini .mp-info { display: none; }
+      #content { padding: 20px 16px 60px; }
+      #topbar { padding: 0 14px; gap: 8px; height: 52px; min-height: 52px; }
+      .tb-title { font-size: .72rem; }
+      .tb-sub { font-size: .48rem; }
     }
   </style>
 </head>
@@ -343,38 +394,66 @@
   </div>
 </div>
 
+<!-- ── Sidebar overlay backdrop ── -->
+<div class="sb-overlay" id="sb-overlay" onclick="toggleSidebar()"></div>
+
 <!-- ── APP SHELL ──────────────────────────────────────────── -->
 <div id="app-shell" hidden>
-  <div class="max-w-5xl mx-auto px-4 sm:px-6 py-8">
 
-    <!-- Tabs + utility bar -->
-    <div class="flex items-center justify-between gap-3 mb-8 border-b border-gray-200 flex-wrap">
-      <div class="flex items-center gap-2">
-        <button id="tab-btn-organiser" onclick="showTab('organiser')" class="px-4 py-3 text-sm font-bold border-b-2 border-purple-DEFAULT text-purple-DEFAULT">📋 Organiser</button>
-        <button id="tab-btn-poppy" onclick="showTab('poppy')" class="px-4 py-3 text-sm font-bold border-b-2 border-transparent text-gray-400 hover:text-gray-600">🧠 Poppy</button>
-      </div>
-      <div class="flex items-center gap-2 py-2">
-        <div class="music-player-mini" id="music-player">
-          <div class="mp-vinyl" id="mp-vinyl">♪</div>
-          <div class="mp-info">
-            <div class="mp-track" id="mp-track">Loading…</div>
-            <div class="mp-sub" id="mp-sub">Lofi Hip-Hop</div>
-          </div>
-          <button class="mp-prev" onclick="lofiPrev()" title="Previous">⏮</button>
-          <button class="mp-play" id="mp-play" onclick="toggleLofi()">▶</button>
-          <button class="mp-next" onclick="lofiNext(false)" title="Next">⏭</button>
-          <input type="range" class="mp-vol" id="mp-vol" min="0" max="1" step="0.01" value="0.6" oninput="setLofiVolume(+this.value)" title="Volume"/>
-        </div>
-        <div id="mode-toggle">
-          <div class="mode-btn m-chill" id="btn-chill" onclick="setMode('chill')" title="Chill mode (press -)">☁ Chill</div>
-          <div class="mode-btn" id="btn-hard" onclick="setMode('hardcore')" title="Hardcore mode (press =)">⚡ Hardcore</div>
-        </div>
-        <div id="nav-user" class="flex items-center gap-2" hidden>
-          <span id="nav-user-email" class="text-gray-400 text-xs hidden sm:inline"></span>
-          <button onclick="authSignOut()" class="text-gray-400 hover:text-red-600 text-xs font-bold transition-colors">Log out</button>
-        </div>
+  <!-- Sidebar -->
+  <nav id="sidebar">
+    <div class="sb-logo">
+      <img src="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" alt=""/>
+      <span>Stoday <em>Plus</em></span>
+    </div>
+    <div class="sb-nav">
+      <div class="sb-sec">
+        <div class="sb-lbl">Study Tools</div>
+        <button class="nav-item active" id="tab-btn-organiser" onclick="showTab('organiser')" aria-label="Organiser">
+          <span>📋</span> Organiser
+        </button>
+        <button class="nav-item" id="tab-btn-poppy" onclick="showTab('poppy')" aria-label="Poppy — MCQ maker">
+          <span>🧠</span> Poppy
+        </button>
       </div>
     </div>
+
+    <!-- Music player -->
+    <div id="music-player" class="music-player" style="display:none">
+      <div class="mp-top">
+        <div class="mp-vinyl" id="mp-vinyl">♪</div>
+        <div class="mp-info">
+          <div class="mp-track" id="mp-track">Loading…</div>
+          <div class="mp-sub" id="mp-sub">Lofi Hip-Hop</div>
+        </div>
+      </div>
+      <div class="mp-controls">
+        <button class="mp-prev" onclick="lofiPrev()" title="Previous">⏮</button>
+        <button class="mp-play" id="mp-play" onclick="toggleLofi()">▶</button>
+        <button class="mp-next" onclick="lofiNext(false)" title="Next">⏭</button>
+        <input type="range" class="mp-vol" id="mp-vol" min="0" max="1" step="0.01" value="0.6" oninput="setLofiVolume(+this.value)" title="Volume"/>
+      </div>
+    </div>
+
+    <div class="sb-user">
+      <div class="sb-email" id="nav-user-email"></div>
+      <div class="logout-link" onclick="authSignOut()">Log out →</div>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <div id="main">
+    <header id="topbar">
+      <button id="sb-toggle" onclick="toggleSidebar()" title="Menu" aria-label="Open navigation menu">☰</button>
+      <span class="tb-title" id="tb-title">Organiser<span class="tb-sub">Spaced Repetition</span></span>
+      <div style="flex:1"></div>
+      <div id="mode-toggle">
+        <div class="mode-btn m-chill" id="btn-chill" onclick="setMode('chill')" title="Chill mode (press -)">☁ Chill</div>
+        <div class="mode-btn" id="btn-hard" onclick="setMode('hardcore')" title="Hardcore mode (press =)">⚡ Hardcore</div>
+      </div>
+    </header>
+
+    <div id="content">
 
     <!-- ══ ORGANISER TAB ══ -->
     <div id="tab-organiser" class="anim">
@@ -538,6 +617,7 @@
       </div>
     </div>
 
+    </div>
   </div>
 </div>
 
@@ -608,27 +688,32 @@
     if (session) {
       document.getElementById('auth-screen').hidden = true;
       document.getElementById('app-shell').hidden = false;
-      document.getElementById('nav-user').hidden = false;
       document.getElementById('nav-user-email').textContent = session.user.email;
       bootApp();
     } else {
       document.getElementById('auth-screen').hidden = false;
       document.getElementById('app-shell').hidden = true;
-      document.getElementById('nav-user').hidden = true;
       if (typeof stopLofi === 'function') stopLofi();
     }
   });
 
+  // ── Sidebar ───────────────────────────────────────────────────────
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sb-overlay').classList.toggle('show');
+  }
+
   // ── Top-level tabs ────────────────────────────────────────────────
+  var TAB_TITLES = {
+    organiser: 'Organiser<span class="tb-sub">Spaced Repetition</span>',
+    poppy: 'Poppy<span class="tb-sub">AI Quiz Maker</span>'
+  };
   function showTab(name) {
     ['organiser', 'poppy'].forEach(function(t) {
       document.getElementById('tab-' + t).hidden = t !== name;
-      var btn = document.getElementById('tab-btn-' + t);
-      btn.classList.toggle('border-purple-DEFAULT', t === name);
-      btn.classList.toggle('text-purple-DEFAULT', t === name);
-      btn.classList.toggle('border-transparent', t !== name);
-      btn.classList.toggle('text-gray-400', t !== name);
+      document.getElementById('tab-btn-' + t).classList.toggle('active', t === name);
     });
+    document.getElementById('tb-title').innerHTML = TAB_TITLES[name];
     if (name === 'poppy') poppyPopulateTopicSelect();
     if (name === 'organiser') renderOrganiser();
   }
