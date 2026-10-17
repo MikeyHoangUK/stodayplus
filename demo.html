@@ -1188,7 +1188,7 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Topic Name&quot;
       <div id="poppy-view-quiz" hidden>
         <div id="poppy-quiz-setup">
           <div id="qzw-nav" hidden>
-            <button class="qzw-back" onclick="poppyQzBack()">← Bank</button>
+            <button class="qzw-back" onclick="poppySubTab('bank')">← Bank</button>
           </div>
 
           <!-- STEP 0 — no topic chosen yet -->
@@ -1603,6 +1603,17 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Topic Name&quot;
       if (e.key === '-') setMode('chill');
       else if (e.key === '=') setMode('hardcore');
       else toggleLofi();
+    }
+    if (e.key === 'F11') {
+      var runWrap = document.getElementById('poppy-quiz-run-wrap');
+      if (runWrap && !runWrap.hidden) { e.preventDefault(); poppyToggleFS(); }
+    }
+  });
+
+  document.addEventListener('fullscreenchange', function() {
+    if (!document.fullscreenElement) {
+      var fsBtn = document.getElementById('pz-fs-btn');
+      if (fsBtn) fsBtn.textContent = '⛶ Fullscreen';
     }
   });
 
