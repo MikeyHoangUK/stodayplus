@@ -528,6 +528,38 @@
     body.hc .nm-mega-empty{color:#7a6448!important}
     body.hc .nm-mega-lbl{color:#7a6448!important}
 
+    /* ── Materials (standalone panel — Subject → Topic accordion) ───────────── */
+    .mat-empty-page{text-align:center;padding:60px 20px;color:#b09880}
+    .mat-empty-page .mat-empty-icon{font-size:2.4rem;margin-bottom:12px;opacity:.6}
+    .mat-empty-page .mat-empty-title{font-size:.92rem;font-weight:800;color:#1c1208;margin-bottom:6px}
+    .mat-empty-page .mat-empty-sub{font-size:.78rem;color:#b09880}
+    .mat-subject-group{margin-bottom:10px}
+    .mat-row{display:flex;align-items:center;gap:10px;cursor:pointer;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.14);border-radius:14px;padding:13px 16px;transition:border-color .15s,box-shadow .15s}
+    .mat-row:hover{border-color:rgba(168,85,247,.32)}
+    .mat-chevron{font-size:.6rem;color:#b09880;transition:transform .2s;flex-shrink:0;width:10px;text-align:center}
+    .mat-row.open > .mat-chevron{transform:rotate(90deg)}
+    .mat-row-icon{font-size:1rem;flex-shrink:0}
+    .mat-row-name{flex:1;font-size:.86rem;font-weight:800;color:#1c1208;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .mat-count-badge{font-size:.6rem;font-weight:800;color:#6d28d9;background:rgba(109,40,217,.08);border-radius:7px;padding:3px 9px;flex-shrink:0}
+    .mat-topics-wrap{display:none;padding-left:30px;margin-top:8px}
+    .mat-topics-wrap.open{display:block}
+    .mat-topic-row{margin-bottom:8px}
+    .mat-topic-row .mat-row{padding:10px 14px;background:rgba(255,255,255,.45)}
+    .mat-topic-row .mat-row-name{font-size:.8rem;font-weight:700}
+    .mat-topic-content{display:none;padding-left:28px;margin:8px 0 4px;border-left:2px solid rgba(168,85,247,.14)}
+    .mat-topic-content.open{display:block;padding-left:26px;margin-left:2px}
+    .mat-section{margin-bottom:18px}
+    .mat-section:last-child{margin-bottom:4px}
+    body.hc .mat-empty-page{color:#7a6448}
+    body.hc .mat-empty-page .mat-empty-title{color:#e8dcc8!important}
+    body.hc .mat-row{background:rgba(255,255,255,.03)!important;border-color:rgba(168,85,247,.18)!important}
+    body.hc .mat-row:hover{border-color:rgba(168,85,247,.4)!important}
+    body.hc .mat-row-name{color:#e8dcc8!important}
+    body.hc .mat-chevron{color:#7a6448!important}
+    body.hc .mat-count-badge{color:#c084fc!important;background:rgba(168,85,247,.14)!important}
+    body.hc .mat-topic-row .mat-row{background:rgba(255,255,255,.05)!important}
+    body.hc .mat-topic-content{border-left-color:rgba(168,85,247,.2)!important}
+
     .quiz-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
     .q-prog-bar{height:3px;background:rgba(109,40,217,.15);border-radius:2px;margin-bottom:28px;overflow:hidden}
     .q-prog-fill{height:100%;background:linear-gradient(90deg,#7c3aed,#6366f1);border-radius:2px;transition:width .4s ease}
@@ -2050,6 +2082,9 @@
         <button class="nav-item active" onclick="showPanel('planner',this)" aria-label="Revision Planner">
           <span>📅</span> Revision Planner
         </button>
+        <button class="nav-item" id="nav-item-materials" onclick="showPanel('materials',this)" aria-label="Materials — topic resources">
+          <span>🗂️</span> Materials
+        </button>
         <button class="nav-item" onclick="showPanel('mcq',this)" aria-label="Poppy — MCQ maker">
           <span>🧠</span> Poppy
         </button>
@@ -2792,6 +2827,16 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Folder Name&quot
           </div>
         </div>
       </div><!-- /panel-planner -->
+
+      <!-- Materials Panel -->
+      <div id="panel-materials" class="panel anim">
+        <div id="mat-empty-page" class="mat-empty-page" style="display:none">
+          <div class="mat-empty-icon">🗂️</div>
+          <div class="mat-empty-title">No topics yet</div>
+          <div class="mat-empty-sub">Add topics in the Revision Planner to start organizing materials.</div>
+        </div>
+        <div id="mat-tree"></div>
+      </div><!-- /panel-materials -->
 
       <!-- Shared "coming soon" screen for gated tools (Sage/Blurto/Finley) -->
       <div id="panel-locked-tool" class="panel anim">
@@ -5247,14 +5292,15 @@ function exitQuizToFolder() {
 var PANEL_TITLES = {
   'mcq':        'Poppy<span class="tb-sub">MCQ Maker</span>',
   'planner':    'Revision Planner<span class="tb-sub">Spaced Repetition</span>',
+  'materials':  'Materials<span class="tb-sub">Topic Resources</span>',
 
   'saqs':    'Sage<span class="tb-sub">SAQs Maker</span>',
   'blurto':  'Blurto<span class="tb-sub">Blurting Machine</span>',
   'finley':  'Finley<span class="tb-sub">Feynman Teaching</span>'
 };
 // URL slug for each panel — drives history.pushState
-var _PANEL_SLUGS = { mcq: 'poppy', saqs: 'sage', blurto: 'blurto', finley: 'finley' };
-var _SLUG_TO_PANEL = { poppy: 'mcq', sage: 'saqs', blurto: 'blurto', finley: 'finley' };
+var _PANEL_SLUGS = { mcq: 'poppy', saqs: 'sage', blurto: 'blurto', finley: 'finley', materials: 'materials' };
+var _SLUG_TO_PANEL = { poppy: 'mcq', sage: 'saqs', blurto: 'blurto', finley: 'finley', materials: 'materials' };
 // GitHub Pages serves this app from a subpath (e.g. /stodayplus/), so slug URLs must
 // stay relative to that directory and point at the real stub file (poppy.html, etc.)
 // — an absolute '/poppy' 404s because it skips the subpath and has no matching file.
@@ -5314,6 +5360,7 @@ function showPanel(id, el, _fromPop) {
   if (el) el.classList.add('active');
   document.getElementById('tb-title').innerHTML = PANEL_TITLES[id] || 'Stoday Plus<span class="tb-sub">Dashboard</span>';
   if (id === 'planner') rpRenderToday();
+  if (id === 'materials') matRenderTree();
   if (id === 'saqs') { renderSqBank(); }
   if (id === 'blurto') { blurtoInit(); if (!blurtoPhase || blurtoPhase === 'setup') renderBlurtoBank(); }
   if (id === 'finley') finleyInit();
@@ -6935,7 +6982,7 @@ function deleteTopicMaterial(topicId, matId) {
     if (!all2[topicId]) all2[topicId] = [];
     all2[topicId].splice(Math.min(idx, all2[topicId].length), 0, removed);
     _saveAllTopicMaterials(all2);
-    if (notesCurrentTopicId === topicId) notesRenderMaterials();
+    if (document.getElementById('panel-materials') && document.getElementById('panel-materials').classList.contains('active')) matRenderTree();
   });
 }
 
