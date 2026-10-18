@@ -440,9 +440,11 @@
     body.hc .qzd-ref{color:#c084fc!important;border-top-color:rgba(168,85,247,.18)!important}
 
     /* ── NOTES & MATERIALS PANEL ── */
-    .nm-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1399;opacity:0;pointer-events:none;transition:opacity .25s ease}
-    #notes-panel{position:fixed;right:0;top:0;height:100%;width:360px;max-width:92vw;background:#f7efd9;border-left:1.5px solid rgba(109,40,217,.18);box-shadow:-10px 0 48px rgba(109,40,217,.12);z-index:1400;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1)}
-    #notes-panel.open{transform:translateX(0)}
+    /* Positioned by notesPositionPanel() in the right-margin gutter beside the
+       quiz card -- the exact same mechanism as #qz-def-panel's Ctrl+G lookup,
+       so it only ever occupies that margin and never overlaps the quiz. */
+    #notes-panel{position:fixed;width:320px;max-width:calc(100vw - 32px);background:#f7efd9;border:1.5px solid rgba(109,40,217,.18);border-radius:18px;box-shadow:0 8px 40px rgba(109,40,217,.1);z-index:999;display:none;flex-direction:column;animation:defPanelIn .22s cubic-bezier(.34,1.3,.64,1);overflow:hidden}
+    #notes-panel.open{display:flex}
     .nm-head{padding:16px 18px 12px;border-bottom:1px solid rgba(109,40,217,.1);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-shrink:0}
     .nm-title{font-size:.86rem;font-weight:900;color:#1c1208;display:flex;align-items:center;gap:6px}
     .nm-close{background:none;border:none;font-size:.9rem;font-weight:900;color:#b09880;cursor:pointer;padding:4px 8px;border-radius:7px;transition:color .15s,background .15s}
@@ -486,8 +488,7 @@
     .nm-toggle-btn.has-content::after{content:'';position:absolute;top:1px;right:1px;width:6px;height:6px;border-radius:50%;background:#7c3aed}
     body.hc .nm-toggle-btn.has-content::after{background:#c084fc}
 
-    body.hc .nm-backdrop{background:rgba(0,0,0,.62)!important}
-    body.hc #notes-panel{background:#0f0d22!important;border-color:rgba(168,85,247,.32)!important;box-shadow:-10px 0 48px rgba(0,0,0,.45)!important}
+    body.hc #notes-panel{background:#0f0d22!important;border-color:rgba(168,85,247,.32)!important;box-shadow:0 8px 40px rgba(0,0,0,.35)!important}
     body.hc .nm-head{border-color:rgba(168,85,247,.18)!important}
     body.hc .nm-title{color:#e8dcc8!important}
     body.hc .nm-close{color:#7a6448!important}
@@ -500,7 +501,6 @@
     body.hc .nm-ta:focus{border-color:rgba(168,85,247,.5)!important;box-shadow:0 0 0 3px rgba(168,85,247,.16)!important}
     body.hc .nm-ta::placeholder{color:#5c4e3a!important}
     body.hc .nm-saved{color:#4ade80!important}
-    body.hc .nm-sticky-q{color:#c084fc!important;background:rgba(168,85,247,.16)!important}
     body.hc .nm-dropzone{border-color:rgba(168,85,247,.28)!important}
     body.hc .nm-dropzone:hover,body.hc .nm-dropzone.drag{border-color:rgba(168,85,247,.55)!important;background:rgba(168,85,247,.1)!important}
     body.hc .nm-dz-txt{color:#a08878!important}
@@ -515,13 +515,18 @@
     body.hc .nm-mat-del:hover{color:#f87171!important;background:rgba(248,113,113,.1)!important}
     body.hc .nm-mat-meta{color:#7a6448!important}
 
-    @media (max-width:900px){
-      #notes-panel{width:100%;max-width:100%;border-left:none}
-      /* Below this width the panel covers the quiz card, so it needs the
-         dimmed backdrop (click-to-close) that wide screens don't -- above
-         900px the panel floats in the gutter and the quiz stays usable. */
-      .nm-backdrop.show{opacity:1;pointer-events:auto}
-    }
+    .nm-mega-entry{background:rgba(255,255,255,.6);border:1px solid rgba(109,40,217,.12);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+    .nm-mega-tag{display:block;font-size:.66rem;font-weight:700;color:#6d28d9;background:rgba(109,40,217,.08);border-radius:7px;padding:4px 8px;margin-bottom:7px}
+    .nm-mega-text{font-size:.76rem;line-height:1.55;color:#3d2e1a;white-space:pre-wrap}
+    .nm-mega-meta{font-size:.58rem;color:#b09880;margin-top:6px}
+    .nm-mega-empty{font-size:.74rem;color:#b09880;font-style:italic;text-align:center;padding:14px 6px}
+    .nm-mega-lbl{font-size:.64rem;font-weight:900;letter-spacing:.07em;text-transform:uppercase;color:#b09880;margin:4px 0 8px}
+    body.hc .nm-mega-entry{background:rgba(255,255,255,.04)!important;border-color:rgba(168,85,247,.16)!important}
+    body.hc .nm-mega-tag{color:#c084fc!important;background:rgba(168,85,247,.14)!important}
+    body.hc .nm-mega-text{color:#c8b89a!important}
+    body.hc .nm-mega-meta{color:#7a6448!important}
+    body.hc .nm-mega-empty{color:#7a6448!important}
+    body.hc .nm-mega-lbl{color:#7a6448!important}
 
     .quiz-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
     .q-prog-bar{height:3px;background:rgba(109,40,217,.15);border-radius:2px;margin-bottom:28px;overflow:hidden}
@@ -2592,7 +2597,6 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Folder Name&quot
           </div>
           </div><!-- /quiz-run-wrap -->
 
-          <div class="nm-backdrop" id="notes-backdrop" onclick="notesClose()"></div>
           <div id="notes-panel">
             <div class="nm-head">
               <div class="nm-title">📝 <span id="notes-head-label">Notes &amp; Materials</span></div>
@@ -2608,19 +2612,11 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Folder Name&quot
               <div class="nm-pane show" id="notes-pane-notes">
                 <div class="nm-card">
                   <div class="nm-card-top">
-                    <span class="nm-card-title" id="notes-big-title">Topic note</span>
-                    <span class="nm-saved" id="notes-big-saved">✓ Saved</span>
-                  </div>
-                  <button class="nm-card-del" onclick="notesDeleteBig()" title="Delete note">✕</button>
-                  <textarea class="nm-ta" id="notes-big-ta" placeholder="No notes yet for this topic — start typing, or press Shift+N…" oninput="notesBigInput()"></textarea>
-                </div>
-                <div class="nm-card">
-                  <div class="nm-card-top">
                     <span class="nm-card-title" id="notes-sticky-title">Note for this question</span>
                     <span class="nm-saved" id="notes-sticky-saved">✓ Saved</span>
                   </div>
                   <button class="nm-card-del" onclick="notesDeleteSticky()" title="Delete note">✕</button>
-                  <textarea class="nm-ta" id="notes-sticky-ta" style="min-height:70px" placeholder="No sticky note on this question yet — jot something down…" oninput="notesStickyInput()"></textarea>
+                  <textarea class="nm-ta" id="notes-sticky-ta" style="min-height:120px" placeholder="No sticky note on this question yet — jot something down… it's automatically saved into this topic's Materials." oninput="notesStickyInput()"></textarea>
                 </div>
               </div>
               <div class="nm-pane" id="notes-pane-materials">
@@ -2637,6 +2633,9 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Folder Name&quot
                 <div class="nm-mat-status" id="notes-mat-status"><span class="qzd-spinner"></span><span id="notes-mat-status-txt"></span></div>
                 <div class="nm-mat-empty" id="notes-materials-empty">No materials saved for this topic yet.</div>
                 <div id="notes-materials-list"></div>
+                <div class="nm-mega-lbl">📝 Notes from this topic</div>
+                <div class="nm-mega-empty" id="notes-mega-empty">Notes you leave on questions in this topic will show up here automatically.</div>
+                <div id="notes-mega-list"></div>
               </div>
             </div>
           </div><!-- /notes-panel -->
@@ -6893,16 +6892,6 @@ function notesResolveTopicId(folderName) {
   return t ? t.id : null;
 }
 
-function getTopicNotes() { try { return JSON.parse(localStorage.getItem('sp_topic_notes') || '{}'); } catch(e) { return {}; } }
-function saveTopicNote(topicId, text) {
-  if (!topicId) return;
-  var all = getTopicNotes();
-  if (!text || !text.trim()) delete all[topicId];
-  else all[topicId] = { text: text, updatedAt: Date.now() };
-  localStorage.setItem('sp_topic_notes', JSON.stringify(all));
-  _scheduleSyncToSupabase();
-}
-
 function getQuestionNotes() { try { return JSON.parse(localStorage.getItem('sp_question_notes') || '{}'); } catch(e) { return {}; } }
 function saveQuestionNote(qId, text) {
   if (!qId) return;
@@ -6955,7 +6944,6 @@ var notesPanelOpen = false;
 var notesActiveTab = 'notes';
 var notesCurrentTopicId = null;
 var notesCurrentQuestion = null;
-var _notesBigSaveTimer = null;
 var _notesStickySaveTimer = null;
 
 function notesPanelAvailable() {
@@ -6963,23 +6951,54 @@ function notesPanelAvailable() {
   return !!(run && run.style.display !== 'none' && qzQs && qzQs[qzIdx]);
 }
 
+// Positions the panel in the right-margin gutter beside the quiz card --
+// the exact same measurement qzPositionPanel() uses for the Ctrl+G lookup
+// panel, so Notes only ever occupies that margin and never overlaps the
+// quiz itself. Returns false (and the caller should not open) if the
+// window isn't wide enough for that margin to fit the panel.
+function notesPositionPanel() {
+  var panel = document.getElementById('notes-panel');
+  var quiz  = document.getElementById('quiz-run');
+  if (!panel || !quiz) return false;
+  var r = quiz.getBoundingClientRect();
+  var gap = 16, width = 320;
+  var leftEdge = r.right + gap;
+  if (leftEdge + width + 16 > window.innerWidth) return false; // not enough room
+  panel.style.left   = leftEdge + 'px';
+  panel.style.top    = Math.max(r.top, 16) + 'px';
+  panel.style.bottom = '16px';
+  return true;
+}
+
 function notesToggle() {
   if (notesPanelOpen) notesClose(); else notesOpen();
 }
 function notesOpen() {
   if (!notesPanelAvailable()) return;
+  if (!notesPositionPanel()) return;
   notesPanelOpen = true;
   document.getElementById('notes-panel').classList.add('open');
-  document.getElementById('notes-backdrop').classList.add('show');
   notesRefreshContext();
 }
 function notesClose() {
   notesPanelOpen = false;
   var panel = document.getElementById('notes-panel');
-  var bd = document.getElementById('notes-backdrop');
   if (panel) panel.classList.remove('open');
-  if (bd) bd.classList.remove('show');
 }
+window.addEventListener('resize', function() {
+  if (!notesPanelOpen) return;
+  if (!notesPositionPanel()) notesClose();
+});
+// Click outside the panel (and its own toggle button) closes it -- same
+// pattern as the Ctrl+G lookup panel's outside-click handler.
+document.addEventListener('mousedown', function(e) {
+  if (!notesPanelOpen) return;
+  var panel = document.getElementById('notes-panel');
+  var btn = document.getElementById('notes-toggle-btn');
+  if (panel && panel.contains(e.target)) return;
+  if (btn && btn.contains(e.target)) return;
+  notesClose();
+});
 function notesTab(t) {
   notesActiveTab = t;
   document.getElementById('notes-tab-notes').classList.toggle('active', t === 'notes');
@@ -7006,15 +7025,12 @@ function notesRefreshContext() {
   notesUpdateToggleIndicator();
 }
 
+// Only the current question's sticky note shows in the quiz window -- no
+// topic-wide note here. Every sticky note automatically shows up in this
+// topic's Materials tab instead (see notesComposeMegaNote).
 function notesRenderNotesTab() {
   if (!notesCurrentQuestion) return;
-  clearTimeout(_notesBigSaveTimer);
   clearTimeout(_notesStickySaveTimer);
-  var topicNote = getTopicNotes()[notesCurrentTopicId];
-  document.getElementById('notes-big-title').textContent = 'Notes — ' + (notesCurrentQuestion.folder || 'General');
-  document.getElementById('notes-big-ta').value = topicNote ? topicNote.text : '';
-  document.getElementById('notes-big-saved').classList.remove('show');
-
   var qNote = getQuestionNotes()[notesCurrentQuestion.id];
   document.getElementById('notes-sticky-title').textContent = 'Note for Q' + (qzIdx + 1);
   document.getElementById('notes-sticky-ta').value = qNote ? qNote.text : '';
@@ -7029,16 +7045,6 @@ function notesFlashSaved(id) {
   el.classList.add('show');
 }
 
-function notesBigInput() {
-  clearTimeout(_notesBigSaveTimer);
-  var ta = document.getElementById('notes-big-ta');
-  var topicId = notesCurrentTopicId;
-  _notesBigSaveTimer = setTimeout(function() {
-    saveTopicNote(topicId, ta.value);
-    notesFlashSaved('notes-big-saved');
-    notesUpdateToggleIndicator();
-  }, 600);
-}
 function notesStickyInput() {
   clearTimeout(_notesStickySaveTimer);
   var ta = document.getElementById('notes-sticky-ta');
@@ -7047,26 +7053,10 @@ function notesStickyInput() {
     saveQuestionNote(qId, ta.value);
     notesFlashSaved('notes-sticky-saved');
     notesUpdateToggleIndicator();
+    if (notesActiveTab === 'materials') notesRenderMaterials();
   }, 600);
 }
 
-function notesDeleteBig() {
-  if (!notesCurrentTopicId) return;
-  var topicId = notesCurrentTopicId;
-  var prev = getTopicNotes()[topicId];
-  if (!prev || !prev.text) return;
-  clearTimeout(_notesBigSaveTimer);
-  saveTopicNote(topicId, '');
-  document.getElementById('notes-big-ta').value = '';
-  notesUpdateToggleIndicator();
-  pushUndo('Topic note', function() {
-    saveTopicNote(topicId, prev.text);
-    if (notesCurrentTopicId === topicId) {
-      document.getElementById('notes-big-ta').value = prev.text;
-      notesUpdateToggleIndicator();
-    }
-  });
-}
 function notesDeleteSticky() {
   if (!notesCurrentQuestion) return;
   var qId = notesCurrentQuestion.id;
@@ -7082,17 +7072,53 @@ function notesDeleteSticky() {
       document.getElementById('notes-sticky-ta').value = prev.text;
       notesUpdateToggleIndicator();
     }
+    if (notesActiveTab === 'materials') notesRenderMaterials();
   });
 }
 
 function notesUpdateToggleIndicator() {
   var btn = document.getElementById('notes-toggle-btn');
   if (!btn || !notesCurrentQuestion) return;
-  var topicNote = getTopicNotes()[notesCurrentTopicId];
-  var qNote = getQuestionNotes()[notesCurrentQuestion.id];
-  var hasContent = !!(topicNote && topicNote.text) || !!(qNote && qNote.text)
+  var hasContent = notesComposeMegaNote(notesCurrentTopicId).length > 0
     || getTopicMaterials(notesCurrentTopicId).length > 0;
   btn.classList.toggle('has-content', hasContent);
+}
+
+// Every question in this topic that has a sticky note, composed into one
+// list for the Materials tab -- this *is* the "mega note": there's no
+// separate free-text blob, it's always a live view over sp_question_notes
+// so there's nothing to fall out of sync. Tagged by a stem excerpt rather
+// than "Q3" because that numbering is only stable within one quiz session
+// (qzQs is a shuffled sample), so it wouldn't mean anything later.
+function notesComposeMegaNote(topicId) {
+  if (!topicId) return [];
+  var topic = orgTopics.find(function(t) { return t.id === topicId; });
+  if (!topic) return [];
+  var qNotes = getQuestionNotes();
+  var entries = [];
+  bank.forEach(function(q) {
+    if ((q.folder || 'General').toLowerCase() !== topic.topic_name.toLowerCase()) return;
+    var n = qNotes[q.id];
+    if (n && n.text && n.text.trim()) entries.push({ stem: q.stem, text: n.text, updatedAt: n.updatedAt });
+  });
+  entries.sort(function(a, b) { return b.updatedAt - a.updatedAt; });
+  return entries;
+}
+
+function notesRenderMegaNote() {
+  var list = document.getElementById('notes-mega-list');
+  var empty = document.getElementById('notes-mega-empty');
+  if (!list || !notesCurrentTopicId) return;
+  var entries = notesComposeMegaNote(notesCurrentTopicId);
+  empty.style.display = entries.length ? 'none' : 'block';
+  list.innerHTML = entries.map(function(e) {
+    var tag = e.stem.length > 70 ? e.stem.slice(0, 70) + '…' : e.stem;
+    return '<div class="nm-mega-entry">'
+      + '<span class="nm-mega-tag">' + esc(tag) + '</span>'
+      + '<div class="nm-mega-text">' + esc(e.text) + '</div>'
+      + '<div class="nm-mega-meta">' + notesRelTime(e.updatedAt) + '</div>'
+    + '</div>';
+  }).join('');
 }
 
 // ── MATERIALS TAB ──────────────────────────────────────────────────────────────
@@ -7126,6 +7152,7 @@ function notesRenderMaterials() {
       + '<div class="nm-mat-meta">Added ' + notesRelTime(m.addedAt) + '</div>'
     + '</div>';
   }).join('');
+  notesRenderMegaNote();
 }
 
 function notesDeleteMaterial(matId) {
@@ -11517,7 +11544,7 @@ var _USER_DATA_KEYS = [
   'sp_folder_scores','sp_saq_folder_scores','sp_folder_meta','sp_topic_content','sp_notes_cache',
   'sp_blurto_cache','sp_finley_draft',
   'sp_wrong_ids','sp_correct_ids','sp_folders','finley_sessions','sp_revplan','sp_exams',
-  'sp_topic_notes','sp_question_notes','sp_topic_materials'
+  'sp_question_notes','sp_topic_materials'
 ];
 
 var _supabaseLoading = false;
@@ -11588,7 +11615,6 @@ async function _loadFromSupabase() {
     try { _initPayload.wrong_ids    = JSON.parse(localStorage.getItem('sp_wrong_ids')    || 'null') || {}; } catch(e) {}
     try { _initPayload.correct_ids  = JSON.parse(localStorage.getItem('sp_correct_ids')  || 'null') || {}; } catch(e) {}
     try { _initPayload.org_subjects = JSON.parse(localStorage.getItem('sp_org_subjects') || 'null') || []; } catch(e) {}
-    try { _initPayload.topic_notes     = JSON.parse(localStorage.getItem('sp_topic_notes')     || 'null') || {}; } catch(e) {}
     try { _initPayload.question_notes  = JSON.parse(localStorage.getItem('sp_question_notes')  || 'null') || {}; } catch(e) {}
     try { _initPayload.topic_materials = JSON.parse(localStorage.getItem('sp_topic_materials') || 'null') || {}; } catch(e) {}
     var _initR = await _spClient.from('user_data').upsert(_initPayload, { onConflict: 'user_id' });
@@ -11671,14 +11697,13 @@ async function _loadFromSupabase() {
         if (typeof qzShowResumeBanner === 'function') qzShowResumeBanner();
       }
     } catch(_e) {}
-    // Load Notes & Materials from cloud (requires topic_notes/question_notes/
-    // topic_materials JSONB columns — see supabase/user_data_notes_materials.sql.
-    // Works locally via localStorage without them; this just syncs cross-device.)
+    // Load Notes & Materials from cloud (requires question_notes/topic_materials
+    // JSONB columns — see supabase/user_data_notes_materials.sql. Works locally
+    // via localStorage without them; this just syncs them cross-device.)
     try {
       var nmr = await _spClient.from('user_data')
-        .select('topic_notes, question_notes, topic_materials').eq('user_id', uid).maybeSingle();
+        .select('question_notes, topic_materials').eq('user_id', uid).maybeSingle();
       if (!nmr.error && nmr.data) {
-        if (nmr.data.topic_notes)     localStorage.setItem('sp_topic_notes',     JSON.stringify(nmr.data.topic_notes));
         if (nmr.data.question_notes)  localStorage.setItem('sp_question_notes',  JSON.stringify(nmr.data.question_notes));
         if (nmr.data.topic_materials) localStorage.setItem('sp_topic_materials', JSON.stringify(nmr.data.topic_materials));
       }
@@ -11811,7 +11836,6 @@ async function _syncToSupabase() {
   try { payload.wrong_ids     = JSON.parse(localStorage.getItem('sp_wrong_ids')     || 'null') || {}; } catch(_e) {}
   try { payload.correct_ids   = JSON.parse(localStorage.getItem('sp_correct_ids')   || 'null') || {}; } catch(_e) {}
   try { payload.org_subjects  = JSON.parse(localStorage.getItem('sp_org_subjects')  || 'null') || []; } catch(_e) {}
-  try { payload.topic_notes     = JSON.parse(localStorage.getItem('sp_topic_notes')     || 'null') || {}; } catch(_e) {}
   try { payload.question_notes  = JSON.parse(localStorage.getItem('sp_question_notes')  || 'null') || {}; } catch(_e) {}
   try { payload.topic_materials = JSON.parse(localStorage.getItem('sp_topic_materials') || 'null') || {}; } catch(_e) {}
   var r = await _spClient.from('user_data').upsert(payload, { onConflict: 'user_id' });
