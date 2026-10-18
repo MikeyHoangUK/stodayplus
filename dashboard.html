@@ -1979,6 +1979,17 @@
       .rp-sched-chain   { overflow-x: auto; padding-bottom: 6px; }
       .rp-empty         { padding: 44px 18px; }
       .rp-topic-card .rp-method-pill { font-size: .73rem; }
+
+      /* ── Sidebar nav — built below this file's own 44px tap-target rule ── */
+      .nav-item         { padding: 11px 9px; min-height: 44px; box-sizing: border-box; }
+
+      /* ── Materials accordion — reclaim width from the stacked indentation
+         (.mat-topics-wrap + .mat-topic-row's own row padding) so topic names
+         and file/note cards aren't squeezed into a sliver on narrow phones,
+         and bump the topic row up toward the same 44px target. ── */
+      .mat-topics-wrap  { padding-left: 16px; }
+      .mat-topic-row .mat-row { padding: 13px 12px; min-height: 44px; box-sizing: border-box; }
+      .mat-topic-content { padding-left: 14px; }
     }
 
     /* ── Compact phones (iPhone SE / small Androids) ── */
