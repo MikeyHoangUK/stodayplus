@@ -6719,6 +6719,75 @@ function applyUndo() {
   hideUndoToast();
 }
 
+// ── NOTES & MATERIALS (per-topic-id, never keyed by name) ────────────────────
+// topicId resolution: every question carries its own .folder name string, so
+// each question's topic is resolved independently (a quiz over "All folders"
+// mixes questions from several topics). orgEnsureTopic is a no-op if the
+// topic already exists, so this always returns a stable id.
+function notesResolveTopicId(folderName) {
+  if (!folderName) return null;
+  orgEnsureTopic(folderName, '');
+  var t = orgTopics.find(function(x) { return x.topic_name.toLowerCase() === folderName.toLowerCase(); });
+  return t ? t.id : null;
+}
+
+function getTopicNotes() { try { return JSON.parse(localStorage.getItem('sp_topic_notes') || '{}'); } catch(e) { return {}; } }
+function saveTopicNote(topicId, text) {
+  if (!topicId) return;
+  var all = getTopicNotes();
+  if (!text || !text.trim()) delete all[topicId];
+  else all[topicId] = { text: text, updatedAt: Date.now() };
+  localStorage.setItem('sp_topic_notes', JSON.stringify(all));
+  _scheduleSyncToSupabase();
+}
+
+function getQuestionNotes() { try { return JSON.parse(localStorage.getItem('sp_question_notes') || '{}'); } catch(e) { return {}; } }
+function saveQuestionNote(qId, text) {
+  if (!qId) return;
+  var all = getQuestionNotes();
+  if (!text || !text.trim()) delete all[qId];
+  else all[qId] = { text: text, updatedAt: Date.now() };
+  localStorage.setItem('sp_question_notes', JSON.stringify(all));
+  _scheduleSyncToSupabase();
+}
+
+function getTopicMaterials(topicId) {
+  if (!topicId) return [];
+  try { var all = JSON.parse(localStorage.getItem('sp_topic_materials') || '{}'); return all[topicId] || []; } catch(e) { return []; }
+}
+function _saveAllTopicMaterials(all) {
+  localStorage.setItem('sp_topic_materials', JSON.stringify(all));
+  _scheduleSyncToSupabase();
+}
+// Each uploaded file stays its own list entry — never merged into one blob
+// (unlike aiLoadedFiles elsewhere), so the Materials list stays itemized.
+function addTopicMaterial(topicId, name, text) {
+  if (!topicId) return null;
+  var all; try { all = JSON.parse(localStorage.getItem('sp_topic_materials') || '{}'); } catch(e) { all = {}; }
+  if (!all[topicId]) all[topicId] = [];
+  var item = { id: Date.now() + '-' + Math.random().toString(36).slice(2, 6), name: name, text: text, addedAt: Date.now() };
+  all[topicId].push(item);
+  _saveAllTopicMaterials(all);
+  return item;
+}
+function deleteTopicMaterial(topicId, matId) {
+  var all; try { all = JSON.parse(localStorage.getItem('sp_topic_materials') || '{}'); } catch(e) { all = {}; }
+  var list = all[topicId] || [];
+  var idx = list.findIndex(function(m) { return m.id === matId; });
+  if (idx === -1) return;
+  var removed = list[idx];
+  list.splice(idx, 1);
+  all[topicId] = list;
+  _saveAllTopicMaterials(all);
+  pushUndo('"' + removed.name + '"', function() {
+    var all2; try { all2 = JSON.parse(localStorage.getItem('sp_topic_materials') || '{}'); } catch(e) { all2 = {}; }
+    if (!all2[topicId]) all2[topicId] = [];
+    all2[topicId].splice(Math.min(idx, all2[topicId].length), 0, removed);
+    _saveAllTopicMaterials(all2);
+    if (notesCurrentTopicId === topicId) notesRenderMaterials();
+  });
+}
+
 // ── OFFLINE DETECTION ──
 window.addEventListener('offline', function() { document.getElementById('offline-banner').style.display = 'block'; });
 window.addEventListener('online',  function() { document.getElementById('offline-banner').style.display = 'none'; });
@@ -11058,7 +11127,8 @@ var _USER_DATA_KEYS = [
   'sp_questions','sp_saqs','sp_blurto','sp_org_topics','sp_org_subjects',
   'sp_folder_scores','sp_saq_folder_scores','sp_folder_meta','sp_topic_content','sp_notes_cache',
   'sp_blurto_cache','sp_finley_draft',
-  'sp_wrong_ids','sp_correct_ids','sp_folders','finley_sessions','sp_revplan','sp_exams'
+  'sp_wrong_ids','sp_correct_ids','sp_folders','finley_sessions','sp_revplan','sp_exams',
+  'sp_topic_notes','sp_question_notes','sp_topic_materials'
 ];
 
 var _supabaseLoading = false;
@@ -11129,6 +11199,9 @@ async function _loadFromSupabase() {
     try { _initPayload.wrong_ids    = JSON.parse(localStorage.getItem('sp_wrong_ids')    || 'null') || {}; } catch(e) {}
     try { _initPayload.correct_ids  = JSON.parse(localStorage.getItem('sp_correct_ids')  || 'null') || {}; } catch(e) {}
     try { _initPayload.org_subjects = JSON.parse(localStorage.getItem('sp_org_subjects') || 'null') || []; } catch(e) {}
+    try { _initPayload.topic_notes     = JSON.parse(localStorage.getItem('sp_topic_notes')     || 'null') || {}; } catch(e) {}
+    try { _initPayload.question_notes  = JSON.parse(localStorage.getItem('sp_question_notes')  || 'null') || {}; } catch(e) {}
+    try { _initPayload.topic_materials = JSON.parse(localStorage.getItem('sp_topic_materials') || 'null') || {}; } catch(e) {}
     var _initR = await _spClient.from('user_data').upsert(_initPayload, { onConflict: 'user_id' });
     if (_initR.error) {
       // Retry without new columns in case they don't exist in the Supabase table yet
@@ -11207,6 +11280,18 @@ async function _loadFromSupabase() {
           localStorage.setItem(QZ_SESSION_KEY, JSON.stringify(cloudQs));
         }
         if (typeof qzShowResumeBanner === 'function') qzShowResumeBanner();
+      }
+    } catch(_e) {}
+    // Load Notes & Materials from cloud (requires topic_notes/question_notes/
+    // topic_materials JSONB columns — see supabase/user_data_notes_materials.sql.
+    // Works locally via localStorage without them; this just syncs cross-device.)
+    try {
+      var nmr = await _spClient.from('user_data')
+        .select('topic_notes, question_notes, topic_materials').eq('user_id', uid).maybeSingle();
+      if (!nmr.error && nmr.data) {
+        if (nmr.data.topic_notes)     localStorage.setItem('sp_topic_notes',     JSON.stringify(nmr.data.topic_notes));
+        if (nmr.data.question_notes)  localStorage.setItem('sp_question_notes',  JSON.stringify(nmr.data.question_notes));
+        if (nmr.data.topic_materials) localStorage.setItem('sp_topic_materials', JSON.stringify(nmr.data.topic_materials));
       }
     } catch(_e) {}
     // Load planner, org, and supplementary data (columns may not exist yet — fails gracefully)
@@ -11337,6 +11422,9 @@ async function _syncToSupabase() {
   try { payload.wrong_ids     = JSON.parse(localStorage.getItem('sp_wrong_ids')     || 'null') || {}; } catch(_e) {}
   try { payload.correct_ids   = JSON.parse(localStorage.getItem('sp_correct_ids')   || 'null') || {}; } catch(_e) {}
   try { payload.org_subjects  = JSON.parse(localStorage.getItem('sp_org_subjects')  || 'null') || []; } catch(_e) {}
+  try { payload.topic_notes     = JSON.parse(localStorage.getItem('sp_topic_notes')     || 'null') || {}; } catch(_e) {}
+  try { payload.question_notes  = JSON.parse(localStorage.getItem('sp_question_notes')  || 'null') || {}; } catch(_e) {}
+  try { payload.topic_materials = JSON.parse(localStorage.getItem('sp_topic_materials') || 'null') || {}; } catch(_e) {}
   var r = await _spClient.from('user_data').upsert(payload, { onConflict: 'user_id' });
   if (r.error) {
     // Columns org_topics/revplan/exams may not exist yet — retry without them
