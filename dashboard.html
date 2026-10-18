@@ -1825,6 +1825,11 @@
       .rp-exam-panel { width: 100%; min-width: 0; position: static; }
       .panel.active { max-width: 100%; }
       #qz-def-panel, #qz-rationale-panel { display: none !important; }
+      /* notesPositionPanel() can never find room for #notes-panel once the
+         quiz card is full-width here, same reason the two panels above are
+         hidden -- but nothing hid its toggle button, so it just sat there
+         looking functional and silently did nothing when tapped. */
+      #notes-panel, .nm-toggle-btn { display: none !important; }
     }
 
     /* ════════════════════════════════════════════════════════════
@@ -2586,7 +2591,7 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Folder Name&quot
               <div style="display:flex;align-items:center;gap:6px">
                 <button class="qnav-btn" id="qnav-prev" onclick="prevQ()" disabled>‹</button>
                 <button class="qnav-btn" id="qnav-next" onclick="nextQ()" disabled>›</button>
-                <button class="fs-btn nm-toggle-btn" onclick="notesToggle()" id="notes-toggle-btn" title="Notes &amp; Materials (N)">📝 Notes</button>
+                <button class="fs-btn nm-toggle-btn" onclick="notesToggle()" id="notes-toggle-btn" title="Note for this question (N)">📝 Notes</button>
                 <button class="fs-btn" onclick="toggleQuizFS()" id="fs-btn">⛶ Fullscreen</button>
               </div>
             </div>
