@@ -438,6 +438,88 @@
     body.hc .qzd-body{color:#c8b89a!important}
     body.hc .qzd-eyebrow,body.hc .qzd-source,body.hc .qzd-kb-hint,body.hc .qzd-close{color:#7a6448!important}
     body.hc .qzd-ref{color:#c084fc!important;border-top-color:rgba(168,85,247,.18)!important}
+
+    /* ── NOTES & MATERIALS PANEL ── */
+    .nm-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1399;opacity:0;pointer-events:none;transition:opacity .25s ease}
+    .nm-backdrop.show{opacity:1;pointer-events:auto}
+    #notes-panel{position:fixed;right:0;top:0;height:100%;width:360px;max-width:92vw;background:#f7efd9;border-left:1.5px solid rgba(109,40,217,.18);box-shadow:-10px 0 48px rgba(109,40,217,.12);z-index:1400;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1)}
+    #notes-panel.open{transform:translateX(0)}
+    .nm-head{padding:16px 18px 12px;border-bottom:1px solid rgba(109,40,217,.1);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-shrink:0}
+    .nm-title{font-size:.86rem;font-weight:900;color:#1c1208;display:flex;align-items:center;gap:6px}
+    .nm-close{background:none;border:none;font-size:.9rem;font-weight:900;color:#b09880;cursor:pointer;padding:4px 8px;border-radius:7px;transition:color .15s,background .15s}
+    .nm-close:hover{color:#6d28d9;background:rgba(168,85,247,.1)}
+    .nm-tabs-wrap{padding:14px 18px 0;flex-shrink:0}
+    .nm-body{flex:1;overflow-y:auto;padding:14px 18px 24px}
+    .nm-pane{display:none}
+    .nm-pane.show{display:block;animation:nmPaneIn .18s ease}
+    @keyframes nmPaneIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+    .nm-card{background:rgba(255,255,255,.6);border:1px solid rgba(109,40,217,.14);border-radius:14px;padding:14px;margin-bottom:14px;position:relative}
+    .nm-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;gap:8px;padding-right:20px}
+    .nm-card-title{font-size:.64rem;font-weight:900;letter-spacing:.07em;text-transform:uppercase;color:#b09880}
+    .nm-card-del{position:absolute;top:10px;right:10px;background:none;border:none;font-size:.76rem;font-weight:900;color:#b09880;cursor:pointer;padding:3px 7px;border-radius:6px;transition:color .15s,background .15s}
+    .nm-card-del:hover{color:#dc2626;background:rgba(220,38,38,.08)}
+    .nm-ta{display:block;width:100%;min-height:92px;resize:vertical;border:1px solid rgba(109,40,217,.16);border-radius:10px;padding:10px 12px;font-family:'Raleway',sans-serif;font-size:.78rem;line-height:1.6;color:#3d2e1a;background:#fff;box-sizing:border-box}
+    .nm-ta:focus{outline:none;border-color:rgba(109,40,217,.42);box-shadow:0 0 0 3px rgba(168,85,247,.1)}
+    .nm-ta::placeholder{color:#c8b89a;font-style:italic}
+    .nm-saved{font-size:.6rem;font-weight:800;color:#16a34a;opacity:0;display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
+    .nm-saved.show{animation:nmSavedPulse 1.8s ease}
+    @keyframes nmSavedPulse{0%{opacity:0;transform:translateY(-2px)}12%{opacity:1;transform:translateY(0)}75%{opacity:1}100%{opacity:0}}
+    .nm-sticky-q{font-size:.58rem;color:#7c3aed;font-weight:800;background:rgba(124,58,237,.1);border-radius:6px;padding:2px 7px;display:inline-block;margin-bottom:9px;letter-spacing:.02em}
+
+    /* Materials */
+    .nm-dropzone{border:1.5px dashed rgba(109,40,217,.28);border-radius:14px;padding:22px 14px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;margin-bottom:16px}
+    .nm-dropzone:hover,.nm-dropzone.drag{border-color:rgba(109,40,217,.55);background:rgba(168,85,247,.06)}
+    .nm-dz-icon{font-size:1.4rem;margin-bottom:6px;opacity:.75}
+    .nm-dz-txt{font-size:.72rem;font-weight:700;color:#6e5438}
+    .nm-dz-sub{font-size:.62rem;color:#b09880;margin-top:3px}
+    .nm-mat-status{font-size:.68rem;color:#7c3aed;font-weight:700;margin-bottom:12px;display:none;align-items:center;gap:7px}
+    .nm-mat-empty{font-size:.74rem;color:#b09880;font-style:italic;text-align:center;padding:18px 6px}
+    .nm-mat-card{background:rgba(255,255,255,.6);border:1px solid rgba(109,40,217,.12);border-radius:12px;padding:10px 12px;margin-bottom:8px;animation:nmPaneIn .2s ease}
+    .nm-mat-top{display:flex;align-items:center;gap:8px}
+    .nm-mat-badge{font-size:.54rem;font-weight:900;letter-spacing:.03em;padding:2px 6px;border-radius:5px;background:rgba(109,40,217,.12);color:#6d28d9;flex-shrink:0}
+    .nm-mat-badge-pptx{background:rgba(217,119,6,.14);color:#b45309}
+    .nm-mat-name{flex:1;font-size:.74rem;font-weight:700;color:#1c1208;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+    .nm-mat-del{background:none;border:none;font-size:.78rem;font-weight:900;color:#b09880;cursor:pointer;padding:2px 6px;border-radius:6px;flex-shrink:0;transition:color .15s,background .15s}
+    .nm-mat-del:hover{color:#dc2626;background:rgba(220,38,38,.08)}
+    .nm-mat-meta{font-size:.6rem;color:#b09880;margin-top:5px;padding-left:1px}
+
+    .nm-toggle-btn{position:relative}
+    .nm-toggle-btn.has-content::after{content:'';position:absolute;top:1px;right:1px;width:6px;height:6px;border-radius:50%;background:#7c3aed}
+    body.hc .nm-toggle-btn.has-content::after{background:#c084fc}
+
+    body.hc .nm-backdrop{background:rgba(0,0,0,.62)!important}
+    body.hc #notes-panel{background:#0f0d22!important;border-color:rgba(168,85,247,.32)!important;box-shadow:-10px 0 48px rgba(0,0,0,.45)!important}
+    body.hc .nm-head{border-color:rgba(168,85,247,.18)!important}
+    body.hc .nm-title{color:#e8dcc8!important}
+    body.hc .nm-close{color:#7a6448!important}
+    body.hc .nm-close:hover{color:#c084fc!important;background:rgba(168,85,247,.14)!important}
+    body.hc .nm-card{background:rgba(255,255,255,.04)!important;border-color:rgba(168,85,247,.18)!important}
+    body.hc .nm-card-title{color:#7a6448!important}
+    body.hc .nm-card-del{color:#7a6448!important}
+    body.hc .nm-card-del:hover{color:#f87171!important;background:rgba(248,113,113,.1)!important}
+    body.hc .nm-ta{background:#1a1730!important;border-color:rgba(168,85,247,.22)!important;color:#c8b89a!important}
+    body.hc .nm-ta:focus{border-color:rgba(168,85,247,.5)!important;box-shadow:0 0 0 3px rgba(168,85,247,.16)!important}
+    body.hc .nm-ta::placeholder{color:#5c4e3a!important}
+    body.hc .nm-saved{color:#4ade80!important}
+    body.hc .nm-sticky-q{color:#c084fc!important;background:rgba(168,85,247,.16)!important}
+    body.hc .nm-dropzone{border-color:rgba(168,85,247,.28)!important}
+    body.hc .nm-dropzone:hover,body.hc .nm-dropzone.drag{border-color:rgba(168,85,247,.55)!important;background:rgba(168,85,247,.1)!important}
+    body.hc .nm-dz-txt{color:#a08878!important}
+    body.hc .nm-dz-sub{color:#7a6448!important}
+    body.hc .nm-mat-status{color:#c084fc!important}
+    body.hc .nm-mat-empty{color:#7a6448!important}
+    body.hc .nm-mat-card{background:rgba(255,255,255,.04)!important;border-color:rgba(168,85,247,.16)!important}
+    body.hc .nm-mat-badge{background:rgba(168,85,247,.16)!important;color:#c084fc!important}
+    body.hc .nm-mat-badge-pptx{background:rgba(217,119,6,.2)!important;color:#fbbf24!important}
+    body.hc .nm-mat-name{color:#e8dcc8!important}
+    body.hc .nm-mat-del{color:#7a6448!important}
+    body.hc .nm-mat-del:hover{color:#f87171!important;background:rgba(248,113,113,.1)!important}
+    body.hc .nm-mat-meta{color:#7a6448!important}
+
+    @media (max-width:900px){
+      #notes-panel{width:100%;max-width:100%;border-left:none}
+    }
+
     .quiz-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
     .q-prog-bar{height:3px;background:rgba(109,40,217,.15);border-radius:2px;margin-bottom:28px;overflow:hidden}
     .q-prog-fill{height:100%;background:linear-gradient(90deg,#7c3aed,#6366f1);border-radius:2px;transition:width .4s ease}
@@ -2464,6 +2546,7 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Folder Name&quot
               <div style="display:flex;align-items:center;gap:6px">
                 <button class="qnav-btn" id="qnav-prev" onclick="prevQ()" disabled>‹</button>
                 <button class="qnav-btn" id="qnav-next" onclick="nextQ()" disabled>›</button>
+                <button class="fs-btn nm-toggle-btn" onclick="notesToggle()" id="notes-toggle-btn" title="Notes &amp; Materials (N)">📝 Notes</button>
                 <button class="fs-btn" onclick="toggleQuizFS()" id="fs-btn">⛶ Fullscreen</button>
               </div>
             </div>
@@ -2505,6 +2588,55 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Folder Name&quot
             <div class="qzd-kb-hint">R to toggle</div>
           </div>
           </div><!-- /quiz-run-wrap -->
+
+          <div class="nm-backdrop" id="notes-backdrop" onclick="notesClose()"></div>
+          <div id="notes-panel">
+            <div class="nm-head">
+              <div class="nm-title">📝 <span id="notes-head-label">Notes &amp; Materials</span></div>
+              <button class="nm-close" onclick="notesClose()" title="Close (N)">✕</button>
+            </div>
+            <div class="nm-tabs-wrap">
+              <div class="mcq-tabs">
+                <div class="mcq-tab active" id="notes-tab-notes" onclick="notesTab('notes')">Notes</div>
+                <div class="mcq-tab" id="notes-tab-materials" onclick="notesTab('materials')">Materials</div>
+              </div>
+            </div>
+            <div class="nm-body">
+              <div class="nm-pane show" id="notes-pane-notes">
+                <div class="nm-card">
+                  <div class="nm-card-top">
+                    <span class="nm-card-title" id="notes-big-title">Topic note</span>
+                    <span class="nm-saved" id="notes-big-saved">✓ Saved</span>
+                  </div>
+                  <button class="nm-card-del" onclick="notesDeleteBig()" title="Delete note">✕</button>
+                  <textarea class="nm-ta" id="notes-big-ta" placeholder="No notes yet for this topic — start typing, or press Shift+N…" oninput="notesBigInput()"></textarea>
+                </div>
+                <div class="nm-card">
+                  <div class="nm-card-top">
+                    <span class="nm-card-title" id="notes-sticky-title">Note for this question</span>
+                    <span class="nm-saved" id="notes-sticky-saved">✓ Saved</span>
+                  </div>
+                  <button class="nm-card-del" onclick="notesDeleteSticky()" title="Delete note">✕</button>
+                  <textarea class="nm-ta" id="notes-sticky-ta" style="min-height:70px" placeholder="No sticky note on this question yet — jot something down…" oninput="notesStickyInput()"></textarea>
+                </div>
+              </div>
+              <div class="nm-pane" id="notes-pane-materials">
+                <div class="nm-dropzone" id="notes-dropzone"
+                  ondragover="event.preventDefault();this.classList.add('drag')"
+                  ondragleave="this.classList.remove('drag')"
+                  ondrop="notesDrop(event)"
+                  onclick="document.getElementById('notes-file-inp').click()">
+                  <div class="nm-dz-icon">📎</div>
+                  <div class="nm-dz-txt">Drop <strong>.pdf</strong> or <strong>.pptx</strong> files here</div>
+                  <div class="nm-dz-sub">or click to browse — multiple files OK</div>
+                  <input type="file" id="notes-file-inp" accept=".pdf,.pptx" multiple style="display:none" onchange="notesFileSelect(event)"/>
+                </div>
+                <div class="nm-mat-status" id="notes-mat-status"><span class="qzd-spinner"></span><span id="notes-mat-status-txt"></span></div>
+                <div class="nm-mat-empty" id="notes-materials-empty">No materials saved for this topic yet.</div>
+                <div id="notes-materials-list"></div>
+              </div>
+            </div>
+          </div><!-- /notes-panel -->
 
           <div class="results-wrap" id="quiz-results">
             <div class="res-hero">
