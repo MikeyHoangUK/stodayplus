@@ -7068,6 +7068,88 @@ function notesUpdateToggleIndicator() {
   btn.classList.toggle('has-content', hasContent);
 }
 
+// ── MATERIALS TAB ──────────────────────────────────────────────────────────────
+// Pure storage + display -- deliberately not wired into aiLoadedFiles,
+// notesCacheSet, sp_notes_cache, sp_topic_content, or any AI-generation
+// prompt anywhere in this file. That's an explicit scope boundary.
+function notesRelTime(ts) {
+  var s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 60) return 'just now';
+  var m = Math.floor(s / 60); if (m < 60) return m + 'm ago';
+  var h = Math.floor(m / 60); if (h < 24) return h + 'h ago';
+  var d = Math.floor(h / 24); if (d < 30) return d + 'd ago';
+  return new Date(ts).toLocaleDateString();
+}
+
+function notesRenderMaterials() {
+  var list = document.getElementById('notes-materials-list');
+  var empty = document.getElementById('notes-materials-empty');
+  if (!list || !notesCurrentTopicId) return;
+  var mats = getTopicMaterials(notesCurrentTopicId);
+  empty.style.display = mats.length ? 'none' : 'block';
+  list.innerHTML = mats.slice().reverse().map(function(m) {
+    var ext = (m.name.split('.').pop() || '').toLowerCase();
+    var badgeCls = ext === 'pptx' ? ' nm-mat-badge-pptx' : '';
+    return '<div class="nm-mat-card" data-mid="' + esc(m.id) + '">'
+      + '<div class="nm-mat-top">'
+        + '<span class="nm-mat-badge' + badgeCls + '">' + esc(ext.toUpperCase()) + '</span>'
+        + '<span class="nm-mat-name" title="' + esc(m.name) + '">' + esc(m.name) + '</span>'
+        + '<button class="nm-mat-del" onclick="notesDeleteMaterial(\'' + esc(m.id) + '\')" title="Delete">✕</button>'
+      + '</div>'
+      + '<div class="nm-mat-meta">Added ' + notesRelTime(m.addedAt) + '</div>'
+    + '</div>';
+  }).join('');
+}
+
+function notesDeleteMaterial(matId) {
+  if (!notesCurrentTopicId) return;
+  deleteTopicMaterial(notesCurrentTopicId, matId);
+  notesRenderMaterials();
+  notesUpdateToggleIndicator();
+}
+
+function notesFileSelect(e) {
+  var files = Array.from(e.target.files || []);
+  e.target.value = '';
+  if (files.length) notesProcessFiles(files);
+}
+function notesDrop(e) {
+  e.preventDefault();
+  var dz = document.getElementById('notes-dropzone');
+  if (dz) dz.classList.remove('drag');
+  var files = Array.from((e.dataTransfer && e.dataTransfer.files) || []);
+  if (files.length) notesProcessFiles(files);
+}
+
+async function notesProcessFiles(files) {
+  if (!notesCurrentTopicId) return;
+  var topicId = notesCurrentTopicId;
+  var statusEl = document.getElementById('notes-mat-status');
+  var statusTxt = document.getElementById('notes-mat-status-txt');
+  var errors = [];
+  statusEl.style.display = 'flex';
+  for (var i = 0; i < files.length; i++) {
+    var file = files[i];
+    var ext = (file.name.split('.').pop() || '').toLowerCase();
+    if (ext !== 'pdf' && ext !== 'pptx') { errors.push(file.name + ': only .pdf and .pptx are supported'); continue; }
+    statusTxt.textContent = 'Reading ' + file.name + '…';
+    try {
+      var text = ext === 'pdf'
+        ? await extractPdf(file, function(msg) { statusTxt.textContent = msg; })
+        : await extractPptx(file, function(msg) { statusTxt.textContent = msg; });
+      addTopicMaterial(topicId, file.name, text);
+    } catch (err) {
+      errors.push(file.name + ': ' + ((err && err.message) || 'could not read file'));
+    }
+  }
+  statusEl.style.display = 'none';
+  if (errors.length) alert(errors.join('\n'));
+  if (notesCurrentTopicId === topicId) {
+    notesRenderMaterials();
+    notesUpdateToggleIndicator();
+  }
+}
+
 // ── OFFLINE DETECTION ──
 window.addEventListener('offline', function() { document.getElementById('offline-banner').style.display = 'block'; });
 window.addEventListener('online',  function() { document.getElementById('offline-banner').style.display = 'none'; });
