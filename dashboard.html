@@ -6986,6 +6986,164 @@ function deleteTopicMaterial(topicId, matId) {
   });
 }
 
+// ── MATERIALS (standalone panel) ────────────────────────────────────────────────
+// Subject -> Topic accordion over the existing orgTopics/orgSubjects data, with
+// each topic's files + auto-composed mega-note (notesComposeMegaNote, shared
+// with the quiz's Notes popup) as its depth-2 content. Own expand/collapse
+// state -- intentionally independent of the quiz popup's notesCurrentTopicId.
+var matExpandedSubjects = {};
+var matExpandedTopics = {};
+
+function matRenderTree() {
+  var wrap = document.getElementById('mat-tree');
+  var emptyPage = document.getElementById('mat-empty-page');
+  if (!wrap || !emptyPage) return;
+  if (!orgTopics.length) {
+    emptyPage.style.display = 'block';
+    wrap.innerHTML = '';
+    return;
+  }
+  emptyPage.style.display = 'none';
+  var groups = {};
+  orgTopics.forEach(function(t) {
+    var subj = (t.subject || '').trim() || 'Uncategorized';
+    if (!groups[subj]) groups[subj] = [];
+    groups[subj].push(t);
+  });
+  var subjNames = Object.keys(groups).filter(function(s) { return s !== 'Uncategorized'; }).sort();
+  if (groups['Uncategorized']) subjNames.push('Uncategorized');
+  wrap.innerHTML = subjNames.map(function(subj) {
+    var topics = groups[subj].slice().sort(function(a, b) { return a.topic_name.localeCompare(b.topic_name); });
+    var isOpen = !!matExpandedSubjects[subj];
+    return '<div class="mat-subject-group">'
+      + '<div class="mat-row' + (isOpen ? ' open' : '') + '" onclick="matToggleSubject(\'' + esc(subj) + '\')">'
+        + '<span class="mat-chevron">▶</span>'
+        + '<span class="mat-row-icon">📚</span>'
+        + '<span class="mat-row-name">' + esc(subj) + '</span>'
+        + '<span class="mat-count-badge">' + topics.length + ' topic' + (topics.length !== 1 ? 's' : '') + '</span>'
+      + '</div>'
+      + '<div class="mat-topics-wrap' + (isOpen ? ' open' : '') + '">'
+        + topics.map(matRenderTopicRow).join('')
+      + '</div>'
+    + '</div>';
+  }).join('');
+}
+
+function matRenderTopicRow(t) {
+  var isOpen = !!matExpandedTopics[t.id];
+  return '<div class="mat-topic-row">'
+    + '<div class="mat-row' + (isOpen ? ' open' : '') + '" onclick="matToggleTopic(\'' + esc(t.id) + '\')">'
+      + '<span class="mat-chevron">▶</span>'
+      + '<span class="mat-row-icon">📂</span>'
+      + '<span class="mat-row-name">' + esc(t.topic_name) + '</span>'
+    + '</div>'
+    + '<div class="mat-topic-content' + (isOpen ? ' open' : '') + '" id="mat-content-' + esc(t.id) + '">'
+      + (isOpen ? matRenderTopicContent(t.id) : '')
+    + '</div>'
+  + '</div>';
+}
+
+function matToggleSubject(subj) {
+  matExpandedSubjects[subj] = !matExpandedSubjects[subj];
+  matRenderTree();
+}
+
+function matToggleTopic(topicId) {
+  matExpandedTopics[topicId] = !matExpandedTopics[topicId];
+  matRenderTree();
+  if (matExpandedTopics[topicId]) {
+    var el = document.getElementById('mat-content-' + topicId);
+    if (el) setTimeout(function() { el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 50);
+  }
+}
+
+function matRenderTopicContent(topicId) {
+  var mats = getTopicMaterials(topicId);
+  var megaEntries = notesComposeMegaNote(topicId);
+  var filesHtml = mats.length
+    ? mats.slice().reverse().map(function(m) {
+        var ext = (m.name.split('.').pop() || '').toLowerCase();
+        var badgeCls = ext === 'pptx' ? ' nm-mat-badge-pptx' : '';
+        return '<div class="nm-mat-card" data-mid="' + esc(m.id) + '">'
+          + '<div class="nm-mat-top">'
+            + '<span class="nm-mat-badge' + badgeCls + '">' + esc(ext.toUpperCase()) + '</span>'
+            + '<span class="nm-mat-name" title="' + esc(m.name) + '">' + esc(m.name) + '</span>'
+            + '<button class="nm-mat-del" onclick="matDeleteMaterial(\'' + esc(topicId) + '\',\'' + esc(m.id) + '\')" title="Delete">✕</button>'
+          + '</div>'
+          + '<div class="nm-mat-meta">Added ' + notesRelTime(m.addedAt) + '</div>'
+        + '</div>';
+      }).join('')
+    : '<div class="nm-mat-empty">No materials saved for this topic yet.</div>';
+  var megaHtml = megaEntries.length
+    ? megaEntries.map(function(e) {
+        var tag = e.stem.length > 70 ? e.stem.slice(0, 70) + '…' : e.stem;
+        return '<div class="nm-mega-entry">'
+          + '<span class="nm-mega-tag">' + esc(tag) + '</span>'
+          + '<div class="nm-mega-text">' + esc(e.text) + '</div>'
+          + '<div class="nm-mega-meta">' + notesRelTime(e.updatedAt) + '</div>'
+        + '</div>';
+      }).join('')
+    : '<div class="nm-mega-empty">Notes you leave on questions in this topic will show up here automatically.</div>';
+  return '<div class="mat-section">'
+      + '<div class="nm-mega-lbl">📎 Files</div>'
+      + '<div class="nm-dropzone" onclick="document.getElementById(\'mat-file-inp-' + esc(topicId) + '\').click()" '
+        + 'ondragover="event.preventDefault();this.classList.add(\'drag\')" '
+        + 'ondragleave="this.classList.remove(\'drag\')" '
+        + 'ondrop="matDrop(event,\'' + esc(topicId) + '\')">'
+        + '<div class="nm-dz-icon">📎</div>'
+        + '<div class="nm-dz-txt">Drop <strong>.pdf</strong> or <strong>.pptx</strong> files here</div>'
+        + '<div class="nm-dz-sub">or click to browse — multiple files OK</div>'
+        + '<input type="file" id="mat-file-inp-' + esc(topicId) + '" accept=".pdf,.pptx" multiple style="display:none" onchange="matFileSelect(event,\'' + esc(topicId) + '\')"/>'
+      + '</div>'
+      + '<div class="nm-mat-status" id="mat-status-' + esc(topicId) + '" style="display:none"><span class="qzd-spinner"></span><span></span></div>'
+      + filesHtml
+    + '</div>'
+    + '<div class="mat-section">'
+      + '<div class="nm-mega-lbl">📝 Notes from this topic</div>'
+      + megaHtml
+    + '</div>';
+}
+
+function matFileSelect(e, topicId) {
+  var files = Array.from(e.target.files || []);
+  e.target.value = '';
+  if (files.length) matProcessFiles(files, topicId);
+}
+function matDrop(e, topicId) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag');
+  var files = Array.from((e.dataTransfer && e.dataTransfer.files) || []);
+  if (files.length) matProcessFiles(files, topicId);
+}
+async function matProcessFiles(files, topicId) {
+  var statusEl = document.getElementById('mat-status-' + topicId);
+  var statusTxt = statusEl ? statusEl.querySelector('span:last-child') : null;
+  var errors = [];
+  if (statusEl) statusEl.style.display = 'flex';
+  for (var i = 0; i < files.length; i++) {
+    var file = files[i];
+    var ext = (file.name.split('.').pop() || '').toLowerCase();
+    if (ext !== 'pdf' && ext !== 'pptx') { errors.push(file.name + ': only .pdf and .pptx are supported'); continue; }
+    if (statusTxt) statusTxt.textContent = 'Reading ' + file.name + '…';
+    try {
+      var text = ext === 'pdf'
+        ? await extractPdf(file, function(msg) { if (statusTxt) statusTxt.textContent = msg; })
+        : await extractPptx(file, function(msg) { if (statusTxt) statusTxt.textContent = msg; });
+      addTopicMaterial(topicId, file.name, text);
+    } catch (err) {
+      errors.push(file.name + ': ' + ((err && err.message) || 'could not read file'));
+    }
+  }
+  if (statusEl) statusEl.style.display = 'none';
+  if (errors.length) alert(errors.join('\n'));
+  matExpandedTopics[topicId] = true;
+  matRenderTree();
+}
+function matDeleteMaterial(topicId, matId) {
+  deleteTopicMaterial(topicId, matId);
+  matRenderTree();
+}
+
 // ── NOTES & MATERIALS PANEL (UI) ──────────────────────────────────────────────
 var notesPanelOpen = false;
 var notesActiveTab = 'notes';
