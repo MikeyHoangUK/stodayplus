@@ -4481,6 +4481,7 @@ function showQ() {
   if (navPrev) navPrev.disabled = (qzIdx === 0);
   if (navNext) navNext.disabled = !prior;
   document.getElementById('qcard').scrollIntoView({behavior:'smooth', block:'center'});
+  notesRefreshContext();
 }
 
 function answerQ(idx) {
@@ -5000,6 +5001,7 @@ function populateSubjectDatalist() {
 function showResults() {
   document.getElementById('quiz-run-wrap').style.display = 'none';
   qzDefClose();
+  notesClose();
   var pct = Math.round(qzScore / qzQs.length * 100);
   var color, title;
   var hc = document.body.classList.contains('hc');
@@ -6337,6 +6339,7 @@ function returnToSetup() {
   document.getElementById('quiz-results').style.display = 'none';
   document.getElementById('quiz-setup').style.display = 'block';
   qzDefClose();
+  notesClose();
   qzWizInit();
 }
 
@@ -6918,6 +6921,151 @@ function deleteTopicMaterial(topicId, matId) {
     _saveAllTopicMaterials(all2);
     if (notesCurrentTopicId === topicId) notesRenderMaterials();
   });
+}
+
+// ── NOTES & MATERIALS PANEL (UI) ──────────────────────────────────────────────
+var notesPanelOpen = false;
+var notesActiveTab = 'notes';
+var notesCurrentTopicId = null;
+var notesCurrentQuestion = null;
+var _notesBigSaveTimer = null;
+var _notesStickySaveTimer = null;
+
+function notesPanelAvailable() {
+  var run = document.getElementById('quiz-run-wrap');
+  return !!(run && run.style.display !== 'none' && qzQs && qzQs[qzIdx]);
+}
+
+function notesToggle() {
+  if (notesPanelOpen) notesClose(); else notesOpen();
+}
+function notesOpen() {
+  if (!notesPanelAvailable()) return;
+  notesPanelOpen = true;
+  document.getElementById('notes-panel').classList.add('open');
+  document.getElementById('notes-backdrop').classList.add('show');
+  notesRefreshContext();
+}
+function notesClose() {
+  notesPanelOpen = false;
+  var panel = document.getElementById('notes-panel');
+  var bd = document.getElementById('notes-backdrop');
+  if (panel) panel.classList.remove('open');
+  if (bd) bd.classList.remove('show');
+}
+function notesTab(t) {
+  notesActiveTab = t;
+  document.getElementById('notes-tab-notes').classList.toggle('active', t === 'notes');
+  document.getElementById('notes-tab-materials').classList.toggle('active', t === 'materials');
+  document.getElementById('notes-pane-notes').classList.toggle('show', t === 'notes');
+  document.getElementById('notes-pane-materials').classList.toggle('show', t === 'materials');
+  if (t === 'materials') notesRenderMaterials();
+}
+
+// Called every time the quiz shows a question (even if the panel is closed,
+// so it's already fresh the moment it's opened) and whenever the panel opens.
+// Each question carries its own .folder, so context is per-question, not
+// fixed for the whole quiz -- a quiz over "All folders" mixes topics.
+function notesRefreshContext() {
+  if (!notesPanelAvailable()) {
+    notesClose();
+    return;
+  }
+  var q = qzQs[qzIdx];
+  notesCurrentQuestion = q;
+  notesCurrentTopicId = notesResolveTopicId(q.folder || 'General');
+  if (notesPanelOpen) notesRenderNotesTab();
+  if (notesPanelOpen && notesActiveTab === 'materials') notesRenderMaterials();
+  notesUpdateToggleIndicator();
+}
+
+function notesRenderNotesTab() {
+  if (!notesCurrentQuestion) return;
+  clearTimeout(_notesBigSaveTimer);
+  clearTimeout(_notesStickySaveTimer);
+  var topicNote = getTopicNotes()[notesCurrentTopicId];
+  document.getElementById('notes-big-title').textContent = 'Notes — ' + (notesCurrentQuestion.folder || 'General');
+  document.getElementById('notes-big-ta').value = topicNote ? topicNote.text : '';
+  document.getElementById('notes-big-saved').classList.remove('show');
+
+  var qNote = getQuestionNotes()[notesCurrentQuestion.id];
+  document.getElementById('notes-sticky-title').textContent = 'Note for Q' + (qzIdx + 1);
+  document.getElementById('notes-sticky-ta').value = qNote ? qNote.text : '';
+  document.getElementById('notes-sticky-saved').classList.remove('show');
+}
+
+function notesFlashSaved(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('show');
+  void el.offsetWidth; // restart the CSS animation
+  el.classList.add('show');
+}
+
+function notesBigInput() {
+  clearTimeout(_notesBigSaveTimer);
+  var ta = document.getElementById('notes-big-ta');
+  var topicId = notesCurrentTopicId;
+  _notesBigSaveTimer = setTimeout(function() {
+    saveTopicNote(topicId, ta.value);
+    notesFlashSaved('notes-big-saved');
+    notesUpdateToggleIndicator();
+  }, 600);
+}
+function notesStickyInput() {
+  clearTimeout(_notesStickySaveTimer);
+  var ta = document.getElementById('notes-sticky-ta');
+  var qId = notesCurrentQuestion.id;
+  _notesStickySaveTimer = setTimeout(function() {
+    saveQuestionNote(qId, ta.value);
+    notesFlashSaved('notes-sticky-saved');
+    notesUpdateToggleIndicator();
+  }, 600);
+}
+
+function notesDeleteBig() {
+  if (!notesCurrentTopicId) return;
+  var topicId = notesCurrentTopicId;
+  var prev = getTopicNotes()[topicId];
+  if (!prev || !prev.text) return;
+  clearTimeout(_notesBigSaveTimer);
+  saveTopicNote(topicId, '');
+  document.getElementById('notes-big-ta').value = '';
+  notesUpdateToggleIndicator();
+  pushUndo('Topic note', function() {
+    saveTopicNote(topicId, prev.text);
+    if (notesCurrentTopicId === topicId) {
+      document.getElementById('notes-big-ta').value = prev.text;
+      notesUpdateToggleIndicator();
+    }
+  });
+}
+function notesDeleteSticky() {
+  if (!notesCurrentQuestion) return;
+  var qId = notesCurrentQuestion.id;
+  var prev = getQuestionNotes()[qId];
+  if (!prev || !prev.text) return;
+  clearTimeout(_notesStickySaveTimer);
+  saveQuestionNote(qId, '');
+  document.getElementById('notes-sticky-ta').value = '';
+  notesUpdateToggleIndicator();
+  pushUndo('Question note', function() {
+    saveQuestionNote(qId, prev.text);
+    if (notesCurrentQuestion && notesCurrentQuestion.id === qId) {
+      document.getElementById('notes-sticky-ta').value = prev.text;
+      notesUpdateToggleIndicator();
+    }
+  });
+}
+
+function notesUpdateToggleIndicator() {
+  var btn = document.getElementById('notes-toggle-btn');
+  if (!btn || !notesCurrentQuestion) return;
+  var topicNote = getTopicNotes()[notesCurrentTopicId];
+  var qNote = getQuestionNotes()[notesCurrentQuestion.id];
+  var hasContent = !!(topicNote && topicNote.text) || !!(qNote && qNote.text)
+    || getTopicMaterials(notesCurrentTopicId).length > 0;
+  btn.classList.toggle('has-content', hasContent);
 }
 
 // ── OFFLINE DETECTION ──
