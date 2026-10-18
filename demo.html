@@ -433,8 +433,9 @@
     .bank-stat{background:rgba(109,40,217,.08);border:1px solid rgba(109,40,217,.2);border-radius:8px;padding:6px 14px;font-size:.72rem;font-weight:800;color:#6d28d9;letter-spacing:.04em}
     .filt-btn{padding:5px 14px;border-radius:20px;font-size:.68rem;font-weight:800;cursor:pointer;border:1.5px solid rgba(168,85,247,.15);transition:all .18s;color:#6e5438;background:transparent;letter-spacing:.03em}
     .filt-btn.active{background:rgba(109,40,217,.12);border-color:rgba(109,40,217,.4);color:#6d28d9}
-    .bank-search-inline{border:1.5px solid rgba(109,40,217,.22);border-radius:8px;padding:6px 11px;font-size:.74rem;color:#4a2c1a;background:#fffdf7;outline:none;min-width:160px;transition:border-color .15s}
-    .bank-search-inline:focus{border-color:#7c3aed}
+    .bank-search-inline{padding:5px 14px;border:1.5px solid rgba(168,85,247,.15);border-radius:20px;font-family:'Raleway',sans-serif;font-size:.72rem;color:#3d2e1a;background:rgba(255,255,255,.6);outline:none;width:150px;transition:border-color .2s,width .2s,background .2s}
+    .bank-search-inline:focus{border-color:rgba(109,40,217,.35);background:#fff;width:190px}
+    .bank-search-inline::placeholder{color:#b09880}
     .q-card{background:rgba(250,243,224,.65);border:1px solid rgba(168,85,247,.1);border-radius:16px;padding:18px 20px;margin-bottom:10px;transition:border-color .18s,box-shadow .18s}
     .q-card:hover{border-color:rgba(168,85,247,.24);box-shadow:0 4px 24px rgba(168,85,247,.07)}
     .q-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
@@ -458,7 +459,8 @@
     body.hc .q-stem-t{color:#e8dcc8!important}
     body.hc .q-num{color:#c084fc!important;background:rgba(168,85,247,.18)!important;border-color:rgba(168,85,247,.28)!important}
     body.hc .bank-stat{background:rgba(168,85,247,.08)!important;border-color:rgba(168,85,247,.14)!important;color:#a855f7!important}
-    body.hc .bank-search-inline{background:#1a1a1a!important;color:#e2cfc0!important;border-color:rgba(168,85,247,.3)!important}
+    body.hc .bank-search-inline{background:rgba(255,255,255,.05)!important;border-color:rgba(168,85,247,.3)!important;color:#e8dcc8!important}
+    body.hc .bank-bar .filt-btn.active{background:rgba(168,85,247,.14)!important;color:#c084fc!important}
     body.hc .diff-badge.easy{color:#4ade80!important;background:rgba(34,197,94,.1)!important;border-color:rgba(34,197,94,.25)!important}
     body.hc .diff-badge.medium{color:#fcd34d!important;background:rgba(251,191,36,.1)!important;border-color:rgba(251,191,36,.25)!important}
     body.hc .diff-badge.hard{color:#f87171!important;background:rgba(239,68,68,.1)!important;border-color:rgba(239,68,68,.25)!important}
@@ -557,7 +559,7 @@
     .qzw-back{background:none;border:none;font-family:'Raleway',sans-serif;font-size:.68rem;font-weight:900;color:#a08868;cursor:pointer;padding:0;letter-spacing:.12em;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px;transition:color .15s}
     .qzw-back:hover{color:#6d28d9}
     .qzw-hero{font-size:3rem;font-weight:900;color:#1c1208;line-height:1.1;margin-bottom:10px;word-break:break-word;letter-spacing:-.02em}
-    .qzw-avail-small{font-size:.7rem;font-weight:700;color:#b09880;letter-spacing:.04em;margin-bottom:40px;margin-top:0}
+    .qzw-avail-small{font-size:.7rem;font-weight:700;color:#b09880;letter-spacing:.04em;margin-bottom:56px;margin-top:0}
     .qzw-diff-chosen{display:inline-block;font-size:.64rem;font-weight:900;color:#7c3aed;letter-spacing:.12em;text-transform:uppercase;margin-bottom:40px;background:rgba(109,40,217,.08);padding:5px 18px;border-radius:20px}
     .qzw-prompt{font-size:1rem;font-weight:900;letter-spacing:.04em;color:#1c1208;margin-bottom:28px}
     .qzw-opts{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;width:100%;max-width:680px;margin-bottom:28px}
@@ -733,6 +735,41 @@
       #topbar { padding: 0 14px; gap: 8px; height: 52px; min-height: 52px; }
       .tb-title { font-size: .72rem; }
       .tb-sub { font-size: .48rem; }
+
+      /* ── Poppy mobile rules, ported from dashboard.html's phone breakpoint ── */
+      .qzw-step       { padding: 8px 0 32px; }
+      .qzw-hero       { font-size: 2.2rem; }
+      .qzw-opts       { grid-template-columns: repeat(2,1fr); gap: 10px; }
+      .qzw-opt        { padding: 24px 8px 20px; }
+      .qzw-opt-num    { font-size: 2rem; }
+      .quiz-card      { padding: 22px 18px; border-radius: 18px; margin-bottom: 14px; }
+      .qflag-btn      { width: 30px; height: 30px; font-size: .95rem; top: 10px; right: 10px; }
+      .qopt           { padding: 13px 14px; border-radius: 13px; gap: 12px; margin-bottom: 9px; min-height: 44px; }
+      .qopt .ol       { width: 30px; height: 30px; min-width: 30px; font-size: .72rem; }
+      .qopt .ot       { font-size: .9rem; line-height: 1.5; }
+      .results-wrap   { padding: 36px 18px; }
+      .score-circle   { width: 124px; height: 124px; box-shadow: inset 0 0 0 14px rgba(250,243,224,.98), 0 6px 24px rgba(109,40,217,.1); }
+      .score-pct      { font-size: 2.15rem; }
+      .res-title      { font-size: 1.45rem; }
+      .res-sub        { font-size: .85rem; line-height: 1.55; }
+      .res-btn        { padding: 13px 20px; font-size: .86rem; border-radius: 13px; }
+      .res-diff-chip  { padding: 10px 4px; }
+      .bank-bar       { flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+      #bank-search    { flex: 1; min-width: 0; border-radius: 11px; }
+      #bank-diff-bar  { flex-wrap: wrap; gap: 5px; }
+      .filt-btn       { font-size: .71rem; padding: 6px 12px; border-radius: 20px; }
+      .q-card         { padding: 16px 16px; border-radius: 15px; margin-bottom: 10px; }
+      .q-top          { gap: 10px; }
+      .q-stem-t       { font-size: .9rem; line-height: 1.6; }
+      .q-num          { min-width: 26px; height: 26px; font-size: .66rem; }
+      .q-btn          { padding: 5px 11px; font-size: .7rem; border-radius: 8px; }
+      .diff-badge     { font-size: .66rem; padding: 3px 8px; }
+      .create-sub-tabs{ gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+      .create-sub-tab { padding: 7px 16px; font-size: .72rem; border-radius: 20px; }
+      .form-card      { padding: 20px 16px; border-radius: 18px; }
+      .ai-card        { padding: 16px 14px; border-radius: 15px; }
+      .ai-drop        { padding: 22px 16px; border-radius: 15px; }
+      .ai-folder-new  { min-width: 0; width: 100%; }
     }
   </style>
 </head>
