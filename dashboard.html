@@ -10903,6 +10903,15 @@ var _spUser    = null;
 var _syncTimer = null;
 var _authMode  = 'signin';
 
+// Beta-tester allowlist — full access to in-development tools (Sage/Blurto/
+// Finley) while everyone else sees "coming soon". Add more emails later to
+// expand the beta cohort; no other code changes needed.
+var BETA_TESTER_EMAILS = ['ngoclong003vn@gmail.com'];
+function isBetaTester() {
+  return !!(_spUser && _spUser.email &&
+    BETA_TESTER_EMAILS.indexOf(_spUser.email.toLowerCase()) !== -1);
+}
+
 (function initSupabase() {
   if (!window.supabase || !window.supabase.createClient) return;
   // Demo users are local-only — never touch Supabase
