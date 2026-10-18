@@ -449,10 +449,7 @@
     .nm-title{font-size:.86rem;font-weight:900;color:#1c1208;display:flex;align-items:center;gap:6px}
     .nm-close{background:none;border:none;font-size:.9rem;font-weight:900;color:#b09880;cursor:pointer;padding:4px 8px;border-radius:7px;transition:color .15s,background .15s}
     .nm-close:hover{color:#6d28d9;background:rgba(168,85,247,.1)}
-    .nm-tabs-wrap{padding:14px 18px 0;flex-shrink:0}
     .nm-body{flex:1;overflow-y:auto;padding:14px 18px 24px}
-    .nm-pane{display:none}
-    .nm-pane.show{display:block;animation:nmPaneIn .18s ease}
     @keyframes nmPaneIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
     .nm-card{background:rgba(255,255,255,.6);border:1px solid rgba(109,40,217,.14);border-radius:14px;padding:14px;margin-bottom:14px;position:relative}
     .nm-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;gap:8px;padding-right:20px}
@@ -2634,44 +2631,19 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Folder Name&quot
 
           <div id="notes-panel">
             <div class="nm-head">
-              <div class="nm-title">📝 <span id="notes-head-label">Notes &amp; Materials</span></div>
+              <div class="nm-title">📝 <span id="notes-head-label">Note</span></div>
               <button class="nm-close" onclick="notesClose()" title="Close (N)">✕</button>
             </div>
-            <div class="nm-tabs-wrap">
-              <div class="mcq-tabs">
-                <div class="mcq-tab active" id="notes-tab-notes" onclick="notesTab('notes')">Notes</div>
-                <div class="mcq-tab" id="notes-tab-materials" onclick="notesTab('materials')">Materials</div>
-              </div>
-            </div>
             <div class="nm-body">
-              <div class="nm-pane show" id="notes-pane-notes">
-                <div class="nm-card">
-                  <div class="nm-card-top">
-                    <span class="nm-card-title" id="notes-sticky-title">Note for this question</span>
-                    <span class="nm-saved" id="notes-sticky-saved">✓ Saved</span>
-                  </div>
-                  <button class="nm-card-del" onclick="notesDeleteSticky()" title="Delete note">✕</button>
-                  <textarea class="nm-ta" id="notes-sticky-ta" style="min-height:120px" placeholder="No sticky note on this question yet — jot something down… it's automatically saved into this topic's Materials." oninput="notesStickyInput()"></textarea>
+              <div class="nm-card">
+                <div class="nm-card-top">
+                  <span class="nm-card-title" id="notes-sticky-title">Note for this question</span>
+                  <span class="nm-saved" id="notes-sticky-saved">✓ Saved</span>
                 </div>
+                <button class="nm-card-del" onclick="notesDeleteSticky()" title="Delete note">✕</button>
+                <textarea class="nm-ta" id="notes-sticky-ta" style="min-height:120px" placeholder="No sticky note on this question yet — jot something down… it shows up automatically in this topic's Materials." oninput="notesStickyInput()"></textarea>
               </div>
-              <div class="nm-pane" id="notes-pane-materials">
-                <div class="nm-dropzone" id="notes-dropzone"
-                  ondragover="event.preventDefault();this.classList.add('drag')"
-                  ondragleave="this.classList.remove('drag')"
-                  ondrop="notesDrop(event)"
-                  onclick="document.getElementById('notes-file-inp').click()">
-                  <div class="nm-dz-icon">📎</div>
-                  <div class="nm-dz-txt">Drop <strong>.pdf</strong> or <strong>.pptx</strong> files here</div>
-                  <div class="nm-dz-sub">or click to browse — multiple files OK</div>
-                  <input type="file" id="notes-file-inp" accept=".pdf,.pptx" multiple style="display:none" onchange="notesFileSelect(event)"/>
-                </div>
-                <div class="nm-mat-status" id="notes-mat-status"><span class="qzd-spinner"></span><span id="notes-mat-status-txt"></span></div>
-                <div class="nm-mat-empty" id="notes-materials-empty">No materials saved for this topic yet.</div>
-                <div id="notes-materials-list"></div>
-                <div class="nm-mega-lbl">📝 Notes from this topic</div>
-                <div class="nm-mega-empty" id="notes-mega-empty">Notes you leave on questions in this topic will show up here automatically.</div>
-                <div id="notes-mega-list"></div>
-              </div>
+              <button class="fs-btn" style="width:100%;justify-content:center;display:flex" onclick="goToMaterialsTopic()">🗂️ View in Materials →</button>
             </div>
           </div><!-- /notes-panel -->
 
@@ -6702,7 +6674,6 @@ document.addEventListener('keydown', function(e) {
       e.preventDefault();
       if (e.shiftKey) {
         notesOpen();
-        notesTab('notes');
         setTimeout(function() {
           var ta = document.getElementById('notes-sticky-ta');
           if (ta) ta.focus();
@@ -7146,7 +7117,6 @@ function matDeleteMaterial(topicId, matId) {
 
 // ── NOTES & MATERIALS PANEL (UI) ──────────────────────────────────────────────
 var notesPanelOpen = false;
-var notesActiveTab = 'notes';
 var notesCurrentTopicId = null;
 var notesCurrentQuestion = null;
 var _notesStickySaveTimer = null;
@@ -7211,15 +7181,6 @@ document.addEventListener('mousedown', function(e) {
   if (btn && btn.contains(e.target)) return;
   notesClose();
 });
-function notesTab(t) {
-  notesActiveTab = t;
-  document.getElementById('notes-tab-notes').classList.toggle('active', t === 'notes');
-  document.getElementById('notes-tab-materials').classList.toggle('active', t === 'materials');
-  document.getElementById('notes-pane-notes').classList.toggle('show', t === 'notes');
-  document.getElementById('notes-pane-materials').classList.toggle('show', t === 'materials');
-  if (t === 'materials') notesRenderMaterials();
-}
-
 // Called every time the quiz shows a question (even if the panel is closed,
 // so it's already fresh the moment it's opened) and whenever the panel opens.
 // Each question carries its own .folder, so context is per-question, not
@@ -7233,13 +7194,12 @@ function notesRefreshContext() {
   notesCurrentQuestion = q;
   notesCurrentTopicId = notesResolveTopicId(q.folder || 'General');
   if (notesPanelOpen) notesRenderNotesTab();
-  if (notesPanelOpen && notesActiveTab === 'materials') notesRenderMaterials();
   notesUpdateToggleIndicator();
 }
 
-// Only the current question's sticky note shows in the quiz window -- no
-// topic-wide note here. Every sticky note automatically shows up in this
-// topic's Materials tab instead (see notesComposeMegaNote).
+// The quiz window only ever shows the current question's sticky note. Every
+// sticky note automatically shows up in the standalone Materials tool instead
+// (see notesComposeMegaNote, and matRenderTopicContent which calls it).
 function notesRenderNotesTab() {
   if (!notesCurrentQuestion) return;
   clearTimeout(_notesStickySaveTimer);
@@ -7265,7 +7225,6 @@ function notesStickyInput() {
     saveQuestionNote(qId, ta.value);
     notesFlashSaved('notes-sticky-saved');
     notesUpdateToggleIndicator();
-    if (notesActiveTab === 'materials') notesRenderMaterials();
   }, 600);
 }
 
@@ -7284,7 +7243,6 @@ function notesDeleteSticky() {
       document.getElementById('notes-sticky-ta').value = prev.text;
       notesUpdateToggleIndicator();
     }
-    if (notesActiveTab === 'materials') notesRenderMaterials();
   });
 }
 
@@ -7294,6 +7252,25 @@ function notesUpdateToggleIndicator() {
   var hasContent = notesComposeMegaNote(notesCurrentTopicId).length > 0
     || getTopicMaterials(notesCurrentTopicId).length > 0;
   btn.classList.toggle('has-content', hasContent);
+}
+
+// Jumps from the quiz's Notes popup to the standalone Materials tool,
+// expanding straight down to (and scrolling to) the current question's
+// topic -- so it lands exactly on that topic's files/notes, not just on
+// the Materials panel in general.
+function goToMaterialsTopic() {
+  if (!notesCurrentTopicId) return;
+  var topic = orgTopics.find(function(t) { return t.id === notesCurrentTopicId; });
+  if (!topic) return;
+  var subj = (topic.subject || '').trim() || 'Uncategorized';
+  matExpandedSubjects[subj] = true;
+  matExpandedTopics[notesCurrentTopicId] = true;
+  notesClose();
+  showPanel('materials', document.getElementById('nav-item-materials'));
+  setTimeout(function() {
+    var el = document.getElementById('mat-content-' + notesCurrentTopicId);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 80);
 }
 
 // Every question in this topic that has a sticky note, composed into one
@@ -7317,26 +7294,7 @@ function notesComposeMegaNote(topicId) {
   return entries;
 }
 
-function notesRenderMegaNote() {
-  var list = document.getElementById('notes-mega-list');
-  var empty = document.getElementById('notes-mega-empty');
-  if (!list || !notesCurrentTopicId) return;
-  var entries = notesComposeMegaNote(notesCurrentTopicId);
-  empty.style.display = entries.length ? 'none' : 'block';
-  list.innerHTML = entries.map(function(e) {
-    var tag = e.stem.length > 70 ? e.stem.slice(0, 70) + '…' : e.stem;
-    return '<div class="nm-mega-entry">'
-      + '<span class="nm-mega-tag">' + esc(tag) + '</span>'
-      + '<div class="nm-mega-text">' + esc(e.text) + '</div>'
-      + '<div class="nm-mega-meta">' + notesRelTime(e.updatedAt) + '</div>'
-    + '</div>';
-  }).join('');
-}
-
-// ── MATERIALS TAB ──────────────────────────────────────────────────────────────
-// Pure storage + display -- deliberately not wired into aiLoadedFiles,
-// notesCacheSet, sp_notes_cache, sp_topic_content, or any AI-generation
-// prompt anywhere in this file. That's an explicit scope boundary.
+// Shared with matRenderTopicContent() in the standalone Materials tool.
 function notesRelTime(ts) {
   var s = Math.floor((Date.now() - ts) / 1000);
   if (s < 60) return 'just now';
@@ -7344,76 +7302,6 @@ function notesRelTime(ts) {
   var h = Math.floor(m / 60); if (h < 24) return h + 'h ago';
   var d = Math.floor(h / 24); if (d < 30) return d + 'd ago';
   return new Date(ts).toLocaleDateString();
-}
-
-function notesRenderMaterials() {
-  var list = document.getElementById('notes-materials-list');
-  var empty = document.getElementById('notes-materials-empty');
-  if (!list || !notesCurrentTopicId) return;
-  var mats = getTopicMaterials(notesCurrentTopicId);
-  empty.style.display = mats.length ? 'none' : 'block';
-  list.innerHTML = mats.slice().reverse().map(function(m) {
-    var ext = (m.name.split('.').pop() || '').toLowerCase();
-    var badgeCls = ext === 'pptx' ? ' nm-mat-badge-pptx' : '';
-    return '<div class="nm-mat-card" data-mid="' + esc(m.id) + '">'
-      + '<div class="nm-mat-top">'
-        + '<span class="nm-mat-badge' + badgeCls + '">' + esc(ext.toUpperCase()) + '</span>'
-        + '<span class="nm-mat-name" title="' + esc(m.name) + '">' + esc(m.name) + '</span>'
-        + '<button class="nm-mat-del" onclick="notesDeleteMaterial(\'' + esc(m.id) + '\')" title="Delete">✕</button>'
-      + '</div>'
-      + '<div class="nm-mat-meta">Added ' + notesRelTime(m.addedAt) + '</div>'
-    + '</div>';
-  }).join('');
-  notesRenderMegaNote();
-}
-
-function notesDeleteMaterial(matId) {
-  if (!notesCurrentTopicId) return;
-  deleteTopicMaterial(notesCurrentTopicId, matId);
-  notesRenderMaterials();
-  notesUpdateToggleIndicator();
-}
-
-function notesFileSelect(e) {
-  var files = Array.from(e.target.files || []);
-  e.target.value = '';
-  if (files.length) notesProcessFiles(files);
-}
-function notesDrop(e) {
-  e.preventDefault();
-  var dz = document.getElementById('notes-dropzone');
-  if (dz) dz.classList.remove('drag');
-  var files = Array.from((e.dataTransfer && e.dataTransfer.files) || []);
-  if (files.length) notesProcessFiles(files);
-}
-
-async function notesProcessFiles(files) {
-  if (!notesCurrentTopicId) return;
-  var topicId = notesCurrentTopicId;
-  var statusEl = document.getElementById('notes-mat-status');
-  var statusTxt = document.getElementById('notes-mat-status-txt');
-  var errors = [];
-  statusEl.style.display = 'flex';
-  for (var i = 0; i < files.length; i++) {
-    var file = files[i];
-    var ext = (file.name.split('.').pop() || '').toLowerCase();
-    if (ext !== 'pdf' && ext !== 'pptx') { errors.push(file.name + ': only .pdf and .pptx are supported'); continue; }
-    statusTxt.textContent = 'Reading ' + file.name + '…';
-    try {
-      var text = ext === 'pdf'
-        ? await extractPdf(file, function(msg) { statusTxt.textContent = msg; })
-        : await extractPptx(file, function(msg) { statusTxt.textContent = msg; });
-      addTopicMaterial(topicId, file.name, text);
-    } catch (err) {
-      errors.push(file.name + ': ' + ((err && err.message) || 'could not read file'));
-    }
-  }
-  statusEl.style.display = 'none';
-  if (errors.length) alert(errors.join('\n'));
-  if (notesCurrentTopicId === topicId) {
-    notesRenderMaterials();
-    notesUpdateToggleIndicator();
-  }
 }
 
 // ── OFFLINE DETECTION ──
