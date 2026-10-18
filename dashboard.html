@@ -6640,6 +6640,28 @@ document.addEventListener('keydown', function(e) {
       return;
     }
   }
+  // Notes & Materials: N toggles, Shift+N jumps straight to the sticky note.
+  // Not Ctrl+N -- that's the browser's native "new window" shortcut and
+  // can't be intercepted via preventDefault in any major browser.
+  if (!e.ctrlKey && !e.altKey && !e.metaKey && (e.key === 'n' || e.key === 'N')) {
+    var ntag = document.activeElement && document.activeElement.tagName;
+    if (ntag === 'INPUT' || ntag === 'TEXTAREA' || ntag === 'SELECT') return;
+    var nrun = document.getElementById('quiz-run-wrap');
+    if (nrun && nrun.style.display !== 'none') {
+      e.preventDefault();
+      if (e.shiftKey) {
+        notesOpen();
+        notesTab('notes');
+        setTimeout(function() {
+          var ta = document.getElementById('notes-sticky-ta');
+          if (ta) ta.focus();
+        }, 50);
+      } else {
+        notesToggle();
+      }
+      return;
+    }
+  }
   if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
     var tag = document.activeElement && document.activeElement.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
