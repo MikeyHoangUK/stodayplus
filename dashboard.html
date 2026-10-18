@@ -104,6 +104,8 @@
     .nav-item.soon:hover::after{opacity:1}
     .q-card.q-selected{background:rgba(124,58,237,.07);border-color:rgba(124,58,237,.3)!important}
     .soon-pill{margin-left:auto;font-size:.55rem;font-weight:700;background:rgba(168,85,247,.15);color:#6d28d9;padding:1px 5px;border-radius:8px;text-transform:uppercase}
+    .nav-item.gated{opacity:.55}
+    .nav-item.gated:hover{opacity:.85}
     .sb-user{padding:12px 14px;border-top:1px solid rgba(168,85,247,.1);font-size:.72rem}
     .sb-email{color:#5a4230;word-break:break-all}
     .logout-link{color:#ef4444;cursor:pointer;font-weight:700;margin-top:4px;display:inline-block}
@@ -1961,11 +1963,11 @@
         <button class="nav-item" onclick="showPanel('mcq',this)" aria-label="Poppy — MCQ maker">
           <span>🧠</span> Poppy
         </button>
-        <button class="nav-item" onclick="showPanel('saqs',this)" aria-label="Sage — SAQ maker">
-          <span>✍️</span> Sage
+        <button class="nav-item" id="nav-item-saqs" onclick="showPanel('saqs',this)" aria-label="Sage — SAQ maker">
+          <span>✍️</span> Sage<span class="soon-pill" id="nav-pill-saqs" style="display:none">Soon</span>
         </button>
-        <button class="nav-item" onclick="showPanel('blurto',this)" aria-label="Blurto — blurting practice"><span>📝</span> Blurto</button>
-        <button class="nav-item" onclick="showPanel('finley',this)" aria-label="Finley — Feynman teaching"><span>🎓</span> Finley</button>
+        <button class="nav-item" id="nav-item-blurto" onclick="showPanel('blurto',this)" aria-label="Blurto — blurting practice"><span>📝</span> Blurto<span class="soon-pill" id="nav-pill-blurto" style="display:none">Soon</span></button>
+        <button class="nav-item" id="nav-item-finley" onclick="showPanel('finley',this)" aria-label="Finley — Feynman teaching"><span>🎓</span> Finley<span class="soon-pill" id="nav-pill-finley" style="display:none">Soon</span></button>
         <div class="nav-item soon" aria-disabled="true"><span>⚡</span> Daily System<span class="soon-pill">Soon</span></div>
       </div>
       <div class="sb-sec">
@@ -2657,6 +2659,16 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Folder Name&quot
         </div>
       </div><!-- /panel-planner -->
 
+      <!-- Shared "coming soon" screen for gated tools (Sage/Blurto/Finley) -->
+      <div id="panel-locked-tool" class="panel anim">
+        <div class="bot-lock-screen">
+          <div class="bot-lock-icon">🔒</div>
+          <div class="bot-lock-title" id="locked-tool-title">Coming soon</div>
+          <div class="bot-lock-body" id="locked-tool-body">This tool is still being built and tested — it'll unlock for your account soon.</div>
+          <div class="bot-lock-hint">You're on the waitlist</div>
+        </div>
+      </div><!-- /panel-locked-tool -->
+
       <!-- SAQs Panel -->
       <div id="panel-saqs" class="panel anim">
         <div id="bot-lock-saqs" class="bot-lock-screen" style="display:none">
@@ -3225,6 +3237,9 @@ var POMO_T = { normal: 1800, plus: 2700, max: 3600 };
 var mode = localStorage.getItem('sp_mode') || 'chill';
 
 window.addEventListener('DOMContentLoaded', function() {
+  // Default to the locked (non-beta) look immediately; refreshBetaGateUI()
+  // re-runs once Supabase's auth check actually resolves _spUser.
+  if (typeof refreshBetaGateUI === 'function') refreshBetaGateUI();
   // Save the base path so navigating back to the planner restores the original URL
   window._spDashBase = location.pathname;
 
@@ -5112,7 +5127,34 @@ function _spSlugFromPath() {
   var dir = _spDirOf(location.pathname);
   return location.pathname.slice(dir.length).replace(/\.html$/, '');
 }
+// Tools still being tested — locked behind "coming soon" for everyone except
+// BETA_TESTER_EMAILS (defined further down, next to the Supabase sync setup).
+var LOCKED_TOOL_NAMES = { saqs: 'Sage', blurto: 'Blurto', finley: 'Finley' };
+var _lockedScreenFor = null;
+
 function showPanel(id, el, _fromPop) {
+  if (LOCKED_TOOL_NAMES[id] && !isBetaTester()) {
+    _lockedScreenFor = id;
+    document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+    var lp = document.getElementById('panel-locked-tool');
+    if (lp) { lp.classList.add('active'); lp.classList.add('anim'); }
+    document.getElementById('locked-tool-title').textContent = LOCKED_TOOL_NAMES[id] + ' is coming soon';
+    document.getElementById('locked-tool-body').textContent = "We're still building and testing " + LOCKED_TOOL_NAMES[id] + " to make sure it's great before everyone gets access.";
+    document.querySelectorAll('.nav-item:not(.soon)').forEach(function(n) { n.classList.remove('active'); });
+    if (el) el.classList.add('active');
+    document.getElementById('tb-title').innerHTML = PANEL_TITLES[id] || 'Stoday Plus<span class="tb-sub">Dashboard</span>';
+    ['mcq','saqs','blurto','finley'].forEach(function(x) {
+      var tb = document.getElementById('topbar-tabs-' + x);
+      if (tb) tb.style.display = 'none';
+    });
+    if (!_fromPop) {
+      var _slug = _PANEL_SLUGS[id];
+      var _path = _slug ? _spDirOf(location.pathname) + _slug + '.html' : (window._spDashBase || location.pathname);
+      history.pushState({ panel: id }, '', _path);
+    }
+    return;
+  }
+  _lockedScreenFor = null;
   if (sqCountdownTimer) {
     clearInterval(sqCountdownTimer); sqCountdownTimer = null;
     sqGenerating = false;
@@ -10932,7 +10974,25 @@ function isBetaTester() {
   });
 })();
 
+// Re-applies the beta lock to the sidebar pills/dimming, and to whichever
+// gated panel is currently on screen — needed because _spUser (and so
+// isBetaTester()) only becomes known after Supabase's auth check resolves,
+// which happens after the page's initial render.
+function refreshBetaGateUI() {
+  var beta = isBetaTester();
+  Object.keys(LOCKED_TOOL_NAMES).forEach(function(id) {
+    var nav  = document.getElementById('nav-item-' + id);
+    var pill = document.getElementById('nav-pill-' + id);
+    if (nav)  nav.classList.toggle('gated', !beta);
+    if (pill) pill.style.display = beta ? 'none' : 'inline';
+  });
+  if (_lockedScreenFor) {
+    showPanel(_lockedScreenFor, document.getElementById('nav-item-' + _lockedScreenFor), true);
+  }
+}
+
 function _updateSyncUI() {
+  refreshBetaGateUI();
   var syncBtn      = document.getElementById('sp-sync-btn');
   var resetBtn     = document.getElementById('sp-reset-btn');
   var clearDevBtn  = document.getElementById('sp-clear-device-btn');
