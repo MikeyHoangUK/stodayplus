@@ -78,9 +78,10 @@
 
 <!-- ── HERO (ported from demoindex.html, slide 0) ────────────────────── -->
 <section class="gradient-hero min-h-screen flex flex-col justify-center pt-14">
-  <div class="max-w-7xl mx-auto pl-14 pr-4 sm:pl-32 sm:pr-6 w-full py-10">
+  <div class="max-w-7xl mx-auto px-4 sm:pl-32 sm:pr-6 w-full py-10">
     <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-8">
       <div class="w-full lg:w-1/2 text-center lg:text-left">
+        <p class="inline-block text-xs font-bold uppercase tracking-widest text-purple-deep bg-white bg-opacity-70 border border-purple-soft rounded-full px-3 py-1 mb-5">GCSE Biology &amp; Chemistry · Years 9–11</p>
         <h1 class="text-[2rem] sm:text-[2.5rem] lg:text-[3.25rem] font-black text-navy-dark mb-5" style="line-height:1.08;letter-spacing:-.02em">
           Hard work<br />
           should show up<br />
@@ -89,15 +90,16 @@
         <div class="w-10 h-0.5 gradient-brand mx-auto lg:mx-0 mb-5 rounded-full"></div>
         <p id="hero-typed-desc" class="max-w-lg mb-8 mx-auto lg:mx-0" style="font-size:1rem;line-height:1.7;color:#4b4458;min-height:3.4em"></p>
 
-        <form id="trial-form" class="max-w-md mx-auto lg:mx-0">
+        <form class="trial-form max-w-md mx-auto lg:mx-0">
           <div class="flex flex-col sm:flex-row gap-3">
-            <input id="trial-email" type="email" required placeholder="you@example.com"
+            <label for="trial-email" class="sr-only">Email address</label>
+            <input id="trial-email" type="email" required placeholder="you@example.com" autocomplete="email"
               class="flex-1 border border-gray-300 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT bg-white" />
             <button type="submit" class="gradient-brand text-white text-sm font-bold px-7 py-3.5 rounded-xl hover:opacity-90 transition-opacity whitespace-nowrap">
               Try it free →
             </button>
           </div>
-          <p id="trial-note" class="text-gray-400 text-xs mt-3">No credit card needed.</p>
+          <p class="trial-note text-gray-400 text-xs mt-3">No credit card needed. See how we use your email in our <a href="privacy.html" class="underline hover:text-purple-DEFAULT">privacy policy</a>.</p>
         </form>
       </div>
 
@@ -111,7 +113,7 @@
               <div style="width:10px;height:10px;border-radius:50%;background:#fbbf24;opacity:.65"></div>
               <div style="width:10px;height:10px;border-radius:50%;background:#4ade80;opacity:.65"></div>
             </div>
-            <span style="color:rgba(255,255,255,.35);font-size:.63rem;font-weight:600;font-family:'Raleway',sans-serif;letter-spacing:.02em">stoday.plus — revision planner</span>
+            <span style="color:rgba(255,255,255,.35);font-size:.63rem;font-weight:600;font-family:'Raleway',sans-serif;letter-spacing:.02em">Stoday Plus — revision planner</span>
             <div style="width:40px"></div>
           </div>
 
@@ -132,11 +134,11 @@
                 <span style="font-size:.82rem;font-weight:700;color:#6e5438">topics due for review</span>
               </div>
 
-              <!-- Card 1: Organic Reactions — overdue -->
+              <!-- Card 1: Ionic Bonding — overdue -->
               <div style="background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:14px;padding:15px 16px;margin-bottom:9px">
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:11px">
                   <div>
-                    <div style="font-size:.88rem;font-weight:800;color:#1c1208;margin-bottom:4px;line-height:1.3">Organic Reactions</div>
+                    <div style="font-size:.88rem;font-weight:800;color:#1c1208;margin-bottom:4px;line-height:1.3">Ionic &amp; Covalent Bonding</div>
                     <span style="font-size:.57rem;font-weight:800;background:rgba(109,40,217,.1);color:#6d28d9;border:1px solid rgba(109,40,217,.2);border-radius:20px;padding:2px 8px;letter-spacing:.05em;text-transform:uppercase">Chemistry</span>
                   </div>
                   <span style="font-size:.63rem;font-weight:800;color:#ef4444;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:20px;padding:2px 8px;white-space:nowrap;flex-shrink:0">1d overdue</span>
@@ -159,12 +161,12 @@
                 </div>
               </div>
 
-              <!-- Card 2: Integration by Parts — due today -->
+              <!-- Card 2: Cell Division — due today -->
               <div style="background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:14px;padding:15px 16px;margin-bottom:9px">
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:11px">
                   <div>
-                    <div style="font-size:.88rem;font-weight:800;color:#1c1208;margin-bottom:4px;line-height:1.3">Integration by Parts</div>
-                    <span style="font-size:.57rem;font-weight:800;background:rgba(109,40,217,.1);color:#6d28d9;border:1px solid rgba(109,40,217,.2);border-radius:20px;padding:2px 8px;letter-spacing:.05em;text-transform:uppercase">Maths</span>
+                    <div style="font-size:.88rem;font-weight:800;color:#1c1208;margin-bottom:4px;line-height:1.3">Cell Division &amp; Mitosis</div>
+                    <span style="font-size:.57rem;font-weight:800;background:rgba(109,40,217,.1);color:#6d28d9;border:1px solid rgba(109,40,217,.2);border-radius:20px;padding:2px 8px;letter-spacing:.05em;text-transform:uppercase">Biology</span>
                   </div>
                   <span style="font-size:.63rem;font-weight:800;color:#7c3aed;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:20px;padding:2px 8px;white-space:nowrap;flex-shrink:0">Due today</span>
                 </div>
@@ -185,12 +187,12 @@
                 </div>
               </div>
 
-              <!-- Card 3: Cell Signalling — partially visible -->
+              <!-- Card 3: Rates of Reaction — partially visible -->
               <div style="background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:14px;padding:15px 16px;opacity:.5">
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
                   <div>
-                    <div style="font-size:.88rem;font-weight:800;color:#1c1208;margin-bottom:4px;line-height:1.3">Cell Signalling</div>
-                    <span style="font-size:.57rem;font-weight:800;background:rgba(109,40,217,.1);color:#6d28d9;border:1px solid rgba(109,40,217,.2);border-radius:20px;padding:2px 8px;letter-spacing:.05em;text-transform:uppercase">Biology</span>
+                    <div style="font-size:.88rem;font-weight:800;color:#1c1208;margin-bottom:4px;line-height:1.3">Rates of Reaction</div>
+                    <span style="font-size:.57rem;font-weight:800;background:rgba(109,40,217,.1);color:#6d28d9;border:1px solid rgba(109,40,217,.2);border-radius:20px;padding:2px 8px;letter-spacing:.05em;text-transform:uppercase">Chemistry</span>
                   </div>
                   <span style="font-size:.63rem;font-weight:800;color:#7c3aed;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:20px;padding:2px 8px;white-space:nowrap;flex-shrink:0">Due today</span>
                 </div>
@@ -244,7 +246,7 @@
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:11px">
                   <div style="min-width:0">
                     <span style="font-size:.52rem;font-weight:800;border-radius:6px;padding:2px 7px;white-space:nowrap;background:rgba(124,58,237,.12);color:#7c3aed">Chemistry</span>
-                    <div style="font-size:.8rem;font-weight:700;color:#1c1208;margin-top:4px">Organic Reactions</div>
+                    <div style="font-size:.8rem;font-weight:700;color:#1c1208;margin-top:4px">Ionic &amp; Covalent Bonding</div>
                   </div>
                   <div style="display:flex;align-items:center;gap:7px;flex-shrink:0">
                     <span style="font-size:.82rem;line-height:1">🟢</span>
@@ -253,8 +255,8 @@
                 </div>
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:11px">
                   <div style="min-width:0">
-                    <span style="font-size:.52rem;font-weight:800;border-radius:6px;padding:2px 7px;white-space:nowrap;background:rgba(37,99,235,.12);color:#2563eb">Maths</span>
-                    <div style="font-size:.8rem;font-weight:700;color:#1c1208;margin-top:4px">Integration by Parts</div>
+                    <span style="font-size:.52rem;font-weight:800;border-radius:6px;padding:2px 7px;white-space:nowrap;background:rgba(5,150,105,.12);color:#047857">Biology</span>
+                    <div style="font-size:.8rem;font-weight:700;color:#1c1208;margin-top:4px">Cell Division &amp; Mitosis</div>
                   </div>
                   <div style="display:flex;align-items:center;gap:7px;flex-shrink:0">
                     <span style="font-size:.82rem;line-height:1">🟡</span>
@@ -263,8 +265,8 @@
                 </div>
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:11px">
                   <div style="min-width:0">
-                    <span style="font-size:.52rem;font-weight:800;border-radius:6px;padding:2px 7px;white-space:nowrap;background:rgba(5,150,105,.12);color:#047857">Biology</span>
-                    <div style="font-size:.8rem;font-weight:700;color:#1c1208;margin-top:4px">Cell Signalling</div>
+                    <span style="font-size:.52rem;font-weight:800;border-radius:6px;padding:2px 7px;white-space:nowrap;background:rgba(124,58,237,.12);color:#7c3aed">Chemistry</span>
+                    <div style="font-size:.8rem;font-weight:700;color:#1c1208;margin-top:4px">Rates of Reaction</div>
                   </div>
                   <div style="display:flex;align-items:center;gap:7px;flex-shrink:0">
                     <span style="font-size:.82rem;line-height:1">🔴</span>
@@ -274,7 +276,7 @@
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:11px">
                   <div style="min-width:0">
                     <span style="font-size:.52rem;font-weight:800;border-radius:6px;padding:2px 7px;white-space:nowrap;background:rgba(124,58,237,.12);color:#7c3aed">Chemistry</span>
-                    <div style="font-size:.8rem;font-weight:700;color:#1c1208;margin-top:4px">Thermodynamics</div>
+                    <div style="font-size:.8rem;font-weight:700;color:#1c1208;margin-top:4px">Atomic Structure</div>
                   </div>
                   <div style="display:flex;align-items:center;gap:7px;flex-shrink:0">
                     <span style="font-size:.82rem;line-height:1">🟢</span>
@@ -283,8 +285,8 @@
                 </div>
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.18);border-radius:11px">
                   <div style="min-width:0">
-                    <span style="font-size:.52rem;font-weight:800;border-radius:6px;padding:2px 7px;white-space:nowrap;background:rgba(234,88,12,.12);color:#c2410c">English</span>
-                    <div style="font-size:.8rem;font-weight:700;color:#1c1208;margin-top:4px">Macbeth Themes</div>
+                    <span style="font-size:.52rem;font-weight:800;border-radius:6px;padding:2px 7px;white-space:nowrap;background:rgba(5,150,105,.12);color:#047857">Biology</span>
+                    <div style="font-size:.8rem;font-weight:700;color:#1c1208;margin-top:4px">Enzymes</div>
                   </div>
                   <div style="display:flex;align-items:center;gap:7px;flex-shrink:0">
                     <span style="font-size:.82rem;line-height:1">🟡</span>
@@ -329,7 +331,7 @@
                         <span style="font-size:.5rem;font-weight:900;color:#7c3aed;width:28px;flex-shrink:0;letter-spacing:.04em">FRI</span>
                         <span style="font-size:.78rem;font-weight:900;color:#1c1208">9</span>
                       </div>
-                      <span style="font-size:.56rem;font-weight:800;color:#6d28d9;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.25);border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0;letter-spacing:.015em">D1 · Maths</span>
+                      <span style="font-size:.56rem;font-weight:800;color:#6d28d9;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.25);border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0;letter-spacing:.015em">D1 · Bio</span>
                     </div>
 
                     <div style="display:flex;align-items:center;justify-content:space-between;gap:11px;padding:9px 12px;background:rgba(255,255,255,.55);border:1px solid rgba(168,85,247,.16);border-radius:10px">
@@ -337,7 +339,7 @@
                         <span style="font-size:.5rem;font-weight:800;color:#9ca3af;width:28px;flex-shrink:0;letter-spacing:.04em">SAT</span>
                         <span style="font-size:.78rem;font-weight:800;color:#1c1208">10</span>
                       </div>
-                      <span style="font-size:.56rem;font-weight:800;color:#6d28d9;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.25);border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0;letter-spacing:.015em">D7 · Bio</span>
+                      <span style="font-size:.56rem;font-weight:800;color:#6d28d9;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.25);border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0;letter-spacing:.015em">D7 · Chem</span>
                     </div>
 
                     <div style="display:flex;align-items:center;gap:11px;padding:9px 12px">
@@ -383,6 +385,212 @@
   </div>
 </section>
 
+<!-- ── HOW IT WORKS ───────────────────────────────────────── -->
+<section id="how" class="py-20 bg-white">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6">
+    <div class="text-center mb-12 scroll-reveal">
+      <p class="text-purple-DEFAULT font-bold text-xs uppercase tracking-widest mb-3">How it works</p>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-navy-dark">30 minutes a day. No guesswork.</h2>
+    </div>
+    <div class="grid gap-6 sm:grid-cols-3">
+      <div class="scroll-reveal rounded-2xl border border-purple-soft p-6">
+        <div class="w-9 h-9 rounded-full gradient-brand text-white font-black flex items-center justify-center mb-4">1</div>
+        <h3 class="font-extrabold text-navy-dark mb-2">Add your topics</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">Pick the Biology and Chemistry topics you're studying and rate how confident you feel about each one.</p>
+      </div>
+      <div class="scroll-reveal rounded-2xl border border-purple-soft p-6">
+        <div class="w-9 h-9 rounded-full gradient-brand text-white font-black flex items-center justify-center mb-4">2</div>
+        <h3 class="font-extrabold text-navy-dark mb-2">Get today's plan</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">Each day the planner shows exactly which topics are due, spaced out so you review them just before you'd forget.</p>
+      </div>
+      <div class="scroll-reveal rounded-2xl border border-purple-soft p-6">
+        <div class="w-9 h-9 rounded-full gradient-brand text-white font-black flex items-center justify-center mb-4">3</div>
+        <h3 class="font-extrabold text-navy-dark mb-2">Study with the right tool</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">Each session uses a different method: quizzes, written answers, blurting or explaining. A focus timer stops you from revising too little or too long.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── STUDY TOOLS ────────────────────────────────────────── -->
+<section id="tools" class="py-20" style="background:#f5f3ff;">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6">
+    <div class="text-center mb-12 scroll-reveal">
+      <p class="text-purple-DEFAULT font-bold text-xs uppercase tracking-widest mb-3">The study space</p>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-navy-dark mb-3">One place. Six tools. Every way to learn a topic.</h2>
+      <p class="text-gray-600 text-sm max-w-xl mx-auto">From "I've never seen this" to "I could teach this", each tool takes you one level deeper.</p>
+    </div>
+    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="scroll-reveal bg-white rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-3"><span class="text-2xl" aria-hidden="true">📅</span><span class="text-xs font-bold text-green-700 bg-green-50 rounded-full px-2.5 py-0.5">Free</span></div>
+        <h3 class="font-extrabold text-navy-dark mb-1">Revision Planner</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">Organise your topics, see your confidence for each one, and track your progress and attendance.</p>
+      </div>
+      <div class="scroll-reveal bg-white rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-3"><span class="text-2xl" aria-hidden="true">🧠</span><span class="text-xs font-bold text-green-700 bg-green-50 rounded-full px-2.5 py-0.5">Free</span></div>
+        <h3 class="font-extrabold text-navy-dark mb-1">Poppy · Quizzes</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">Multiple-choice questions with hints, a reason for every answer, and a results page that shows where you're weak.</p>
+      </div>
+      <div class="scroll-reveal bg-white rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-3"><span class="text-2xl" aria-hidden="true">✍️</span><span class="text-xs font-bold text-purple-deep bg-purple-light rounded-full px-2.5 py-0.5">Plus</span></div>
+        <h3 class="font-extrabold text-navy-dark mb-1">Sage · Written answers</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">Short-answer exam questions in four levels of difficulty, so you practise writing answers, not just recognising them.</p>
+      </div>
+      <div class="scroll-reveal bg-white rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-3"><span class="text-2xl" aria-hidden="true">📝</span><span class="text-xs font-bold text-purple-deep bg-purple-light rounded-full px-2.5 py-0.5">Plus</span></div>
+        <h3 class="font-extrabold text-navy-dark mb-1">Blurto · Blurting</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">Write down everything you remember, peek at your notes for a few seconds, then try again. It shows you exactly what you've forgotten.</p>
+      </div>
+      <div class="scroll-reveal bg-white rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-3"><span class="text-2xl" aria-hidden="true">🎓</span><span class="text-xs font-bold text-purple-deep bg-purple-light rounded-full px-2.5 py-0.5">Plus</span></div>
+        <h3 class="font-extrabold text-navy-dark mb-1">Finley · Explain it back</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">Teach the topic to an AI student that asks the questions a curious learner would. If you can explain it, you know it.</p>
+      </div>
+      <div class="scroll-reveal bg-white rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-3"><span class="text-2xl" aria-hidden="true">📂</span><span class="text-xs font-bold text-purple-deep bg-purple-light rounded-full px-2.5 py-0.5">Plus</span></div>
+        <h3 class="font-extrabold text-navy-dark mb-1">Resources</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">Every note and material you make in each tool, saved in one place and organised by topic.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── THE SCIENCE ────────────────────────────────────────── -->
+<section id="science" class="py-20 bg-white">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6">
+    <div class="text-center mb-12 scroll-reveal">
+      <p class="text-purple-DEFAULT font-bold text-xs uppercase tracking-widest mb-3">Why it works</p>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-navy-dark mb-3">Built on how memory actually works</h2>
+      <p class="text-gray-600 text-sm max-w-xl mx-auto">No gimmicks. Stoday Plus is built around three of the best-researched study methods in learning science.</p>
+    </div>
+    <div class="grid gap-6 sm:grid-cols-3">
+      <div class="scroll-reveal rounded-2xl p-6" style="background:#faf5ff;">
+        <h3 class="font-extrabold text-navy-dark mb-2">Spaced repetition</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">We forget much of what we learn within days unless we review it. Reviewing at growing gaps (day 1, 3, 7, 14, 28…) keeps it in long-term memory.</p>
+      </div>
+      <div class="scroll-reveal rounded-2xl p-6" style="background:#faf5ff;">
+        <h3 class="font-extrabold text-navy-dark mb-2">Active recall</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">Testing yourself beats re-reading notes. Pulling an answer out of memory is what makes it stick, which is why every tool asks you to produce answers.</p>
+      </div>
+      <div class="scroll-reveal rounded-2xl p-6" style="background:#faf5ff;">
+        <h3 class="font-extrabold text-navy-dark mb-2">Explaining to learn</h3>
+        <p class="text-gray-600 text-sm leading-relaxed">Explaining a topic in simple words shows the gaps in your understanding fast. That's the idea behind the Feynman technique, and it's what Finley is for.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PRICING ────────────────────────────────────────────── -->
+<section id="pricing" class="py-20" style="background:#f5f3ff;">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6">
+    <div class="text-center mb-12 scroll-reveal">
+      <p class="text-purple-DEFAULT font-bold text-xs uppercase tracking-widest mb-3">Pricing</p>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-navy-dark mb-3">Start free. Upgrade when you're ready.</h2>
+      <p class="text-gray-600 text-sm max-w-xl mx-auto">Plus costs less than half of one hour of private tuition, for a whole month of revision.</p>
+    </div>
+    <div class="grid gap-6 sm:grid-cols-2">
+      <div class="scroll-reveal bg-white rounded-2xl p-7 shadow-sm border border-purple-soft flex flex-col">
+        <h3 class="font-extrabold text-navy-dark text-lg">Free</h3>
+        <p class="mt-2 mb-5"><span class="text-4xl font-black text-navy-dark">£0</span></p>
+        <ul class="space-y-2 text-sm text-gray-700 mb-7 flex-1">
+          <li>✓ Revision Planner with daily plan</li>
+          <li>✓ Poppy quizzes with hints and explanations</li>
+          <li>✓ Progress and confidence tracking</li>
+          <li>✓ Focus timer</li>
+        </ul>
+        <a href="#start" class="block text-center border-2 border-purple-DEFAULT text-purple-deep font-bold text-sm rounded-xl py-3 hover:bg-purple-light transition-colors">Start free</a>
+      </div>
+      <div class="scroll-reveal rounded-2xl p-7 shadow-xl text-white flex flex-col gradient-brand relative">
+        <span class="absolute top-5 right-5 text-xs font-bold bg-white bg-opacity-20 rounded-full px-2.5 py-0.5">Launching soon</span>
+        <h3 class="font-extrabold text-lg">Plus</h3>
+        <p class="mt-2 mb-5"><span class="text-4xl font-black">£7</span><span class="text-sm opacity-80"> / month</span></p>
+        <ul class="space-y-2 text-sm mb-7 flex-1 opacity-95">
+          <li>✓ Everything in Free</li>
+          <li>✓ Sage written-answer practice</li>
+          <li>✓ Blurto blurting sessions</li>
+          <li>✓ Finley explain-it-back AI tutor</li>
+          <li>✓ All your notes and materials in Resources</li>
+        </ul>
+        <a href="#start" class="block text-center bg-white text-purple-deep font-bold text-sm rounded-xl py-3 hover:bg-purple-light transition-colors">Join the waiting list</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ABOUT ──────────────────────────────────────────────── -->
+<section id="about" class="py-20 bg-white">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 scroll-reveal">
+    <div class="flex flex-col sm:flex-row items-center sm:items-start gap-8">
+      <img src="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" alt="" class="w-24 h-24 object-contain flex-shrink-0 rounded-full p-3" style="background:#f5f3ff;" />
+      <div class="text-center sm:text-left">
+        <p class="text-purple-DEFAULT font-bold text-xs uppercase tracking-widest mb-3">Who's behind it</p>
+        <h2 class="text-2xl font-extrabold text-navy-dark mb-4">Built by a tutor, not a tech company</h2>
+        <p class="text-gray-600 text-sm leading-relaxed mb-3">
+          I'm Mikey Hoang. I have a Master's in Pharmacy, I'm training to be a pharmacist, and I tutor GCSE and A-Level students. I used to be the student who revised for hours and still forgot everything by exam day.
+        </p>
+        <p class="text-gray-600 text-sm leading-relaxed">
+          Then I started studying how memory works. Changing <em>how</em> I revised, not how long, is what got me 20+ international Olympiad awards. Stoday Plus is that system, built so your child doesn't have to figure it out alone.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ────────────────────────────────────────────────── -->
+<section id="faq" class="py-20" style="background:#f5f3ff;">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6">
+    <div class="text-center mb-10 scroll-reveal">
+      <p class="text-purple-DEFAULT font-bold text-xs uppercase tracking-widest mb-3">Questions</p>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-navy-dark">Frequently asked questions</h2>
+    </div>
+    <div class="space-y-3">
+      <details class="bg-white rounded-xl p-5 shadow-sm group">
+        <summary class="font-bold text-navy-dark text-sm cursor-pointer list-none flex justify-between items-center gap-4">Who is Stoday Plus for?<span class="text-purple-DEFAULT group-open:rotate-45 transition-transform text-lg leading-none">+</span></summary>
+        <p class="text-gray-600 text-sm leading-relaxed mt-3">Students in Years 9–11 studying GCSE Biology and Chemistry. It's built so they can run their own revision, without you having to nag.</p>
+      </details>
+      <details class="bg-white rounded-xl p-5 shadow-sm group">
+        <summary class="font-bold text-navy-dark text-sm cursor-pointer list-none flex justify-between items-center gap-4">Does it work with my child's exam board?<span class="text-purple-DEFAULT group-open:rotate-45 transition-transform text-lg leading-none">+</span></summary>
+        <p class="text-gray-600 text-sm leading-relaxed mt-3">Yes. The core Biology and Chemistry topics are shared across AQA, Edexcel and OCR, and your child chooses which topics to add to their plan.</p>
+      </details>
+      <details class="bg-white rounded-xl p-5 shadow-sm group">
+        <summary class="font-bold text-navy-dark text-sm cursor-pointer list-none flex justify-between items-center gap-4">How much time does it take?<span class="text-purple-DEFAULT group-open:rotate-45 transition-transform text-lg leading-none">+</span></summary>
+        <p class="text-gray-600 text-sm leading-relaxed mt-3">About 30 focused minutes a day. The planner tells your child what to do, so no time is wasted deciding.</p>
+      </details>
+      <details class="bg-white rounded-xl p-5 shadow-sm group">
+        <summary class="font-bold text-navy-dark text-sm cursor-pointer list-none flex justify-between items-center gap-4">What's the difference between Free and Plus?<span class="text-purple-DEFAULT group-open:rotate-45 transition-transform text-lg leading-none">+</span></summary>
+        <p class="text-gray-600 text-sm leading-relaxed mt-3">Free gives you the Revision Planner and Poppy quizzes. Plus adds deeper practice: written answers with Sage, blurting with Blurto, explaining with Finley, and all your materials in one place.</p>
+      </details>
+      <details class="bg-white rounded-xl p-5 shadow-sm group">
+        <summary class="font-bold text-navy-dark text-sm cursor-pointer list-none flex justify-between items-center gap-4">Does it use AI?<span class="text-purple-DEFAULT group-open:rotate-45 transition-transform text-lg leading-none">+</span></summary>
+        <p class="text-gray-600 text-sm leading-relaxed mt-3">Some tools do, like Finley and the search inside Poppy. AI helps students practise; it never replaces learning the content. Details are in our <a href="privacy.html" class="underline hover:text-purple-DEFAULT">privacy policy</a>.</p>
+      </details>
+      <details class="bg-white rounded-xl p-5 shadow-sm group">
+        <summary class="font-bold text-navy-dark text-sm cursor-pointer list-none flex justify-between items-center gap-4">Is my child's data safe?<span class="text-purple-DEFAULT group-open:rotate-45 transition-transform text-lg leading-none">+</span></summary>
+        <p class="text-gray-600 text-sm leading-relaxed mt-3">We only collect what's needed to run their study plan, we never sell data, and we never show ads. Read the full <a href="privacy.html" class="underline hover:text-purple-DEFAULT">privacy policy</a>.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ── FINAL CTA ──────────────────────────────────────────── -->
+<section id="start" class="py-20 text-white" style="background:#1e1b4b;">
+  <div class="max-w-xl mx-auto px-4 sm:px-6 text-center scroll-reveal">
+    <h2 class="text-2xl sm:text-3xl font-extrabold mb-3">Start studying smarter today</h2>
+    <p class="text-sm mb-8" style="color:rgba(255,255,255,.7);">Free to start. No credit card needed.</p>
+    <form class="trial-form max-w-md mx-auto">
+      <div class="flex flex-col sm:flex-row gap-3">
+        <label for="trial-email-bottom" class="sr-only">Email address</label>
+        <input id="trial-email-bottom" type="email" required placeholder="you@example.com" autocomplete="email"
+          class="flex-1 border border-transparent rounded-xl px-4 py-3.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-mid bg-white" />
+        <button type="submit" class="gradient-brand text-white text-sm font-bold px-7 py-3.5 rounded-xl hover:opacity-90 transition-opacity whitespace-nowrap">
+          Try it free →
+        </button>
+      </div>
+      <p class="trial-note text-xs mt-3" style="color:rgba(255,255,255,.55);">See how we use your email in our <a href="privacy.html" class="underline hover:text-white">privacy policy</a>.</p>
+    </form>
+  </div>
+</section>
+
 <!-- ── FOOTER ─────────────────────────────────────────────── -->
 <footer class="py-10 border-t border-gray-100">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -390,7 +598,12 @@
       <img src="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" alt="Stoday Plus" class="w-7 h-7 object-contain" />
       <span class="text-navy-dark font-extrabold text-sm">Stoday Plus</span>
     </a>
-    <p class="text-gray-400 text-xs">© 2026 Stoday Plus · <a href="dashboard.html" class="hover:text-purple-DEFAULT transition-colors">Log in</a></p>
+    <nav aria-label="Footer" class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-gray-500 text-xs">
+      <a href="privacy.html" class="py-2 hover:text-purple-DEFAULT transition-colors">Privacy policy</a>
+      <a href="terms.html" class="py-2 hover:text-purple-DEFAULT transition-colors">Terms of use</a>
+      <a href="dashboard.html" class="py-2 hover:text-purple-DEFAULT transition-colors">Log in</a>
+      <span class="py-2 text-gray-400">© 2026 Stoday Plus</span>
+    </nav>
   </div>
 </footer>
 
@@ -640,33 +853,35 @@
     els.forEach(function(el) { obs.observe(el); });
   })();
 
-  // ── Trial signup form — saves the email to a Google Sheet via an
-  //    Apps Script web app (no backend of our own needed) ──────────
+  // ── Trial signup forms (hero + bottom) — save the email to a Google Sheet
+  //    via an Apps Script web app (no backend of our own needed) ──────────
   (function() {
-    var form = document.getElementById('trial-form');
-    var note = document.getElementById('trial-note');
-    if (!form) return;
+    var forms = document.querySelectorAll('.trial-form');
+    if (!forms.length) return;
     var SHEET_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzxfQv_WWEv6bjDzhePj4aygklgTpQFk45yqDTHZUokV_ktbHNC58Ewuceg266wtkv0Hw/exec';
 
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      var email = document.getElementById('trial-email').value;
+    forms.forEach(function(form) {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var input = form.querySelector('input[type="email"]');
+        var note = form.querySelector('.trial-note');
 
-      // Apps Script web apps don't send CORS headers back, so the response
-      // is opaque to us either way -- fire the request and just assume
-      // success for the UI, same as before.
-      fetch(SHEET_ENDPOINT, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: new URLSearchParams({ email: email })
-      }).catch(function(err) { console.error('Trial signup save failed:', err); });
+        // Apps Script web apps don't send CORS headers back, so the response
+        // is opaque to us either way -- fire the request and just assume
+        // success for the UI, same as before.
+        fetch(SHEET_ENDPOINT, {
+          method: 'POST',
+          mode: 'no-cors',
+          body: new URLSearchParams({ email: input.value })
+        }).catch(function(err) { console.error('Trial signup save failed:', err); });
 
-      note.textContent = "Thanks — we'll let you know the moment it's ready.";
-      note.style.color = '#7c3aed';
-      note.style.fontWeight = '700';
-      form.querySelector('input').disabled = true;
-      form.querySelector('button').disabled = true;
-      form.querySelector('button').style.opacity = '.6';
+        note.textContent = "Thanks — we'll let you know the moment it's ready.";
+        note.style.color = form.closest('#start') ? '#c084fc' : '#7c3aed';
+        note.style.fontWeight = '700';
+        input.disabled = true;
+        form.querySelector('button').disabled = true;
+        form.querySelector('button').style.opacity = '.6';
+      });
     });
   })();
 </script>
