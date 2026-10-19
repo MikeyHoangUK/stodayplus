@@ -26,8 +26,6 @@
     html { scroll-behavior: smooth; }
     .gradient-hero  { background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #e0e7ff 100%); }
     .gradient-brand { background: linear-gradient(135deg, #9333ea 0%, #3730a3 100%); }
-    .scroll-reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
-    .scroll-reveal.revealed { opacity: 1; transform: translateY(0); }
 
     /* ── Hero: typed description slam + shake (ported from demoindex.html) ── */
     @keyframes hero-caret-blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
@@ -61,31 +59,260 @@
     #cursor-plane-wrap { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999; opacity: 0; transition: opacity .25s ease; }
     #cursor-plane { display: block; margin: 0; transition: transform .15s ease; filter: drop-shadow(0 1px 2px rgba(76,29,149,.3)); }
     #cursor-plane.cursor-hover { transform: scale(1.3); }
+
+    /* ══════════════════════════════════════════════════════════════════
+       Design system — ported from demoindex.html, adapted for normal
+       page scrolling (sections reveal on scroll instead of on slide).
+       ══════════════════════════════════════════════════════════════════ */
+    :root {
+      --ink: #1e1b4b; --ink-soft: #4b4458;
+      --violet: #9333ea; --violet-deep: #6d28d9; --indigo: #4338ca;
+      --lilac: #c084fc; --periwinkle: #818cf8;
+      --gold-1: #f7e08a; --gold-2: #d4af37; --gold-3: #a9791a;
+      --ease-out: cubic-bezier(.19,1,.22,1);
+    }
+
+    /* Hero backdrop: soft colour glows + faint dot grid */
+    .hero-backdrop { position: relative; overflow: hidden; }
+    .hero-backdrop::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 45% 40% at 8% 20%, rgba(192,132,252,.28) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 45% at 95% 85%, rgba(129,140,248,.22) 0%, transparent 60%);
+    }
+    .hero-backdrop::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .55;
+      background-image: radial-gradient(rgba(109,40,217,.08) 1px, transparent 1px);
+      background-size: 24px 24px;
+      -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 85%);
+              mask-image: linear-gradient(180deg, #000 0%, transparent 85%);
+    }
+    .hero-backdrop > * { position: relative; z-index: 1; }
+
+    /* Shine sweep — any element with .shine gets a light pass on hover */
+    .shine { position: relative; overflow: hidden; isolation: isolate; }
+    .shine::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 2;
+      background: linear-gradient(105deg, transparent 32%, rgba(255,255,255,.75) 50%, transparent 68%);
+      transform: translateX(-160%); transition: transform .7s ease;
+    }
+    .shine:hover::after, .shine:focus-visible::after { transform: translateX(160%); }
+    .shine-soft::after { background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.14) 50%, transparent 65%); }
+
+    /* Pill chip (hero eyebrow) */
+    .hero-chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: .74rem; font-weight: 800; color: var(--ink); letter-spacing: .04em;
+      padding: 8px 16px; border-radius: 999px;
+      background: linear-gradient(135deg, #ffffff 0%, #f5f0ff 60%, #ede9fe 100%);
+      border: 1px solid rgba(124,58,237,.18);
+      box-shadow: 0 2px 10px rgba(109,40,217,.10), inset 0 1px 0 rgba(255,255,255,.8);
+    }
+    .hero-chip .dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.18); }
+
+    /* Buttons */
+    .btn-primary {
+      background: linear-gradient(135deg, #9333ea 0%, #3730a3 100%); color: #fff; font-weight: 800;
+      box-shadow: 0 6px 20px rgba(109,40,217,.32), inset 0 1px 0 rgba(255,255,255,.18);
+      transition: transform .25s var(--ease-out), box-shadow .25s ease, filter .25s ease;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(109,40,217,.45), inset 0 1px 0 rgba(255,255,255,.22); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { transform: none; box-shadow: none; }
+    .btn-ghost {
+      background: #fff; color: #4c1d95; font-weight: 700;
+      box-shadow: 0 1px 2px rgba(17,10,40,.04), 0 6px 18px rgba(109,40,217,.14);
+      transition: background .25s ease, color .25s ease, box-shadow .25s ease, transform .25s ease;
+    }
+    .btn-ghost:hover { background: linear-gradient(135deg,#9333ea 0%,#3730a3 100%); color: #fff; box-shadow: 0 10px 28px rgba(109,40,217,.38); transform: translateY(-2px); }
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold-1) 0%, var(--gold-2) 55%, var(--gold-3) 100%); color: #241804; font-weight: 900;
+      box-shadow: 0 6px 22px rgba(212,175,55,.35), inset 0 1px 0 rgba(255,255,255,.5);
+      transition: transform .25s var(--ease-out), box-shadow .25s ease;
+    }
+    .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(212,175,55,.5), inset 0 1px 0 rgba(255,255,255,.55); }
+
+    /* Nav links with growing underline */
+    .nav-link { position: relative; }
+    .nav-link::after { content: ''; position: absolute; bottom: -3px; left: 0; width: 0; height: 2px; background: var(--lilac); transition: width .2s; }
+    .nav-link:hover::after { width: 100%; }
+    #site-nav { transition: box-shadow .3s ease, background-color .3s ease; }
+    #site-nav.scrolled { box-shadow: 0 8px 30px rgba(15,10,40,.25); }
+
+    /* Section typography */
+    .eyebrow { color: var(--violet); font-size: .66rem; font-weight: 800; text-transform: uppercase; letter-spacing: .22em; }
+    .display { font-weight: 900; color: var(--ink); line-height: 1.05; letter-spacing: -.025em; }
+    .text-grad { background: linear-gradient(135deg, #9333ea, #4338ca); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .gold-text { background: linear-gradient(135deg, var(--gold-1) 0%, var(--gold-2) 45%, var(--gold-3) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .bridge { display: flex; align-items: center; gap: 1rem; }
+    .bridge::before, .bridge::after { content: ''; flex: 1; height: 1px; }
+    .bridge::before { background: linear-gradient(90deg, transparent, rgba(147,51,234,.35)); }
+    .bridge::after  { background: linear-gradient(90deg, rgba(147,51,234,.35), transparent); }
+
+    /* Problem rows — red accent, hover reveals the verdict and dims the rest */
+    .prob-row {
+      display: flex; align-items: center; gap: 1.1rem; padding: .95rem 1.25rem; border-radius: 14px;
+      background: rgba(255,255,255,.85); border: 1px solid rgba(239,68,68,.1);
+      box-shadow: inset 3px 0 0 rgba(239,68,68,.38), 0 2px 14px rgba(0,0,0,.05);
+      transition: background .25s ease, box-shadow .25s ease, opacity .3s ease, transform .3s var(--ease-out);
+    }
+    .prob-num { font-size: 1.15rem; font-weight: 900; color: #ef4444; width: 2rem; text-align: center; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+    .prob-tag {
+      font-size: .64rem; font-weight: 800; color: #dc2626; background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.25);
+      border-radius: 999px; padding: .25rem .75rem; white-space: nowrap; flex-shrink: 0;
+      opacity: 0; transform: translateX(10px); transition: opacity .25s ease, transform .25s ease;
+    }
+    .prob-list:hover .prob-row { opacity: .4; }
+    .prob-list .prob-row:hover { opacity: 1; transform: translateY(-2px); background: rgba(255,255,255,.98); box-shadow: inset 3px 0 0 rgba(239,68,68,.7), 0 10px 32px rgba(239,68,68,.1); }
+    .prob-row:hover .prob-tag { opacity: 1; transform: translateX(0); }
+    @media (hover: none) { .prob-tag { opacity: 1; transform: none; } }
+    @media (max-width: 639px) {
+      .prob-row { flex-wrap: wrap; row-gap: .45rem; }
+      .prob-row > .flex-1 { min-width: 9rem; }
+      .prob-tag { margin-left: calc(2rem + 1.1rem); }
+    }
+    #problem { position: relative; }
+    #prob-vignette {
+      position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 5s ease;
+      background: radial-gradient(ellipse 75% 75% at 50% 50%, transparent 35%, rgba(12,8,35,.16) 100%);
+    }
+    #problem.in-view #prob-vignette { opacity: 1; }
+
+    /* Glass method cards with gentle float */
+    @keyframes method-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+    .glass-card {
+      position: relative; overflow: hidden; border-radius: 16px;
+      background: rgba(255,255,255,.5); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,.85);
+      box-shadow: 0 4px 20px rgba(109,40,217,.07), inset 0 1px 0 rgba(255,255,255,.95);
+      transition: background .3s ease, box-shadow .3s ease;
+    }
+    .glass-card:hover { background: rgba(255,255,255,.78); box-shadow: 0 10px 36px rgba(109,40,217,.15), inset 0 1px 0 #fff; }
+    .float-a { animation: method-float 4s ease-in-out 0s infinite; }
+    .float-b { animation: method-float 4s ease-in-out 1.1s infinite; }
+    .float-c { animation: method-float 4s ease-in-out 2.2s infinite; }
+    .big-num { font-size: 2.3rem; font-weight: 900; line-height: 1; color: rgba(139,92,246,.5); font-variant-numeric: tabular-nums; }
+
+    /* Premium dark section (study tools) */
+    .premium-dark {
+      position: relative; overflow: hidden;
+      background:
+        radial-gradient(ellipse 58% 48% at 12% -8%,  rgba(147,51,234,.5)  0%, transparent 62%),
+        radial-gradient(ellipse 46% 38% at 92% 6%,   rgba(212,175,55,.22) 0%, transparent 58%),
+        radial-gradient(ellipse 70% 58% at 50% 115%, rgba(67,56,202,.48)  0%, transparent 62%),
+        linear-gradient(180deg, #09071a 0%, #140e35 50%, #09071a 100%);
+    }
+    .premium-dark::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .5;
+      background-image: radial-gradient(rgba(255,255,255,.07) 1px, transparent 1px); background-size: 26px 26px;
+    }
+    .premium-dark > * { position: relative; z-index: 1; }
+    .gold-badge {
+      display: inline-flex; align-items: center; gap: .45rem;
+      background: linear-gradient(135deg, var(--gold-1) 0%, var(--gold-2) 55%, var(--gold-3) 100%); color: #241804;
+      box-shadow: 0 4px 18px rgba(212,175,55,.35), inset 0 1px 0 rgba(255,255,255,.5);
+      font-size: .66rem; font-weight: 900; padding: .45rem 1.05rem; border-radius: 999px; letter-spacing: .08em;
+    }
+    .gold-divider { width: 56px; height: 2px; margin: 1rem auto 0; border-radius: 999px; background: linear-gradient(90deg, transparent, var(--gold-2), transparent); }
+    .lux-card {
+      position: relative; overflow: hidden; border-radius: 18px;
+      background: linear-gradient(165deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+      -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+      border: 1px solid rgba(212,175,55,.22);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 10px 30px rgba(0,0,0,.35);
+      transition: transform .3s var(--ease-out), border-color .3s ease, box-shadow .3s ease, background .3s ease;
+    }
+    .lux-card:hover {
+      transform: translateY(-6px); border-color: rgba(212,175,55,.65);
+      background: linear-gradient(165deg, rgba(255,255,255,.1), rgba(255,255,255,.03));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 0 0 1px rgba(212,175,55,.15), 0 22px 48px rgba(0,0,0,.5), 0 0 40px rgba(212,175,55,.12);
+    }
+    .lux-num { position: absolute; top: 14px; right: 18px; font-size: 2.1rem; font-weight: 900; line-height: 1; color: transparent; -webkit-text-stroke: 1px rgba(212,175,55,.4); opacity: .6; }
+    .lux-icon {
+      width: 3.25rem; height: 3.25rem; border-radius: .9rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #9333ea, #3730a3); box-shadow: 0 0 0 1px rgba(212,175,55,.55), 0 6px 18px rgba(147,51,234,.4);
+    }
+    .tier { font-size: .6rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; border-radius: 999px; padding: .2rem .6rem; }
+    .tier-free { color: #bbf7d0; background: rgba(34,197,94,.14); border: 1px solid rgba(34,197,94,.35); }
+    .tier-plus { color: #241804; background: linear-gradient(135deg, var(--gold-1), var(--gold-2)); }
+
+    /* Science visual panels */
+    .viz-panel { background: linear-gradient(145deg, #1e1b4b 0%, #312e81 100%); border-radius: 16px; position: relative; overflow: hidden; }
+    .sr-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(192,132,252,.35); background: transparent; transition: background .4s ease, border-color .4s ease, box-shadow .4s ease; }
+    .sr-dot.lit { background: var(--lilac); border-color: var(--lilac); box-shadow: 0 0 10px rgba(192,132,252,.7); }
+    .sr-line { flex: 1; height: 2px; background: rgba(192,132,252,.18); position: relative; overflow: hidden; }
+    .sr-line::after { content: ''; position: absolute; inset: 0; background: var(--lilac); transform: scaleX(0); transform-origin: left; transition: transform .45s ease; }
+    .sr-line.lit::after { transform: scaleX(1); }
+    .bar-grow { transform: scaleY(.08); transform-origin: bottom; transition: transform 1.8s var(--ease-out); }
+    .viz-on .bar-grow { transform: scaleY(1); }
+    .curve-path { stroke-dasharray: 400; stroke-dashoffset: 400; transition: stroke-dashoffset 1.6s ease; }
+    .viz-on .curve-path { stroke-dashoffset: 0; }
+    .viz-on .curve-path.seg-b { transition-delay: 1.3s; }
+    .viz-on .curve-path.seg-c { transition-delay: 1.9s; }
+    .curve-fill { opacity: 0; transition: opacity 1s ease 2.6s; }
+    .viz-on .curve-fill { opacity: 1; }
+
+    .gradient-dark { background: linear-gradient(135deg, #1e1b4b 0%, #1e3a8a 100%); }
+
+    /* Pricing */
+    .plan-dark { background: linear-gradient(135deg, #1e1b4b 0%, #1e3a8a 100%); }
+    .plan-glow { box-shadow: 0 0 0 1px rgba(192,132,252,.25), 0 30px 60px rgba(55,48,163,.35); }
+
+    /* FAQ accordion */
+    .faq-answer { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .35s var(--ease-out); }
+    .faq-answer > div { overflow: hidden; }
+    .faq-item.open .faq-answer { grid-template-rows: 1fr; }
+    .faq-icon { transition: transform .3s var(--ease-out); }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-item { transition: box-shadow .25s ease, border-color .25s ease; }
+    .faq-item:hover, .faq-item.open { border-color: rgba(147,51,234,.35); box-shadow: 0 8px 28px rgba(109,40,217,.08); }
+
+    /* Staggered reveal on scroll */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .9s var(--ease-out), transform .9s var(--ease-out); }
+    .reveal-left { opacity: 0; transform: translateX(-90px); transition: opacity .9s var(--ease-out), transform .9s var(--ease-out); }
+    .reveal-pop { opacity: 0; transform: translateY(46px) scale(.95); transition: opacity .9s var(--ease-out), transform .9s var(--ease-out); }
+    .reveal.revealed, .reveal-left.revealed, .reveal-pop.revealed { opacity: 1; transform: none; }
+
+    /* Respect people who turn animations off */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+      .reveal, .reveal-left, .reveal-pop { opacity: 1; transform: none; }
+      .curve-path { stroke-dashoffset: 0; } .curve-fill { opacity: 1; } .bar-grow { transform: none; }
+    }
   </style>
 </head>
 <body class="font-sans bg-white text-gray-900 antialiased">
 
 <!-- ── NAVBAR ─────────────────────────────────────────────── -->
-<nav class="fixed top-0 left-0 right-0 z-50 backdrop-blur-sm border-b border-white border-opacity-10" style="background-color:#1e1b4b;">
+<nav id="site-nav" class="fixed top-0 left-0 right-0 z-50 border-b border-white border-opacity-10" style="background-color:#1e1b4b;">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
     <a href="index.html" class="flex items-center gap-3 flex-shrink-0">
       <img src="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" alt="Stoday Plus" class="w-10 h-10 object-contain" />
       <span class="text-white font-extrabold text-xl tracking-wide">Stoday <span class="text-purple-mid">Plus</span></span>
     </a>
-    <a href="dashboard.html" class="text-gray-300 hover:text-white text-sm transition-colors">Log in</a>
+    <div class="hidden md:flex items-center gap-6 text-sm text-gray-300 font-medium">
+      <a href="#how" class="nav-link hover:text-white transition-colors">How it works</a>
+      <a href="#tools" class="nav-link hover:text-white transition-colors">Study tools</a>
+      <a href="#pricing" class="nav-link hover:text-white transition-colors">Pricing</a>
+      <a href="#faq" class="nav-link hover:text-white transition-colors">FAQ</a>
+    </div>
+    <div class="flex items-center gap-4">
+      <a href="dashboard.html" class="hidden sm:inline text-gray-300 hover:text-white text-sm transition-colors">Log in</a>
+      <a href="#start" class="btn-primary shine text-sm px-5 py-2 rounded-xl">Start free →</a>
+    </div>
   </div>
 </nav>
 
-<!-- ── HERO (ported from demoindex.html, slide 0) ────────────────────── -->
-<section class="gradient-hero min-h-screen flex flex-col justify-center pt-14">
+<!-- ── HERO ───────────────────────────────────────────────── -->
+<section class="gradient-hero hero-backdrop min-h-screen flex flex-col justify-center pt-14">
   <div class="max-w-7xl mx-auto px-4 sm:pl-32 sm:pr-6 w-full py-10">
     <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-8">
       <div class="w-full lg:w-1/2 text-center lg:text-left">
-        <p class="inline-block text-xs font-bold uppercase tracking-widest text-purple-deep bg-white bg-opacity-70 border border-purple-soft rounded-full px-3 py-1 mb-5">GCSE Biology &amp; Chemistry · Years 9–11</p>
-        <h1 class="text-[2rem] sm:text-[2.5rem] lg:text-[3.25rem] font-black text-navy-dark mb-5" style="line-height:1.08;letter-spacing:-.02em">
+        <span class="hero-chip shine mb-6"><span class="dot" aria-hidden="true"></span>GCSE Biology &amp; Chemistry · Years 9–11</span>
+        <h1 class="text-[2.1rem] sm:text-[2.7rem] lg:text-[3.4rem] font-black text-navy-dark mb-5" style="line-height:1.05;letter-spacing:-.025em">
           Hard work<br />
           should show up<br />
-          <span style="background:linear-gradient(135deg,#9333ea,#4338ca);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">in results.</span>
+          <span class="text-grad">in results.</span>
         </h1>
         <div class="w-10 h-0.5 gradient-brand mx-auto lg:mx-0 mb-5 rounded-full"></div>
         <p id="hero-typed-desc" class="max-w-lg mb-8 mx-auto lg:mx-0" style="font-size:1rem;line-height:1.7;color:#4b4458;min-height:3.4em"></p>
@@ -94,13 +321,19 @@
           <div class="flex flex-col sm:flex-row gap-3">
             <label for="trial-email" class="sr-only">Email address</label>
             <input id="trial-email" type="email" required placeholder="you@example.com" autocomplete="email"
-              class="flex-1 border border-gray-300 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT bg-white" />
-            <button type="submit" class="gradient-brand text-white text-sm font-bold px-7 py-3.5 rounded-xl hover:opacity-90 transition-opacity whitespace-nowrap">
+              class="flex-1 border border-purple-soft rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT bg-white shadow-sm" />
+            <button type="submit" class="btn-primary shine text-sm px-7 py-3.5 rounded-xl whitespace-nowrap">
               Try it free →
             </button>
           </div>
-          <p class="trial-note text-gray-400 text-xs mt-3">No credit card needed. See how we use your email in our <a href="privacy.html" class="underline hover:text-purple-DEFAULT">privacy policy</a>.</p>
+          <p class="trial-note text-gray-500 text-xs mt-3">No credit card needed. See how we use your email in our <a href="privacy.html" class="underline hover:text-purple-DEFAULT">privacy policy</a>.</p>
         </form>
+
+        <ul class="mt-7 flex flex-wrap justify-center lg:justify-start gap-x-5 gap-y-2 text-xs font-bold text-navy-dark">
+          <li class="flex items-center gap-1.5"><span class="text-purple-DEFAULT">✦</span> Free to start</li>
+          <li class="flex items-center gap-1.5"><span class="text-purple-DEFAULT">✦</span> 30 minutes a day</li>
+          <li class="flex items-center gap-1.5"><span class="text-purple-DEFAULT">✦</span> Built by a tutor</li>
+        </ul>
       </div>
 
       <div id="hero-panel" class="w-full lg:w-1/2 max-w-lg lg:max-w-none lg:mt-6" style="will-change:transform">
@@ -374,215 +607,310 @@
   </div>
 </section>
 
-<!-- ── PARENTS ────────────────────────────────────────────── -->
-<section class="py-20" style="background:#f5f3ff;">
-  <div class="max-w-2xl mx-auto px-4 sm:px-6 text-center scroll-reveal">
-    <p class="text-purple-DEFAULT font-bold text-xs uppercase tracking-widest mb-3">For parents</p>
-    <h2 class="text-2xl sm:text-3xl font-extrabold text-navy-dark mb-4">They get a plan. You get to stop nagging.</h2>
-    <p class="text-gray-600 text-sm leading-relaxed max-w-lg mx-auto">
-      Stoday Plus gives your child a clear revision system — what to study, when to start, and where they're weak — so they take charge of their own GCSEs. Less stress for them, fewer revision arguments for you.
-    </p>
+<!-- ── PROBLEM ────────────────────────────────────────────── -->
+<section id="problem" class="py-24" style="background:#f0ecff;">
+  <div id="prob-vignette" aria-hidden="true"></div>
+  <div class="relative max-w-2xl mx-auto px-4 sm:px-6">
+    <div class="reveal">
+      <p class="eyebrow mb-3">Sound familiar?</p>
+      <h2 class="display text-4xl sm:text-5xl mb-4">The grind<br />isn't working.</h2>
+      <p class="text-[0.95rem] leading-relaxed mb-10" style="color:#4b5563;max-width:30rem">Hours of revision. Nothing left by exam day. It's not a discipline problem. It's a <em class="text-navy-dark">method</em> problem.</p>
+    </div>
+    <p class="text-[0.64rem] font-extrabold uppercase text-gray-500 mb-3" style="letter-spacing:.2em">What most students do</p>
+    <div class="prob-list flex flex-col gap-2.5" data-stagger>
+      <div class="reveal-left"><div class="prob-row"><span class="prob-num">01</span><span class="text-lg" aria-hidden="true">📖</span><span class="flex-1 text-sm font-bold text-navy-dark">Re-reads their notes</span><span class="prob-tag">familiar ≠ remembered</span></div></div>
+      <div class="reveal-left"><div class="prob-row"><span class="prob-num">02</span><span class="text-lg" aria-hidden="true">🖊️</span><span class="flex-1 text-sm font-bold text-navy-dark">Copies out notes, again</span><span class="prob-tag">busy ≠ learning</span></div></div>
+      <div class="reveal-left"><div class="prob-row"><span class="prob-num">03</span><span class="text-lg" aria-hidden="true">🎥</span><span class="flex-1 text-sm font-bold text-navy-dark">Watches revision videos</span><span class="prob-tag">passive ≠ learning</span></div></div>
+      <div class="reveal-left"><div class="prob-row"><span class="prob-num">04</span><span class="text-lg" aria-hidden="true">⏰</span><span class="flex-1 text-sm font-bold text-navy-dark">Crams the night before</span><span class="prob-tag">gone within days</span></div></div>
+    </div>
+    <p class="bridge mt-8 text-[0.66rem] font-bold uppercase" style="color:#6d28d9;letter-spacing:.15em">There's a better way</p>
   </div>
 </section>
 
 <!-- ── HOW IT WORKS ───────────────────────────────────────── -->
-<section id="how" class="py-20 bg-white">
-  <div class="max-w-5xl mx-auto px-4 sm:px-6">
-    <div class="text-center mb-12 scroll-reveal">
-      <p class="text-purple-DEFAULT font-bold text-xs uppercase tracking-widest mb-3">How it works</p>
-      <h2 class="text-2xl sm:text-3xl font-extrabold text-navy-dark">30 minutes a day. No guesswork.</h2>
+<section id="how" class="py-24" style="background:linear-gradient(155deg,#fdfcff 0%,#f5f0ff 55%,#ede9fe 100%);">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 grid gap-12 lg:gap-20 lg:grid-cols-2 items-center">
+    <div class="reveal text-center lg:text-left">
+      <p class="eyebrow mb-4">The Stoday method</p>
+      <h2 class="display text-4xl sm:text-5xl mb-6">Three steps.<br />Every day.</h2>
+      <p class="text-[0.95rem] leading-relaxed mb-8 mx-auto lg:mx-0" style="color:#4b4458;max-width:22rem">Stoday = <em>Study Today</em>. Thirty focused minutes, a clear plan, and the right tool for every session.</p>
+      <a href="#tools" class="btn-ghost shine inline-block px-7 py-3.5 rounded-xl text-sm">See the study tools ↓</a>
     </div>
-    <div class="grid gap-6 sm:grid-cols-3">
-      <div class="scroll-reveal rounded-2xl border border-purple-soft p-6">
-        <div class="w-9 h-9 rounded-full gradient-brand text-white font-black flex items-center justify-center mb-4">1</div>
-        <h3 class="font-extrabold text-navy-dark mb-2">Add your topics</h3>
-        <p class="text-gray-600 text-sm leading-relaxed">Pick the Biology and Chemistry topics you're studying and rate how confident you feel about each one.</p>
-      </div>
-      <div class="scroll-reveal rounded-2xl border border-purple-soft p-6">
-        <div class="w-9 h-9 rounded-full gradient-brand text-white font-black flex items-center justify-center mb-4">2</div>
-        <h3 class="font-extrabold text-navy-dark mb-2">Get today's plan</h3>
-        <p class="text-gray-600 text-sm leading-relaxed">Each day the planner shows exactly which topics are due, spaced out so you review them just before you'd forget.</p>
-      </div>
-      <div class="scroll-reveal rounded-2xl border border-purple-soft p-6">
-        <div class="w-9 h-9 rounded-full gradient-brand text-white font-black flex items-center justify-center mb-4">3</div>
-        <h3 class="font-extrabold text-navy-dark mb-2">Study with the right tool</h3>
-        <p class="text-gray-600 text-sm leading-relaxed">Each session uses a different method: quizzes, written answers, blurting or explaining. A focus timer stops you from revising too little or too long.</p>
-      </div>
+    <div class="flex flex-col gap-3" data-stagger>
+      <div class="reveal-left"><div class="glass-card shine float-a flex items-start gap-5 p-5">
+        <span class="big-num w-12 text-right flex-shrink-0">01</span>
+        <div><h3 class="font-extrabold text-navy-dark mb-1.5">Add your topics</h3><p class="text-sm leading-relaxed" style="color:#4b4458">Pick the Biology and Chemistry topics you're studying and rate how confident you feel about each.</p></div>
+      </div></div>
+      <div class="reveal-left"><div class="glass-card shine float-b flex items-start gap-5 p-5">
+        <span class="big-num w-12 text-right flex-shrink-0">02</span>
+        <div><h3 class="font-extrabold text-navy-dark mb-1.5">Get today's plan</h3><p class="text-sm leading-relaxed" style="color:#4b4458">The planner shows exactly which topics are due, spaced so you review each one just before you'd forget it.</p></div>
+      </div></div>
+      <div class="reveal-left"><div class="glass-card shine float-c flex items-start gap-5 p-5">
+        <span class="big-num w-12 text-right flex-shrink-0">03</span>
+        <div><h3 class="font-extrabold text-navy-dark mb-1.5">Study with the right tool</h3><p class="text-sm leading-relaxed" style="color:#4b4458">Quizzes, written answers, blurting or explaining. A focus timer keeps every session the right length.</p></div>
+      </div></div>
     </div>
   </div>
 </section>
 
-<!-- ── STUDY TOOLS ────────────────────────────────────────── -->
-<section id="tools" class="py-20" style="background:#f5f3ff;">
-  <div class="max-w-5xl mx-auto px-4 sm:px-6">
-    <div class="text-center mb-12 scroll-reveal">
-      <p class="text-purple-DEFAULT font-bold text-xs uppercase tracking-widest mb-3">The study space</p>
-      <h2 class="text-2xl sm:text-3xl font-extrabold text-navy-dark mb-3">One place. Six tools. Every way to learn a topic.</h2>
-      <p class="text-gray-600 text-sm max-w-xl mx-auto">From "I've never seen this" to "I could teach this", each tool takes you one level deeper.</p>
+<!-- ── PARENTS ────────────────────────────────────────────── -->
+<section class="py-24 bg-white">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+    <div class="reveal">
+      <p class="eyebrow mb-3">For parents</p>
+      <h2 class="display text-3xl sm:text-4xl mb-4">They get a plan.<br class="sm:hidden" /> <span class="text-grad">You get to stop nagging.</span></h2>
+      <p class="text-gray-600 text-[0.95rem] leading-relaxed max-w-xl mx-auto mb-12">Stoday Plus gives your child a clear revision system (what to study, when to start and where they're weak) so they take charge of their own GCSEs.</p>
     </div>
-    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-      <div class="scroll-reveal bg-white rounded-2xl p-6 shadow-sm">
-        <div class="flex items-center justify-between mb-3"><span class="text-2xl" aria-hidden="true">📅</span><span class="text-xs font-bold text-green-700 bg-green-50 rounded-full px-2.5 py-0.5">Free</span></div>
-        <h3 class="font-extrabold text-navy-dark mb-1">Revision Planner</h3>
-        <p class="text-gray-600 text-sm leading-relaxed">Organise your topics, see your confidence for each one, and track your progress and attendance.</p>
-      </div>
-      <div class="scroll-reveal bg-white rounded-2xl p-6 shadow-sm">
-        <div class="flex items-center justify-between mb-3"><span class="text-2xl" aria-hidden="true">🧠</span><span class="text-xs font-bold text-green-700 bg-green-50 rounded-full px-2.5 py-0.5">Free</span></div>
-        <h3 class="font-extrabold text-navy-dark mb-1">Poppy · Quizzes</h3>
-        <p class="text-gray-600 text-sm leading-relaxed">Multiple-choice questions with hints, a reason for every answer, and a results page that shows where you're weak.</p>
-      </div>
-      <div class="scroll-reveal bg-white rounded-2xl p-6 shadow-sm">
-        <div class="flex items-center justify-between mb-3"><span class="text-2xl" aria-hidden="true">✍️</span><span class="text-xs font-bold text-purple-deep bg-purple-light rounded-full px-2.5 py-0.5">Plus</span></div>
-        <h3 class="font-extrabold text-navy-dark mb-1">Sage · Written answers</h3>
-        <p class="text-gray-600 text-sm leading-relaxed">Short-answer exam questions in four levels of difficulty, so you practise writing answers, not just recognising them.</p>
-      </div>
-      <div class="scroll-reveal bg-white rounded-2xl p-6 shadow-sm">
-        <div class="flex items-center justify-between mb-3"><span class="text-2xl" aria-hidden="true">📝</span><span class="text-xs font-bold text-purple-deep bg-purple-light rounded-full px-2.5 py-0.5">Plus</span></div>
-        <h3 class="font-extrabold text-navy-dark mb-1">Blurto · Blurting</h3>
-        <p class="text-gray-600 text-sm leading-relaxed">Write down everything you remember, peek at your notes for a few seconds, then try again. It shows you exactly what you've forgotten.</p>
-      </div>
-      <div class="scroll-reveal bg-white rounded-2xl p-6 shadow-sm">
-        <div class="flex items-center justify-between mb-3"><span class="text-2xl" aria-hidden="true">🎓</span><span class="text-xs font-bold text-purple-deep bg-purple-light rounded-full px-2.5 py-0.5">Plus</span></div>
-        <h3 class="font-extrabold text-navy-dark mb-1">Finley · Explain it back</h3>
-        <p class="text-gray-600 text-sm leading-relaxed">Teach the topic to an AI student that asks the questions a curious learner would. If you can explain it, you know it.</p>
-      </div>
-      <div class="scroll-reveal bg-white rounded-2xl p-6 shadow-sm">
-        <div class="flex items-center justify-between mb-3"><span class="text-2xl" aria-hidden="true">📂</span><span class="text-xs font-bold text-purple-deep bg-purple-light rounded-full px-2.5 py-0.5">Plus</span></div>
-        <h3 class="font-extrabold text-navy-dark mb-1">Resources</h3>
-        <p class="text-gray-600 text-sm leading-relaxed">Every note and material you make in each tool, saved in one place and organised by topic.</p>
-      </div>
+    <div class="grid gap-4 sm:grid-cols-3 text-left" data-stagger>
+      <div class="reveal-pop"><div class="shine rounded-2xl p-6 h-full border border-purple-soft" style="background:#faf8ff">
+        <p class="text-2xl mb-3" aria-hidden="true">🧭</p><h3 class="font-extrabold text-navy-dark mb-1">They know what to do</h3><p class="text-sm text-gray-600 leading-relaxed">A ready-made plan every day. No more staring at a pile of notes.</p>
+      </div></div>
+      <div class="reveal-pop"><div class="shine rounded-2xl p-6 h-full border border-purple-soft" style="background:#faf8ff">
+        <p class="text-2xl mb-3" aria-hidden="true">⏱️</p><h3 class="font-extrabold text-navy-dark mb-1">No wasted evenings</h3><p class="text-sm text-gray-600 leading-relaxed">Focused 30-minute sessions instead of hours of re-reading that doesn't stick.</p>
+      </div></div>
+      <div class="reveal-pop"><div class="shine rounded-2xl p-6 h-full border border-purple-soft" style="background:#faf8ff">
+        <p class="text-2xl mb-3" aria-hidden="true">🕊️</p><h3 class="font-extrabold text-navy-dark mb-1">Calmer homes</h3><p class="text-sm text-gray-600 leading-relaxed">Less stress for them and fewer revision arguments for you.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── STUDY TOOLS (premium dark) ─────────────────────────── -->
+<section id="tools" class="premium-dark py-24">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6">
+    <div class="text-center mb-12 reveal">
+      <span class="gold-badge">✦ THE STUDY SPACE</span>
+      <h2 class="text-3xl sm:text-4xl font-black text-white mt-4" style="letter-spacing:-.02em">Everything inside <span class="gold-text">Stoday Plus</span></h2>
+      <div class="gold-divider"></div>
+      <p class="mt-4 text-[0.92rem] max-w-lg mx-auto" style="color:rgba(226,220,250,.65)">Six tools that take a topic from "I've never seen this" to "I could teach this".</p>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-stagger>
+      <div class="reveal-pop"><div class="lux-card shine shine-soft h-full p-6">
+        <span class="lux-num" aria-hidden="true">01</span>
+        <div class="lux-icon mb-5"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <div class="flex items-center gap-2 mb-1.5"><h3 class="font-extrabold text-white">Revision Planner</h3><span class="tier tier-free">Free</span></div>
+        <p class="text-sm leading-relaxed" style="color:rgba(226,220,245,.62)">Organise your topics, see your confidence in each, and track progress and attendance with an exam countdown.</p>
+      </div></div>
+      <div class="reveal-pop"><div class="lux-card shine shine-soft h-full p-6">
+        <span class="lux-num" aria-hidden="true">02</span>
+        <div class="lux-icon mb-5"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2Z"/></svg></div>
+        <div class="flex items-center gap-2 mb-1.5"><h3 class="font-extrabold text-white">Poppy · Quizzes</h3><span class="tier tier-free">Free</span></div>
+        <p class="text-sm leading-relaxed" style="color:rgba(226,220,245,.62)">Multiple-choice questions with hints, a reason for every answer, and results that show where you're weak.</p>
+      </div></div>
+      <div class="reveal-pop"><div class="lux-card shine shine-soft h-full p-6">
+        <span class="lux-num" aria-hidden="true">03</span>
+        <div class="lux-icon mb-5"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+        <div class="flex items-center gap-2 mb-1.5"><h3 class="font-extrabold text-white">Sage · Written answers</h3><span class="tier tier-plus">Plus</span></div>
+        <p class="text-sm leading-relaxed" style="color:rgba(226,220,245,.62)">Short-answer exam questions in four levels of difficulty, so you practise writing answers, not just spotting them.</p>
+      </div></div>
+      <div class="reveal-pop"><div class="lux-card shine shine-soft h-full p-6">
+        <span class="lux-num" aria-hidden="true">04</span>
+        <div class="lux-icon mb-5"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg></div>
+        <div class="flex items-center gap-2 mb-1.5"><h3 class="font-extrabold text-white">Blurto · Blurting</h3><span class="tier tier-plus">Plus</span></div>
+        <p class="text-sm leading-relaxed" style="color:rgba(226,220,245,.62)">Write everything you remember, peek at your notes for five seconds, then go again. It shows exactly what you've forgotten.</p>
+      </div></div>
+      <div class="reveal-pop"><div class="lux-card shine shine-soft h-full p-6">
+        <span class="lux-num" aria-hidden="true">05</span>
+        <div class="lux-icon mb-5"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg></div>
+        <div class="flex items-center gap-2 mb-1.5"><h3 class="font-extrabold text-white">Finley · Explain it back</h3><span class="tier tier-plus">Plus</span></div>
+        <p class="text-sm leading-relaxed" style="color:rgba(226,220,245,.62)">Teach the topic to an AI student that asks the questions a curious learner would. If you can explain it, you know it.</p>
+      </div></div>
+      <div class="reveal-pop"><div class="lux-card shine shine-soft h-full p-6">
+        <span class="lux-num" aria-hidden="true">06</span>
+        <div class="lux-icon mb-5"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2Z"/></svg></div>
+        <div class="flex items-center gap-2 mb-1.5"><h3 class="font-extrabold text-white">Resources</h3><span class="tier tier-plus">Plus</span></div>
+        <p class="text-sm leading-relaxed" style="color:rgba(226,220,245,.62)">Every note and material you make in each tool, saved in one place and organised by topic.</p>
+      </div></div>
     </div>
   </div>
 </section>
 
 <!-- ── THE SCIENCE ────────────────────────────────────────── -->
-<section id="science" class="py-20 bg-white">
+<section id="science" class="py-24" style="background:#f8f5ff;">
   <div class="max-w-5xl mx-auto px-4 sm:px-6">
-    <div class="text-center mb-12 scroll-reveal">
-      <p class="text-purple-DEFAULT font-bold text-xs uppercase tracking-widest mb-3">Why it works</p>
-      <h2 class="text-2xl sm:text-3xl font-extrabold text-navy-dark mb-3">Built on how memory actually works</h2>
-      <p class="text-gray-600 text-sm max-w-xl mx-auto">No gimmicks. Stoday Plus is built around three of the best-researched study methods in learning science.</p>
+    <div class="text-center mb-14 reveal">
+      <p class="eyebrow mb-3">Why it works</p>
+      <h2 class="display text-3xl sm:text-4xl mb-3">Built on how memory <span class="text-grad">actually works</span></h2>
+      <p class="text-gray-600 text-[0.95rem] max-w-xl mx-auto">No gimmicks. Three of the best-researched study methods in learning science, built into every session.</p>
     </div>
-    <div class="grid gap-6 sm:grid-cols-3">
-      <div class="scroll-reveal rounded-2xl p-6" style="background:#faf5ff;">
-        <h3 class="font-extrabold text-navy-dark mb-2">Spaced repetition</h3>
-        <p class="text-gray-600 text-sm leading-relaxed">We forget much of what we learn within days unless we review it. Reviewing at growing gaps (day 1, 3, 7, 14, 28…) keeps it in long-term memory.</p>
-      </div>
-      <div class="scroll-reveal rounded-2xl p-6" style="background:#faf5ff;">
-        <h3 class="font-extrabold text-navy-dark mb-2">Active recall</h3>
-        <p class="text-gray-600 text-sm leading-relaxed">Testing yourself beats re-reading notes. Pulling an answer out of memory is what makes it stick, which is why every tool asks you to produce answers.</p>
-      </div>
-      <div class="scroll-reveal rounded-2xl p-6" style="background:#faf5ff;">
-        <h3 class="font-extrabold text-navy-dark mb-2">Explaining to learn</h3>
-        <p class="text-gray-600 text-sm leading-relaxed">Explaining a topic in simple words shows the gaps in your understanding fast. That's the idea behind the Feynman technique, and it's what Finley is for.</p>
-      </div>
+    <div class="grid gap-6 lg:grid-cols-3" data-stagger>
+
+      <!-- Spaced repetition -->
+      <div class="reveal-pop"><article class="bg-white rounded-3xl p-3 h-full flex flex-col" style="box-shadow:0 20px 50px rgba(88,28,135,.10)">
+        <div class="viz-panel viz h-44 flex flex-col items-center justify-center gap-4 px-5" data-viz="sr">
+          <div class="flex items-center w-full max-w-[230px]">
+            <span class="sr-dot"></span><span class="sr-line"></span><span class="sr-dot"></span><span class="sr-line"></span><span class="sr-dot"></span><span class="sr-line"></span><span class="sr-dot"></span><span class="sr-line"></span><span class="sr-dot"></span>
+          </div>
+          <div class="flex justify-between w-full max-w-[236px] text-[0.6rem] font-extrabold" style="color:rgba(255,255,255,.45)"><span>D1</span><span>D3</span><span>D7</span><span>D14</span><span>D28</span></div>
+        </div>
+        <div class="p-5 flex-1 flex flex-col">
+          <p class="eyebrow mb-1.5" style="font-size:.6rem">Method 01</p>
+          <h3 class="text-xl font-black text-navy-dark mb-2">Spaced repetition</h3>
+          <p class="text-sm leading-relaxed text-gray-600 mb-4 flex-1">We forget much of what we learn within days. Reviewing at growing gaps (day 1, 3, 7, 14, 28) moves it into long-term memory. The planner schedules it for you.</p>
+          <span class="inline-flex w-fit items-center gap-1.5 gradient-brand text-white text-[0.66rem] font-extrabold px-3.5 py-1.5 rounded-full">✦ Retention on autopilot</span>
+        </div>
+      </article></div>
+
+      <!-- Active recall -->
+      <div class="reveal-pop"><article class="bg-white rounded-3xl p-3 h-full flex flex-col" style="box-shadow:0 20px 50px rgba(88,28,135,.10)">
+        <div class="viz-panel viz h-44 flex items-end justify-center gap-8 pb-6" data-viz="bars">
+          <div class="flex flex-col items-center gap-2">
+            <div class="w-12 h-10 rounded-t-md bar-grow" style="background:rgba(239,68,68,.28);border:1.5px solid rgba(239,68,68,.35)"></div>
+            <span class="text-[0.62rem] font-bold" style="color:rgba(255,255,255,.4)">Re-reading</span>
+          </div>
+          <div class="flex flex-col items-center gap-2">
+            <div class="w-12 h-28 rounded-t-md bar-grow" style="background:linear-gradient(180deg,#c084fc,#7c3aed);box-shadow:0 0 24px rgba(192,132,252,.35)"></div>
+            <span class="text-[0.62rem] font-bold" style="color:#c084fc">Self-testing</span>
+          </div>
+        </div>
+        <div class="p-5 flex-1 flex flex-col">
+          <p class="eyebrow mb-1.5" style="font-size:.6rem">Method 02</p>
+          <h3 class="text-xl font-black text-navy-dark mb-2">Active recall</h3>
+          <p class="text-sm leading-relaxed text-gray-600 mb-4 flex-1">Re-reading feels like learning but leaves little behind. Pulling an answer out of memory is what makes it stick, so every tool makes you produce the answer.</p>
+          <span class="inline-flex w-fit items-center gap-1.5 gradient-brand text-white text-[0.66rem] font-extrabold px-3.5 py-1.5 rounded-full">✦ Memory that lasts</span>
+        </div>
+      </article></div>
+
+      <!-- Review before you forget -->
+      <div class="reveal-pop"><article class="bg-white rounded-3xl p-3 h-full flex flex-col" style="box-shadow:0 20px 50px rgba(88,28,135,.10)">
+        <div class="viz-panel viz h-44 flex flex-col items-center justify-center px-6" data-viz="curve">
+          <svg viewBox="0 0 220 130" class="w-full max-w-[230px]" style="overflow:visible" aria-hidden="true">
+            <defs>
+              <linearGradient id="cv-grad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#c084fc"/><stop offset="100%" stop-color="#818cf8"/></linearGradient>
+              <linearGradient id="cv-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c084fc" stop-opacity=".22"/><stop offset="100%" stop-color="#c084fc" stop-opacity="0"/></linearGradient>
+            </defs>
+            <line x1="14" y1="114" x2="206" y2="114" stroke="rgba(255,255,255,.1)" stroke-width="1" stroke-dasharray="2,4"/>
+            <path class="curve-fill" d="M14,18 C50,20 85,70 100,108 C100,80 104,40 108,22 L206,26 L206,122 L14,122 Z" fill="url(#cv-fill)"/>
+            <path class="curve-path" d="M14,18 C50,20 85,70 100,108" fill="none" stroke="#f87171" stroke-width="3" stroke-linecap="round"/>
+            <path class="curve-path seg-b" d="M100,108 C100,80 104,40 108,22" fill="none" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>
+            <path class="curve-path seg-c" d="M108,22 L206,26" fill="none" stroke="url(#cv-grad)" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="14" cy="18" r="4" fill="#c084fc"/>
+            <circle cx="108" cy="22" r="4" fill="#c084fc" style="filter:drop-shadow(0 0 5px rgba(192,132,252,.8))"/>
+          </svg>
+          <div class="flex justify-between w-full max-w-[230px] mt-2 text-[0.6rem] font-extrabold"><span style="color:#c084fc">Learn</span><span style="color:#f87171">Forgetting</span><span style="color:#c084fc">Review → kept</span></div>
+        </div>
+        <div class="p-5 flex-1 flex flex-col">
+          <p class="eyebrow mb-1.5" style="font-size:.6rem">Method 03</p>
+          <h3 class="text-xl font-black text-navy-dark mb-2">Review before you forget</h3>
+          <p class="text-sm leading-relaxed text-gray-600 mb-4 flex-1">Memory fades fastest in the first few days. A quick review inside that window catches it before it drops, and explaining it simply (Finley) shows what you've really understood.</p>
+          <span class="inline-flex w-fit items-center gap-1.5 gradient-brand text-white text-[0.66rem] font-extrabold px-3.5 py-1.5 rounded-full">✦ Nothing slips through</span>
+        </div>
+      </article></div>
+
     </div>
   </div>
 </section>
 
 <!-- ── PRICING ────────────────────────────────────────────── -->
-<section id="pricing" class="py-20" style="background:#f5f3ff;">
+<section id="pricing" class="py-24 bg-white">
   <div class="max-w-4xl mx-auto px-4 sm:px-6">
-    <div class="text-center mb-12 scroll-reveal">
-      <p class="text-purple-DEFAULT font-bold text-xs uppercase tracking-widest mb-3">Pricing</p>
-      <h2 class="text-2xl sm:text-3xl font-extrabold text-navy-dark mb-3">Start free. Upgrade when you're ready.</h2>
-      <p class="text-gray-600 text-sm max-w-xl mx-auto">Plus costs less than half of one hour of private tuition, for a whole month of revision.</p>
+    <div class="text-center mb-14 reveal">
+      <p class="eyebrow mb-3">Pricing</p>
+      <h2 class="display text-3xl sm:text-4xl mb-3">Start free. <span class="text-grad">Upgrade when you're ready.</span></h2>
+      <p class="text-gray-600 text-[0.95rem] max-w-xl mx-auto">Plus costs less than half of one hour of private tuition, for a whole month of revision.</p>
     </div>
-    <div class="grid gap-6 sm:grid-cols-2">
-      <div class="scroll-reveal bg-white rounded-2xl p-7 shadow-sm border border-purple-soft flex flex-col">
-        <h3 class="font-extrabold text-navy-dark text-lg">Free</h3>
-        <p class="mt-2 mb-5"><span class="text-4xl font-black text-navy-dark">£0</span></p>
-        <ul class="space-y-2 text-sm text-gray-700 mb-7 flex-1">
-          <li>✓ Revision Planner with daily plan</li>
-          <li>✓ Poppy quizzes with hints and explanations</li>
-          <li>✓ Progress and confidence tracking</li>
-          <li>✓ Focus timer</li>
+    <div class="grid gap-6 sm:grid-cols-2 items-stretch" data-stagger>
+      <div class="reveal-pop"><div class="h-full rounded-2xl p-8 border-2 border-purple-soft flex flex-col">
+        <p class="text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-2">Free</p>
+        <p class="mb-1"><span class="text-5xl font-black text-navy-dark">£0</span></p>
+        <p class="text-gray-400 text-sm mb-7">Everything you need to start</p>
+        <ul class="space-y-3 text-sm text-gray-700 mb-8 flex-1">
+          <li class="flex gap-3"><span class="text-purple-DEFAULT font-bold">✓</span> Revision Planner with a daily plan</li>
+          <li class="flex gap-3"><span class="text-purple-DEFAULT font-bold">✓</span> Poppy quizzes with hints and explanations</li>
+          <li class="flex gap-3"><span class="text-purple-DEFAULT font-bold">✓</span> Progress and confidence tracking</li>
+          <li class="flex gap-3"><span class="text-purple-DEFAULT font-bold">✓</span> Focus timer</li>
         </ul>
-        <a href="#start" class="block text-center border-2 border-purple-DEFAULT text-purple-deep font-bold text-sm rounded-xl py-3 hover:bg-purple-light transition-colors">Start free</a>
-      </div>
-      <div class="scroll-reveal rounded-2xl p-7 shadow-xl text-white flex flex-col gradient-brand relative">
-        <span class="absolute top-5 right-5 text-xs font-bold bg-white bg-opacity-20 rounded-full px-2.5 py-0.5">Launching soon</span>
-        <h3 class="font-extrabold text-lg">Plus</h3>
-        <p class="mt-2 mb-5"><span class="text-4xl font-black">£7</span><span class="text-sm opacity-80"> / month</span></p>
-        <ul class="space-y-2 text-sm mb-7 flex-1 opacity-95">
-          <li>✓ Everything in Free</li>
-          <li>✓ Sage written-answer practice</li>
-          <li>✓ Blurto blurting sessions</li>
-          <li>✓ Finley explain-it-back AI tutor</li>
-          <li>✓ All your notes and materials in Resources</li>
+        <a href="#start" class="btn-ghost shine block text-center rounded-xl py-3.5 text-sm">Start free</a>
+      </div></div>
+      <div class="reveal-pop"><div class="plan-dark plan-glow h-full rounded-2xl p-8 relative overflow-hidden flex flex-col">
+        <img src="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" alt="" class="absolute -right-4 -bottom-4 w-40 opacity-[.06] pointer-events-none" />
+        <div class="flex items-center justify-between mb-2 relative">
+          <p class="text-xs font-extrabold text-purple-mid uppercase tracking-widest">Plus</p>
+          <span class="gold-badge" style="font-size:.6rem;padding:.3rem .8rem">LAUNCHING SOON</span>
+        </div>
+        <p class="mb-1 relative"><span class="text-5xl font-black text-white">£7</span><span class="text-gray-400 text-sm"> / month</span></p>
+        <p class="text-gray-400 text-sm mb-7 relative">The full study system</p>
+        <ul class="space-y-3 text-sm text-gray-200 mb-8 flex-1 relative">
+          <li class="flex gap-3"><span class="text-purple-mid font-bold">✓</span> Everything in Free</li>
+          <li class="flex gap-3"><span class="text-purple-mid font-bold">✓</span> Sage written-answer practice</li>
+          <li class="flex gap-3"><span class="text-purple-mid font-bold">✓</span> Blurto blurting sessions</li>
+          <li class="flex gap-3"><span class="text-purple-mid font-bold">✓</span> Finley explain-it-back AI tutor</li>
+          <li class="flex gap-3"><span class="text-purple-mid font-bold">✓</span> All your notes and materials in Resources</li>
         </ul>
-        <a href="#start" class="block text-center bg-white text-purple-deep font-bold text-sm rounded-xl py-3 hover:bg-purple-light transition-colors">Join the waiting list</a>
-      </div>
+        <a href="#start" class="btn-gold shine block text-center rounded-xl py-3.5 text-sm relative">Join the waiting list →</a>
+      </div></div>
     </div>
   </div>
 </section>
 
 <!-- ── ABOUT ──────────────────────────────────────────────── -->
-<section id="about" class="py-20 bg-white">
-  <div class="max-w-3xl mx-auto px-4 sm:px-6 scroll-reveal">
-    <div class="flex flex-col sm:flex-row items-center sm:items-start gap-8">
-      <img src="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" alt="" class="w-24 h-24 object-contain flex-shrink-0 rounded-full p-3" style="background:#f5f3ff;" />
-      <div class="text-center sm:text-left">
-        <p class="text-purple-DEFAULT font-bold text-xs uppercase tracking-widest mb-3">Who's behind it</p>
-        <h2 class="text-2xl font-extrabold text-navy-dark mb-4">Built by a tutor, not a tech company</h2>
-        <p class="text-gray-600 text-sm leading-relaxed mb-3">
-          I'm Mikey Hoang. I have a Master's in Pharmacy, I'm training to be a pharmacist, and I tutor GCSE and A-Level students. I used to be the student who revised for hours and still forgot everything by exam day.
-        </p>
-        <p class="text-gray-600 text-sm leading-relaxed">
-          Then I started studying how memory works. Changing <em>how</em> I revised, not how long, is what got me 20+ international Olympiad awards. Stoday Plus is that system, built so your child doesn't have to figure it out alone.
-        </p>
+<section id="about" class="py-24 gradient-dark relative overflow-hidden">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col lg:flex-row items-center gap-12 reveal">
+    <div class="flex-shrink-0">
+      <div class="w-48 h-48 sm:w-56 sm:h-56 rounded-3xl bg-white bg-opacity-10 border border-white border-opacity-20 flex items-center justify-center p-5 shine shine-soft" style="box-shadow:0 30px 60px rgba(0,0,0,.3)">
+        <img src="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" alt="Stoday Plus mascot" class="w-full h-full object-contain" />
+      </div>
+    </div>
+    <div class="text-center lg:text-left">
+      <p class="text-purple-mid font-extrabold text-[0.66rem] uppercase mb-3" style="letter-spacing:.22em">Who's behind it</p>
+      <h2 class="text-3xl sm:text-4xl font-black text-white mb-5" style="letter-spacing:-.02em">Built by a tutor, not a tech company</h2>
+      <div class="space-y-4 text-gray-300 leading-relaxed text-sm sm:text-base">
+        <p>I'm Mikey Hoang. I have a Master's in Pharmacy, I'm training to be a pharmacist, and I tutor GCSE and A-Level students. I used to be the student who revised for hours and still forgot everything by exam day.</p>
+        <p>Then I started studying how memory works. Changing <em>how</em> I revised, not how long, is what got me 20+ international Olympiad awards. Stoday Plus is that system, built so your child doesn't have to figure it out alone.</p>
+        <p class="text-white font-semibold">"I built this because I hate watching hard-working students stuck in a method that doesn't work."</p>
       </div>
     </div>
   </div>
 </section>
 
 <!-- ── FAQ ────────────────────────────────────────────────── -->
-<section id="faq" class="py-20" style="background:#f5f3ff;">
+<section id="faq" class="py-24" style="background:#f5f3ff;">
   <div class="max-w-3xl mx-auto px-4 sm:px-6">
-    <div class="text-center mb-10 scroll-reveal">
-      <p class="text-purple-DEFAULT font-bold text-xs uppercase tracking-widest mb-3">Questions</p>
-      <h2 class="text-2xl sm:text-3xl font-extrabold text-navy-dark">Frequently asked questions</h2>
+    <div class="text-center mb-12 reveal">
+      <p class="eyebrow mb-3">Questions</p>
+      <h2 class="display text-3xl sm:text-4xl">Frequently asked questions</h2>
     </div>
-    <div class="space-y-3">
-      <details class="bg-white rounded-xl p-5 shadow-sm group">
-        <summary class="font-bold text-navy-dark text-sm cursor-pointer list-none flex justify-between items-center gap-4">Who is Stoday Plus for?<span class="text-purple-DEFAULT group-open:rotate-45 transition-transform text-lg leading-none">+</span></summary>
-        <p class="text-gray-600 text-sm leading-relaxed mt-3">Students in Years 9–11 studying GCSE Biology and Chemistry. It's built so they can run their own revision, without you having to nag.</p>
-      </details>
-      <details class="bg-white rounded-xl p-5 shadow-sm group">
-        <summary class="font-bold text-navy-dark text-sm cursor-pointer list-none flex justify-between items-center gap-4">Does it work with my child's exam board?<span class="text-purple-DEFAULT group-open:rotate-45 transition-transform text-lg leading-none">+</span></summary>
-        <p class="text-gray-600 text-sm leading-relaxed mt-3">Yes. The core Biology and Chemistry topics are shared across AQA, Edexcel and OCR, and your child chooses which topics to add to their plan.</p>
-      </details>
-      <details class="bg-white rounded-xl p-5 shadow-sm group">
-        <summary class="font-bold text-navy-dark text-sm cursor-pointer list-none flex justify-between items-center gap-4">How much time does it take?<span class="text-purple-DEFAULT group-open:rotate-45 transition-transform text-lg leading-none">+</span></summary>
-        <p class="text-gray-600 text-sm leading-relaxed mt-3">About 30 focused minutes a day. The planner tells your child what to do, so no time is wasted deciding.</p>
-      </details>
-      <details class="bg-white rounded-xl p-5 shadow-sm group">
-        <summary class="font-bold text-navy-dark text-sm cursor-pointer list-none flex justify-between items-center gap-4">What's the difference between Free and Plus?<span class="text-purple-DEFAULT group-open:rotate-45 transition-transform text-lg leading-none">+</span></summary>
-        <p class="text-gray-600 text-sm leading-relaxed mt-3">Free gives you the Revision Planner and Poppy quizzes. Plus adds deeper practice: written answers with Sage, blurting with Blurto, explaining with Finley, and all your materials in one place.</p>
-      </details>
-      <details class="bg-white rounded-xl p-5 shadow-sm group">
-        <summary class="font-bold text-navy-dark text-sm cursor-pointer list-none flex justify-between items-center gap-4">Does it use AI?<span class="text-purple-DEFAULT group-open:rotate-45 transition-transform text-lg leading-none">+</span></summary>
-        <p class="text-gray-600 text-sm leading-relaxed mt-3">Some tools do, like Finley and the search inside Poppy. AI helps students practise; it never replaces learning the content. Details are in our <a href="privacy.html" class="underline hover:text-purple-DEFAULT">privacy policy</a>.</p>
-      </details>
-      <details class="bg-white rounded-xl p-5 shadow-sm group">
-        <summary class="font-bold text-navy-dark text-sm cursor-pointer list-none flex justify-between items-center gap-4">Is my child's data safe?<span class="text-purple-DEFAULT group-open:rotate-45 transition-transform text-lg leading-none">+</span></summary>
-        <p class="text-gray-600 text-sm leading-relaxed mt-3">We only collect what's needed to run their study plan, we never sell data, and we never show ads. Read the full <a href="privacy.html" class="underline hover:text-purple-DEFAULT">privacy policy</a>.</p>
-      </details>
+    <div class="space-y-3" data-stagger>
+      <div class="reveal"><div class="faq-item bg-white border border-purple-soft rounded-xl">
+        <button type="button" class="faq-btn w-full flex justify-between items-center gap-4 p-5 text-left font-bold text-navy-dark text-sm" aria-expanded="false">Who is Stoday Plus for?<span class="faq-icon text-purple-DEFAULT text-xl leading-none" aria-hidden="true">+</span></button>
+        <div class="faq-answer"><div><p class="px-5 pb-5 text-gray-600 text-sm leading-relaxed">Students in Years 9–11 studying GCSE Biology and Chemistry. It's built so they can run their own revision, without you having to nag.</p></div></div>
+      </div></div>
+      <div class="reveal"><div class="faq-item bg-white border border-purple-soft rounded-xl">
+        <button type="button" class="faq-btn w-full flex justify-between items-center gap-4 p-5 text-left font-bold text-navy-dark text-sm" aria-expanded="false">Does it work with my child's exam board?<span class="faq-icon text-purple-DEFAULT text-xl leading-none" aria-hidden="true">+</span></button>
+        <div class="faq-answer"><div><p class="px-5 pb-5 text-gray-600 text-sm leading-relaxed">Yes. The core Biology and Chemistry topics are shared across AQA, Edexcel and OCR, and your child chooses which topics to add to their plan.</p></div></div>
+      </div></div>
+      <div class="reveal"><div class="faq-item bg-white border border-purple-soft rounded-xl">
+        <button type="button" class="faq-btn w-full flex justify-between items-center gap-4 p-5 text-left font-bold text-navy-dark text-sm" aria-expanded="false">How much time does it take?<span class="faq-icon text-purple-DEFAULT text-xl leading-none" aria-hidden="true">+</span></button>
+        <div class="faq-answer"><div><p class="px-5 pb-5 text-gray-600 text-sm leading-relaxed">About 30 focused minutes a day. The planner tells your child what to do, so no time is wasted deciding.</p></div></div>
+      </div></div>
+      <div class="reveal"><div class="faq-item bg-white border border-purple-soft rounded-xl">
+        <button type="button" class="faq-btn w-full flex justify-between items-center gap-4 p-5 text-left font-bold text-navy-dark text-sm" aria-expanded="false">What's the difference between Free and Plus?<span class="faq-icon text-purple-DEFAULT text-xl leading-none" aria-hidden="true">+</span></button>
+        <div class="faq-answer"><div><p class="px-5 pb-5 text-gray-600 text-sm leading-relaxed">Free gives you the Revision Planner and Poppy quizzes. Plus adds deeper practice: written answers with Sage, blurting with Blurto, explaining with Finley, and all your materials in one place.</p></div></div>
+      </div></div>
+      <div class="reveal"><div class="faq-item bg-white border border-purple-soft rounded-xl">
+        <button type="button" class="faq-btn w-full flex justify-between items-center gap-4 p-5 text-left font-bold text-navy-dark text-sm" aria-expanded="false">Does it use AI?<span class="faq-icon text-purple-DEFAULT text-xl leading-none" aria-hidden="true">+</span></button>
+        <div class="faq-answer"><div><p class="px-5 pb-5 text-gray-600 text-sm leading-relaxed">Some tools do, like Finley and the search inside Poppy. AI helps students practise; it never replaces learning the content. Details are in our <a href="privacy.html" class="underline hover:text-purple-DEFAULT">privacy policy</a>.</p></div></div>
+      </div></div>
+      <div class="reveal"><div class="faq-item bg-white border border-purple-soft rounded-xl">
+        <button type="button" class="faq-btn w-full flex justify-between items-center gap-4 p-5 text-left font-bold text-navy-dark text-sm" aria-expanded="false">Is my child's data safe?<span class="faq-icon text-purple-DEFAULT text-xl leading-none" aria-hidden="true">+</span></button>
+        <div class="faq-answer"><div><p class="px-5 pb-5 text-gray-600 text-sm leading-relaxed">We only collect what's needed to run their study plan, we never sell data, and we never show ads. Read the full <a href="privacy.html" class="underline hover:text-purple-DEFAULT">privacy policy</a>.</p></div></div>
+      </div></div>
     </div>
   </div>
 </section>
 
 <!-- ── FINAL CTA ──────────────────────────────────────────── -->
-<section id="start" class="py-20 text-white" style="background:#1e1b4b;">
-  <div class="max-w-xl mx-auto px-4 sm:px-6 text-center scroll-reveal">
-    <h2 class="text-2xl sm:text-3xl font-extrabold mb-3">Start studying smarter today</h2>
-    <p class="text-sm mb-8" style="color:rgba(255,255,255,.7);">Free to start. No credit card needed.</p>
+<section id="start" class="premium-dark py-24 text-white">
+  <div class="max-w-xl mx-auto px-4 sm:px-6 text-center reveal">
+    <img src="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" alt="" class="w-20 mx-auto mb-6 opacity-90" />
+    <h2 class="text-3xl sm:text-4xl font-black mb-3" style="letter-spacing:-.02em">30 minutes of smart<br />beats 3 hours of stuck.</h2>
+    <p class="text-sm mb-9" style="color:rgba(226,220,250,.7)">Free to start. No credit card needed. Today is the only day that matters.</p>
     <form class="trial-form max-w-md mx-auto">
       <div class="flex flex-col sm:flex-row gap-3">
         <label for="trial-email-bottom" class="sr-only">Email address</label>
         <input id="trial-email-bottom" type="email" required placeholder="you@example.com" autocomplete="email"
           class="flex-1 border border-transparent rounded-xl px-4 py-3.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-mid bg-white" />
-        <button type="submit" class="gradient-brand text-white text-sm font-bold px-7 py-3.5 rounded-xl hover:opacity-90 transition-opacity whitespace-nowrap">
+        <button type="submit" class="btn-gold shine text-sm px-7 py-3.5 rounded-xl whitespace-nowrap">
           Try it free →
         </button>
       </div>
@@ -592,39 +920,46 @@
 </section>
 
 <!-- ── FOOTER ─────────────────────────────────────────────── -->
-<footer class="py-10 border-t border-gray-100">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-    <a href="index.html" class="flex items-center gap-2">
-      <img src="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" alt="Stoday Plus" class="w-7 h-7 object-contain" />
-      <span class="text-navy-dark font-extrabold text-sm">Stoday Plus</span>
-    </a>
-    <nav aria-label="Footer" class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-gray-500 text-xs">
-      <a href="privacy.html" class="py-2 hover:text-purple-DEFAULT transition-colors">Privacy policy</a>
-      <a href="terms.html" class="py-2 hover:text-purple-DEFAULT transition-colors">Terms of use</a>
-      <a href="dashboard.html" class="py-2 hover:text-purple-DEFAULT transition-colors">Log in</a>
-      <span class="py-2 text-gray-400">© 2026 Stoday Plus</span>
-    </nav>
+<footer style="background:#09071a;" class="py-12">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="flex flex-col sm:flex-row justify-between items-start gap-10 mb-10">
+      <div>
+        <a href="index.html" class="flex items-center gap-2 mb-3">
+          <img src="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" alt="" class="w-8 h-8 object-contain" />
+          <span class="text-white font-extrabold">Stoday <span class="text-purple-mid">Plus</span></span>
+        </a>
+        <p class="text-gray-400 text-sm max-w-xs">Study Today. Because the only moment you can change is right now.</p>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-8 text-sm">
+        <nav aria-label="Product"><p class="text-gray-300 font-bold mb-3">Product</p><ul class="space-y-2">
+          <li><a href="#how" class="text-gray-400 hover:text-white transition-colors">How it works</a></li>
+          <li><a href="#tools" class="text-gray-400 hover:text-white transition-colors">Study tools</a></li>
+          <li><a href="#pricing" class="text-gray-400 hover:text-white transition-colors">Pricing</a></li>
+        </ul></nav>
+        <nav aria-label="Help"><p class="text-gray-300 font-bold mb-3">Help</p><ul class="space-y-2">
+          <li><a href="#faq" class="text-gray-400 hover:text-white transition-colors">FAQ</a></li>
+          <li><a href="mailto:ngoclong003vn@gmail.com" class="text-gray-400 hover:text-white transition-colors">Contact</a></li>
+          <li><a href="dashboard.html" class="text-gray-400 hover:text-white transition-colors">Log in</a></li>
+        </ul></nav>
+        <nav aria-label="Legal"><p class="text-gray-300 font-bold mb-3">Legal</p><ul class="space-y-2">
+          <li><a href="privacy.html" class="text-gray-400 hover:text-white transition-colors">Privacy policy</a></li>
+          <li><a href="terms.html" class="text-gray-400 hover:text-white transition-colors">Terms of use</a></li>
+        </ul></nav>
+      </div>
+    </div>
+    <div class="border-t border-white border-opacity-10 pt-6 text-center text-gray-500 text-xs">© 2026 Stoday Plus. Built by Mikey Hoang. Study Today.</div>
   </div>
 </footer>
 
 <script>
-  // ── Navbar hide/show on scroll (ported from demoindex.html) ──────────
+  // ── Navbar: stays visible (it carries the main CTA), gains a shadow once
+  //    the page scrolls so it lifts off the content beneath it ──────────
   (function() {
-    var nav = document.querySelector('nav');
+    var nav = document.getElementById('site-nav');
     if (!nav) return;
-    function navShow() {
-      nav.style.transition = 'transform .2s ease, opacity .2s ease';
-      nav.style.transform  = 'translateY(0)';
-      nav.style.opacity    = '1';
-    }
-    function navHide() {
-      nav.style.transition = 'transform .55s ease, opacity .55s ease';
-      nav.style.transform  = 'translateY(-100%)';
-      nav.style.opacity    = '0';
-    }
-    window.addEventListener('scroll', function() {
-      if (window.scrollY > 2) navHide(); else navShow();
-    }, { passive: true });
+    function update() { nav.classList.toggle('scrolled', window.scrollY > 8); }
+    window.addEventListener('scroll', update, { passive: true });
+    update();
   })();
 
   // ── Hero calendar clock — real local time (ported from demoindex.html) ──
@@ -838,19 +1173,111 @@
     tick();
   })();
 
-  // ── Scroll reveal (parents section) ───────────────────────────
+  // ── Scroll reveals — the demo's slide-entrance choreography (900ms glide,
+  //    staggered siblings) triggered by scrolling instead of slide changes.
+  //    Anything that has reached the screen OR been scrolled past is revealed,
+  //    so a fast flick down the page can never leave blank gaps behind it.
   (function() {
-    var els = document.querySelectorAll('.scroll-reveal');
-    if (!els.length) return;
-    if (!window.IntersectionObserver) { els.forEach(function(el) { el.classList.add('revealed'); }); return; }
-    var obs = new IntersectionObserver(function(entries) {
-      entries.forEach(function(entry) {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add('revealed');
-        obs.unobserve(entry.target);
+    var SEL = '.reveal, .reveal-left, .reveal-pop';
+    var STAGGER_MS = 180; // demo used 320ms per slide; scrolling needs it snappier
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var pending = Array.prototype.slice.call(document.querySelectorAll(SEL));
+    if (!pending.length) return;
+    if (reduce) { pending.forEach(function(el) { el.classList.add('revealed'); }); return; }
+
+    pending.forEach(function(el) {
+      var group = el.parentElement && el.parentElement.hasAttribute('data-stagger') ? el.parentElement : null;
+      if (!group) return;
+      var siblings = Array.prototype.filter.call(group.children, function(c) { return c.matches(SEL); });
+      el.style.transitionDelay = (siblings.indexOf(el) * STAGGER_MS) + 'ms';
+    });
+
+    var ticking = false;
+    function check() {
+      ticking = false;
+      var limit = window.innerHeight - 40;
+      pending = pending.filter(function(el) {
+        if (el.getBoundingClientRect().top > limit) return true;
+        el.classList.add('revealed');
+        // Clear the stagger delay once settled so hover effects inside respond instantly
+        var delay = parseInt(el.style.transitionDelay || 0, 10);
+        setTimeout(function() { el.style.transitionDelay = ''; }, 1000 + delay);
+        return false;
       });
-    }, { threshold: 0.15 });
-    els.forEach(function(el) { obs.observe(el); });
+      if (!pending.length) {
+        window.removeEventListener('scroll', onScroll);
+        window.removeEventListener('resize', onScroll);
+      }
+    }
+    function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(check); } }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    check();
+  })();
+
+  // ── Problem section: the vignette slowly closes in once it's on screen ──
+  (function() {
+    var section = document.getElementById('problem');
+    if (!section || !window.IntersectionObserver) return;
+    new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) { section.classList.toggle('in-view', e.isIntersecting); });
+    }, { threshold: 0.35 }).observe(section);
+  })();
+
+  // ── Science visuals: play once each panel is well into view (or passed) ──
+  (function() {
+    var panels = Array.prototype.slice.call(document.querySelectorAll('.viz'));
+    if (!panels.length) return;
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function lightTimeline(panel) {
+      // Spaced repetition: each review day lights up in turn, joined by its line
+      var parts = panel.querySelectorAll('.sr-dot, .sr-line');
+      parts.forEach(function(p, i) {
+        if (reduce) { p.classList.add('lit'); return; }
+        setTimeout(function() { p.classList.add('lit'); }, 300 + i * 260);
+      });
+    }
+
+    function play(panel) {
+      panel.classList.add('viz-on');
+      if (panel.getAttribute('data-viz') === 'sr') lightTimeline(panel);
+    }
+
+    var ticking = false;
+    function check() {
+      ticking = false;
+      var limit = window.innerHeight * 0.8;
+      panels = panels.filter(function(panel) {
+        if (panel.getBoundingClientRect().top > limit) return true;
+        // Small hold so the card's own entrance finishes before the visual starts
+        setTimeout(function() { play(panel); }, reduce ? 0 : 450);
+        return false;
+      });
+      if (!panels.length) window.removeEventListener('scroll', onScroll);
+    }
+    function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(check); } }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    check();
+  })();
+
+  // ── FAQ accordion (one open at a time) ────────────────────────
+  (function() {
+    var items = document.querySelectorAll('.faq-item');
+    items.forEach(function(item) {
+      var btn = item.querySelector('.faq-btn');
+      btn.addEventListener('click', function() {
+        var open = !item.classList.contains('open');
+        items.forEach(function(other) {
+          other.classList.remove('open');
+          other.querySelector('.faq-btn').setAttribute('aria-expanded', 'false');
+        });
+        if (open) {
+          item.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
   })();
 
   // ── Trial signup forms (hero + bottom) — save the email to a Google Sheet
