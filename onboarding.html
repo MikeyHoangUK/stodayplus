@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Set up your study space · Stoday Plus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  /* Visual system copied from Turbo AI's onboarding: one accent, borders not shadows,
+     one font at three weights, one radius for controls, one question per screen. */
+  :root{
+    --bg:#f7f1e3; --card:#fff; --line:#ebe2cf; --ink:#3b3226; --muted:#9a8b72;
+    --accent:#7c3aed; --accent-edge:#5b21b6; --accent-soft:#f4eeff; --soft:#f3ecdd;
+    --r:13px; --r-card:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:'Raleway',system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:16px;-webkit-font-smoothing:antialiased}
+  button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+
+  .wrap{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px}
+  .brand{font-weight:700;letter-spacing:.02em;font-size:.95rem;color:var(--ink);margin-bottom:22px;display:flex;align-items:center;gap:8px}
+  .brand-dot{width:9px;height:9px;border-radius:50%;background:var(--accent)}
+  .card{width:100%;max-width:480px;background:var(--card);border:2px solid var(--line);border-radius:var(--r-card);padding:36px;display:flex;flex-direction:column}
+
+  .top{display:flex;align-items:center;gap:14px;margin-bottom:30px}
+  .back{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:1.1rem;flex-shrink:0}
+  .back:hover{background:var(--soft);color:var(--ink)}
+  .back[hidden]{visibility:hidden;display:flex}
+  .bar{flex:1;height:6px;border-radius:99px;background:var(--soft);overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .3s ease}
+
+  .step{animation:in .2s ease}
+  @keyframes in{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
+  h1{font-size:1.85rem;font-weight:600;line-height:1.2;text-align:center;letter-spacing:-.01em}
+  .sub{font-size:.95rem;color:var(--muted);text-align:center;margin-top:10px;line-height:1.5}
+
+  .opts{display:flex;flex-direction:column;gap:10px;margin-top:28px}
+  .opts.grid{display:grid;grid-template-columns:1fr 1fr}
+  .opt{min-height:56px;padding:0 18px;border:1.5px solid var(--line);border-radius:var(--r);background:#fff;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;font-weight:500;font-size:1rem;transition:border-color .15s,background .15s}
+  .opt:hover{border-color:#d9cdb3}
+  .opt small{display:block;font-size:.8rem;color:var(--muted);font-weight:400;margin-top:2px}
+  .opt .tick{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:#fff}
+  .opt.on{border-color:var(--accent);background:var(--accent-soft)}
+  .opt.on .tick{background:var(--accent);border-color:var(--accent)}
+  .opt.on .tick::after{content:'✓'}
+  .opt .tag{font-size:.7rem;font-weight:600;color:var(--accent);background:#fff;border:1px solid #ddd0fb;border-radius:99px;padding:2px 8px;margin-left:8px;white-space:nowrap}
+  .opts.grid .opt{justify-content:center;text-align:center}
+  .opts.grid .opt .tick{display:none}
+
+  .field{margin-top:28px}
+  .field label{display:block;font-size:.9rem;font-weight:500;margin-bottom:8px}
+  .field input{width:100%;height:48px;border:1.5px solid var(--line);border-radius:var(--r);padding:0 16px;font:inherit;color:var(--ink);background:#fff;outline:none}
+  .field input:focus{border-color:var(--accent)}
+
+  .actions{margin-top:30px;display:flex;flex-direction:column;gap:10px}
+  .btn{height:50px;border-radius:var(--r);font-weight:600;font-size:1rem;width:100%;transition:transform .08s,box-shadow .08s,opacity .15s}
+  .btn-main{background:var(--accent);color:#fff;box-shadow:0 3px 0 var(--accent-edge)}
+  .btn-main:active:not(:disabled){transform:translateY(3px);box-shadow:0 0 0 var(--accent-edge)}
+  .btn-main:disabled{opacity:.35;cursor:default}
+  .btn-soft{background:var(--soft);color:var(--ink)}
+  .btn-link{height:auto;font-weight:500;font-size:.9rem;color:var(--muted);padding:4px}
+  .btn-link:hover{color:var(--ink)}
+
+  .summary{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:24px}
+  .chip{font-size:.85rem;font-weight:500;border:1.5px solid var(--line);border-radius:99px;padding:7px 14px;background:#fff}
+  .done-mark{width:56px;height:56px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 18px;font-weight:700}
+  .note{font-size:.8rem;color:var(--muted);text-align:center;margin-top:14px}
+
+  @media (max-width:560px){
+    .wrap{justify-content:flex-start;padding:16px 16px 0}
+    .brand{margin:6px 0 16px}
+    .wrap{min-height:100dvh}
+    .card{border:0;background:transparent;padding:0;flex:1}
+    #screen{flex:1;display:flex;flex-direction:column}
+    h1{font-size:1.55rem}
+    .step{display:flex;flex-direction:column;flex:1}
+    .actions{margin-top:auto;padding:20px 0 calc(16px + env(safe-area-inset-bottom));position:sticky;bottom:0;background:var(--bg)}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><span class="brand-dot"></span>Stoday Plus</div>
+  <div class="card">
+    <div class="top">
+      <button class="back" id="back" onclick="go(-1)" aria-label="Back">←</button>
+      <div class="bar" aria-hidden="true"><i id="bar"></i></div>
+    </div>
+    <div id="screen"></div>
+  </div>
+</div>
+
+<script>
+var KEY = 'sp_onboarding_v1';
+var A = {};            // answers
+var path = [];         // screens shown, for Back
+var now = new Date();
+
+// Exam year from school year: Year 11 sits the exams next summer, Year 10 the one after, and so on.
+function examYear(y) {
+  var acadEnd = now.getMonth() >= 7 ? now.getFullYear() + 1 : now.getFullYear();
+  return acadEnd + (11 - y);
+}
+function nextMonths(n) {
+  var out = [], d = new Date(now.getFullYear(), now.getMonth(), 1);
+  for (var i = 0; i < n; i++) {
+    out.push({ v: d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'),
+               t: d.toLocaleString('en-GB', { month: 'short' }) + ' ' + String(d.getFullYear()).slice(2) });
+    d.setMonth(d.getMonth() + 1);
+  }
+  return out;
+}
+
+var S = {
+  level: { q: 'What are you studying?', key: 'level', opts: [
+      ['gcse', 'GCSE'], ['alevel', 'A-level'], ['uni', 'University'], ['pro', 'Professional exam'], ['other', 'Something else']] },
+  year: { q: 'What year are you in?', key: 'year', opts: [['9', 'Year 9'], ['10', 'Year 10'], ['11', 'Year 11']],
+      sub: function() { return 'We\'ll work out your exam date from this.'; } },
+  board: { q: 'Which exam board?', key: 'board', opts: [['aqa', 'AQA'], ['edexcel', 'Edexcel'], ['ocr', 'OCR'], ['unsure', 'Not sure']],
+      after: function(v) { return v === 'unsure' ? 'No problem. We\'ll start you on AQA, the most common board. Ask your teacher when you can.' : v !== 'aqa' ? 'Your planner works for any board. Our ready-made questions follow AQA, and most of the content matches yours.' : ''; } },
+  course: { q: 'Which science course?', key: 'course', opts: [
+      ['combined', 'Combined Science', 'Biology, Chemistry and Physics as 2 GCSEs'],
+      ['separate', 'Separate sciences', 'Biology and Chemistry as their own GCSEs'],
+      ['unsure', 'Not sure']] },
+  mocks: { q: 'When are your mocks?', key: 'mocks', grid: true,
+      opts: function() { return nextMonths(8).map(function(m) { return [m.v, m.t]; }).concat([['unsure', 'Not sure']]); },
+      sub: function() { return 'Your plan works back from this date first.'; } },
+  prep: { q: 'What are you preparing for?', key: 'prep', input: { label: 'Exam or course name', ph: 'e.g. GPhC registration exam' } },
+  examDate: { q: 'When is the exam?', key: 'examDate', input: { label: 'Exam date', type: 'date' }, skip: 'Not sure yet' },
+  focus: { q: 'How long can you focus before your mind drifts?', key: 'focus', def: '45', opts: [
+      ['30', '30 minutes'], ['45', '45 minutes', '', 'Recommended'], ['60', '60 minutes']],
+      sub: function() { return 'This sets your focus timer. You can change it any time.'; } },
+};
+
+function flow() {
+  return (A.level === 'gcse')
+    ? ['level', 'year', 'board', 'course', 'mocks', 'focus', 'done']
+    : ['level', 'prep', 'examDate', 'focus', 'done'];
+}
+
+function render() {
+  var id = path[path.length - 1], f = flow();
+  var i = f.indexOf(id);
+  document.getElementById('bar').style.width = (id === 'done' ? 100 : Math.max(6, i / (f.length - 1) * 100)) + '%';
+  document.getElementById('back').hidden = path.length < 2 || id === 'done';
+  var el = document.getElementById('screen');
+  el.innerHTML = id === 'done' ? doneHtml() : stepHtml(S[id]);
+  el.firstElementChild.focus && el.firstElementChild.focus();
+}
+
+function esc(s) { return String(s).replace(/[&<>"]/g, function(c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+function stepHtml(s) {
+  if (s.def && A[s.key] == null) A[s.key] = s.def;
+  var v = A[s.key], h = '<div class="step"><h1>' + s.q + '</h1>';
+  var sub = s.after && v ? s.after(v) : '';
+  if (!sub && s.sub) sub = s.sub();
+  if (sub) h += '<p class="sub">' + sub + '</p>';
+  if (s.input) {
+    h += '<div class="field"><label for="inp">' + s.input.label + '</label><input id="inp" type="' + (s.input.type || 'text') + '" placeholder="' + (s.input.ph || '') + '" value="' + esc(v && v !== 'unsure' ? v : '') + '" oninput="typed(this.value)" autocomplete="off"/></div>';
+  } else {
+    var opts = typeof s.opts === 'function' ? s.opts() : s.opts;
+    h += '<div class="opts' + (s.grid ? ' grid' : '') + '" role="radiogroup">';
+    opts.forEach(function(o) {
+      h += '<button class="opt' + (v === o[0] ? ' on' : '') + '" role="radio" aria-checked="' + (v === o[0]) + '" onclick="pick(\'' + o[0] + '\')">'
+        + '<span>' + o[1] + (o[3] ? '<span class="tag">' + o[3] + '</span>' : '') + (o[2] ? '<small>' + o[2] + '</small>' : '') + '</span><span class="tick"></span></button>';
+    });
+    h += '</div>';
+  }
+  h += '<div class="actions"><button class="btn btn-main" id="next" onclick="go(1)"' + (v ? '' : ' disabled') + '>Continue</button>';
+  if (s.skip) h += '<button class="btn btn-link" onclick="A[\'' + s.key + '\']=\'unsure\';go(1)">' + s.skip + '</button>';
+  return h + '</div></div>';
+}
+
+function pick(v) {
+  var id = path[path.length - 1], s = S[id];
+  A[s.key] = v;
+  if (id === 'level') { /* changing the track resets later answers' screens */ }
+  render();
+}
+function typed(v) {
+  var s = S[path[path.length - 1]];
+  A[s.key] = v.trim();
+  document.getElementById('next').disabled = !A[s.key];
+}
+
+function go(dir) {
+  if (dir < 0) { if (path.length > 1) path.pop(); render(); return; }
+  var f = flow(), i = f.indexOf(path[path.length - 1]);
+  var nxt = f[i + 1];
+  if (nxt === 'done') finish();
+  path.push(nxt);
+  render();
+}
+
+var LBL = { aqa: 'AQA', edexcel: 'Edexcel', ocr: 'OCR', combined: 'Combined Science', separate: 'Separate sciences' };
+function profile() {
+  var p = { v: 1, level: A.level, focus: Number(A.focus || 45), completedAt: new Date().toISOString() };
+  if (A.level === 'gcse') {
+    p.year = Number(A.year);
+    p.examYear = examYear(p.year);
+    p.board = A.board === 'unsure' ? 'aqa' : A.board;
+    p.boardUnsure = A.board === 'unsure';
+    p.course = A.course === 'unsure' ? 'separate' : A.course;
+    p.courseUnsure = A.course === 'unsure';
+    p.subjects = ['Biology', 'Chemistry'];
+    p.mocks = A.mocks === 'unsure' ? null : A.mocks;
+  } else {
+    p.prep = A.prep;
+    p.examDate = A.examDate === 'unsure' ? null : A.examDate;
+  }
+  return p;
+}
+
+function doneHtml() {
+  var p = profile(), chips = [];
+  if (p.level === 'gcse') {
+    chips.push('Year ' + p.year + ' · exams summer ' + p.examYear);
+    chips.push(LBL[p.board] + (p.boardUnsure ? ' (for now)' : ''));
+    chips.push(LBL[p.course]);
+    if (p.mocks) { var d = new Date(p.mocks + '-01'); chips.push('Mocks ' + d.toLocaleString('en-GB', { month: 'long', year: 'numeric' })); }
+  } else {
+    chips.push(esc(p.prep));
+    if (p.examDate) chips.push('Exam ' + new Date(p.examDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }));
+  }
+  chips.push(p.focus + '-minute focus');
+  return '<div class="step"><div class="done-mark">✓</div><h1>You\'re set.</h1>'
+    + '<p class="sub">Here\'s what your study space is built around.</p>'
+    + '<div class="summary">' + chips.map(function(c) { return '<span class="chip">' + c + '</span>'; }).join('') + '</div>'
+    + '<div class="actions"><button class="btn btn-main" onclick="leave()">Go to my study space</button></div>'
+    + '<p class="note">You can change any of this later in Settings.</p></div>';
+}
+
+var _sb = null;
+try { _sb = window.supabase && window.supabase.createClient('https://zdmnwykumprntbpfyour.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkbW53eWt1bXBybnRicGZ5b3VyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDc0MjAsImV4cCI6MjA5NzM4MzQyMH0.QBZ-4KR5da4O5YoOpErC_HLmYlL953YKIB50g52HkEg'); } catch (e) {}
+
+var _saving = null;
+function finish() {
+  var p = profile();
+  try { localStorage.setItem(KEY, JSON.stringify(p)); } catch (e) {}
+  // Also keep it on the account, so it follows the student to other devices
+  if (_sb && sessionStorage.getItem('sp_user') !== 'demo@stoday.plus') {
+    _saving = _sb.auth.getSession().then(function(r) {
+      if (r && r.data && r.data.session) return _sb.auth.updateUser({ data: { sp_onboarding: p } });
+    }).catch(function() {});
+  }
+}
+function leave() {
+  Promise.resolve(_saving).then(function() { window.location.href = 'dashboard.html'; });
+}
+
+// Pre-fill when someone re-opens onboarding to change their answers
+try {
+  var prev = JSON.parse(localStorage.getItem(KEY) || 'null');
+  if (prev) {
+    A.level = prev.level; A.focus = String(prev.focus || 45);
+    if (prev.level === 'gcse') {
+      A.year = String(prev.year); A.board = prev.boardUnsure ? 'unsure' : prev.board;
+      A.course = prev.courseUnsure ? 'unsure' : prev.course; A.mocks = prev.mocks || 'unsure';
+    } else { A.prep = prev.prep; A.examDate = prev.examDate || 'unsure'; }
+  }
+} catch (e) {}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') { var b = document.getElementById('next'); if (b && !b.disabled) go(1); }
+});
+
+path.push('level');
+render();
+</script>
+</body>
+</html>

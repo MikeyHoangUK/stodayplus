@@ -755,6 +755,8 @@
     .pomo-opts{display:grid;gap:8px}
     .pomo-opt{display:flex;align-items:center;gap:11px;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.07);border-radius:11px;padding:13px 14px;cursor:pointer;transition:all .2s;text-align:left}
     .pomo-opt:hover{background:rgba(168,85,247,.09);border-color:rgba(168,85,247,.28)}
+    .pomo-opt.pomo-default{border:1.5px solid #7c3aed;background:rgba(124,58,237,.07)}
+    .pomo-opt.pomo-default .pomo-desc::after{content:' · Your pick';font-weight:700;color:#6d28d9}
     .pomo-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
     .pomo-name{font-size:.82rem;font-weight:900;color:#1c1208}
     .pomo-desc{font-size:.68rem;color:#5a4230;margin-top:1px}
@@ -2354,6 +2356,7 @@
         <button onclick="exportData()" style="flex:1;background:rgba(124,58,237,.1);color:#6d28d9;border:1px solid rgba(124,58,237,.2);border-radius:8px;padding:6px 4px;font-size:.65rem;font-weight:700;cursor:pointer;font-family:'Raleway',sans-serif" title="Download all your data as a backup file">⬇ Export</button>
         <label style="flex:1;background:rgba(124,58,237,.1);color:#6d28d9;border:1px solid rgba(124,58,237,.2);border-radius:8px;padding:6px 4px;font-size:.65rem;font-weight:700;cursor:pointer;font-family:'Raleway',sans-serif;text-align:center" title="Restore data from a backup file">⬆ Import<input type="file" accept=".json" id="import-file-inp" style="display:none" onchange="importData(event)"/></label>
       </div>
+      <a class="logout-link" href="onboarding.html" style="display:block;text-decoration:none">Study setup →</a>
       <div class="logout-link" onclick="logout()">Log out →</div>
       <div id="sp-sync-area" style="margin-top:10px;border-top:1px solid rgba(168,85,247,.1);padding-top:10px">
         <div id="sp-sync-user" style="font-size:.68rem;color:#5a4230;margin-bottom:5px;display:none"></div>
@@ -3595,6 +3598,25 @@ if (!user) {
 }
 if (!user) { window.location.href = 'login.html'; }
 
+// Onboarding: new accounts answer a few set-up questions once (onboarding.html).
+// Accounts made before onboarding existed are left alone; they can open it from the side menu.
+var ONBOARDING_SINCE = '2026-10-21';
+var spProfile = null;
+try { spProfile = JSON.parse(localStorage.getItem('sp_onboarding_v1') || 'null'); } catch(e) {}
+if (user && user !== 'demo@stoday.plus' && !spProfile) {
+  try {
+    var _obTok = JSON.parse(localStorage.getItem('sb-zdmnwykumprntbpfyour-auth-token') || 'null');
+    var _obUser = _obTok && _obTok.user;
+    var _obSaved = _obUser && _obUser.user_metadata && _obUser.user_metadata.sp_onboarding;
+    if (_obSaved) {
+      spProfile = _obSaved; // answered on another device
+      localStorage.setItem('sp_onboarding_v1', JSON.stringify(_obSaved));
+    } else if (_obUser && _obUser.created_at && _obUser.created_at >= ONBOARDING_SINCE) {
+      window.location.replace('onboarding.html');
+    }
+  } catch(e) {}
+}
+
 var LTRS = ['A','B','C','D','E'];
 var STORAGE_KEY = 'sp_questions';
 var _qzKbIdx = 0;
@@ -4050,7 +4072,14 @@ function setLofiVolume(v) {
 }
 
 // Pomodoro
-function openPomo() { document.getElementById('pomo-modal').classList.add('open'); }
+function openPomo() {
+  var pick = { 30: 'normal', 45: 'plus', 60: 'max' }[(spProfile && spProfile.focus) || 45];
+  document.querySelectorAll('#pomo-modal .pomo-opt').forEach(function(el) {
+    var on = (el.getAttribute('onclick') || '').indexOf("'" + pick + "'") !== -1;
+    el.classList.toggle('pomo-default', on);
+  });
+  document.getElementById('pomo-modal').classList.add('open');
+}
 function closePomo() { document.getElementById('pomo-modal').classList.remove('open'); }
 
 function selectPomo(t) {
