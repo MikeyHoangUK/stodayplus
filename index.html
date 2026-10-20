@@ -132,6 +132,26 @@
     }
     .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(212,175,55,.5), inset 0 1px 0 rgba(255,255,255,.55); }
 
+    /* Hero sign-up: extras stay invisible until the visitor leans in.
+       Their space is reserved and they only fade in, so the email box and
+       button never move (the hero is vertically centred, so growing it
+       would shift the button under the cursor). */
+    .cta-zone { position: relative; }
+    .cta-zone::before { content: ''; position: absolute; inset: -18px -24px -10px; z-index: -1; } /* a slightly bigger hover target */
+    .cta-extra {
+      opacity: 0; transform: translateY(-8px); pointer-events: none;
+      transition: opacity .4s ease, transform .5s var(--ease-out);
+    }
+    .cta-zone:hover .cta-extra, .cta-zone:focus-within .cta-extra, .cta-zone.cta-open .cta-extra {
+      opacity: 1; transform: none; pointer-events: auto;
+    }
+    .cta-extra .cta-trust li { opacity: 0; transform: translateY(6px); transition: opacity .35s ease, transform .45s var(--ease-out); }
+    .cta-zone:hover .cta-trust li, .cta-zone:focus-within .cta-trust li { opacity: 1; transform: none; }
+    .cta-trust li:nth-child(1) { transition-delay: .12s; }
+    .cta-trust li:nth-child(2) { transition-delay: .2s; }
+    .cta-trust li:nth-child(3) { transition-delay: .28s; }
+    .cta-zone.cta-open .cta-gift, .cta-zone.cta-open .cta-trust { display: none; }
+
     /* Nav links with growing underline */
     .nav-link { position: relative; }
     .nav-link::after { content: ''; position: absolute; bottom: -3px; left: 0; width: 0; height: 2px; background: var(--lilac); transition: width .2s; }
@@ -317,24 +337,30 @@
         <div class="w-10 h-0.5 gradient-brand mx-auto lg:mx-0 mb-5 rounded-full"></div>
         <p id="hero-typed-desc" class="max-w-lg mb-8 mx-auto lg:mx-0" style="font-size:1rem;line-height:1.7;color:#4b4458;min-height:3.4em"></p>
 
-        <p class="text-sm font-bold text-navy-dark mb-3 flex items-center justify-center lg:justify-start gap-2"><span aria-hidden="true">🎁</span> Free when you sign up: the <a href="#kit" class="underline decoration-purple-mid decoration-2 underline-offset-2 hover:text-purple-DEFAULT">GCSE Science Mock Survival Kit</a></p>
-        <form class="trial-form max-w-md mx-auto lg:mx-0">
-          <div class="trial-row flex flex-col sm:flex-row gap-3">
-            <label for="trial-email" class="sr-only">Email address</label>
-            <input id="trial-email" type="email" required placeholder="you@example.com" autocomplete="email"
-              class="flex-1 border border-purple-soft rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT bg-white shadow-sm" />
-            <button type="submit" class="btn-primary shine text-sm px-7 py-3.5 rounded-xl whitespace-nowrap">
-              Get my free kit →
-            </button>
-          </div>
-          <p class="trial-note text-gray-500 text-xs mt-3">No credit card needed. Your kit opens straight away. See how we use your email in our <a href="privacy.html" class="underline hover:text-purple-DEFAULT">privacy policy</a>.</p>
-        </form>
-
-        <ul class="mt-7 flex flex-wrap justify-center lg:justify-start gap-x-5 gap-y-2 text-xs font-bold text-navy-dark">
-          <li class="flex items-center gap-1.5"><span class="text-purple-DEFAULT">✦</span> Free to start</li>
-          <li class="flex items-center gap-1.5"><span class="text-purple-DEFAULT">✦</span> 30 minutes a day</li>
-          <li class="flex items-center gap-1.5"><span class="text-purple-DEFAULT">✦</span> Built by a tutor</li>
-        </ul>
+        <!-- Sign-up: only the email box and button show at first. Hovering the
+             area (or tapping into the box on phones) reveals the extras below,
+             so the offer feels like it grows as they lean in. -->
+        <div class="cta-zone max-w-md mx-auto lg:mx-0">
+          <form class="trial-form">
+            <div class="trial-row flex flex-col sm:flex-row gap-3">
+              <label for="trial-email" class="sr-only">Email address</label>
+              <input id="trial-email" type="email" required placeholder="you@example.com" autocomplete="email"
+                class="flex-1 border border-purple-soft rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-DEFAULT bg-white shadow-sm" />
+              <button type="submit" class="btn-primary shine text-sm px-7 py-3.5 rounded-xl whitespace-nowrap">
+                Get my free kit →
+              </button>
+            </div>
+            <div class="cta-extra"><div>
+              <p class="cta-gift text-sm font-bold text-navy-dark mt-4 text-center lg:text-left"><span aria-hidden="true" class="mr-1">🎁</span> Free when you sign up: the <a href="#kit" class="underline decoration-purple-mid decoration-2 underline-offset-2 hover:text-purple-DEFAULT">GCSE Science Mock Survival Kit</a></p>
+              <p class="trial-note text-gray-500 text-xs mt-2">No credit card needed. Your kit opens straight away. See how we use your email in our <a href="privacy.html" class="underline hover:text-purple-DEFAULT">privacy policy</a>.</p>
+              <ul class="cta-trust mt-5 flex flex-wrap justify-center lg:justify-start gap-x-5 gap-y-2 text-xs font-bold text-navy-dark">
+                <li class="flex items-center gap-1.5"><span class="text-purple-DEFAULT">✦</span> Free to start</li>
+                <li class="flex items-center gap-1.5"><span class="text-purple-DEFAULT">✦</span> 30 minutes a day</li>
+                <li class="flex items-center gap-1.5"><span class="text-purple-DEFAULT">✦</span> Built by a tutor</li>
+              </ul>
+            </div></div>
+          </form>
+        </div>
       </div>
 
       <div id="hero-panel" class="w-full lg:w-1/2 max-w-lg lg:max-w-none lg:mt-6" style="will-change:transform">
@@ -1328,6 +1354,8 @@
 
         // Swap the form for the kit, so the free gift arrives straight away
         var dark = !!form.closest('#start');
+        var zone = form.closest('.cta-zone');
+        if (zone) zone.classList.add('cta-open'); // keep the success message visible once the mouse leaves
         form.querySelector('.trial-row').style.display = 'none';
         note.innerHTML = '';
         note.className = 'trial-note mt-1';
