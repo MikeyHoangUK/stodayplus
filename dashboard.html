@@ -577,7 +577,7 @@
     .qflag-btn:hover{border-color:rgba(109,40,217,.45);color:#6d28d9;background:rgba(109,40,217,.08)}
     .qflag-btn.flagged{background:#facc15;border-color:#eab308;color:#78350f;box-shadow:0 0 0 3px rgba(250,204,21,.25)}
     .qflag-btn.flagged:hover{background:#fbbf24}
-    .quiz-card.c-flash{border-color:rgba(34,197,94,.6);box-shadow:0 0 36px rgba(34,197,94,.16)}
+    .quiz-card.c-flash{border-color:rgba(99,102,241,.6);box-shadow:0 0 36px rgba(99,102,241,.16)}
     .quiz-card.w-flash{border-color:rgba(248,113,113,.5);box-shadow:0 0 36px rgba(248,113,113,.14)}
     .quiz-stem{font-size:1.05rem;font-weight:700;color:#1c1208;line-height:1.75;margin-bottom:26px}
     .quiz-opts{display:grid;gap:10px}
@@ -587,14 +587,14 @@
     .qopt.locked{cursor:default}
     .qopt .ol{width:30px;height:30px;min-width:30px;border-radius:50%;background:rgba(109,40,217,.1);border:1px solid rgba(109,40,217,.25);color:#6d28d9;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:900;transition:all .2s}
     .qopt .ot{font-size:.88rem;color:#2c2014;font-weight:600;line-height:1.45}
-    .qopt.c-opt{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.5)}
-    .qopt.c-opt .ol{background:#16a34a;color:#fff;border-color:#16a34a}
+    .qopt.c-opt{background:rgba(99,102,241,.1);border-color:rgba(99,102,241,.4)}
+    .qopt.c-opt .ol{background:#6366f1;color:#fff;border-color:#6366f1}
     /* Inline answer feedback: a clear verdict plus the "why", right under the options */
     .q-feedback{display:none;margin-top:14px;padding:14px 16px;border-radius:14px;border:1.5px solid;animation:fadeUp .25s ease}
-    .q-feedback.qf-ok{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.4)}
+    .q-feedback.qf-ok{background:rgba(99,102,241,.07);border-color:rgba(99,102,241,.3)}
     .q-feedback.qf-no{background:rgba(248,113,113,.08);border-color:rgba(248,113,113,.4)}
     .qf-head{font-weight:900;font-size:.95rem}
-    .qf-ok .qf-head{color:#15803d}
+    .qf-ok .qf-head{color:#4338ca}
     .qf-no .qf-head{color:#b91c1c}
     .qf-why{margin-top:8px;font-size:.84rem;line-height:1.65;color:#3d2e1a}
     .qf-why-lbl{font-weight:900;color:#6d28d9;margin-right:4px}
@@ -643,9 +643,9 @@
     body.hc .rr-why{color:#c8b8a0}
     body.hc .rr-yours{color:#fca5a5}
     body.hc .rr-right{color:#86efac}
-    body.hc .q-feedback.qf-ok{background:rgba(34,197,94,.1)}
+    body.hc .q-feedback.qf-ok{background:rgba(129,140,248,.1)}
     body.hc .q-feedback.qf-no{background:rgba(248,113,113,.1)}
-    body.hc .qf-ok .qf-head{color:#86efac}
+    body.hc .qf-ok .qf-head{color:#c4b5fd}
     body.hc .qf-no .qf-head{color:#fca5a5}
     body.hc .qf-why{color:#e8dcc8}
     body.hc .qf-why-lbl{color:#c084fc}
@@ -945,17 +945,25 @@
     .folder-card{position:relative;background:rgba(250,243,224,.7);border:1px solid rgba(168,85,247,.12);border-radius:18px;padding:34px 16px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:border-color .2s,background .2s,box-shadow .2s;text-align:center;min-height:96px}
     .folder-card:hover{border-color:rgba(168,85,247,.32);background:rgba(168,85,247,.05);box-shadow:0 8px 32px rgba(168,85,247,.08)}
     .fc-icon{display:none}
-    /* Cards show their score, question count and buttons all the time — they
-       used to appear only on mouse hover, which made the grid jump and left
-       touch-screen users with no way to start a quiz. */
-    .fc-name{font-size:.84rem;font-weight:800;color:#1c1208;word-break:break-word;letter-spacing:.01em;line-height:1.35;margin-top:2px}
-    .fc-confidence{font-size:.62rem;font-weight:800;letter-spacing:.02em;margin-top:2px}
-    .fc-count{font-size:.61rem;font-weight:700;color:#8a6e54;letter-spacing:.03em;margin-top:2px}
-    .fc-actions{display:flex;align-items:center;gap:5px;margin-top:auto;padding-top:8px}
-    .fc-edit-top{position:absolute;top:7px;right:8px;font-size:.56rem;font-weight:700;color:#8a7a68;background:none!important;border:none!important;cursor:pointer;padding:2px 4px;opacity:.55;transition:opacity .18s;border-radius:4px;letter-spacing:.02em;box-shadow:none!important}
-    .fc-edit-top:hover{opacity:1}
-    .fc-del{opacity:.55}
-    .fc-del:hover,.fc-del:focus-visible{opacity:1}
+    /* Cards show just the topic name; hovering (or tabbing into) a card reveals
+       its score, question count and buttons. Touch screens can't hover, so
+       there the details are always shown (see the hover:none block below). */
+    .fc-name{font-size:.84rem;font-weight:800;color:#1c1208;word-break:break-word;letter-spacing:.01em;line-height:1.35;margin-top:auto;margin-bottom:auto;transition:margin .22s ease}
+    .folder-card:hover .fc-name,.folder-card:focus-within .fc-name{margin-top:4px;margin-bottom:0}
+    .fc-confidence{font-size:.62rem;font-weight:800;letter-spacing:.02em;max-height:0;opacity:0;overflow:hidden;transition:max-height .2s ease,opacity .18s ease}
+    .fc-count{font-size:.61rem;font-weight:700;color:#8a6e54;letter-spacing:.03em;max-height:0;opacity:0;overflow:hidden;transition:max-height .2s ease,opacity .18s ease}
+    .folder-card:hover .fc-confidence,.folder-card:focus-within .fc-confidence{max-height:24px;opacity:1;margin-top:2px}
+    .folder-card:hover .fc-count,.folder-card:focus-within .fc-count{max-height:24px;opacity:1;margin-top:3px}
+    .fc-actions{display:flex;gap:5px;max-height:0;opacity:0;overflow:hidden;transition:max-height .22s ease,opacity .18s ease}
+    .folder-card:hover .fc-actions,.folder-card:focus-within .fc-actions{max-height:36px;opacity:1;margin-top:6px}
+    .fc-edit-top{position:absolute;top:7px;right:8px;font-size:.52rem;font-weight:700;color:#aaa098;background:none!important;border:none!important;cursor:pointer;padding:2px 4px;opacity:0;transition:opacity .18s;border-radius:4px;letter-spacing:.02em;box-shadow:none!important}
+    .folder-card:hover .fc-edit-top,.folder-card:focus-within .fc-edit-top{opacity:.42}
+    @media (hover: none) {
+      .fc-name{margin-top:4px;margin-bottom:0}
+      .fc-confidence,.fc-count{max-height:24px;opacity:1;margin-top:2px}
+      .fc-actions{max-height:36px;opacity:1;margin-top:6px}
+      .fc-edit-top{opacity:.42}
+    }
     .fc-quiz{padding:5px 14px;border-radius:8px;font-size:.64rem;font-weight:800;cursor:pointer;border:1px solid rgba(109,40,217,.3);color:#6d28d9;background:rgba(109,40,217,.08);transition:all .18s;letter-spacing:.02em}
     .fc-quiz:hover{background:rgba(109,40,217,.18);border-color:rgba(109,40,217,.55)}
     .fc-create{padding:5px 10px;border-radius:8px;font-size:.75rem;font-weight:900;cursor:pointer;border:1px solid rgba(109,40,217,.3);color:#6d28d9;background:rgba(109,40,217,.08);transition:all .18s;line-height:1}
@@ -1878,6 +1886,123 @@
     body.hc .rp-auto-hint{color:#a08878!important}
     body.hc .rp-auto-hint strong{color:#c8b89a!important}
 
+    /* ══════════════════════════════════════════════════════════════════
+       STUDY SPACE POLISH LAYER
+       One spacing and text system for every screen, so blocks line up and
+       text has room to breathe.
+         · Column: every screen and the banner share one 880px column
+         · Spacing scale: 4 · 8 · 12 · 16 · 24 · 32 · 48 px
+         · Smallest text: .62rem (labels); body text .86–.95rem
+         · Cards: 18px corners, 22–24px inner padding, 16px between cards
+       Placed before the phone rules below, so phones keep their own sizes.
+       ══════════════════════════════════════════════════════════════════ */
+    :root { --sp-col: 880px; }
+    #topbar{height:64px;min-height:64px;padding:0 32px;gap:18px}
+    #content{padding:36px 48px 96px}
+    .panel.active{max-width:var(--sp-col)}
+    #unsaved-warning{max-width:var(--sp-col);margin:0 auto 28px;padding:12px 16px;border-radius:12px;font-size:.78rem;line-height:1.45;gap:12px}
+    #unsaved-warning button{font-size:.74rem;padding:7px 14px;border-radius:9px}
+
+    /* Bank */
+    .bank-bar{margin-bottom:24px;padding-bottom:18px;gap:12px}
+    .bank-subj-chips{gap:6px;align-items:center}
+    .bsc-chip{font-size:.66rem;padding:5px 12px;letter-spacing:.04em}
+    .folder-grid{grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:16px}
+    .folder-card{min-height:116px;padding:38px 18px 18px}
+    .fc-name{font-size:.92rem}
+    .fc-subj-chip{font-size:.62rem;padding:3px 9px;top:12px}
+    .fc-count,.fc-confidence{font-size:.7rem}
+    .fc-quiz{font-size:.72rem;padding:6px 14px}
+    .fc-edit-top{font-size:.62rem}
+    .bank-empty p{font-size:.88rem;line-height:1.6}
+
+    /* Quiz setup */
+    .qzw-hero{font-size:2.6rem}
+    .qzw-avail-small{font-size:.8rem;letter-spacing:.02em;margin-bottom:36px}
+    .qzw-unatt-row{margin-bottom:24px}
+    .qzw-unatt-lbl{font-size:.8rem;letter-spacing:.01em}
+    .qzw-opts{gap:16px}
+    .qzw-opt{padding:30px 14px 24px}
+    .qzw-opt-label{font-size:.64rem;letter-spacing:.08em}
+    .qzw-back{font-size:.72rem;letter-spacing:.08em}
+    .qzw-prompt{font-size:1.05rem;letter-spacing:.01em;margin-bottom:24px}
+    .qzw-avail{font-size:.8rem;margin-bottom:16px}
+    .rp-ql-lbl{font-size:.82rem}
+
+    /* Answering questions */
+    .quiz-topbar{margin-bottom:12px;gap:12px}
+    .fs-btn{font-size:.72rem;padding:6px 12px;border-radius:9px}
+    .qnav-btn{width:30px;height:30px}
+    .q-counter,.q-score-lbl{font-size:.8rem}
+    .quiz-card{padding:36px 40px}
+    .quiz-stem{font-size:1.08rem;line-height:1.65;margin-bottom:24px}
+    .qopt{padding:14px 18px;gap:14px}
+    .hint-toggle{font-size:.76rem;padding:6px 14px}
+    .hint-txt{font-size:.86rem}
+    .qf-why{font-size:.88rem}
+    .next-btn{font-size:.88rem;padding:13px 30px}
+
+    /* Results */
+    .results-wrap{padding:40px 0 64px}
+    .score-circle{margin-bottom:24px}
+    .res-title{font-size:1.9rem;margin-bottom:8px}
+    .res-sub{font-size:.9rem;margin-bottom:8px}
+    .res-insights{max-width:760px;margin:36px auto 24px;grid-template-columns:1fr 1fr;grid-auto-rows:auto;gap:16px}
+    .res-insight-card{min-height:0;padding:24px;justify-content:flex-start;border-width:1px;border-radius:18px}
+    .res-insight-lbl{font-size:.7rem;letter-spacing:.1em;margin-bottom:16px;display:flex;align-items:center}
+    .res-mastery-txt{font-size:.9rem;line-height:1.6}
+    .res-diff-chips{gap:8px}
+    .res-diff-chip{padding:10px 14px;align-items:center;gap:10px}
+    .res-diff-chip-pct{font-size:1.1rem;min-width:3.2ch}
+    .res-diff-chip-name{font-size:.7rem;letter-spacing:.06em}
+    .res-diff-chip-raw{font-size:.74rem}
+    .res-diff-callout{font-size:.82rem;margin-top:14px}
+    .res-traj-card,.res-nextstep-card,#res-traj-card{grid-column:1 / -1}
+    .res-insight-card[style*="block"]{display:flex!important} /* the code sets display:block; keep the card's column layout */
+    #res-mastery-card{justify-content:center}
+    .res-sparkline{height:auto;aspect-ratio:260/62;max-height:96px}
+    .rr-right{color:#4338ca}
+    body.hc .rr-right{color:#c4b5fd}
+    .res-traj-txt{font-size:.88rem}
+    .res-nextstep-txt{font-size:.92rem;line-height:1.65;margin-bottom:16px}
+    .res-nextstep-btn{font-size:.8rem}
+    .res-review{max-width:760px;padding:24px 28px;margin:0 auto 32px}
+    .rr-item{padding:18px 0}
+    .rr-q{font-size:.95rem;line-height:1.55}
+    .rr-a{font-size:.86rem;margin-top:8px;line-height:1.6}
+    .rr-why{font-size:.86rem;line-height:1.65;margin-top:8px}
+    .res-btns{gap:12px;margin-top:8px}
+    .res-btn{font-size:.82rem;padding:12px 24px}
+    .res-rp-banner{font-size:.8rem;max-width:760px;margin:0 auto 20px}
+
+    /* Revision Planner */
+    .rp-due-header{margin-bottom:28px}
+    .rp-topic-card{padding:22px 24px;margin-bottom:16px;border-radius:18px}
+    .rp-card-top{margin-bottom:14px}
+    .rp-topic-name{font-size:1rem;margin-bottom:6px}
+    .rp-tag{font-size:.64rem;padding:3px 9px}
+    .rp-overdue,.rp-due-now,.rp-next-date{font-size:.72rem;padding:3px 10px}
+    .rp-method-row{padding:10px 14px;margin-bottom:16px}
+    .rp-method-pill{font-size:.78rem}
+    .rp-go-tool-btn{font-size:.74rem;padding:7px 14px}
+    .rp-chain-lbl,.rp-sched-day{font-size:.62rem}
+    .rp-done-btn{font-size:.76rem;padding:8px 16px}
+    .rp-mode-desc,.rp-cal-dow,.rp-cal-pill{font-size:.64rem}
+    .rp-subject-lbl,.rp-sched-lbl,.rp-shortcuts-lbl{font-size:.68rem}
+
+    /* Create */
+    .ai-card,.form-card{padding:28px}
+
+    /* Phone: chips get the full row, search goes underneath; results stack in one column */
+    @media (max-width: 640px) {
+      .bank-stat.bank-filter-mode{flex:1 1 100%!important} /* beats the inline flex:1 */
+      .res-insights{grid-template-columns:1fr;margin:28px auto 20px}
+      .res-insight-card{padding:20px}
+    }
+    .ai-opt-lbl{font-size:.68rem}
+    .ai-pill{font-size:.76rem}
+    .f-lbl{font-size:.7rem}
+
     /* ── MOBILE RESPONSIVE ───────────────────────────────────────────── */
 
     /* Tablet: collapse two-column layouts */
@@ -2777,7 +2902,7 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Folder Name&quot
               </div>
               <div class="res-insight-card" id="res-traj-card" style="display:none">
                 <div class="res-insight-lbl">Your progress</div>
-                <svg class="res-sparkline" id="res-sparkline" viewBox="0 0 260 62" preserveAspectRatio="none"></svg>
+                <svg class="res-sparkline" id="res-sparkline" viewBox="0 0 260 62" preserveAspectRatio="xMidYMid meet"></svg>
                 <div class="res-traj-txt" id="res-traj-txt"></div>
               </div>
               <div class="res-insight-card res-nextstep-card" id="res-nextstep-card" style="display:none">
@@ -5271,7 +5396,7 @@ function showResults() {
     var hasInsight = ['res-mastery-card','res-diff-card','res-traj-card','res-nextstep-card'].some(function(id) {
       var el = document.getElementById(id); return el && el.style.display !== 'none';
     });
-    insightsEl.style.display = hasInsight ? 'flex' : 'none';
+    insightsEl.style.display = hasInsight ? 'grid' : 'none'; // grid, not flex: flex squeezed the cards into one cramped row
   }
   resShowMistakes();
   var trackEl = document.getElementById('qz-track-rp');
@@ -8887,7 +9012,8 @@ function rpRenderToday() {
     var dLabel = (['D1','D3','D7','D14','D28','D56','D84','D112','D140+'])[item.level] || 'D140+';
     var methodRow = task.tool !== 'free'
       ? '<div class="rp-method-row">'
-        + '<span class="rp-method-pill">' + task.emoji + ' ' + dLabel + ' — ' + task.label + ' with ' + task.name + '</span>'
+        // "Review session with Review" read like a bug — only name the tool when it differs from the task
+        + '<span class="rp-method-pill">' + task.emoji + ' ' + dLabel + ' — ' + task.label + (task.name && task.label.toLowerCase().indexOf(String(task.name).toLowerCase()) === -1 ? ' with ' + task.name : '') + '</span>'
         + '<button class="rp-go-tool-btn" onclick="rpShowMode(\'' + item.id + '\')">▶ Start</button>'
         + '</div>'
       : '<div class="rp-method-row" style="justify-content:flex-start"><span class="rp-method-pill" style="color:' + (document.body.classList.contains('hc')?'#4ade80':'#16a34a') + '">✅ ' + dLabel + ' — All steps complete — free review</span></div>';
