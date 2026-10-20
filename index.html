@@ -156,8 +156,10 @@
     .nav-link { position: relative; }
     .nav-link::after { content: ''; position: absolute; bottom: -3px; left: 0; width: 0; height: 2px; background: var(--lilac); transition: width .2s; }
     .nav-link:hover::after { width: 100%; }
-    #site-nav { transition: box-shadow .3s ease, background-color .3s ease; }
+    #site-nav { transition: transform .45s var(--ease-out), opacity .3s ease, box-shadow .3s ease; }
     #site-nav.scrolled { box-shadow: 0 8px 30px rgba(15,10,40,.25); }
+    #site-nav.nav-hidden { transform: translateY(-100%); opacity: 0; }
+    #site-nav:focus-within { transform: none; opacity: 1; } /* never hide it from keyboard users */
 
     /* Section typography */
     .eyebrow { color: var(--violet); font-size: .66rem; font-weight: 800; text-transform: uppercase; letter-spacing: .22em; }
@@ -1002,13 +1004,28 @@
 </footer>
 
 <script>
-  // ── Navbar: stays visible (it carries the main CTA), gains a shadow once
-  //    the page scrolls so it lifts off the content beneath it ──────────
+  // ── Navbar: slides away while scrolling down so there's more room to
+  //    read, and comes straight back on any scroll up. Always shown near
+  //    the top of the page. Gains a shadow once it floats over content. ──
   (function() {
     var nav = document.getElementById('site-nav');
     if (!nav) return;
-    function update() { nav.classList.toggle('scrolled', window.scrollY > 8); }
-    window.addEventListener('scroll', update, { passive: true });
+    var lastY = window.scrollY, ticking = false;
+    var TOP_ZONE = 80;   // always visible this close to the top
+    var NUDGE = 6;       // ignore tiny trackpad jitters
+    function update() {
+      ticking = false;
+      var y = window.scrollY;
+      nav.classList.toggle('scrolled', y > 8);
+      if (y < TOP_ZONE) nav.classList.remove('nav-hidden');
+      else if (y > lastY + NUDGE) nav.classList.add('nav-hidden');
+      else if (y < lastY - NUDGE) nav.classList.remove('nav-hidden');
+      else return; // movement too small: keep lastY so slow scrolls still add up
+      lastY = y;
+    }
+    window.addEventListener('scroll', function() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }, { passive: true });
     update();
   })();
 
