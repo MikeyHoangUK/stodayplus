@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" type="image/png" sizes="96x96" />
+  <title>GCSE Science Mock Survival Kit — Stoday Plus</title>
+  <meta name="description" content="Free GCSE Biology and Chemistry mock revision kit (AQA): topic checklist, a 4-week revision plan built for you, a blurting sheet and a guide for parents." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy:   { DEFAULT: '#1e3a8a', dark: '#1e1b4b', mid: '#3730a3' },
+            purple: { light: '#f3e8ff', soft: '#e9d5ff', mid: '#c084fc', DEFAULT: '#9333ea', deep: '#7e22ce', dark: '#6b21a8' }
+          },
+          fontFamily: { sans: ['Raleway', 'system-ui', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900&family=Caveat:wght@700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --ink:#1e1b4b; --violet:#9333ea; --gold-1:#f7e08a; --gold-2:#d4af37; --gold-3:#a9791a; --ease-out:cubic-bezier(.19,1,.22,1); }
+    html { scroll-behavior: smooth; }
+    .eyebrow { color: var(--violet); font-size: .66rem; font-weight: 800; text-transform: uppercase; letter-spacing: .22em; }
+    .display { font-weight: 900; color: var(--ink); line-height: 1.05; letter-spacing: -.025em; }
+    .text-grad { background: linear-gradient(135deg,#9333ea,#4338ca); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .gold-text { background: linear-gradient(135deg,var(--gold-1) 0%,var(--gold-2) 45%,var(--gold-3) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .gradient-brand { background: linear-gradient(135deg,#9333ea 0%,#3730a3 100%); }
+
+    .premium-dark { position: relative; overflow: hidden;
+      background:
+        radial-gradient(ellipse 58% 48% at 12% -8%, rgba(147,51,234,.5) 0%, transparent 62%),
+        radial-gradient(ellipse 46% 38% at 92% 6%, rgba(212,175,55,.22) 0%, transparent 58%),
+        radial-gradient(ellipse 70% 58% at 50% 115%, rgba(67,56,202,.48) 0%, transparent 62%),
+        linear-gradient(180deg,#09071a 0%,#140e35 50%,#09071a 100%); }
+    .premium-dark::before { content:''; position:absolute; inset:0; pointer-events:none; opacity:.5;
+      background-image: radial-gradient(rgba(255,255,255,.07) 1px, transparent 1px); background-size: 26px 26px; }
+    .premium-dark > * { position: relative; z-index: 1; }
+    .gold-badge { display:inline-flex; align-items:center; gap:.45rem; color:#241804; font-size:.66rem; font-weight:900; padding:.45rem 1.05rem; border-radius:999px; letter-spacing:.08em;
+      background: linear-gradient(135deg,var(--gold-1) 0%,var(--gold-2) 55%,var(--gold-3) 100%); box-shadow: 0 4px 18px rgba(212,175,55,.35), inset 0 1px 0 rgba(255,255,255,.5); }
+
+    .shine { position: relative; overflow: hidden; isolation: isolate; }
+    .shine::after { content:''; position:absolute; inset:0; pointer-events:none; z-index:2;
+      background: linear-gradient(105deg, transparent 32%, rgba(255,255,255,.75) 50%, transparent 68%);
+      transform: translateX(-160%); transition: transform .7s ease; }
+    .shine:hover::after, .shine:focus-visible::after { transform: translateX(160%); }
+    .btn-primary { background: linear-gradient(135deg,#9333ea 0%,#3730a3 100%); color:#fff; font-weight:800;
+      box-shadow: 0 6px 20px rgba(109,40,217,.32), inset 0 1px 0 rgba(255,255,255,.18); transition: transform .25s var(--ease-out), box-shadow .25s ease; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(109,40,217,.45); }
+    .btn-ghost { background:#fff; color:#4c1d95; font-weight:700; box-shadow: 0 1px 2px rgba(17,10,40,.04), 0 6px 18px rgba(109,40,217,.14);
+      transition: background .25s ease, color .25s ease, box-shadow .25s ease, transform .25s ease; }
+    .btn-ghost:hover { background: linear-gradient(135deg,#9333ea 0%,#3730a3 100%); color:#fff; transform: translateY(-2px); }
+    .btn-gold { background: linear-gradient(135deg,var(--gold-1) 0%,var(--gold-2) 55%,var(--gold-3) 100%); color:#241804; font-weight:900;
+      box-shadow: 0 6px 22px rgba(212,175,55,.35), inset 0 1px 0 rgba(255,255,255,.5); transition: transform .25s var(--ease-out), box-shadow .25s ease; }
+    .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(212,175,55,.5); }
+
+    /* Step markers */
+    .step-num { width:2.6rem; height:2.6rem; border-radius:.9rem; display:flex; align-items:center; justify-content:center; font-weight:900; color:#fff;
+      background: linear-gradient(135deg,#9333ea,#3730a3); box-shadow: 0 6px 18px rgba(147,51,234,.35); flex-shrink:0; }
+
+    /* Checklist */
+    .seg { display:inline-flex; background:#f3effd; border-radius:999px; padding:4px; gap:4px; }
+    .seg button { font-size:.78rem; font-weight:800; padding:.5rem 1rem; border-radius:999px; color:#6b5f86; transition: background .2s ease, color .2s ease, box-shadow .2s ease; }
+    .seg button[aria-pressed="true"] { background:#fff; color:var(--ink); box-shadow: 0 2px 10px rgba(109,40,217,.15); }
+    .unit { background:#fff; border:1px solid #ede9fe; border-radius:18px; overflow:hidden; }
+    .unit-head { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1rem 1.25rem; background:#faf8ff; border-bottom:1px solid #ede9fe; }
+    .topic { display:flex; align-items:center; gap:.9rem; padding:.7rem 1.25rem; border-bottom:1px solid #f4f1fc; transition: background .2s ease; }
+    .topic:last-child { border-bottom:none; }
+    .topic[data-rag="r"] { background: rgba(239,68,68,.05); box-shadow: inset 3px 0 0 rgba(239,68,68,.55); }
+    .topic[data-rag="a"] { background: rgba(245,158,11,.06); box-shadow: inset 3px 0 0 rgba(245,158,11,.6); }
+    .topic[data-rag="g"] { background: rgba(34,197,94,.05); box-shadow: inset 3px 0 0 rgba(34,197,94,.55); }
+    .rag { display:flex; gap:6px; flex-shrink:0; }
+    .rag button { width:2.25rem; height:2.25rem; border-radius:.7rem; font-size:.7rem; font-weight:900; border:2px solid transparent; transition: transform .15s ease, background .2s ease, border-color .2s ease, color .2s ease; }
+    .rag button:hover { transform: translateY(-1px); }
+    .rag .r { color:#dc2626; background:rgba(239,68,68,.08); } .rag .r[aria-pressed="true"] { background:#ef4444; color:#fff; border-color:#ef4444; }
+    .rag .a { color:#b45309; background:rgba(245,158,11,.1); } .rag .a[aria-pressed="true"] { background:#f59e0b; color:#fff; border-color:#f59e0b; }
+    .rag .g { color:#15803d; background:rgba(34,197,94,.1); } .rag .g[aria-pressed="true"] { background:#22c55e; color:#fff; border-color:#22c55e; }
+    .pill { font-size:.58rem; font-weight:900; letter-spacing:.08em; text-transform:uppercase; border-radius:999px; padding:.15rem .5rem; color:#6d28d9; background:#f3e8ff; }
+    .meter { height:10px; border-radius:999px; background:#ede9fe; overflow:hidden; display:flex; }
+    .meter span { height:100%; transition: width .6s var(--ease-out); }
+
+    /* Plan */
+    .week { background:#fff; border:1px solid #ede9fe; border-radius:18px; padding:1.1rem; }
+    .day { border-radius:12px; padding:.7rem .85rem; background:#faf8ff; border:1px solid #f1ecfd; }
+    .day-new { font-weight:800; color:var(--ink); font-size:.82rem; }
+    .day-rev { font-size:.72rem; color:#6b5f86; }
+    .tag-new { font-size:.56rem; font-weight:900; letter-spacing:.08em; color:#fff; background:linear-gradient(135deg,#9333ea,#4338ca); border-radius:999px; padding:.1rem .45rem; }
+
+    /* Blurting sheet */
+    .sheet-lines { background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 31px, #e9e3fb 31px, #e9e3fb 32px); min-height: 22rem; }
+
+    /* Entrances */
+    .reveal { opacity:0; transform: translateY(24px); transition: opacity .9s var(--ease-out), transform .9s var(--ease-out); }
+    .reveal.revealed { opacity:1; transform:none; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation:none !important; transition-duration:.01ms !important; }
+      .reveal { opacity:1; transform:none; }
+    }
+
+    /* Print: the whole kit, or just the blurting sheet */
+    @media print {
+      @page { margin: 14mm; }
+      body { background:#fff !important; }
+      .no-print, nav, footer { display:none !important; }
+      .reveal { opacity:1 !important; transform:none !important; }
+      .premium-dark { background:#1e1b4b !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .unit, .week, .day, .topic { break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body.print-sheet > *:not(#blurt) { display:none !important; }
+      body.print-sheet #blurt { padding:0 !important; }
+      body.print-sheet #blurt .no-print-sheet { display:none !important; }
+    }
+  </style>
+</head>
+<body class="font-sans bg-white text-gray-900 antialiased">
+
+<!-- ── NAV ────────────────────────────────────────────────── -->
+<nav class="sticky top-0 z-50 border-b border-white border-opacity-10" style="background-color:#1e1b4b;">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
+    <a href="index.html" class="flex items-center gap-3">
+      <img src="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" alt="Stoday Plus" class="w-9 h-9 object-contain" />
+      <span class="text-white font-extrabold text-lg tracking-wide">Stoday <span class="text-purple-mid">Plus</span></span>
+    </a>
+    <div class="hidden sm:flex items-center gap-5 text-sm text-gray-300 font-medium">
+      <a href="#checklist" class="hover:text-white transition-colors">Checklist</a>
+      <a href="#plan" class="hover:text-white transition-colors">Plan</a>
+      <a href="#blurt" class="hover:text-white transition-colors">Blurting</a>
+      <a href="#parents" class="hover:text-white transition-colors">Parents</a>
+    </div>
+    <button type="button" onclick="window.print()" class="btn-ghost shine text-xs px-4 py-2 rounded-xl">Print / save PDF</button>
+  </div>
+</nav>
+
+<!-- ── HERO ───────────────────────────────────────────────── -->
+<header class="premium-dark text-white py-20">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 text-center">
+    <span class="gold-badge">✦ FREE · AQA BIOLOGY &amp; CHEMISTRY</span>
+    <h1 class="text-4xl sm:text-6xl font-black mt-6 mb-5" style="letter-spacing:-.03em;line-height:1.02">
+      Mock Survival Kit.<br /><span class="gold-text">Your 4-week game plan.</span>
+    </h1>
+    <p class="text-base sm:text-lg max-w-xl mx-auto mb-10" style="color:rgba(226,220,250,.75)">
+      Stop guessing what to revise. Rate every topic, get a day-by-day plan built for you, and walk into your mocks knowing exactly what you know.
+    </p>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto text-left">
+      <a href="#checklist" class="shine rounded-2xl p-4 border" style="background:rgba(255,255,255,.06);border-color:rgba(212,175,55,.25)"><p class="gold-text font-black text-2xl">01</p><p class="font-bold text-sm mt-1">Rate your topics</p><p class="text-xs mt-1" style="color:rgba(226,220,250,.6)">5 minutes</p></a>
+      <a href="#plan" class="shine rounded-2xl p-4 border" style="background:rgba(255,255,255,.06);border-color:rgba(212,175,55,.25)"><p class="gold-text font-black text-2xl">02</p><p class="font-bold text-sm mt-1">Get your plan</p><p class="text-xs mt-1" style="color:rgba(226,220,250,.6)">1 click</p></a>
+      <a href="#blurt" class="shine rounded-2xl p-4 border" style="background:rgba(255,255,255,.06);border-color:rgba(212,175,55,.25)"><p class="gold-text font-black text-2xl">03</p><p class="font-bold text-sm mt-1">Blurt it out</p><p class="text-xs mt-1" style="color:rgba(226,220,250,.6)">15 min a day</p></a>
+      <a href="#parents" class="shine rounded-2xl p-4 border" style="background:rgba(255,255,255,.06);border-color:rgba(212,175,55,.25)"><p class="gold-text font-black text-2xl">04</p><p class="font-bold text-sm mt-1">For parents</p><p class="text-xs mt-1" style="color:rgba(226,220,250,.6)">2-minute read</p></a>
+    </div>
+  </div>
+</header>
+
+<!-- ── 1. CHECKLIST ───────────────────────────────────────── -->
+<section id="checklist" class="py-20" style="background:#f8f5ff;">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6">
+    <div class="flex items-start gap-4 mb-8 reveal">
+      <span class="step-num">1</span>
+      <div>
+        <p class="eyebrow mb-2">Step one</p>
+        <h2 class="display text-3xl sm:text-4xl mb-3">Rate every topic. <span class="text-grad">Be honest.</span></h2>
+        <p class="text-gray-600 text-[0.95rem] leading-relaxed max-w-2xl">
+          Tap <b class="text-red-600">R</b> if it makes no sense yet, <b class="text-amber-600">A</b> if you half get it, <b class="text-green-600">G</b> if you could explain it to a friend.
+          Your answers save on this device, so you can come back and update them.
+        </p>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3 mb-6 no-print">
+      <div class="seg" role="group" aria-label="Subject">
+        <button type="button" data-subject="bio" aria-pressed="true">🧬 Biology</button>
+        <button type="button" data-subject="chem" aria-pressed="false">⚗️ Chemistry</button>
+      </div>
+      <div class="seg" role="group" aria-label="Course">
+        <button type="button" data-course="combined" aria-pressed="true">Combined Science</button>
+        <button type="button" data-course="triple" aria-pressed="false">Triple Science</button>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 border border-purple-soft mb-6">
+      <div class="flex flex-wrap items-baseline justify-between gap-2 mb-3">
+        <p class="font-extrabold text-navy-dark"><span id="rated-count">0</span> of <span id="total-count">0</span> topics rated</p>
+        <p class="text-xs font-bold text-gray-500"><span class="text-red-600" id="r-count">0</span> red · <span class="text-amber-600" id="a-count">0</span> amber · <span class="text-green-600" id="g-count">0</span> green</p>
+      </div>
+      <div class="meter" aria-hidden="true"><span id="m-g" style="background:#22c55e;width:0"></span><span id="m-a" style="background:#f59e0b;width:0"></span><span id="m-r" style="background:#ef4444;width:0"></span></div>
+      <p id="meter-msg" class="text-xs text-gray-500 mt-3">Start with the topics you've already covered in class.</p>
+    </div>
+
+    <div id="units" class="space-y-4"></div>
+    <p class="text-xs text-gray-400 mt-4">Based on the AQA GCSE Biology (8461) and Chemistry (8462) specifications. Combined Science students skip the topics marked Triple.</p>
+  </div>
+</section>
+
+<!-- ── 2. PLAN ────────────────────────────────────────────── -->
+<section id="plan" class="py-20 bg-white">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6">
+    <div class="flex items-start gap-4 mb-8 reveal">
+      <span class="step-num">2</span>
+      <div>
+        <p class="eyebrow mb-2">Step two</p>
+        <h2 class="display text-3xl sm:text-4xl mb-3">Your 4-week plan, <span class="text-grad">built for you.</span></h2>
+        <p class="text-gray-600 text-[0.95rem] leading-relaxed max-w-2xl">
+          One new topic a day, starting with your reds. Each topic comes back 1, 3, 7 and 14 days later, right before you'd forget it. About 30 minutes a day.
+        </p>
+      </div>
+    </div>
+    <div class="flex flex-wrap items-center gap-3 mb-8 no-print">
+      <button type="button" id="build-plan" class="btn-primary shine px-6 py-3 rounded-xl text-sm">Build my plan →</button>
+      <label class="text-sm font-bold text-navy-dark flex items-center gap-2">Start on
+        <input type="date" id="start-date" class="border border-purple-soft rounded-lg px-3 py-2 text-sm" />
+      </label>
+    </div>
+    <div id="plan-empty" class="rounded-2xl border-2 border-dashed border-purple-soft p-8 text-center text-gray-500 text-sm">
+      Rate some topics red or amber in step one, then press <b class="text-navy-dark">Build my plan</b>.
+    </div>
+    <div id="plan-out" class="hidden">
+      <div id="weeks" class="grid gap-4 md:grid-cols-2"></div>
+      <p id="plan-overflow" class="hidden mt-5 text-sm text-gray-600"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ── 3. BLURTING ────────────────────────────────────────── -->
+<section id="blurt" class="py-20" style="background:#f8f5ff;">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6">
+    <div class="flex items-start gap-4 mb-8 reveal no-print-sheet">
+      <span class="step-num">3</span>
+      <div>
+        <p class="eyebrow mb-2">Step three</p>
+        <h2 class="display text-3xl sm:text-4xl mb-3">Blurt it. <span class="text-grad">Find the gaps.</span></h2>
+        <p class="text-gray-600 text-[0.95rem] leading-relaxed max-w-2xl">Blurting is the fastest way to find out what you actually remember. Use it for every new topic in your plan.</p>
+      </div>
+    </div>
+    <ol class="grid gap-3 sm:grid-cols-4 mb-8 no-print-sheet">
+      <li class="bg-white rounded-2xl p-4 border border-purple-soft"><p class="font-black text-purple-DEFAULT">1</p><p class="font-bold text-sm text-navy-dark">Close everything</p><p class="text-xs text-gray-500 mt-1">Notes away, phone face down.</p></li>
+      <li class="bg-white rounded-2xl p-4 border border-purple-soft"><p class="font-black text-purple-DEFAULT">2</p><p class="font-bold text-sm text-navy-dark">Write it all down</p><p class="text-xs text-gray-500 mt-1">Everything you remember. 7 minutes. No peeking.</p></li>
+      <li class="bg-white rounded-2xl p-4 border border-purple-soft"><p class="font-black text-purple-DEFAULT">3</p><p class="font-bold text-sm text-navy-dark">Check in a new colour</p><p class="text-xs text-gray-500 mt-1">Open your notes. Add what you missed in red.</p></li>
+      <li class="bg-white rounded-2xl p-4 border border-purple-soft"><p class="font-black text-purple-DEFAULT">4</p><p class="font-bold text-sm text-navy-dark">The red is your revision</p><p class="text-xs text-gray-500 mt-1">Next time, focus only on what you missed.</p></li>
+    </ol>
+    <div class="bg-white rounded-2xl border border-purple-soft p-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <p class="font-black text-navy-dark text-lg">Blurting sheet</p>
+        <button type="button" id="print-sheet" class="btn-ghost shine text-xs px-4 py-2 rounded-xl no-print">Print this sheet</button>
+      </div>
+      <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+        <p class="border-b border-purple-soft pb-1"><b class="text-navy-dark">Topic:</b></p>
+        <p class="border-b border-purple-soft pb-1"><b class="text-navy-dark">Date:</b></p>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div><p class="text-xs font-extrabold uppercase tracking-widest text-gray-500 mb-1">From memory</p><div class="sheet-lines rounded-lg border border-purple-soft"></div></div>
+        <div><p class="text-xs font-extrabold uppercase tracking-widest text-red-500 mb-1">What I missed (in red)</p><div class="sheet-lines rounded-lg border border-purple-soft"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 4. PARENTS ─────────────────────────────────────────── -->
+<section id="parents" class="py-20 bg-white">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6">
+    <div class="flex items-start gap-4 mb-8 reveal">
+      <span class="step-num">4</span>
+      <div>
+        <p class="eyebrow mb-2">For parents</p>
+        <h2 class="display text-3xl sm:text-4xl mb-3">How to help <span class="text-grad">without nagging.</span></h2>
+        <p class="text-gray-600 text-[0.95rem] leading-relaxed max-w-2xl">You don't need to remember any GCSE science. Your job is to make revision feel normal, not to check up on it.</p>
+      </div>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-3 mb-5">
+      <div class="rounded-2xl p-5 border border-green-200" style="background:#f6fef8">
+        <p class="text-xs font-extrabold uppercase tracking-widest text-green-700 mb-2">Say this</p>
+        <p class="font-bold text-navy-dark mb-1">"What's one thing you remembered today?"</p>
+        <p class="text-sm text-gray-600">Recalling it out loud is extra revision, and it starts a conversation instead of an argument.</p>
+      </div>
+      <div class="rounded-2xl p-5 border border-green-200" style="background:#f6fef8">
+        <p class="text-xs font-extrabold uppercase tracking-widest text-green-700 mb-2">Say this</p>
+        <p class="font-bold text-navy-dark mb-1">"Can you teach me how that works?"</p>
+        <p class="text-sm text-gray-600">Explaining to someone who doesn't know is one of the best ways to learn. Being the student is a gift to them.</p>
+      </div>
+      <div class="rounded-2xl p-5 border border-green-200" style="background:#f6fef8">
+        <p class="text-xs font-extrabold uppercase tracking-widest text-green-700 mb-2">Say this</p>
+        <p class="font-bold text-navy-dark mb-1">"How many reds have you turned green?"</p>
+        <p class="text-sm text-gray-600">It shows interest in progress, not hours. Celebrate every red that turns amber or green.</p>
+      </div>
+    </div>
+    <div class="rounded-2xl p-5 border border-red-200" style="background:#fff7f7">
+      <p class="text-xs font-extrabold uppercase tracking-widest text-red-600 mb-2">Avoid this</p>
+      <p class="font-bold text-navy-dark mb-1">"Have you done your revision?"</p>
+      <p class="text-sm text-gray-600">It invites a one-word answer and puts them on the defensive. Ask about what they learned, not whether they did it. And protect 30 focused minutes a day rather than pushing for more hours.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ────────────────────────────────────────────────── -->
+<section class="premium-dark py-20 text-white no-print">
+  <div class="max-w-2xl mx-auto px-4 sm:px-6 text-center">
+    <span class="gold-badge">✦ WANT THIS DONE FOR YOU?</span>
+    <h2 class="text-3xl sm:text-4xl font-black mt-5 mb-4" style="letter-spacing:-.02em">Stoday Plus runs this plan <span class="gold-text">automatically.</span></h2>
+    <p class="text-sm sm:text-base mb-8" style="color:rgba(226,220,250,.72)">It schedules every review, reminds you what's due today, and gives you quizzes, written-answer practice and blurting for every topic. No paper, no planning.</p>
+    <a href="index.html#start" class="btn-gold shine inline-block px-8 py-4 rounded-xl text-sm">Try Stoday Plus free →</a>
+  </div>
+</section>
+
+<footer style="background:#09071a;" class="py-8">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-400">
+    <span>© 2026 Stoday Plus. Built by Mikey Hoang.</span>
+    <nav aria-label="Footer" class="flex gap-5"><a href="privacy.html" class="hover:text-white">Privacy</a><a href="terms.html" class="hover:text-white">Terms</a><a href="index.html" class="hover:text-white">Home</a></nav>
+  </div>
+</footer>
+
+<script>
+  // ── AQA topics. t: true = Triple (separate science) only ──────────────
+  var TOPICS = {
+    bio: [
+      { unit: 'Cell biology', items: [
+        ['Animal, plant and bacterial cells'], ['Cell specialisation and differentiation'], ['Microscopy and magnification'],
+        ['Culturing microorganisms', true], ['Chromosomes, mitosis and the cell cycle'], ['Stem cells'],
+        ['Diffusion'], ['Osmosis'], ['Active transport'] ] },
+      { unit: 'Organisation', items: [
+        ['Digestive system and enzymes'], ['Food tests'], ['The heart and blood vessels'], ['Blood'],
+        ['Coronary heart disease'], ['Health, lifestyle and non-communicable disease'], ['Cancer'],
+        ['Plant tissues and organs'], ['Transpiration and translocation'] ] },
+      { unit: 'Infection and response', items: [
+        ['Pathogens and how diseases spread'], ['Viral, bacterial, fungal and protist diseases'], ['Human defence systems'],
+        ['Vaccination'], ['Antibiotics and painkillers'], ['Discovering and developing drugs'],
+        ['Monoclonal antibodies', true], ['Plant disease and defences', true] ] },
+      { unit: 'Bioenergetics', items: [
+        ['Photosynthesis'], ['Rate of photosynthesis'], ['Uses of glucose'],
+        ['Aerobic and anaerobic respiration'], ['Response to exercise'], ['Metabolism'] ] },
+      { unit: 'Homeostasis and response', items: [
+        ['Homeostasis'], ['Nervous system and reflexes'], ['The brain', true], ['The eye', true], ['Controlling body temperature', true],
+        ['Endocrine system'], ['Controlling blood glucose and diabetes'], ['Hormones in reproduction'], ['Contraception'],
+        ['Infertility treatment and negative feedback'], ['Plant hormones', true], ['Water and nitrogen balance (kidneys)', true] ] },
+      { unit: 'Inheritance, variation and evolution', items: [
+        ['Sexual and asexual reproduction'], ['Meiosis'], ['DNA and the genome'], ['Genetic inheritance and Punnett squares'],
+        ['Inherited disorders'], ['Sex determination'], ['Variation and evolution'], ['Selective breeding'], ['Genetic engineering'],
+        ['Cloning', true], ['Evidence for evolution, fossils and extinction'], ['Antibiotic-resistant bacteria'], ['Classification'] ] },
+      { unit: 'Ecology', items: [
+        ['Communities and interdependence'], ['Abiotic and biotic factors'], ['Adaptations'], ['Food chains and sampling'],
+        ['Carbon and water cycles'], ['Decomposition', true], ['Biodiversity and waste management'], ['Land use and deforestation'],
+        ['Global warming'], ['Maintaining biodiversity'], ['Trophic levels and biomass', true], ['Food security and production', true] ] }
+    ],
+    chem: [
+      { unit: 'Atomic structure and the periodic table', items: [
+        ['Atoms, elements and compounds'], ['Mixtures and separation'], ['Development of the atomic model'],
+        ['Subatomic particles and isotopes'], ['Electronic structure'], ['The periodic table'],
+        ['Group 0, Group 1 and Group 7'], ['Transition metals', true] ] },
+      { unit: 'Bonding, structure and properties', items: [
+        ['Ionic bonding'], ['Covalent bonding'], ['Metallic bonding'], ['States of matter'],
+        ['Properties of ionic compounds'], ['Simple molecules and polymers'], ['Giant covalent structures'],
+        ['Metals and alloys'], ['Diamond, graphite, graphene and fullerenes'], ['Nanoparticles', true] ] },
+      { unit: 'Quantitative chemistry', items: [
+        ['Conservation of mass and balanced equations'], ['Relative formula mass'], ['Moles (Higher)'],
+        ['Reacting masses and limiting reactants (Higher)'], ['Concentration of solutions'],
+        ['Yield and atom economy', true], ['Gas volumes (Higher)', true] ] },
+      { unit: 'Chemical changes', items: [
+        ['Reactivity series'], ['Extracting metals'], ['Oxidation and reduction'], ['Acids with metals'],
+        ['Neutralisation and making salts'], ['pH and strong and weak acids'], ['Electrolysis'],
+        ['Electrolysis of aqueous solutions'], ['Titrations and titration calculations', true] ] },
+      { unit: 'Energy changes', items: [
+        ['Exothermic and endothermic reactions'], ['Reaction profiles'], ['Bond energies (Higher)'], ['Cells, batteries and fuel cells', true] ] },
+      { unit: 'Rate and extent of chemical change', items: [
+        ['Measuring rate of reaction'], ['Factors affecting rate and collision theory'], ['Catalysts'],
+        ['Reversible reactions and equilibrium'], ["Le Chatelier's principle (Higher)"] ] },
+      { unit: 'Organic chemistry', items: [
+        ['Crude oil, hydrocarbons and alkanes'], ['Fractional distillation'], ['Cracking and alkenes'],
+        ['Reactions of alkenes', true], ['Alcohols and carboxylic acids', true], ['Addition and condensation polymers', true], ['Natural polymers and DNA', true] ] },
+      { unit: 'Chemical analysis', items: [
+        ['Pure substances and formulations'], ['Chromatography'], ['Tests for gases'],
+        ['Flame tests and tests for ions', true], ['Instrumental methods', true] ] },
+      { unit: 'Chemistry of the atmosphere', items: [
+        ['Evolution of the atmosphere'], ['Greenhouse gases and climate change'], ['Atmospheric pollutants'] ] },
+      { unit: 'Using resources', items: [
+        ['Sustainable development and potable water'], ['Waste water treatment'], ['Phytomining and bioleaching (Higher)'],
+        ['Life cycle assessments and recycling'], ['Corrosion and alloys', true], ['Ceramics, polymers and composites', true],
+        ['The Haber process', true], ['NPK fertilisers', true] ] }
+    ]
+  };
+
+  // ── Saved state (this device only) ─────────────────────────────
+  var KEY = 'sp_mock_kit_v1';
+  var state = { subject: 'bio', course: 'combined', rag: {}, start: '' };
+  try { var saved = JSON.parse(localStorage.getItem(KEY) || 'null'); if (saved) state = Object.assign(state, saved); } catch (e) {}
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+  function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function topicId(subject, unit, name) { return subject + ':' + unit + ':' + name; }
+  function visibleTopics(subject) {
+    var out = [];
+    TOPICS[subject].forEach(function(u) {
+      u.items.forEach(function(it) {
+        if (it[1] && state.course !== 'triple') return;
+        out.push({ id: topicId(subject, u.unit, it[0]), name: it[0], unit: u.unit, subject: subject, triple: !!it[1] });
+      });
+    });
+    return out;
+  }
+
+  // ── Checklist ─────────────────────────────────────────────────
+  var unitsEl = document.getElementById('units');
+  function renderChecklist() {
+    var html = '';
+    TOPICS[state.subject].forEach(function(u, ui) {
+      var rows = u.items.filter(function(it) { return !it[1] || state.course === 'triple'; });
+      if (!rows.length) return;
+      html += '<div class="unit reveal revealed"><div class="unit-head"><p class="font-extrabold text-navy-dark">' + (ui + 1) + '. ' + esc(u.unit) + '</p><span class="text-xs font-bold text-gray-400">' + rows.length + ' topics</span></div>';
+      rows.forEach(function(it) {
+        var id = topicId(state.subject, u.unit, it[0]);
+        var v = state.rag[id] || '';
+        html += '<div class="topic" data-id="' + esc(id) + '" data-rag="' + v + '">' +
+          '<span class="flex-1 text-sm font-semibold text-navy-dark">' + esc(it[0]) + (it[1] ? ' <span class="pill">Triple</span>' : '') + '</span>' +
+          '<div class="rag" role="group" aria-label="Confidence for ' + esc(it[0]) + '">' +
+            ['r','a','g'].map(function(k) {
+              var label = { r: 'Red: no idea yet', a: 'Amber: half get it', g: 'Green: could explain it' }[k];
+              return '<button type="button" class="' + k + '" data-k="' + k + '" aria-pressed="' + (v === k) + '" aria-label="' + label + '">' + k.toUpperCase() + '</button>';
+            }).join('') +
+          '</div></div>';
+      });
+      html += '</div>';
+    });
+    unitsEl.innerHTML = html;
+    updateMeter();
+  }
+
+  unitsEl.addEventListener('click', function(e) {
+    var btn = e.target.closest('.rag button');
+    if (!btn) return;
+    var row = btn.closest('.topic');
+    var id = row.getAttribute('data-id');
+    var k = btn.getAttribute('data-k');
+    state.rag[id] = state.rag[id] === k ? '' : k;   // tap again to clear
+    if (!state.rag[id]) delete state.rag[id];
+    row.setAttribute('data-rag', state.rag[id] || '');
+    row.querySelectorAll('.rag button').forEach(function(b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-k') === state.rag[id])); });
+    save(); updateMeter();
+  });
+
+  function updateMeter() {
+    var all = visibleTopics('bio').concat(visibleTopics('chem'));
+    var c = { r: 0, a: 0, g: 0 };
+    all.forEach(function(t) { var v = state.rag[t.id]; if (v) c[v]++; });
+    var rated = c.r + c.a + c.g, total = all.length;
+    document.getElementById('rated-count').textContent = rated;
+    document.getElementById('total-count').textContent = total;
+    document.getElementById('r-count').textContent = c.r;
+    document.getElementById('a-count').textContent = c.a;
+    document.getElementById('g-count').textContent = c.g;
+    ['g','a','r'].forEach(function(k) { document.getElementById('m-' + k).style.width = (total ? c[k] / total * 100 : 0) + '%'; });
+    var msg = 'Start with the topics you\'ve already covered in class.';
+    if (rated > 0 && rated < total) msg = 'Nice. ' + (total - rated) + ' to go. Biology and Chemistry both count.';
+    if (rated === total && total) msg = c.r + c.a ? 'Everything rated. Now build your plan below. 👇' : 'All green. Seriously impressive. Keep it that way with reviews.';
+    document.getElementById('meter-msg').textContent = msg;
+  }
+
+  function setPressed(attr, value) {
+    document.querySelectorAll('[data-' + attr + ']').forEach(function(b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-' + attr) === value)); });
+  }
+  document.querySelectorAll('[data-subject]').forEach(function(b) {
+    b.addEventListener('click', function() { state.subject = b.getAttribute('data-subject'); setPressed('subject', state.subject); save(); renderChecklist(); });
+  });
+  document.querySelectorAll('[data-course]').forEach(function(b) {
+    b.addEventListener('click', function() { state.course = b.getAttribute('data-course'); setPressed('course', state.course); save(); renderChecklist(); });
+  });
+
+  // ── Plan builder: 1 new topic a day, reviews 1/3/7/14 days later ──
+  var REVIEW_GAPS = [1, 3, 7, 14];
+  var DAYS = 28;
+  var startInput = document.getElementById('start-date');
+  function isoDate(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  startInput.value = state.start || isoDate(new Date());
+
+  function buildPlan() {
+    var all = visibleTopics('bio').concat(visibleTopics('chem'));
+    // Reds first, then ambers; alternate Biology and Chemistry so days stay varied
+    function pick(level) {
+      var bio = all.filter(function(t) { return t.subject === 'bio' && state.rag[t.id] === level; });
+      var chem = all.filter(function(t) { return t.subject === 'chem' && state.rag[t.id] === level; });
+      var out = [];
+      while (bio.length || chem.length) { if (bio.length) out.push(bio.shift()); if (chem.length) out.push(chem.shift()); }
+      return out;
+    }
+    var queue = pick('r').concat(pick('a'));
+    var empty = document.getElementById('plan-empty'), outEl = document.getElementById('plan-out');
+    if (!queue.length) { empty.classList.remove('hidden'); outEl.classList.add('hidden'); return; }
+
+    var start = new Date(startInput.value + 'T00:00:00');
+    if (isNaN(start)) start = new Date();
+    state.start = isoDate(start); save();
+
+    var learnedOn = {}; // day index -> topic
+    var days = [];
+    for (var d = 0; d < DAYS; d++) {
+      var t = d < queue.length ? queue[d] : null;
+      if (t) learnedOn[d] = t;
+      var reviews = REVIEW_GAPS.map(function(g) { return learnedOn[d - g]; }).filter(Boolean);
+      var date = new Date(start); date.setDate(start.getDate() + d);
+      days.push({ date: date, learn: t, reviews: reviews });
+    }
+
+    var html = '';
+    for (var w = 0; w < 4; w++) {
+      html += '<div class="week"><p class="eyebrow mb-3">Week ' + (w + 1) + '</p><div class="grid gap-2">';
+      days.slice(w * 7, w * 7 + 7).forEach(function(day) {
+        var label = day.date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+        html += '<div class="day"><p class="text-[0.62rem] font-extrabold uppercase tracking-widest text-gray-400 mb-1">' + label + '</p>';
+        if (day.learn) html += '<p class="day-new"><span class="tag-new">NEW</span> ' + esc(day.learn.name) + ' <span class="text-gray-400 font-semibold">· ' + (day.learn.subject === 'bio' ? 'Bio' : 'Chem') + '</span></p>';
+        if (day.reviews.length) html += '<p class="day-rev mt-1">↻ Review: ' + day.reviews.map(function(r) { return esc(r.name); }).join(', ') + '</p>';
+        if (!day.learn && !day.reviews.length) html += '<p class="day-rev">Rest day, or blurt any amber topic.</p>';
+        html += '</div>';
+      });
+      html += '</div></div>';
+    }
+    document.getElementById('weeks').innerHTML = html;
+    var overflow = document.getElementById('plan-overflow');
+    if (queue.length > DAYS) {
+      overflow.textContent = 'You flagged ' + queue.length + ' topics, so ' + (queue.length - DAYS) + ' didn\'t fit in 4 weeks. Do the reds first; Stoday Plus can keep scheduling the rest for you.';
+      overflow.classList.remove('hidden');
+    } else { overflow.classList.add('hidden'); }
+    empty.classList.add('hidden'); outEl.classList.remove('hidden');
+  }
+  document.getElementById('build-plan').addEventListener('click', function() {
+    buildPlan();
+    document.getElementById('plan').scrollIntoView({ behavior: 'smooth' });
+  });
+  startInput.addEventListener('change', function() { if (!document.getElementById('plan-out').classList.contains('hidden')) buildPlan(); });
+
+  // ── Print just the blurting sheet ─────────────────────────────
+  document.getElementById('print-sheet').addEventListener('click', function() {
+    document.body.classList.add('print-sheet');
+    window.print();
+    setTimeout(function() { document.body.classList.remove('print-sheet'); }, 500);
+  });
+
+  // ── Section entrances ─────────────────────────────────────────
+  (function() {
+    var pending = Array.prototype.slice.call(document.querySelectorAll('.reveal:not(.revealed)'));
+    var ticking = false;
+    function check() {
+      ticking = false;
+      pending = pending.filter(function(el) {
+        if (el.getBoundingClientRect().top > window.innerHeight - 40) return true;
+        el.classList.add('revealed'); return false;
+      });
+    }
+    window.addEventListener('scroll', function() { if (!ticking) { ticking = true; requestAnimationFrame(check); } }, { passive: true });
+    check();
+  })();
+
+  // ── Start ─────────────────────────────────────────────────────
+  setPressed('subject', state.subject);
+  setPressed('course', state.course);
+  renderChecklist();
+  if (Object.keys(state.rag).length) buildPlan();
+</script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "86cfcf13f5c345a594ca8224fb7a28dc"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>
