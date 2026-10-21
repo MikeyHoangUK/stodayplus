@@ -795,6 +795,28 @@
     body.hc .aqa-locked{background:rgba(255,255,255,.03)}
     body.hc .aqa-locked-head{color:#e2cfc0}
     .qf-why,.rr-why{white-space:pre-line}
+    @media (max-width:640px){ .rp-clock-wrap{padding-left:10px} .rp-clock-time{font-size:1.3rem} .rp-clock-sec{display:none} } /* clock was cut off on phones */
+    .td-card{background:#fffdf7;border:1.5px solid rgba(124,58,237,.22);border-radius:18px;padding:22px 24px;margin-bottom:26px}
+    .td-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+    .td-eyebrow{font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#6d28d9}
+    .td-chips{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+    .td-chip{font-size:.72rem;font-weight:700;color:#5b4632;background:rgba(124,58,237,.07);border-radius:99px;padding:4px 10px}
+    .td-task{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .td-name{font-size:1.25rem;font-weight:800;color:#2a1d10;line-height:1.25}
+    .td-meta{font-size:.8rem;color:#7a6449;margin-top:4px;line-height:1.45}
+    .td-start{flex-shrink:0;background:#7c3aed;color:#fff;border:0;border-radius:13px;padding:13px 24px;font:inherit;font-weight:800;font-size:.9rem;cursor:pointer;box-shadow:0 3px 0 #5b21b6;transition:transform .08s,box-shadow .08s}
+    .td-start:active{transform:translateY(3px);box-shadow:0 0 0 #5b21b6}
+    .td-prog{display:flex;align-items:center;gap:12px;margin-top:18px}
+    .td-bar{flex:1;height:6px;border-radius:99px;background:rgba(124,58,237,.1);overflow:hidden}
+    .td-bar i{display:block;height:100%;background:#7c3aed;border-radius:99px}
+    .td-prog span{font-size:.72rem;font-weight:700;color:#7a6449;white-space:nowrap}
+    .td-done-title{font-size:1.15rem;font-weight:800;color:#4338ca}
+    .td-more{margin-top:12px;background:none;border:0;font:inherit;font-size:.78rem;font-weight:700;color:#6d28d9;cursor:pointer;padding:0}
+    body.hc .td-card{background:#0f0d22;border-color:rgba(168,85,247,.4)}
+    body.hc .td-name{color:#f3e8ff} body.hc .td-meta,body.hc .td-prog span{color:#c8b89a} body.hc .td-chip{color:#e2cfc0;background:rgba(168,85,247,.15)}
+    @media (max-width:640px){ .td-task{flex-direction:column;align-items:stretch} .td-start{width:100%} .td-chips{margin-left:0} }
+    #sp-cd-drop{position:fixed;top:0;left:50%;transform:translate(-50%,-120%);z-index:9000;background:#2a1d10;color:#fff;font-size:.82rem;font-weight:700;padding:10px 18px;border-radius:0 0 14px 14px;box-shadow:0 6px 20px rgba(0,0,0,.18);transition:transform .35s ease;white-space:nowrap;max-width:calc(100vw - 32px);overflow:hidden;text-overflow:ellipsis}
+    #sp-cd-drop.on{transform:translate(-50%,0)}
     .pomo-opt.pomo-default{border:1.5px solid #7c3aed;background:rgba(124,58,237,.07)}
     .pomo-opt.pomo-default .pomo-desc::after{content:' · Your pick';font-weight:700;color:#6d28d9}
     .pomo-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
@@ -4815,7 +4837,7 @@ function startQuiz() {
   }
   for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random()*(i+1)); var t=pool[i]; pool[i]=pool[j]; pool[j]=t; }
   var n = cv === 'all' ? pool.length : Math.min(parseInt(cv), pool.length);
-  qzQs = pool.slice(0, n); qzIdx = 0; qzScore = 0; qzAnswered = false; qzAnswers = []; lastCfg = { d: d, cv: cv }; qzStartTime = Date.now(); qzWrongInSession = []; qzCorrectInSession = []; qzClearSession();
+  qzQs = pool.slice(0, n); qzIdx = 0; qzScore = 0; qzAnswered = false; qzAnswers = []; lastCfg = { d: d, cv: cv }; qzStartTime = Date.now(); setTimeout(spCountdownDrop, 1200); qzWrongInSession = []; qzCorrectInSession = []; qzClearSession();
   document.getElementById('quiz-setup').style.display = 'none';
   document.getElementById('quiz-run-wrap').style.display = 'block';
   document.getElementById('quiz-results').style.display = 'none';
@@ -5478,6 +5500,7 @@ function populateSubjectDatalist() {
 
 function showResults() {
   document.getElementById('quiz-run-wrap').style.display = 'none';
+  try { spTodayLog(document.getElementById('qz-folder').value, (Date.now() - qzStartTime) / 60000); } catch(e) {}
   qzDefClose();
   notesClose();
   var pct = Math.round(qzScore / qzQs.length * 100);
@@ -9246,6 +9269,128 @@ function rpModeChoose(tool) {
   rpGoToTopic(tool, id);
 }
 
+// ── Today card (top of the planner) + exam countdown ─────────────────────────
+// One task at a time: overdue review first, then weakest topic, then the next AQA topic
+// not started yet. Start opens the quiz and the Focus timer together. Minutes are counted
+// from finished quizzes against the student's focus length (onboarding, 45 by default).
+var SP_TODAY_QS = 10; // questions per Today task (about 5 min, same estimate as the quiz wizard)
+function spTodayKey() { return 'sp_today_v1:' + (user || ''); }
+function spTodayState() {
+  var d = new Date().toDateString(), st = null;
+  try { st = JSON.parse(localStorage.getItem(spTodayKey()) || 'null'); } catch(e) {}
+  if (!st || st.date !== d) st = { date: d, mins: 0, done: [] };
+  return st;
+}
+function spTodayLog(folder, mins) {
+  var st = spTodayState();
+  st.mins = Math.round((st.mins + Math.max(1, mins)) * 10) / 10;
+  if (folder && folder !== 'all' && st.done.indexOf(folder) === -1) st.done.push(folder);
+  try { localStorage.setItem(spTodayKey(), JSON.stringify(st)); } catch(e) {}
+}
+function spFocusMins() { return (spProfile && spProfile.focus) || 45; }
+function spFolderCount(f) { return bank.filter(function(q) { return (q.folder || 'General') === f; }).length; }
+function spPickTask() {
+  var st = spTodayState(), scores = getFolderScores(), folders = getFolders();
+  function ok(f) { return f && spFolderCount(f) > 0 && st.done.indexOf(f) === -1; }
+  function match(topic) { return folders.find(function(f) { return f.toLowerCase() === String(topic).toLowerCase(); }); }
+  var due = (typeof rpGetDue === 'function' ? rpGetDue() : []).slice().sort(function(a, b) { return a.nextReview - b.nextReview; });
+  for (var i = 0; i < due.length; i++) {
+    var df = match(due[i].topic);
+    if (ok(df)) return { folder: df, why: due[i].nextReview < Date.now() - 86400000 ? 'Overdue review' : 'Due for review today' };
+  }
+  var weak = folders.filter(function(f) { return ok(f) && scores[f] && scores[f].best >= 0 && scores[f].best < 75; })
+    .sort(function(a, b) { return scores[a].best - scores[b].best; });
+  if (weak.length) return { folder: weak[0], why: 'Your weakest topic (best ' + scores[weak[0]].best + '%)' };
+  var seen = {};
+  for (var j = 0; j < bank.length; j++) {
+    var q = bank[j], f = q.folder || 'General';
+    if (q.src !== 'aqa' || seen[f]) continue;
+    seen[f] = 1;
+    if (ok(f) && !scores[f]) return { folder: f, why: 'Next topic on your AQA list' };
+  }
+  var fresh = folders.filter(function(f) { return ok(f) && !scores[f]; });
+  if (fresh.length) return { folder: fresh[0], why: 'Not started yet' };
+  var any = folders.filter(ok).sort(function(a, b) { return (scores[a] ? scores[a].best : 0) - (scores[b] ? scores[b].best : 0); });
+  return any.length ? { folder: any[0], why: 'Keep it fresh' } : null;
+}
+function spCountdowns() {
+  var p = spProfile, out = [], now = new Date();
+  if (!p) return out;
+  if (p.level === 'gcse') {
+    if (p.mocks) {
+      var m = new Date(p.mocks + '-01T09:00:00');
+      if (m.getFullYear() === now.getFullYear() && m.getMonth() === now.getMonth()) out.push({ text: 'Mocks this month' });
+      else if (m > now) out.push({ text: 'Mocks in ' + spUntil(m) });
+    }
+    // Real dates come out with the AQA timetable; until then count to mid-May of the exam year
+    if (p.examYear) { var e = new Date(p.examYear + '-05-11T09:00:00'); if (e > now) out.push({ text: 'GCSE exams in about ' + spUntil(e) }); }
+  } else if (p.examDate) {
+    var x = new Date(p.examDate + 'T09:00:00');
+    if (x > now) out.push({ text: (p.prep ? p.prep : 'Your exam') + ' in ' + spUntil(x) });
+  }
+  return out;
+}
+function spUntil(d) {
+  var days = Math.ceil((d - Date.now()) / 86400000);
+  if (days <= 1) return '1 day';
+  if (days < 15) return days + ' days';
+  if (days > 182) return Math.round(days / 30.4) + ' months'; // 81 weeks is hard to picture
+  return Math.round(days / 7) + ' weeks';
+}
+function spTodayCardHtml() {
+  if (user === 'demo@stoday.plus' && !spProfile) return '';
+  var st = spTodayState(), goal = spFocusMins(), mins = Math.min(goal, Math.round(st.mins));
+  var pct = Math.round(mins / goal * 100), finished = st.mins >= goal;
+  var cds = spCountdowns().map(function(c) { return '<span class="td-chip">⏳ ' + rpEsc(c.text) + '</span>'; }).join('');
+  var h = '<div class="td-card"><div class="td-head"><span class="td-eyebrow">Today</span>' + (cds ? '<div class="td-chips">' + cds + '</div>' : '') + '</div>';
+  var task = finished ? null : spPickTask();
+  if (finished) {
+    h += '<div class="td-done"><div class="td-done-title">Done for today ✓</div><div class="td-meta">You hit your ' + goal + ' minutes. Rest, and come back tomorrow.</div></div>'
+      + '<button class="td-more" onclick="spTodayMore()">Do one more anyway</button>';
+  } else if (task) {
+    h += '<div class="td-task"><div><div class="td-name">' + rpEsc(task.folder) + '</div>'
+      + '<div class="td-meta">' + SP_TODAY_QS + ' questions · about 5 min · ' + rpEsc(task.why) + '</div></div>'
+      + '<button class="td-start" onclick="spTodayStart(\'' + jsq(task.folder) + '\')">▶ Start</button></div>';
+  } else {
+    h += '<div class="td-task"><div><div class="td-name">Add your first questions</div><div class="td-meta">Your daily task appears here once Poppy has questions.</div></div>'
+      + '<button class="td-start" onclick="showPanel(\'mcq\', document.querySelector(\'.nav-item[onclick*=&quot;mcq&quot;]\'));switchTab(\'create\')">＋ Create</button></div>';
+  }
+  h += '<div class="td-prog"><div class="td-bar"><i style="width:' + pct + '%"></i></div><span>' + mins + ' of ' + goal + ' min today</span></div></div>';
+  return h;
+}
+function spTodayMore() {
+  var t = spPickTask(); // skips topics already done today
+  if (t) spTodayStart(t.folder);
+}
+function spTodayStart(folder) {
+  showPanel('mcq', document.querySelector('.nav-item[onclick*="\'mcq\'"]'));
+  quizFolder(folder);
+  qzWizDiff('all');
+  qzWizStart(SP_TODAY_QS);
+  spStartFocus();
+}
+function spStartFocus() {
+  if (pomoRunning) return;
+  var t = { 30: 'normal', 45: 'plus', 60: 'max' }[spFocusMins()] || 'plus';
+  if (pomoType !== t || pomoLeft <= 0) selectPomo(t);
+  togglePomo();
+}
+// Poppy: the countdown drops down for 5 seconds when a quiz starts, then every 10 minutes
+function spCountdownDrop() {
+  var c = spCountdowns();
+  if (!c.length) return;
+  var el = document.getElementById('sp-cd-drop');
+  if (!el) { el = document.createElement('div'); el.id = 'sp-cd-drop'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+  el.textContent = '⏳ ' + c.map(function(x) { return x.text; }).join('  ·  ');
+  el.classList.add('on');
+  clearTimeout(el._t);
+  el._t = setTimeout(function() { el.classList.remove('on'); }, 5000);
+}
+setInterval(function() {
+  var run = document.getElementById('quiz-run-wrap');
+  if (run && run.offsetParent !== null) spCountdownDrop();
+}, 10 * 60 * 1000);
+
 function rpRenderToday() {
   var _mp = document.getElementById('rp-mode-picker');
   if (_mp && _mp.style.display !== 'none') { _mp.style.display = 'none'; }
@@ -9253,8 +9398,9 @@ function rpRenderToday() {
   if (!el) return;
   el.style.display = 'block';
   var due = rpGetDue();
+  var _todayCard = spTodayCardHtml();
   if (due.length === 0) {
-    el.innerHTML = '<div class="rp-empty"><div class="rp-empty-icon">🎉</div><div class="rp-empty-title">All caught up!</div><div class="rp-empty-sub">No reviews due today. Come back tomorrow.</div></div>'
+    el.innerHTML = _todayCard + '<div class="rp-empty"><div class="rp-empty-icon">🎉</div><div class="rp-empty-title">All caught up!</div><div class="rp-empty-sub">No reviews due today. Come back tomorrow.</div></div>'
       + rpShortcutsHTML();
     return;
   }
@@ -9307,7 +9453,7 @@ function rpRenderToday() {
       + '</div>';
   });
   html += rpShortcutsHTML();
-  el.innerHTML = html;
+  el.innerHTML = _todayCard + html;
 }
 
 function rpRenderAll() {
