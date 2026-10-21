@@ -755,6 +755,17 @@
     .pomo-opts{display:grid;gap:8px}
     .pomo-opt{display:flex;align-items:center;gap:11px;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.07);border-radius:11px;padding:13px 14px;cursor:pointer;transition:all .2s;text-align:left}
     .pomo-opt:hover{background:rgba(168,85,247,.09);border-color:rgba(168,85,247,.28)}
+    .aqa-badge{display:inline-block;font-size:.58rem;font-weight:800;letter-spacing:.06em;color:#fff;background:#7c3aed;border-radius:6px;padding:2px 6px}
+    .aqa-badge-card{position:absolute;top:12px;left:12px}
+    .aqa-locked{max-width:var(--sp-col,880px);margin:0 auto 22px;border:1.5px dashed rgba(124,58,237,.35);border-radius:16px;padding:18px 20px;background:rgba(255,255,255,.55)}
+    .aqa-locked-head{display:flex;align-items:center;gap:10px;font-size:.92rem;color:#3b2a1a}
+    .aqa-lock{margin-left:auto;font-size:.72rem;font-weight:800;color:#6d28d9;background:rgba(124,58,237,.1);border-radius:99px;padding:3px 10px}
+    .aqa-locked p{font-size:.8rem;color:#6e5438;margin:8px 0 12px;line-height:1.5}
+    .aqa-locked-topics{display:flex;flex-wrap:wrap;gap:6px}
+    .aqa-locked-topics span{font-size:.72rem;font-weight:600;color:#8a7558;border:1px solid rgba(168,85,247,.18);border-radius:99px;padding:4px 10px;background:#fffdf7}
+    body.hc .aqa-locked{background:rgba(255,255,255,.03)}
+    body.hc .aqa-locked-head{color:#e2cfc0}
+    .qf-why,.rr-why{white-space:pre-line}
     .pomo-opt.pomo-default{border:1.5px solid #7c3aed;background:rgba(124,58,237,.07)}
     .pomo-opt.pomo-default .pomo-desc::after{content:' · Your pick';font-weight:700;color:#6d28d9}
     .pomo-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
@@ -4354,7 +4365,72 @@ function refreshFolderDatalist(){
   dl.innerHTML = getFolders().map(function(f){ return '<option value="'+esc(f)+'">'; }).join('');
 }
 
+// ── AQA question bank (GCSE track) ─────────────────────────────────────────
+// Ready-made AQA questions from bank/aqa-biology.json, added to a GCSE student's
+// study space as normal topics, so quizzes, mastery and the planner all just work.
+// Plus only. Until payments are live, access is this allowlist (Mikey's test accounts).
+var AQA_BANK_ACCESS = ['ngoclong003vn@gmail.com', 'test@stoday.plus'];
+var aqaBankData = null;
+function aqaIsGcse() { return !!(spProfile && spProfile.level === 'gcse'); }
+function aqaHasAccess() { return !!user && AQA_BANK_ACCESS.indexOf(String(user).toLowerCase()) !== -1; }
+function aqaLoadBank() {
+  if (!aqaIsGcse() || aqaBankData) return;
+  fetch('bank/aqa-biology.json', { cache: 'no-cache' })
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(d) { if (d && d.questions) { aqaBankData = d; if (typeof renderBank === 'function') renderBank(); } })
+    .catch(function() {});
+}
+// Make the student's bank match the AQA file: add missing questions, update changed ones
+// (so central fixes reach everyone), and drop separate-only ones for Combined Science.
+// Returns true if anything changed.
+function aqaBankEnsure() {
+  if (!aqaBankData || !aqaIsGcse() || !aqaHasAccess()) return false;
+  // Never write before the account's own questions have loaded, or the sync could overwrite them
+  if (user !== 'demo@stoday.plus' && !_spCloudLoaded) return false;
+  var combined = spProfile.course === 'combined';
+  var want = {};
+  aqaBankData.questions.forEach(function(q) { if (!(combined && q.sep)) want[q.id] = q; });
+  var changed = false, have = {};
+  bank = bank.filter(function(q) {
+    if (q.src !== 'aqa') return true;
+    if (!want[q.id]) { changed = true; return false; }
+    return true;
+  });
+  bank.forEach(function(q) {
+    if (q.src !== 'aqa') return;
+    var w = want[q.id]; have[q.id] = true;
+    ['stem', 'correct', 'hint', 'rationale', 'reference', 'difficulty', 'folder'].forEach(function(k) {
+      if (q[k] !== w[k]) { q[k] = w[k]; changed = true; }
+    });
+    if (JSON.stringify(q.options) !== JSON.stringify(w.options)) { q.options = w.options.slice(); changed = true; }
+  });
+  var newFolders = {};
+  Object.keys(want).forEach(function(id) {
+    if (have[id]) return;
+    var w = want[id];
+    bank.push({ id: w.id, src: 'aqa', stem: w.stem, options: w.options.slice(), correct: w.correct, difficulty: w.difficulty,
+                folder: w.folder, hint: w.hint, rationale: w.rationale, reference: w.reference });
+    newFolders[w.folder] = true; changed = true;
+  });
+  Object.keys(newFolders).forEach(function(f) { saveFolderMeta(f, aqaBankData.subject); ensureFolder(f, aqaBankData.subject); });
+  if (changed) saveBank();
+  return changed;
+}
+// GCSE students without Plus see what the bank holds, locked
+function aqaLockedHtml() {
+  if (!aqaIsGcse() || aqaHasAccess()) return '';
+  var topics = aqaBankData ? aqaBankData.topics : [{ name: 'Cell Biology', folders: [] }];
+  var n = aqaBankData ? aqaBankData.questions.length : 0;
+  return '<div class="aqa-locked">'
+    + '<div class="aqa-locked-head"><span class="aqa-badge">AQA</span><strong>Biology question bank</strong><span class="aqa-lock">🔒 Plus</span></div>'
+    + '<p>' + (n ? n + ' ready-made questions' : 'Ready-made questions') + ' that follow the AQA specification, each with a hint and a "Why?". Included with Stoday Plus.</p>'
+    + '<div class="aqa-locked-topics">' + topics.map(function(t) { return (t.folders.length ? t.folders : [t.name]).map(function(f) { return '<span>' + esc(f) + '</span>'; }).join(''); }).join('') + '</div>'
+    + '</div>';
+}
+
 function renderBank() {
+  aqaLoadBank();
+  aqaBankEnsure();
   var fbar    = document.getElementById('bank-folder-bar');
   var list    = document.getElementById('bank-list');
   var diffBar = document.getElementById('bank-diff-bar');
@@ -4400,7 +4476,7 @@ function renderBank() {
     });
 
     if (folders.length === 0) {
-      list.innerHTML = '<div class="bank-empty"><div class="ei">📭</div><h3>No questions yet</h3><p>Turn your class notes into quiz questions in seconds.</p><button class="qzw-cta" style="margin-top:14px" onclick="switchTab(\'create\')">＋ Create questions</button></div>';
+      list.innerHTML = aqaLockedHtml() + '<div class="bank-empty"><div class="ei">📭</div><h3>No questions yet</h3><p>Turn your class notes into quiz questions in seconds.</p><button class="qzw-cta" style="margin-top:14px" onclick="switchTab(\'create\')">＋ Create questions</button></div>';
       return;
     }
     if (visibleFolders.length === 0) {
@@ -4422,6 +4498,7 @@ function renderBank() {
         confBadge = '<div class="fc-confidence" style="color:' + bCol + '">' + bIcon + ' ' + fsc.best + '%</div>';
       }
       var subjChip = folderSubjChip(f);
+      if (bank.some(function(q) { return q.src === 'aqa' && (q.folder||'General') === f; })) subjChip = '<span class="aqa-badge aqa-badge-card" title="Ready-made AQA questions">AQA</span>' + subjChip;
       var quizBtn = count > 0 ? '<button class="fc-quiz" onclick="quizFolder(\''+jsq(f)+'\')">▶ Quiz</button>' : '';
       card.innerHTML = '<button class="fc-edit-top" onclick="openFolderEdit(\''+jsq(f)+'\')" title="Rename">✎ Edit</button>'
         + subjChip
@@ -4431,7 +4508,7 @@ function renderBank() {
         + '<div class="fc-actions">'+quizBtn+'<button class="fc-create" onclick="jumpToCreate(\''+jsq(f)+'\')" title="Add more questions to this topic" aria-label="Add more questions to '+esc(f)+'">+</button><button class="fc-del" onclick="deleteFolder(\''+jsq(f)+'\')" title="Delete this topic" aria-label="Delete topic '+esc(f)+'">🗑</button></div>';
       grid.appendChild(card);
     });
-    list.innerHTML = '';
+    list.innerHTML = aqaLockedHtml();
     list.appendChild(grid);
 
   } else {
@@ -12064,6 +12141,7 @@ var _USER_DATA_KEYS = [
 ];
 
 var _supabaseLoading = false;
+var _spCloudLoaded = false; // true once this account's saved data has come down from the cloud
 async function _loadFromSupabase() {
   if (!_spClient || !_spUser) return;
   if (_supabaseLoading) return;
@@ -12336,6 +12414,8 @@ async function _loadFromSupabase() {
     }
   }
   _supabaseLoading = false;
+  _spCloudLoaded = true;
+  if (typeof renderBank === 'function') renderBank(); // lets the AQA bank add itself now it's safe
 }
 
 async function _syncToSupabase() {
