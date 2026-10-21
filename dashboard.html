@@ -819,6 +819,21 @@
     @media (max-width:640px){ .td-task{flex-direction:column;align-items:stretch} .td-start{width:100%} .td-chips{margin-left:0} }
     #sp-cd-drop{position:fixed;top:0;left:50%;transform:translate(-50%,-120%);z-index:9000;background:#2a1d10;color:#fff;font-size:.82rem;font-weight:700;padding:10px 18px;border-radius:0 0 14px 14px;box-shadow:0 6px 20px rgba(0,0,0,.18);transition:transform .35s ease;white-space:nowrap;max-width:calc(100vw - 32px);overflow:hidden;text-overflow:ellipsis}
     #sp-cd-drop.on{transform:translate(-50%,0)}
+    #sp-focus-drop{position:fixed;top:96px;right:max(24px,calc((100vw - 880px) / 2 - 190px));z-index:8900;width:150px;padding:16px 14px 14px;background:#fffdf7;border:1.5px solid rgba(124,58,237,.18);border-radius:22px;box-shadow:0 14px 34px rgba(42,29,16,.16);text-align:center;transform:translateY(-140%);opacity:0;pointer-events:none}
+    #sp-focus-drop.on{animation:fdDown .55s cubic-bezier(.34,1.56,.64,1) forwards}
+    #sp-focus-drop.up{animation:fdUp .4s ease-in forwards}
+    @keyframes fdDown{from{transform:translateY(-140%);opacity:0}to{transform:translateY(0);opacity:1}}
+    @keyframes fdUp{from{transform:translateY(0);opacity:1}to{transform:translateY(-140%);opacity:0}}
+    #sp-focus-drop svg{width:110px;height:110px;transform:rotate(-90deg);display:block;margin:0 auto}
+    #sp-focus-drop .fd-track{fill:none;stroke:rgba(124,58,237,.1);stroke-width:9}
+    #sp-focus-drop .fd-ring{fill:none;stroke:var(--fd-col);stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset 1s linear}
+    #sp-focus-drop .fd-mid{position:absolute;top:16px;left:0;right:0;height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    #sp-focus-drop .fd-time{font-size:1.55rem;font-weight:900;color:var(--fd-col);font-variant-numeric:tabular-nums;line-height:1}
+    #sp-focus-drop .fd-sub{font-size:.66rem;font-weight:700;color:#8a7558;margin-top:3px;text-transform:uppercase;letter-spacing:.08em}
+    #sp-focus-drop .fd-lbl{font-size:.74rem;font-weight:800;color:#3b2a1a;margin-top:10px}
+    body.hc #sp-focus-drop{background:#0f0d22;border-color:rgba(168,85,247,.4)}
+    body.hc #sp-focus-drop .fd-lbl{color:#e2cfc0}
+    @media (max-width:1180px){ #sp-focus-drop{top:76px;right:16px;width:118px;padding:12px 10px 10px;border-radius:18px} #sp-focus-drop svg{width:86px;height:86px} #sp-focus-drop .fd-mid{top:12px;height:86px} #sp-focus-drop .fd-time{font-size:1.2rem} #sp-focus-drop .fd-lbl{font-size:.66rem;margin-top:6px} }
     .pomo-opt.pomo-default{border:1.5px solid #7c3aed;background:rgba(124,58,237,.07)}
     .pomo-opt.pomo-default .pomo-desc::after{content:' · Your pick';font-weight:700;color:#6d28d9}
     .pomo-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
@@ -9351,13 +9366,13 @@ function spCountdowns() {
     if (p.mocks) {
       var m = new Date(p.mocks + '-01T09:00:00');
       if (m.getFullYear() === now.getFullYear() && m.getMonth() === now.getMonth()) out.push({ text: 'Mocks this month' });
-      else if (m > now) out.push({ text: 'Mocks in ' + spUntil(m) });
+      else if (m > now) out.push({ text: 'Mocks are ' + spUntil(m) + ' away' });
     }
     // Real dates come out with the AQA timetable; until then count to mid-May of the exam year
-    if (p.examYear) { var e = new Date(p.examYear + '-05-11T09:00:00'); if (e > now) out.push({ text: 'GCSE exams in about ' + spUntil(e) }); }
+    if (p.examYear) { var e = new Date(p.examYear + '-05-11T09:00:00'); if (e > now) out.push({ text: 'GCSEs are about ' + spUntil(e) + ' away' }); }
   } else if (p.examDate) {
     var x = new Date(p.examDate + 'T09:00:00');
-    if (x > now) out.push({ text: (p.prep ? p.prep : 'Your exam') + ' in ' + spUntil(x) });
+    if (x > now) out.push({ text: (p.prep ? p.prep : 'Your exam') + ' is ' + spUntil(x) + ' away' });
   }
   return out;
 }
@@ -9422,12 +9437,34 @@ function spCountdownDrop() {
   if (!c.length) return;
   spDrop(function() { return '⏳ ' + c.map(function(x) { return x.text; }).join('  ·  '); });
 }
+// Focus clock: a coloured ring that drops into the empty space right of the quiz,
+// shows the time left (ticking) for 5 seconds, then slides back up.
+var SP_POMO_COL = { normal: '#f87171', plus: '#2563eb', max: '#6d28d9' };
 function spFocusDrop() {
   if (!pomoRunning || pomoLeft <= 0) return;
-  spDrop(function() {
+  var el = document.getElementById('sp-focus-drop');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'sp-focus-drop'; el.setAttribute('role', 'timer'); el.setAttribute('aria-live', 'off');
+    el.innerHTML = '<svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" class="fd-track"/><circle cx="60" cy="60" r="52" class="fd-ring" id="fd-ring"/></svg>'
+      + '<div class="fd-mid"><div class="fd-time" id="fd-time"></div><div class="fd-sub">left</div></div>'
+      + '<div class="fd-lbl">Stay locked in</div>';
+    document.body.appendChild(el);
+  }
+  var col = SP_POMO_COL[pomoType] || '#7c3aed', C = 2 * Math.PI * 52;
+  el.style.setProperty('--fd-col', col);
+  var ring = el.querySelector('#fd-ring');
+  ring.style.strokeDasharray = C;
+  function paint() {
     var m = Math.floor(pomoLeft / 60), sec = pomoLeft % 60;
-    return '⏱ ' + m + ':' + (sec < 10 ? '0' : '') + sec + ' left in your focus session · stay locked in';
-  });
+    el.querySelector('#fd-time').textContent = m + ':' + (sec < 10 ? '0' : '') + sec;
+    ring.style.strokeDashoffset = C * (1 - (pomoTotal ? pomoLeft / pomoTotal : 0));
+  }
+  paint();
+  el.classList.remove('up'); el.classList.add('on');
+  clearTimeout(el._t); clearInterval(el._i);
+  el._i = setInterval(paint, 1000);
+  el._t = setTimeout(function() { el.classList.remove('on'); el.classList.add('up'); clearInterval(el._i); }, 5000);
 }
 setInterval(function() {
   var run = document.getElementById('quiz-run-wrap');
