@@ -4423,7 +4423,7 @@ function refreshFolderDatalist(){
 // Ready-made AQA questions from bank/aqa-biology.json, added to a GCSE student's
 // study space as normal topics, so quizzes, mastery and the planner all just work.
 // Plus only. Until payments are live, access is this allowlist (Mikey's test accounts).
-var AQA_BANK_ACCESS = ['ngoclong003vn@gmail.com', 'test@stoday.plus'];
+var AQA_BANK_ACCESS = ['test@stoday.plus'];
 var aqaBankData = null;
 function aqaIsGcse() { return !!(spProfile && spProfile.level === 'gcse'); }
 function aqaHasAccess() { return !!user && AQA_BANK_ACCESS.indexOf(String(user).toLowerCase()) !== -1; }
@@ -4438,9 +4438,11 @@ function aqaLoadBank() {
 // (so central fixes reach everyone), and drop separate-only ones for Combined Science.
 // Returns true if anything changed.
 function aqaBankEnsure() {
-  if (!aqaBankData || !aqaIsGcse() || !aqaHasAccess()) return false;
   // Never write before the account's own questions have loaded, or the sync could overwrite them
   if (user !== 'demo@stoday.plus' && !_spCloudLoaded) return false;
+  // Not a GCSE account with access (e.g. A-level/professional, or no Plus): take the bank back out
+  if (!aqaIsGcse() || !aqaHasAccess()) return aqaBankRemove();
+  if (!aqaBankData) return false;
   var combined = spProfile.course === 'combined';
   var want = {};
   aqaBankData.questions.forEach(function(q) { if (!(combined && q.sep)) want[q.id] = q; });
@@ -4470,6 +4472,24 @@ function aqaBankEnsure() {
   if (changed) saveBank();
   return changed;
 }
+// Remove ready-made AQA questions, plus the topics they created if nothing else is in them.
+// The student's own questions and topics are never touched.
+function aqaBankRemove() {
+  var folders = {};
+  bank.forEach(function(q) { if (q.src === 'aqa') folders[q.folder || 'General'] = true; });
+  var names = Object.keys(folders);
+  if (!names.length) return false;
+  bank = bank.filter(function(q) { return q.src !== 'aqa'; });
+  var empty = names.filter(function(f) { return !bank.some(function(q) { return (q.folder || 'General') === f; }); });
+  var isEmpty = function(n) { return empty.some(function(f) { return f.toLowerCase() === String(n).toLowerCase(); }); };
+  saveAllFolders(getAllFolders().filter(function(f) { return !isEmpty(f.name); }));
+  // organiser topics: only drop ones with no study recorded
+  orgTopics = orgTopics.filter(function(t) { return !(isEmpty(t.topic_name) && !t.mcq_count && !t.saq_count && !t.blurting_count && !t.revision_count); });
+  orgSaveTopics();
+  saveBank();
+  return true;
+}
+
 // GCSE students without Plus see what the bank holds, locked
 function aqaLockedHtml() {
   if (!aqaIsGcse() || aqaHasAccess()) return '';
