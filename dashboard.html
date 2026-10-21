@@ -798,16 +798,20 @@
     body.hc .aqa-locked-head{color:#e2cfc0}
     .qf-why,.rr-why{white-space:pre-line}
     @media (max-width:640px){ .rp-clock-wrap{padding-left:10px} .rp-clock-time{font-size:1.3rem} .rp-clock-sec{display:none} } /* clock was cut off on phones */
-    .td-card{background:#fffdf7;border:1.5px solid rgba(124,58,237,.22);border-radius:18px;padding:22px 24px;margin-bottom:26px}
+    .td-card{position:relative;overflow:hidden;background:linear-gradient(120deg,rgba(124,58,237,.13) 0%,rgba(250,243,224,.92) 58%);border:1px solid rgba(124,58,237,.24);border-left:5px solid #7c3aed;border-radius:18px;padding:22px 24px;margin-bottom:26px;box-shadow:0 8px 24px rgba(91,33,182,.08)}
     .td-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
     .td-eyebrow{font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#6d28d9}
     .td-chips{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
-    .td-chip{font-size:.72rem;font-weight:700;color:#5b4632;background:rgba(124,58,237,.07);border-radius:99px;padding:4px 10px}
+    .td-chip{font-size:.72rem;font-weight:700;color:#5b21b6;background:rgba(255,253,247,.75);border:1px solid rgba(124,58,237,.16);border-radius:99px;padding:4px 10px}
     .td-task{display:flex;align-items:center;justify-content:space-between;gap:16px}
     .td-name{font-size:1.25rem;font-weight:800;color:#2a1d10;line-height:1.25}
     .td-meta{font-size:.8rem;color:#7a6449;margin-top:4px;line-height:1.45}
-    .td-start{flex-shrink:0;background:#7c3aed;color:#fff;border:0;border-radius:13px;padding:13px 24px;font:inherit;font-weight:800;font-size:.9rem;cursor:pointer;box-shadow:0 3px 0 #5b21b6;transition:transform .08s,box-shadow .08s}
-    .td-start:active{transform:translateY(3px);box-shadow:0 0 0 #5b21b6}
+    /* Start: house gradient button that physically "presses in" before moving on */
+    .td-start{position:relative;overflow:hidden;flex-shrink:0;background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;border:0;border-radius:14px;padding:14px 30px;font-family:'Raleway',sans-serif;font-weight:900;font-size:.9rem;letter-spacing:.04em;cursor:pointer;box-shadow:0 8px 18px rgba(79,70,229,.32),inset 0 1px 0 rgba(255,255,255,.25);transition:transform .12s ease,box-shadow .12s ease,filter .12s ease}
+    .td-start:hover{filter:brightness(1.06);box-shadow:0 10px 22px rgba(79,70,229,.38),inset 0 1px 0 rgba(255,255,255,.25)}
+    .td-start:active,.td-start.is-pressed{transform:translateY(2px) scale(.96);filter:brightness(.92);box-shadow:0 2px 6px rgba(79,70,229,.28),inset 0 3px 8px rgba(30,10,80,.35)}
+    .td-start .td-ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.45);transform:scale(0);animation:tdRipple .45s ease-out forwards;pointer-events:none}
+    @keyframes tdRipple{to{transform:scale(1);opacity:0}}
     .td-prog{display:flex;align-items:center;gap:12px;margin-top:18px}
     .td-bar{flex:1;height:6px;border-radius:99px;background:rgba(124,58,237,.1);overflow:hidden}
     .td-bar i{display:block;height:100%;background:#7c3aed;border-radius:99px}
@@ -9396,13 +9400,25 @@ function spTodayCardHtml() {
   } else if (task) {
     h += '<div class="td-task"><div><div class="td-name">' + rpEsc(task.folder) + '</div>'
       + '<div class="td-meta">' + spTodayQs() + ' questions · about ' + Math.round(spTodayQs() / 2) + ' min · ' + rpEsc(task.why) + '</div></div>'
-      + '<button class="td-start" onclick="spTodayStart(\'' + jsq(task.folder) + '\')">▶ Start</button></div>';
+      + '<button class="td-start" onclick="spPress(this, event, function(){ spTodayStart(\'' + jsq(task.folder) + '\'); })">▶ Start</button></div>';
   } else {
     h += '<div class="td-task"><div><div class="td-name">Add your first questions</div><div class="td-meta">Your daily task appears here once Poppy has questions.</div></div>'
       + '<button class="td-start" onclick="showPanel(\'mcq\', document.querySelector(\'.nav-item[onclick*=&quot;mcq&quot;]\'));switchTab(\'create\')">＋ Create</button></div>';
   }
   h += '<div class="td-prog"><div class="td-bar"><i style="width:' + pct + '%"></i></div><span>' + mins + ' of ' + goal + ' min today</span></div></div>';
   return h;
+}
+// Press feedback: the button sinks in with a ripple from where it was tapped, then the action runs
+function spPress(btn, e, go) {
+  if (btn.classList.contains('is-pressed')) return;
+  btn.classList.add('is-pressed');
+  var r = btn.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2.2;
+  var x = (e && e.clientX ? e.clientX - r.left : r.width / 2) - d / 2, y = (e && e.clientY ? e.clientY - r.top : r.height / 2) - d / 2;
+  var rip = document.createElement('span');
+  rip.className = 'td-ripple';
+  rip.style.cssText = 'width:' + d + 'px;height:' + d + 'px;left:' + x + 'px;top:' + y + 'px';
+  btn.appendChild(rip);
+  setTimeout(function() { btn.classList.remove('is-pressed'); rip.remove(); go(); }, 220);
 }
 function spTodayMore() {
   var t = spPickTask(); // skips topics already done today
