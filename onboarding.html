@@ -94,7 +94,8 @@
 </div>
 
 <script>
-var KEY = 'sp_onboarding_v1';
+// One saved profile per account, so two accounts on one device don't share answers
+var KEY = 'sp_onboarding_v1:' + (sessionStorage.getItem('sp_user') || '');
 var A = {};            // answers
 var path = [];         // screens shown, for Back
 var now = new Date();

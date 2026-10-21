@@ -3598,11 +3598,11 @@ if (!user) {
 }
 if (!user) { window.location.href = 'login.html'; }
 
-// Onboarding: new accounts answer a few set-up questions once (onboarding.html).
-// Accounts made before onboarding existed are left alone; they can open it from the side menu.
-var ONBOARDING_SINCE = '2026-10-21';
+// Onboarding: every signed-in account answers a few set-up questions once (onboarding.html).
+// Answers live on the account (user_metadata), with a copy per account on this device.
 var spProfile = null;
-try { spProfile = JSON.parse(localStorage.getItem('sp_onboarding_v1') || 'null'); } catch(e) {}
+var SP_PROFILE_KEY = 'sp_onboarding_v1:' + (user || '');
+try { spProfile = JSON.parse(localStorage.getItem(SP_PROFILE_KEY) || 'null'); } catch(e) {}
 if (user && user !== 'demo@stoday.plus' && !spProfile) {
   try {
     var _obTok = JSON.parse(localStorage.getItem('sb-zdmnwykumprntbpfyour-auth-token') || 'null');
@@ -3610,8 +3610,8 @@ if (user && user !== 'demo@stoday.plus' && !spProfile) {
     var _obSaved = _obUser && _obUser.user_metadata && _obUser.user_metadata.sp_onboarding;
     if (_obSaved) {
       spProfile = _obSaved; // answered on another device
-      localStorage.setItem('sp_onboarding_v1', JSON.stringify(_obSaved));
-    } else if (_obUser && _obUser.created_at && _obUser.created_at >= ONBOARDING_SINCE) {
+      localStorage.setItem(SP_PROFILE_KEY, JSON.stringify(_obSaved));
+    } else if (_obUser) {
       window.location.replace('onboarding.html');
     }
   } catch(e) {}
