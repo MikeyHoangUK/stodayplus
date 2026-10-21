@@ -9406,21 +9406,33 @@ function spStartFocus() {
   if (pomoType !== t || pomoLeft <= 0) selectPomo(t);
   togglePomo();
 }
-// Poppy: the countdown drops down for 5 seconds when a quiz starts, then every 10 minutes
+// Poppy drop-down bar (5 seconds): the exam countdown once when a quiz starts, then the
+// Focus timer every 5 minutes during the quiz, so students see the clock and lock in.
+function spDrop(textFn) {
+  var el = document.getElementById('sp-cd-drop');
+  if (!el) { el = document.createElement('div'); el.id = 'sp-cd-drop'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+  el.textContent = textFn();
+  el.classList.add('on');
+  clearTimeout(el._t); clearInterval(el._i);
+  el._i = setInterval(function() { el.textContent = textFn(); }, 1000); // keeps the clock ticking while shown
+  el._t = setTimeout(function() { el.classList.remove('on'); clearInterval(el._i); }, 5000);
+}
 function spCountdownDrop() {
   var c = spCountdowns();
   if (!c.length) return;
-  var el = document.getElementById('sp-cd-drop');
-  if (!el) { el = document.createElement('div'); el.id = 'sp-cd-drop'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
-  el.textContent = '⏳ ' + c.map(function(x) { return x.text; }).join('  ·  ');
-  el.classList.add('on');
-  clearTimeout(el._t);
-  el._t = setTimeout(function() { el.classList.remove('on'); }, 5000);
+  spDrop(function() { return '⏳ ' + c.map(function(x) { return x.text; }).join('  ·  '); });
+}
+function spFocusDrop() {
+  if (!pomoRunning || pomoLeft <= 0) return;
+  spDrop(function() {
+    var m = Math.floor(pomoLeft / 60), sec = pomoLeft % 60;
+    return '⏱ ' + m + ':' + (sec < 10 ? '0' : '') + sec + ' left in your focus session · stay locked in';
+  });
 }
 setInterval(function() {
   var run = document.getElementById('quiz-run-wrap');
-  if (run && run.offsetParent !== null) spCountdownDrop();
-}, 10 * 60 * 1000);
+  if (run && run.offsetParent !== null) spFocusDrop();
+}, 5 * 60 * 1000);
 
 function rpRenderToday() {
   var _mp = document.getElementById('rp-mode-picker');
