@@ -643,6 +643,35 @@
     body.hc .rr-why{color:#c8b8a0}
     body.hc .rr-yours{color:#fca5a5}
     body.hc .rr-right{color:#86efac}
+    /* Report this question: quiet link + small modal (sends to question_reports) */
+    .qrep-link{background:none;border:none;padding:5px 4px;font-family:'Raleway',sans-serif;font-size:.72rem;font-weight:700;color:#8a7a62;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+    .qrep-link:hover{color:#6d28d9}
+    .qrep-link.done{color:#7c3aed;text-decoration:none;cursor:default}
+    .rr-item .qrep-link{display:block;margin-top:6px;padding-left:0}
+    #qrep-modal{position:fixed;inset:0;z-index:9600;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(20,14,40,.55);backdrop-filter:blur(4px)}
+    #qrep-modal.show{display:flex}
+    #qrep-modal .pg-card{max-width:400px;max-height:calc(100vh - 32px);overflow-y:auto;box-sizing:border-box}
+    #qrep-modal .pg-title{margin-bottom:14px}
+    .qr-reasons{display:grid;gap:8px;margin-bottom:16px}
+    .qr-reason{text-align:left;padding:12px 14px;border-radius:12px;border:1.5px solid rgba(109,40,217,.2);background:#fff;font-family:'Raleway',sans-serif;font-size:.88rem;font-weight:700;color:#1e1b4b;cursor:pointer;transition:all .15s}
+    .qr-reason:hover{border-color:rgba(109,40,217,.45)}
+    .qr-reason.sel{border-color:#7c3aed;background:#f1e9ff;color:#5b21b6}
+    .qr-lbl{display:block;font-size:.78rem;font-weight:800;color:#1e1b4b;margin-bottom:6px}
+    .qr-note{width:100%;box-sizing:border-box;min-height:72px;padding:10px 12px;border-radius:12px;border:1.5px solid rgba(109,40,217,.2);font-family:'Raleway',sans-serif;font-size:.85rem;line-height:1.5;resize:vertical;background:#fff;color:#1e1b4b}
+    .qr-note:focus{outline:none;border-color:#7c3aed}
+    .qr-count{font-size:.68rem;color:#8a7a62;text-align:right;margin-top:3px}
+    .qr-btns{display:flex;gap:10px;margin-top:12px}
+    .qr-btns .pg-btn{margin-top:0;flex:1}
+    .qr-btns .pg-btn:disabled{opacity:.45;cursor:not-allowed}
+    .qr-cancel{flex:1;padding:13px;border-radius:13px;border:1.5px solid rgba(109,40,217,.25);background:transparent;color:#5b21b6;font-family:'Raleway',sans-serif;font-weight:800;font-size:.9rem;cursor:pointer}
+    .qr-done{text-align:center}
+    .qr-done-icon{font-size:2rem;margin-bottom:4px}
+    body.hc .qrep-link{color:#a8988a}
+    body.hc .qrep-link:hover,body.hc .qrep-link.done{color:#c084fc}
+    body.hc .qr-reason,body.hc .qr-note{background:rgba(255,255,255,.04);color:#e8dcc8;border-color:rgba(168,85,247,.3)}
+    body.hc .qr-reason.sel{background:rgba(168,85,247,.16);color:#d8b4fe;border-color:#a855f7}
+    body.hc .qr-lbl{color:#e8dcc8}
+    body.hc .qr-cancel{color:#c084fc;border-color:rgba(168,85,247,.35)}
     body.hc .q-feedback.qf-ok{background:rgba(129,140,248,.1)}
     body.hc .q-feedback.qf-no{background:rgba(248,113,113,.1)}
     body.hc .qf-ok .qf-head{color:#c4b5fd}
@@ -2848,6 +2877,7 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Folder Name&quot
                 <div style="display:flex;gap:8px;flex-wrap:wrap">
                   <div class="hint-toggle" id="hint-tog" onclick="toggleHint()" title="A nudge without giving the answer away">💡 Show hint</div>
                   <div class="hint-toggle" id="rationale-tog" style="display:none" onclick="qzRationaleToggle()">💬 Why?</div>
+                  <button type="button" class="qrep-link" id="qrep-btn" style="display:none" onclick="qrOpenFromQuiz()">Report this question</button>
                 </div>
                 <div class="hint-txt" id="hint-txt"></div>
               </div>
@@ -4875,6 +4905,7 @@ function showQ() {
   qzRationaleClose();
   var ratTog = document.getElementById('rationale-tog');
   if (ratTog) { ratTog.style.display = (prior && q.rationale) ? 'inline-flex' : 'none'; ratTog.textContent = (prior && prior.chosen !== q.correct) ? '💬 Hide why' : '💬 Why?'; }
+  qrSyncQuizBtn(q, !!prior);
   if (prior) {
     document.querySelectorAll('.qopt').forEach(function(o) { o.classList.add('locked'); });
     document.getElementById('qcard').classList.add(prior.chosen === q.correct ? 'c-flash' : 'w-flash');
@@ -4911,6 +4942,7 @@ function answerQ(idx) {
   var nn = document.getElementById('qnav-next'); if (nn) nn.disabled = false;
   var ratTog = document.getElementById('rationale-tog');
   if (ratTog && q.rationale) { ratTog.style.display = 'inline-flex'; ratTog.textContent = ok ? '💬 Why?' : '💬 Hide why'; }
+  qrSyncQuizBtn(q, true);
   qzRenderFeedback(q, idx);
   // Keep the verdict and the Next button on screen without the student scrolling
   setTimeout(function() {
@@ -5526,10 +5558,129 @@ function resShowMistakes() {
       + '<div class="rr-a"><span class="rr-yours">Your answer: ' + esc(q.options[a.chosen] || '') + '</span><br>'
       + '<span class="rr-right">Right answer: ' + esc(q.options[q.correct] || '') + '</span></div>'
       + (q.rationale ? '<div class="rr-why"><strong>Why?</strong> ' + esc(q.rationale) + '</div>' : '')
+      + qrLinkHtml(q, 'qrOpenFromReview(' + i + ')')
       + '</div>';
   });
   list.innerHTML = html;
   box.style.display = html ? 'block' : 'none';
+}
+
+// ── Report this question ──
+// Students flag a wrong/unclear question; Mikey fixes it once for everyone.
+// Reports go to Supabase `question_reports` (insert-only for students, see
+// supabase/sql/question_reports.sql). Every report is queued in localStorage
+// first and sent from there, so a missing table, no signal or the demo account
+// (local-only) never shows the student an error; the queue retries on next load.
+var QR_QUEUE_KEY = 'sp_report_queue';
+var _qrTarget = null, _qrReason = null, _qrReported = {}, _qrFlushing = false;
+
+function qrLinkHtml(q, onclick) {
+  var done = _qrReported[String(q.id)];
+  return '<button type="button" class="qrep-link' + (done ? ' done' : '') + '"' + (done ? ' disabled' : ' onclick="' + onclick + '"') + '>'
+    + (done ? '✓ Reported' : 'Report this question') + '</button>';
+}
+
+function qrSyncQuizBtn(q, answered) {
+  var b = document.getElementById('qrep-btn');
+  if (!b) return;
+  var done = !!(q && _qrReported[String(q.id)]);
+  b.style.display = answered ? 'inline-flex' : 'none';
+  b.classList.toggle('done', done);
+  b.disabled = done;
+  b.textContent = done ? '✓ Reported' : 'Report this question';
+}
+
+function qrOpenFromQuiz() {
+  var q = qzQs[qzIdx], a = qzAnswers[qzIdx];
+  if (q) qrOpen(q, a ? a.chosen : null);
+}
+function qrOpenFromReview(i) {
+  var q = qzQs[i], a = qzAnswers[i];
+  if (q) qrOpen(q, a ? a.chosen : null);
+}
+
+function qrOpen(q, chosen) {
+  _qrTarget = { q: q, chosen: chosen };
+  _qrReason = null;
+  document.querySelectorAll('#qrep-modal .qr-reason').forEach(function(b) { b.classList.remove('sel'); b.setAttribute('aria-checked', 'false'); });
+  document.getElementById('qr-note').value = '';
+  qrCount();
+  document.getElementById('qr-send').disabled = true;
+  document.getElementById('qr-form').style.display = 'block';
+  document.getElementById('qr-done').style.display = 'none';
+  document.getElementById('qrep-modal').classList.add('show');
+}
+
+function qrClose() {
+  document.getElementById('qrep-modal').classList.remove('show');
+  _qrTarget = null;
+}
+
+function qrPick(btn) {
+  _qrReason = btn.getAttribute('data-r');
+  document.querySelectorAll('#qrep-modal .qr-reason').forEach(function(b) {
+    var on = b === btn;
+    b.classList.toggle('sel', on); b.setAttribute('aria-checked', on ? 'true' : 'false');
+  });
+  document.getElementById('qr-send').disabled = false;
+}
+
+function qrCount() {
+  var n = document.getElementById('qr-note').value.length;
+  document.getElementById('qr-count').textContent = n + ' / 300';
+}
+
+function qrSend() {
+  if (!_qrTarget || !_qrReason) return;
+  var q = _qrTarget.q;
+  var rep = {
+    question_id: String(q.id),
+    question_src: q.src === 'aqa' ? 'aqa' : 'own',
+    folder: q.folder || 'General',
+    stem: String(q.stem || '').slice(0, 2000),
+    options: (q.options || []).slice(0, 6),
+    chosen: (typeof _qrTarget.chosen === 'number') ? _qrTarget.chosen : null,
+    correct: (typeof q.correct === 'number') ? q.correct : null,
+    reason: _qrReason,
+    note: document.getElementById('qr-note').value.trim().slice(0, 300) || null,
+    user_email: (_spUser && _spUser.email) || user || null,
+    created_at: new Date().toISOString()
+  };
+  var queue = qrReadQueue();
+  queue.push(rep);
+  qrWriteQueue(queue.slice(-50)); // cap so a never-sent demo queue can't grow forever
+  _qrReported[rep.question_id] = true;
+  document.getElementById('qr-form').style.display = 'none';
+  document.getElementById('qr-done').style.display = 'block';
+  if (qzQs[qzIdx] && String(qzQs[qzIdx].id) === rep.question_id) qrSyncQuizBtn(qzQs[qzIdx], true);
+  if (document.getElementById('res-review').style.display !== 'none') resShowMistakes();
+  qrFlushQueue();
+}
+
+function qrReadQueue() {
+  try { var v = JSON.parse(localStorage.getItem(QR_QUEUE_KEY) || '[]'); return Array.isArray(v) ? v : []; }
+  catch (e) { return []; }
+}
+function qrWriteQueue(q) {
+  try { if (q.length) localStorage.setItem(QR_QUEUE_KEY, JSON.stringify(q)); else localStorage.removeItem(QR_QUEUE_KEY); } catch (e) {}
+}
+
+// Send queued reports one by one; stop at the first failure (e.g. the table
+// isn't created yet) and leave the rest for next time. Silent by design.
+async function qrFlushQueue() {
+  if (_qrFlushing || !_spClient || !_spUser) return;
+  _qrFlushing = true;
+  try {
+    var queue = qrReadQueue();
+    while (queue.length) {
+      var row = Object.assign({}, queue[0], { user_id: _spUser.id, user_email: _spUser.email || null });
+      var r = await _spClient.from('question_reports').insert(row);
+      if (r.error) break;
+      queue.shift();
+      qrWriteQueue(queue);
+    }
+  } catch (e) {}
+  _qrFlushing = false;
 }
 
 function resShowMastery(f) {
@@ -12038,6 +12189,7 @@ function isBetaTester() {
     _spUser = (r.data && r.data.session) ? r.data.session.user : null;
     _updateSyncUI();
     if (_spUser) _loadFromSupabase();
+    if (_spUser) setTimeout(qrFlushQueue, 3000); // send any reports queued last time
   });
 })();
 
@@ -12587,5 +12739,31 @@ async function handleAuthSubmit() {
   </div>
 </div>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "86cfcf13f5c345a594ca8224fb7a28dc"}'></script><!-- End Cloudflare Web Analytics -->
+<div id="qrep-modal" role="dialog" aria-modal="true" aria-labelledby="qr-title" onclick="if(event.target===this)qrClose()" onkeydown="event.stopPropagation();if(event.key==='Escape')qrClose()">
+  <div class="pg-card">
+    <div id="qr-form">
+      <div class="pg-eyebrow">Report this question</div>
+      <div class="pg-title" id="qr-title">What's wrong with it?</div>
+      <div class="qr-reasons" role="radiogroup" aria-label="Reason">
+        <button type="button" class="qr-reason" role="radio" aria-checked="false" data-r="wrong_answer" onclick="qrPick(this)">The answer is wrong</button>
+        <button type="button" class="qr-reason" role="radio" aria-checked="false" data-r="unclear" onclick="qrPick(this)">The question is unclear</button>
+        <button type="button" class="qr-reason" role="radio" aria-checked="false" data-r="typo" onclick="qrPick(this)">Spelling or typo</button>
+        <button type="button" class="qr-reason" role="radio" aria-checked="false" data-r="other" onclick="qrPick(this)">Something else</button>
+      </div>
+      <label class="qr-lbl" for="qr-note">Tell us more (optional)</label>
+      <textarea class="qr-note" id="qr-note" maxlength="300" placeholder="e.g. I think the answer is B. Don't add your name or personal details." oninput="qrCount()"></textarea>
+      <div class="qr-count" id="qr-count">0 / 300</div>
+      <div class="qr-btns">
+        <button type="button" class="qr-cancel" onclick="qrClose()">Cancel</button>
+        <button type="button" class="pg-btn" id="qr-send" disabled onclick="qrSend()">Send</button>
+      </div>
+    </div>
+    <div id="qr-done" class="qr-done" style="display:none">
+      <div class="qr-done-icon">💜</div>
+      <div class="pg-title">Thanks — Mikey will check it.</div>
+      <button type="button" class="pg-btn" onclick="qrClose()">Done</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
