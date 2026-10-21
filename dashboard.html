@@ -644,10 +644,12 @@
     body.hc .rr-yours{color:#fca5a5}
     body.hc .rr-right{color:#86efac}
     /* Report this question: quiet link + small modal (sends to question_reports) */
-    .qrep-link{background:none;border:none;padding:5px 4px;font-family:'Raleway',sans-serif;font-size:.72rem;font-weight:700;color:#8a7a62;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
-    .qrep-link:hover{color:#6d28d9}
-    .qrep-link.done{color:#7c3aed;text-decoration:none;cursor:default}
-    .rr-item .qrep-link{display:block;margin-top:6px;padding-left:0}
+    .qrep-link{position:relative;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;align-self:center;border-radius:50%;border:1.5px solid #8a7a62;background:none;padding:0;font-family:'Raleway',sans-serif;font-size:.72rem;font-weight:800;line-height:1;color:#8a7a62;cursor:pointer;opacity:.35;transition:opacity .15s,color .15s,border-color .15s}
+    .qrep-link:hover,.qrep-link:focus-visible{opacity:1;color:#6d28d9;border-color:#6d28d9}
+    .qrep-link::after{content:attr(data-label);position:absolute;left:50%;bottom:calc(100% + 6px);transform:translateX(-50%);white-space:nowrap;background:#2a1d10;color:#fff;font-size:.68rem;font-weight:700;padding:4px 8px;border-radius:6px;opacity:0;pointer-events:none;transition:opacity .15s}
+    .qrep-link:hover::after,.qrep-link:focus-visible::after{opacity:1}
+    .qrep-link.done{cursor:default;color:#7c3aed;border-color:#7c3aed}
+    .rr-item .qrep-link{display:inline-flex;margin-top:8px}
     #qrep-modal{position:fixed;inset:0;z-index:9600;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(20,14,40,.55);backdrop-filter:blur(4px)}
     #qrep-modal.show{display:flex}
     #qrep-modal .pg-card{max-width:400px;max-height:calc(100vh - 32px);overflow-y:auto;box-sizing:border-box}
@@ -2899,7 +2901,7 @@ Tip: batching multiple topics in one paste? Drop a &quot;Topic: Folder Name&quot
                 <div style="display:flex;gap:8px;flex-wrap:wrap">
                   <div class="hint-toggle" id="hint-tog" onclick="toggleHint()" title="A nudge without giving the answer away">💡 Show hint</div>
                   <div class="hint-toggle" id="rationale-tog" style="display:none" onclick="qzRationaleToggle()">💬 Why?</div>
-                  <button type="button" class="qrep-link" id="qrep-btn" style="display:none" onclick="qrOpenFromQuiz()">Report this question</button>
+                  <button type="button" class="qrep-link" id="qrep-btn" style="display:none" onclick="qrOpenFromQuiz()" data-label="Report this question" aria-label="Report this question">!</button>
                 </div>
                 <div class="hint-txt" id="hint-txt"></div>
               </div>
@@ -4747,10 +4749,11 @@ function qzWizBuildCounts() {
   var wrap = document.getElementById('qzw-count-opts');
   if (!wrap) return;
   var n = qzWizPoolSize();
-  var sizes = [10, 20, 30].filter(function(c) { return c < n; });
+  // GCSE: short sets (10/20/30). A-level and above need longer sessions (20/30/50/100).
+  var sizes = spQuizSizes().filter(function(c) { return c < n; });
   function mins(c) { var m = Math.max(1, Math.round(c / 2)); return 'About ' + m + ' min'; }
   var html = sizes.map(function(c) {
-    var rec = c === 10;
+    var rec = c === spQuizSizes()[0];
     return '<button class="qzw-opt' + (rec ? ' qzw-opt-rec' : '') + '" onclick="qzWizStart(' + c + ')">'
       + '<span class="qzw-opt-num">' + c + '</span><span class="qzw-opt-label">' + mins(c) + '</span>'
       + (rec ? '<span class="qzw-rec-badge">Recommended</span>' : '') + '</button>';
@@ -5597,20 +5600,25 @@ function resShowMistakes() {
 var QR_QUEUE_KEY = 'sp_report_queue';
 var _qrTarget = null, _qrReason = null, _qrReported = {}, _qrFlushing = false;
 
+// Only ready-made bank questions can be reported; students' own questions are theirs to edit
+function qrCanReport(q) { return !!(q && q.src === 'aqa'); }
 function qrLinkHtml(q, onclick) {
+  if (!qrCanReport(q)) return '';
   var done = _qrReported[String(q.id)];
-  return '<button type="button" class="qrep-link' + (done ? ' done' : '') + '"' + (done ? ' disabled' : ' onclick="' + onclick + '"') + '>'
-    + (done ? '✓ Reported' : 'Report this question') + '</button>';
+  return '<button type="button" class="qrep-link' + (done ? ' done' : '') + '" data-label="' + (done ? 'Reported' : 'Report this question') + '" aria-label="' + (done ? 'Reported' : 'Report this question') + '"' + (done ? ' disabled' : ' onclick="' + onclick + '"') + '>'
+    + (done ? '✓' : '!') + '</button>';
 }
 
 function qrSyncQuizBtn(q, answered) {
   var b = document.getElementById('qrep-btn');
   if (!b) return;
   var done = !!(q && _qrReported[String(q.id)]);
-  b.style.display = answered ? 'inline-flex' : 'none';
+  b.style.display = answered && qrCanReport(q) ? 'inline-flex' : 'none';
   b.classList.toggle('done', done);
   b.disabled = done;
-  b.textContent = done ? '✓ Reported' : 'Report this question';
+  b.textContent = done ? '✓' : '!';
+  b.setAttribute('data-label', done ? 'Reported' : 'Report this question');
+  b.setAttribute('aria-label', done ? 'Reported' : 'Report this question');
 }
 
 function qrOpenFromQuiz() {
@@ -9273,7 +9281,10 @@ function rpModeChoose(tool) {
 // One task at a time: overdue review first, then weakest topic, then the next AQA topic
 // not started yet. Start opens the quiz and the Focus timer together. Minutes are counted
 // from finished quizzes against the student's focus length (onboarding, 45 by default).
-var SP_TODAY_QS = 10; // questions per Today task (about 5 min, same estimate as the quiz wizard)
+// Question set sizes by level. No profile yet counts as GCSE (the main audience).
+function spIsHigherLevel() { return !!(spProfile && spProfile.level && spProfile.level !== 'gcse'); }
+function spQuizSizes() { return spIsHigherLevel() ? [20, 30, 50, 100] : [10, 20, 30]; }
+function spTodayQs() { return spQuizSizes()[0]; } // Today task: 10 for GCSE, 20 for A-level and above
 function spTodayKey() { return 'sp_today_v1:' + (user || ''); }
 function spTodayState() {
   var d = new Date().toDateString(), st = null;
@@ -9349,7 +9360,7 @@ function spTodayCardHtml() {
       + '<button class="td-more" onclick="spTodayMore()">Do one more anyway</button>';
   } else if (task) {
     h += '<div class="td-task"><div><div class="td-name">' + rpEsc(task.folder) + '</div>'
-      + '<div class="td-meta">' + SP_TODAY_QS + ' questions · about 5 min · ' + rpEsc(task.why) + '</div></div>'
+      + '<div class="td-meta">' + spTodayQs() + ' questions · about ' + Math.round(spTodayQs() / 2) + ' min · ' + rpEsc(task.why) + '</div></div>'
       + '<button class="td-start" onclick="spTodayStart(\'' + jsq(task.folder) + '\')">▶ Start</button></div>';
   } else {
     h += '<div class="td-task"><div><div class="td-name">Add your first questions</div><div class="td-meta">Your daily task appears here once Poppy has questions.</div></div>'
@@ -9366,7 +9377,7 @@ function spTodayStart(folder) {
   showPanel('mcq', document.querySelector('.nav-item[onclick*="\'mcq\'"]'));
   quizFolder(folder);
   qzWizDiff('all');
-  qzWizStart(SP_TODAY_QS);
+  qzWizStart(spTodayQs());
   spStartFocus();
 }
 function spStartFocus() {
