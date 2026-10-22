@@ -2366,10 +2366,6 @@
       .td-start,.qzw-cta,.start-btn,.next-btn,.res-btn.pri,.res-nextstep-btn,.add-btn,.pg-btn,.paste-preview-btn,.org-done-btn,.sq-gen-btn,.sq-prac-reveal,.sq-prac-submit,.finley-save-btn,.res-btn.sec,.qr-cancel{padding:13px 22px;font-size:.86rem}
       .fs-btn{padding:7px 12px;font-size:.72rem}
     }
-
-    /* ── Side menu: unfinished items only show for beta testers ── */
-    body:not(.sp-beta) #sidebar .nav-item.soon,
-    body:not(.sp-beta) #nav-item-saqs,body:not(.sp-beta) #nav-item-blurto,body:not(.sp-beta) #nav-item-finley{display:none}
   </style>
 </head>
 <body class="font-sans">
@@ -9344,13 +9340,12 @@ function rpEsc(s) {
 }
 
 function rpShortcutsHTML() {
-  // Unfinished tools (LOCKED_TOOL_NAMES) only show for beta testers
   var tools = [
     { id:'mcq',    ico:'quiz', name:'Poppy',  sub:'Quiz Maker' },
     { id:'saqs',   ico:'pen',  name:'Sage',   sub:'SAQs Maker' },
     { id:'blurto', ico:'file', name:'Blurto', sub:'Blurting Machine' },
     { id:'finley', ico:'cap',  name:'Finley', sub:'Feynman Teaching' }
-  ].filter(function(t) { return !LOCKED_TOOL_NAMES[t.id] || isBetaTester(); });
+  ];
   return '<div class="rp-shortcuts-lbl">Jump to a study tool</div>'
     + '<div class="rp-shortcuts">'
     + tools.map(function(t) {
@@ -9443,7 +9438,6 @@ function rpShowMode(itemId) {
   ];
   var grid = document.getElementById('rp-mode-grid');
   if (!grid) return;
-  if (!isBetaTester()) bots = bots.filter(function(b) { return !LOCKED_TOOL_NAMES[b.id]; });
   grid.innerHTML = bots.map(function(b) {
     var progClass = (b.prog && b.prog.charAt(0) === '✓') ? ' rp-mode-prog-done' : '';
     return '<button class="rp-mode-card"' + (b.ok ? ' onclick="rpModeChoose(\'' + b.id + '\')"' : ' disabled') + '>'
@@ -12690,17 +12684,8 @@ function isBetaTester() {
 // gated panel is currently on screen — needed because _spUser (and so
 // isBetaTester()) only becomes known after Supabase's auth check resolves,
 // which happens after the page's initial render.
-var _spBetaShown = null;
 function refreshBetaGateUI() {
   var beta = isBetaTester();
-  document.body.classList.toggle('sp-beta', beta);
-  // A side-menu section with nothing left to show loses its heading too
-  document.querySelectorAll('#sidebar .sb-sec').forEach(function(sec) {
-    var any = [].some.call(sec.querySelectorAll('.nav-item'), function(n) { return getComputedStyle(n).display !== 'none'; });
-    sec.style.display = any ? '' : 'none';
-  });
-  if (_spBetaShown != null && _spBetaShown !== beta && typeof rpRenderToday === 'function') rpRenderToday();
-  _spBetaShown = beta;
   Object.keys(LOCKED_TOOL_NAMES).forEach(function(id) {
     var nav  = document.getElementById('nav-item-' + id);
     var pill = document.getElementById('nav-pill-' + id);
@@ -12711,7 +12696,6 @@ function refreshBetaGateUI() {
     showPanel(_lockedScreenFor, document.getElementById('nav-item-' + _lockedScreenFor), true);
   }
 }
-refreshBetaGateUI(); // hide unfinished items straight away, before sign-in resolves
 
 function _updateSyncUI() {
   refreshBetaGateUI();
