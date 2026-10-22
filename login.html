@@ -155,6 +155,9 @@
         (function() {
           if (!window.supabase) return;
           _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+          // Show any sign-in error sent back from Google/Supabase instead of failing silently
+          var _authErr = new URLSearchParams(location.search).get('error_description') || new URLSearchParams(location.hash.slice(1)).get('error_description');
+          if (_authErr) document.getElementById('auth-error').textContent = 'Sign-in problem: ' + _authErr.split('+').join(' ');
           _sb.auth.getSession().then(function(r) {
             var session = r && r.data && r.data.session;
             if (session && session.user) {

@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+  // A Google sign-in that lands here (Supabase sends unlisted return pages to the homepage):
+  // pass the login details on to login.html, which finishes signing in.
+  if (/access_token=|error_description=/.test(location.hash) || /[?&](code|error_description)=/.test(location.search)) {
+    location.replace('login.html' + location.search + location.hash);
+  }
+</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="Marketing/Logo/Stoday/2f8391d1-2ce8-452d-99ed-c30657d2ce65_removalai_preview.png" type="image/png" sizes="96x96" />
