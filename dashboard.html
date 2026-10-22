@@ -1299,9 +1299,15 @@
     .rp-exam-act:hover{background:rgba(109,40,217,.08);border-color:rgba(109,40,217,.4)}
     .rp-exam-act-del{color:#b91c1c;border-color:rgba(185,28,28,.25)}
     .rp-exam-act-del:hover{background:rgba(185,28,28,.07);border-color:rgba(185,28,28,.45)}
+    .rp-rem-row{display:flex;align-items:center;gap:6px;height:26px;padding:0 6px 0 8px;margin-bottom:5px;background:rgba(234,179,8,.13);border-left:3px solid #eab308;border-radius:5px}
+    .rp-rem-txt{flex:1;min-width:0;font-size:.66rem;font-weight:600;color:#3b2a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .rp-rem-when{font-size:.58rem;font-weight:600;color:#854d0e;white-space:nowrap}
+    .rp-rem-del{background:none;border:none;color:#854d0e;opacity:.55;font-size:.6rem;cursor:pointer;padding:2px;line-height:1}
+    .rp-rem-del:hover{opacity:1;color:#b91c1c}
     .rp-rem-past{opacity:.5}
-    .rp-cal-pill-exam{background:rgba(239,68,68,.1);color:#b91c1c}
-    .rp-cal-pill-rem{background:rgba(245,158,11,.14);color:#92400e}
+    /* calendar colour code: exams green, reminders yellow */
+    .rp-cal-pill-exam{background:rgba(22,163,74,.14);color:#15803d}
+    .rp-cal-pill-rem{background:rgba(234,179,8,.2);color:#854d0e;font-weight:600}
     @media (max-width:860px){ .rp-cal-layout{flex-direction:column} .rp-side-col{width:100%;min-width:0;position:static} }
     .rp-exam-empty{font-size:.72rem;color:#6e5438;opacity:.55;text-align:center;padding:18px 0;line-height:1.5}
     /* HC overrides — exam tracker */
@@ -9915,10 +9921,10 @@ function rpRenderReminders() {
   if (!list.length) { el.innerHTML = '<div class="rp-exam-empty">No reminders.<br/>Hit ＋ to add one.</div>'; return; }
   el.innerHTML = list.map(function(r) {
     var w = rpRemWhen(r), past = w.getTime() < Date.now();
-    return '<div class="rp-exam-item' + (past ? ' rp-rem-past' : '') + '">'
-      + '<div class="rp-exam-item-name">🔔 ' + rpEsc(r.name) + '</div>'
-      + '<div class="rp-exam-date-txt">' + w.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) + ' · ' + (r.time || '09:00') + '</div>'
-      + '<div class="rp-exam-actions"><button class="rp-exam-act rp-exam-act-del" onclick="rpExamDelete(\'' + rpEsc(r.id) + '\')">Delete</button></div>'
+    return '<div class="rp-rem-row' + (past ? ' rp-rem-past' : '') + '" title="' + rpEsc(r.name) + '">'
+      + '<span class="rp-rem-txt">' + rpEsc(r.name) + '</span>'
+      + '<span class="rp-rem-when">' + w.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ' ' + (r.time || '09:00') + '</span>'
+      + '<button class="rp-rem-del" onclick="rpExamDelete(\'' + rpEsc(r.id) + '\')" aria-label="Delete reminder">✕</button>'
       + '</div>';
   }).join('');
 }
