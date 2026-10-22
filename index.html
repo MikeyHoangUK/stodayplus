@@ -766,6 +766,16 @@
       <h2 class="display text-3xl sm:text-4xl mb-3">Start free. <span class="text-grad">Upgrade when you're ready.</span></h2>
       <p class="text-gray-600 text-[0.95rem] max-w-xl mx-auto">Plus costs less than half of one hour of private tuition, for a whole month of revision.</p>
     </div>
+    <!-- Founding families: first 50 at £5/month for life. The count is real (founding_places_left), never faked. -->
+    <div class="founding reveal">
+      <div class="founding-text">
+        <p class="founding-eyebrow">Founding families</p>
+        <p class="founding-price"><span>£5</span> / month <em>for life</em></p>
+        <p class="founding-sub">The first 50 families lock in £5 a month for as long as they stay. After that, Plus is £7 a month.</p>
+        <p class="founding-left" id="founding-left" hidden></p>
+      </div>
+      <a href="login.html" class="founding-btn">Claim a founding place →</a>
+    </div>
     <div class="grid gap-6 sm:grid-cols-2 items-stretch" data-stagger>
       <div class="reveal-pop"><div class="h-full rounded-2xl p-8 border-2 border-purple-soft flex flex-col">
         <p class="text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-2">Free</p>
@@ -776,6 +786,7 @@
           <li class="flex gap-3"><span class="text-purple-DEFAULT font-bold">✓</span> Poppy quizzes with hints and explanations</li>
           <li class="flex gap-3"><span class="text-purple-DEFAULT font-bold">✓</span> Progress and confidence tracking</li>
           <li class="flex gap-3"><span class="text-purple-DEFAULT font-bold">✓</span> Focus timer</li>
+          <li class="flex gap-3"><span class="text-purple-DEFAULT font-bold">✓</span> 1 AQA question-bank quiz a day</li>
         </ul>
         <a href="#start" class="btn-ghost block py-3.5 text-sm">Start free</a>
       </div></div>
@@ -789,6 +800,7 @@
         <p class="text-gray-400 text-sm mb-7 relative">The full study system</p>
         <ul class="space-y-3 text-sm text-gray-200 mb-8 flex-1 relative">
           <li class="flex gap-3"><span class="text-purple-mid font-bold">✓</span> Everything in Free</li>
+          <li class="flex gap-3"><span class="text-purple-mid font-bold">✓</span> Unlimited AQA question bank, Biology &amp; Chemistry (new topics every week)</li>
           <li class="flex gap-3"><span class="text-purple-mid font-bold">✓</span> Sage written-answer practice</li>
           <li class="flex gap-3"><span class="text-purple-mid font-bold">✓</span> Blurto blurting sessions</li>
           <li class="flex gap-3"><span class="text-purple-mid font-bold">✓</span> Finley explain-it-back AI tutor</li>
@@ -1181,5 +1193,30 @@
   })();
 </script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "86cfcf13f5c345a594ca8224fb7a28dc"}'></script><!-- End Cloudflare Web Analytics -->
+<style>
+  .founding{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin:0 auto 28px;padding:22px 26px;border-radius:18px;background:linear-gradient(135deg,#e8dff9 0%,#efe6ee 45%,#f7f0de 100%);border:1.5px solid #ddd0f2;border-left:5px solid #7c3aed}
+  .founding-eyebrow{font-size:.7rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#6d28d9;margin:0 0 4px}
+  .founding-price{margin:0;font-size:.95rem;color:#3b2a4f}
+  .founding-price span{font-size:2rem;font-weight:900;color:#2a1d40}
+  .founding-price em{font-style:normal;font-weight:800;color:#6d28d9}
+  .founding-sub{margin:6px 0 0;font-size:.85rem;color:#5b5368;max-width:460px;line-height:1.5}
+  .founding-left{margin:8px 0 0;font-size:.85rem;font-weight:800;color:#5b21b6}
+  .founding-btn{flex-shrink:0;display:inline-block;background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;font-weight:900;font-size:.9rem;letter-spacing:.03em;padding:14px 26px;border-radius:14px;text-decoration:none;box-shadow:0 4px 0 #3b1d8f,0 10px 20px rgba(79,70,229,.25);transition:transform .1s,box-shadow .1s}
+  .founding-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #3b1d8f,0 4px 10px rgba(79,70,229,.2)}
+  @media (max-width:560px){ .founding-btn{width:100%;text-align:center} }
+</style>
+<script>
+  // Real founding places left, straight from the database. Hidden if it can't load.
+  fetch('https://zdmnwykumprntbpfyour.supabase.co/rest/v1/rpc/founding_places_left', {
+    method: 'POST',
+    headers: { apikey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkbW53eWt1bXBybnRicGZ5b3VyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4MDc0MjAsImV4cCI6MjA5NzM4MzQyMH0.QBZ-4KR5da4O5YoOpErC_HLmYlL953YKIB50g52HkEg', 'Content-Type': 'application/json' },
+    body: '{}'
+  }).then(function(r) { return r.ok ? r.json() : null; }).then(function(n) {
+    var el = document.getElementById('founding-left');
+    if (!el || typeof n !== 'number') return;
+    el.textContent = n > 0 ? n + ' of 50 founding places left' : 'All 50 founding places are taken. Plus is £7 a month.';
+    el.hidden = false;
+  }).catch(function() {});
+</script>
 </body>
 </html>

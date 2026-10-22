@@ -63,7 +63,12 @@ Deno.serve(async (req: Request) => {
       }
     } else if (event.type === 'customer.subscription.created' || event.type === 'customer.subscription.updated' || event.type === 'customer.subscription.deleted') {
       const sub = event.data.object as Stripe.Subscription
+      // The founding offer is the £5 price (first 50 families keep it for life)
+      const price = sub.items?.data?.[0]?.price
       const fields = {
+        price_id: price?.id ?? null,
+        unit_amount: price?.unit_amount ?? null,
+        founding: price?.unit_amount === 500,
         status: event.type === 'customer.subscription.deleted' ? 'canceled' : sub.status,
         current_period_end: periodEnd(sub),
         cancel_at_period_end: !!sub.cancel_at_period_end,

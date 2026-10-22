@@ -800,6 +800,14 @@
     .aqa-lock{margin-left:auto;font-size:.72rem;font-weight:800;color:#6d28d9;background:rgba(124,58,237,.1);border-radius:99px;padding:3px 10px}
     .aqa-locked p{font-size:.8rem;color:#6e5438;margin:8px 0 12px;line-height:1.5}
     .aqa-locked .aqa-upgrade{margin-top:14px;padding:11px 22px;font-size:.82rem}
+    #sp-free-upsell{position:fixed;inset:0;z-index:9500;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(20,14,40,.5);backdrop-filter:blur(4px)}
+    #sp-free-upsell.on{display:flex}
+    .sfu-card{max-width:380px;width:100%;background:linear-gradient(135deg,#e8dff9 0%,#efe6ee 45%,#f7f0de 100%);border:1.5px solid #ddd0f2;border-left:5px solid #7c3aed;border-radius:18px;padding:24px;text-align:center}
+    .sfu-title{font-size:1.1rem;font-weight:900;color:#2a1d10;margin-bottom:8px}
+    .sfu-card p{font-size:.84rem;color:#5b4632;line-height:1.5;margin:0 0 10px}
+    .sfu-found{font-weight:800;color:#5b21b6!important}
+    .sfu-card .td-start{width:100%;margin-top:6px}
+    .sfu-later{display:block;width:100%;margin-top:10px;background:none;border:none;color:#8a7558;font:inherit;font-size:.8rem;font-weight:700;cursor:pointer}
     .aqa-locked-topics{display:flex;flex-wrap:wrap;gap:6px}
     .aqa-locked-topics span{font-size:.72rem;font-weight:600;color:#8a7558;border:1px solid rgba(168,85,247,.18);border-radius:99px;padding:4px 10px;background:#fffdf7}
     body.hc .aqa-locked{background:rgba(255,255,255,.03)}
@@ -4607,7 +4615,15 @@ function aqaHasAccess() { return spIsPlus() || (!!user && AQA_BANK_ACCESS.indexO
 // records it in public.subscriptions; here we read the student's own row.
 // Fill the links in from the Stripe dashboard (test-mode links while testing).
 var STRIPE_PLUS_LINK = 'https://buy.stripe.com/test_5kQbJ1e3n2pRdS08QZ6Zy00';    // Payment Link for "Stoday Plus · £7/month", e.g. https://buy.stripe.com/test_…
-var STRIPE_PORTAL_LINK = 'https://billing.stripe.com/p/login/test_5kQbJ1e3n2pRdS08QZ6Zy00';  // Customer portal login link, e.g. https://billing.stripe.com/p/login/test_…
+var STRIPE_PORTAL_LINK = 'https://billing.stripe.com/p/login/test_5kQbJ1e3n2pRdS08QZ6Zy00';
+var STRIPE_FOUNDING_LINK = 'https://buy.stripe.com/test_4gMcN53oJ9Sj6py9V36Zy01'; // £5/month for life, first 50 families
+var spFoundingLeft = null; // real number from founding_places_left(); null until loaded
+async function spLoadFoundingLeft() {
+  if (!_spClient) return;
+  var r = await _spClient.rpc('founding_places_left');
+  if (!r.error && typeof r.data === 'number') { spFoundingLeft = r.data; if (typeof renderBank === 'function' && bankFolder === 'all') renderBank(); }
+}
+function spFoundingOpen() { return spFoundingLeft !== null && spFoundingLeft > 0 && !!STRIPE_FOUNDING_LINK; }  // Customer portal login link, e.g. https://billing.stripe.com/p/login/test_…
 var spPlus = null;            // the student's subscriptions row, or null
 function spIsPlus() { return !!(spPlus && (spPlus.status === 'active' || spPlus.status === 'trialing')); }
 async function spLoadPlus() {
@@ -4620,8 +4636,9 @@ async function spLoadPlus() {
   if (spIsPlus() !== was && typeof renderBank === 'function') renderBank();
 }
 function spUpgrade() {
-  if (!STRIPE_PLUS_LINK || !_spUser) { alert(_spUser ? 'Plus is coming very soon. Join the waiting list on the homepage and we\'ll tell you first.' : 'Create a free account first, then you can upgrade to Plus.'); return; }
-  var url = STRIPE_PLUS_LINK + (STRIPE_PLUS_LINK.indexOf('?') === -1 ? '?' : '&')
+  var link = spFoundingOpen() ? STRIPE_FOUNDING_LINK : STRIPE_PLUS_LINK;
+  if (!link || !_spUser) { alert(_spUser ? 'Plus is coming very soon. Join the waiting list on the homepage and we\'ll tell you first.' : 'Create a free account first, then you can upgrade to Plus.'); return; }
+  var url = link + (link.indexOf('?') === -1 ? '?' : '&')
     + 'client_reference_id=' + encodeURIComponent(_spUser.id)
     + '&prefilled_email=' + encodeURIComponent(_spUser.email || '');
   window.location.href = url;
@@ -4658,7 +4675,7 @@ function aqaBankEnsure() {
   // Never write before the account's own questions have loaded, or the sync could overwrite them
   if (user !== 'demo@stoday.plus' && !_spCloudLoaded) return false;
   // Not a GCSE account with access (e.g. A-level/professional, or no Plus): take the bank back out
-  if (!aqaIsGcse() || !aqaHasAccess()) return aqaBankRemove();
+  if (!aqaIsGcse()) return aqaBankRemove();
   if (!aqaBankData) return false;
   var combined = spProfile.course === 'combined';
   var want = {};
@@ -4710,14 +4727,38 @@ function aqaBankRemove() {
 // GCSE students without Plus see what the bank holds, locked
 function aqaLockedHtml() {
   if (!aqaIsGcse() || aqaHasAccess()) return '';
-  var topics = aqaBankData ? aqaBankData.topics : [{ name: 'Cell Biology', folders: [] }];
   var n = aqaBankData ? aqaBankData.questions.length : 0;
+  var used = spFreeQuizUsedToday();
+  var price = spFoundingOpen() ? 'Join as a founding family · £5/month for life' : 'Upgrade to Plus · £7/month';
   return '<div class="aqa-locked">'
-    + '<div class="aqa-locked-head"><span class="aqa-badge">AQA</span><strong>Biology question bank</strong><span class="aqa-lock">' + spIco('lock') + ' Plus</span></div>'
-    + '<p>' + (n ? n + ' ready-made questions' : 'Ready-made questions') + ' that follow the AQA specification, each with a hint and a "Why?". Included with Stoday Plus.</p>'
-    + '<div class="aqa-locked-topics">' + topics.map(function(t) { return (t.folders.length ? t.folders : [t.name]).map(function(f) { return '<span>' + esc(f) + '</span>'; }).join(''); }).join('') + '</div>'
-    + '<button type="button" class="td-start aqa-upgrade" onclick="spPress(this, event, spUpgrade)">Upgrade to Plus · £7/month</button>'
+    + '<div class="aqa-locked-head"><span class="aqa-badge">AQA</span><strong>Free plan: 1 bank quiz a day</strong><span class="aqa-lock">' + (used ? 'Used today' : '1 left today') + '</span></div>'
+    + '<p>' + (used ? 'You\'ve had today\'s free quiz. Come back tomorrow, or go unlimited with Plus.' : 'Pick any AQA topic below for today\'s free 10-question quiz.')
+    + ' Plus unlocks all ' + (n || '') + ' ready-made questions, every day.'
+    + (spFoundingOpen() ? ' <strong>' + spFoundingLeft + ' of 50 founding places left.</strong>' : '') + '</p>'
+    + '<button type="button" class="td-start aqa-upgrade" onclick="spPress(this, event, spUpgrade)">' + price + '</button>'
     + '</div>';
+}
+// ── Free plan: one AQA bank quiz (10 questions) per day ──
+function spFreeKey() { return 'sp_free_bank_v1:' + (user || ''); }
+function spFreeQuizUsedToday() { try { return localStorage.getItem(spFreeKey()) === new Date().toDateString(); } catch(e) { return false; } }
+function spIsBankQuiz(folder) {
+  return bank.some(function(q) { return q.src === 'aqa' && (folder === 'all' || (q.folder || 'General') === folder); });
+}
+function spFreeUpsell() {
+  var el = document.getElementById('sp-free-upsell');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'sp-free-upsell';
+    el.innerHTML = '<div class="sfu-card"><div class="sfu-title">That\'s today\'s free quiz done</div>'
+      + '<p>Free accounts get one AQA bank quiz a day. Come back tomorrow, or go unlimited with Stoday Plus.</p>'
+      + '<p class="sfu-found" id="sfu-found"></p>'
+      + '<button type="button" class="td-start" id="sfu-go" onclick="spPress(this, event, spUpgrade)">Upgrade to Plus</button>'
+      + '<button type="button" class="sfu-later" onclick="document.getElementById(\'sp-free-upsell\').classList.remove(\'on\')">Maybe tomorrow</button></div>';
+    document.body.appendChild(el);
+  }
+  document.getElementById('sfu-found').textContent = spFoundingOpen() ? spFoundingLeft + ' of 50 founding places left at £5/month for life.' : '';
+  document.getElementById('sfu-go').textContent = spFoundingOpen() ? 'Join as a founding family · £5/month' : 'Upgrade to Plus · £7/month';
+  el.classList.add('on');
 }
 
 function renderBank() {
@@ -5003,6 +5044,13 @@ function qzWizBuildCounts() {
   wrap.innerHTML = html;
 }
 function qzWizStart(n) {
+  // Free GCSE accounts: one 10-question AQA bank quiz a day
+  var _f = (document.getElementById('qz-folder') || {}).value;
+  if (aqaIsGcse() && !aqaHasAccess() && spIsBankQuiz(_f)) {
+    if (spFreeQuizUsedToday()) { spFreeUpsell(); return; }
+    n = 10;
+    try { localStorage.setItem(spFreeKey(), new Date().toDateString()); } catch(e) {}
+  }
   var sel = document.getElementById('qz-count');
   // ensure option exists, otherwise use 'all'
   var found = false;
@@ -13102,6 +13150,7 @@ async function _loadFromSupabase() {
   _spCloudLoaded = true;
   if (typeof renderBank === 'function') renderBank(); // lets the AQA bank add itself now it's safe
   spLoadPlus();
+  spLoadFoundingLeft();
 }
 
 async function _syncToSupabase() {
