@@ -3864,6 +3864,13 @@ if (user && user !== 'demo@stoday.plus' && !spProfile) {
   } catch(e) {}
 }
 
+// Today's date as YYYY-MM-DD in the student's own time zone. toISOString() is UTC,
+// which is a day behind between midnight and 1am in British Summer Time.
+function spYmd(d) {
+  d = d || new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
 var LTRS = ['A','B','C','D','E'];
 var STORAGE_KEY = 'sp_questions';
 var _qzKbIdx = 0;
@@ -4417,13 +4424,41 @@ window.addEventListener('beforeunload', function(e) {
     return e.returnValue;
   }
 });
-// Also sync when tab is hidden (phone switching apps, laptop switching tabs)
+// Hidden (phone switching apps, laptop switching tabs): upload only if something changed.
+// Uploading every time used to push an old phone copy over newer laptop progress.
+// Visible again after a while: pull the other device's progress before the student carries on.
+var _spHiddenAt = 0;
 document.addEventListener('visibilitychange', function() {
-  if (document.visibilityState === 'hidden' && _spClient && _spUser) {
-    clearTimeout(_syncTimer); _syncTimer = null;
-    _syncToSupabase();
+  if (!_spClient || !_spUser) return;
+  if (document.visibilityState === 'hidden') {
+    _spHiddenAt = Date.now();
+    if (_syncTimer || _spHasUnsynced()) { clearTimeout(_syncTimer); _syncTimer = null; _syncToSupabase(); }
+  } else if (_spCloudLoaded && _spHiddenAt && Date.now() - _spHiddenAt > 60000) {
+    _spPullProgress();
   }
 });
+window.addEventListener('online', function() {
+  if (!_spClient || !_spUser) return;
+  if (!_spCloudLoaded) _loadFromSupabase();
+  else if (_spHasUnsynced()) _syncToSupabase();
+});
+async function _spPullProgress() {
+  if (_spHasUnsynced()) { await _syncToSupabase(); return; } // the upload merges the other device in first
+  try {
+    var r = await _spClient.from('user_data')
+      .select('updated_at, org_topics, revplan, exams, blurto, wrong_ids, correct_ids, org_subjects, folder_scores')
+      .eq('user_id', _spUser.id).maybeSingle();
+    if (r.error || !r.data) return;
+    var ms = Date.parse(r.data.updated_at) || 0;
+    if (ms <= _spSyncedMs()) return; // nothing new
+    _spApplyCloudProgress(r.data, ms);
+    _spMarkSynced(ms);
+    if (typeof orgRenderBanner === 'function') orgRenderBanner();
+    if (typeof orgRenderTable  === 'function') orgRenderTable();
+    if (typeof rpRenderToday   === 'function') rpRenderToday();
+    if (typeof renderBank      === 'function') renderBank();
+  } catch(e) {}
+}
 
 // Question bank
 function loadBank() {
@@ -5502,7 +5537,7 @@ function populateFolderDatalist() {
 }
 
 function syncFoldersFromBanks() {
-  var today = new Date().toISOString().slice(0, 10);
+  var today = spYmd();
 
   // ── Step 1: pull folder names from MCQ / SAQ / Blurto into sp_folders ──────
   (bank || []).forEach(function(q) {
@@ -6999,7 +7034,7 @@ function notesCacheGet(folder) {
 function notesCacheSet(folder, text, fileName) {
   try {
     var c = JSON.parse(localStorage.getItem('sp_notes_cache') || '{}');
-    c[folder] = { text: text, date: new Date().toISOString().slice(0,10), fileName: fileName || '' };
+    c[folder] = { text: text, date: spYmd(), fileName: fileName || '' };
     localStorage.setItem('sp_notes_cache', JSON.stringify(c));
   } catch(e) {}
 }
@@ -7016,7 +7051,7 @@ function blurtoCacheGet(folder) {
 function blurtoCacheSet(folder, simplified, fileName) {
   try {
     var c = JSON.parse(localStorage.getItem('sp_blurto_cache') || '{}');
-    c[folder] = { text: simplified, date: new Date().toISOString().slice(0,10), fileName: fileName || '' };
+    c[folder] = { text: simplified, date: spYmd(), fileName: fileName || '' };
     localStorage.setItem('sp_blurto_cache', JSON.stringify(c));
   } catch(e) {}
 }
@@ -7785,7 +7820,7 @@ function exportData() {
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
   a.href = url;
-  a.download = 'stoday-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+  a.download = 'stoday-backup-' + spYmd() + '.json';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -9247,6 +9282,12 @@ function rpIntervalDays(level) {
   return 112 + (level - 7) * 28; // +28 days per level after D112
 }
 
+// Midnight (local) n days from today. setDate keeps it right across clock changes.
+function rpDaysFromToday(n) { var d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + n); return d.getTime(); }
+function rpEndOfToday() { var d = new Date(); d.setHours(23, 59, 59, 999); return d.getTime(); }
+// Days between this step and the next (D1→D3 is 2 days, D3→D7 is 4, ...)
+function rpGapDays(level) { return level <= 0 ? rpIntervalDays(0) : rpIntervalDays(level) - rpIntervalDays(level - 1); }
+
 function rpLoad() {
   try { rpData = JSON.parse(localStorage.getItem('sp_revplan') || '[]'); } catch(e) { rpData = []; }
   // Backfill: any topic with 10+ MCQ questions already done should be in the planner
@@ -9290,8 +9331,9 @@ function rpAdd() {
     subject: subject,
     addedDate: now,
     level: 0,
-    nextReview: now + rpIntervalDays(0) * 86400000,
-    doneReviews: []
+    nextReview: rpDaysFromToday(rpIntervalDays(0)),
+    doneReviews: [],
+    updatedAt: now
   });
   rpSave();
   document.getElementById('rp-topic-inp').value = '';
@@ -9309,10 +9351,10 @@ function rpGetCurrentTask(topic) {
 
 // Auto-advances a due planner interval when any qualifying session is logged
 function rpAutoComplete(topic, tool, score) {
-  var now = Date.now();
+  var eod = rpEndOfToday();
   var item = rpData.find(function(x) {
     if (x.topic.toLowerCase() !== (topic || '').toLowerCase()) return false;
-    return x.nextReview <= now;
+    return x.nextReview <= eod;
   });
   if (!item) return;
   rpMarkDone(item.id, score);
@@ -9326,11 +9368,12 @@ function rpMarkDone(id, score) {
   if (typeof score === 'number' && score < 50) {
     item.level = 0;
     item.addedDate = Date.now();
-    item.nextReview = Date.now() + 86400000;
+    item.nextReview = rpDaysFromToday(1);
   } else {
     item.level++;
-    item.nextReview = item.addedDate + rpIntervalDays(item.level) * 86400000;
+    item.nextReview = rpDaysFromToday(rpGapDays(item.level));
   }
+  item.updatedAt = Date.now();
   rpSave();
   rpRenderToday();
 }
@@ -9354,7 +9397,8 @@ function rpRepeatCycle(id) {
   item.doneReviews.push({ level: item.level, doneDate: Date.now(), repeated: true });
   item.level = 0;
   item.addedDate = Date.now(); // restart cycle from today
-  item.nextReview = Date.now() + 86400000; // D1 again tomorrow
+  item.nextReview = rpDaysFromToday(1); // D1 again tomorrow
+  item.updatedAt = Date.now();
   rpSave();
   rpRenderToday();
 }
@@ -9863,8 +9907,9 @@ function rpAddFromQuiz(folderName) {
     subject: '',
     addedDate: now,
     level: 0,
-    nextReview: now + rpIntervalDays(0) * 86400000,
-    doneReviews: []
+    nextReview: rpDaysFromToday(rpIntervalDays(0)),
+    doneReviews: [],
+    updatedAt: now
   });
   rpSave();
   banner.innerHTML = spIco('calendar') + ' "' + rpEsc(folderName) + '" added to Revision Planner — first review tomorrow';
@@ -10106,7 +10151,7 @@ function rpRemToggleForm(forceOpen) {
   if (btn) btn.textContent = open ? '✕' : '＋';
   if (open) {
     var d = document.getElementById('rp-rem-date');
-    if (!d.value) d.value = new Date().toISOString().slice(0, 10);
+    if (!d.value) d.value = spYmd();
     document.getElementById('rp-rem-text').focus();
   }
 }
@@ -10887,7 +10932,7 @@ function sqPracEnd() {
   if (sqSessionQCount > 0 && sqCurrentFolder) {
     var saqT = orgMatchTopic(sqCurrentFolder);
     if (saqT) {
-      var todaySaq = new Date().toISOString().slice(0, 10);
+      var todaySaq = spYmd();
       if (!saqT.saq_sessions) saqT.saq_sessions = [];
       saqT.saq_sessions.push({ date: todaySaq, count: sqSessionQCount });
       orgSaveTopics();
@@ -12146,7 +12191,7 @@ function orgEnsureTopic(name, subject) {
   if (!name) return;
   var exists = orgTopics.some(function(t) { return t.topic_name.toLowerCase() === name.toLowerCase(); });
   if (exists) return;
-  var today = new Date().toISOString().slice(0, 10);
+  var today = spYmd();
   orgTopics.unshift({
     id: Date.now() + '-' + Math.random().toString(36).slice(2, 6),
     subject: subject || '',
@@ -12217,7 +12262,7 @@ function orgIncrementMCQ(folder, questions, score) {
   var t = orgMatchTopic(folder);
   if (!t) {
     // Auto-create org topic so MCQ progress is never silently dropped
-    var _td = new Date().toISOString().slice(0, 10);
+    var _td = spYmd();
     t = {
       id: Date.now() + '-' + Math.random().toString(36).slice(2, 6),
       subject: '', topic_name: folder, week_added: _td,
@@ -12227,7 +12272,7 @@ function orgIncrementMCQ(folder, questions, score) {
     };
     orgTopics.unshift(t);
   }
-  var today = new Date().toISOString().slice(0, 10);
+  var today = spYmd();
   if (!t.mcq_sessions) t.mcq_sessions = [];
   if (!t.mcq_seen_ids) t.mcq_seen_ids = [];
   // Only count questions not previously answered
@@ -12252,8 +12297,8 @@ function orgIncrementMCQ(folder, questions, score) {
   orgSaveTopics();
   orgRenderBanner();
   orgRenderTable();
-  // Revision planner: count as a session only if 10+ questions done
-  if (Array.isArray(questions) && questions.length >= 10) {
+  // Revision planner: count as a session only if 10+ questions done (or the whole topic, if it has fewer)
+  if (Array.isArray(questions) && questions.length >= Math.min(10, spFolderCount(folder) || 10)) {
     // D0 — start the cycle on first qualifying Poppy session
     if (!rpData.some(function(x) { return x.topic.toLowerCase() === folder.toLowerCase(); })) {
       var _now = Date.now();
@@ -12261,8 +12306,8 @@ function orgIncrementMCQ(folder, questions, score) {
         id: _now + '-' + Math.random().toString(36).slice(2, 7),
         topic: t.topic_name, subject: t.subject || '',
         addedDate: _now, level: 0,
-        nextReview: _now + 86400000,
-        doneReviews: []
+        nextReview: rpDaysFromToday(1),
+        doneReviews: [], updatedAt: _now
       });
       rpSave();
     }
@@ -12281,7 +12326,7 @@ function orgIncrementSAQ(folder, questionId) {
   t.saq_count = (t.saq_count || 0) + 1;
   if (t.saq_count >= ORG_SAQ_THRESHOLD && !t.saq_done) {
     t.saq_done = true;
-    var today = new Date().toISOString().slice(0, 10);
+    var today = spYmd();
     if (t.last_revised !== today) {
       t.revision_count = (t.revision_count || 0) + 1;
       t.last_revised = today;
@@ -12303,7 +12348,7 @@ function orgIncrementBlurting(topicName) {
   t.blurting_count = (t.blurting_count || 0) + 1;
   if (t.blurting_count >= ORG_BLURT_THRESHOLD && !t.blurting_done) {
     t.blurting_done = true;
-    var today = new Date().toISOString().slice(0, 10);
+    var today = spYmd();
     if (t.last_revised !== today) {
       t.revision_count = (t.revision_count || 0) + 1;
       t.last_revised = today;
@@ -12330,7 +12375,7 @@ function orgGetNextDue(revCount, lastRevised) {
   var days = ORG_INTERVALS[Math.min(revCount - 1, ORG_INTERVALS.length - 1)];
   var d = new Date(lastRevised + 'T00:00:00');
   d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0, 10);
+  return spYmd(d);
 }
 
 function orgInit() {
@@ -12413,7 +12458,7 @@ function orgToggleField(id, field) {
   // On any revision task ticked ON, advance spaced rep (once per day)
   var revFields = ['mcq_done', 'saq_done', 'blurting_done'];
   if (revFields.indexOf(field) !== -1 && t[field]) {
-    var today = new Date().toISOString().slice(0, 10);
+    var today = spYmd();
     if (t.last_revised !== today) {
       t.revision_count = (t.revision_count || 0) + 1;
       t.last_revised = today;
@@ -12872,8 +12917,80 @@ var _USER_DATA_KEYS = [
   'sp_folder_scores','sp_saq_folder_scores','sp_folder_meta','sp_topic_content','sp_notes_cache',
   'sp_blurto_cache','sp_finley_draft',
   'sp_wrong_ids','sp_correct_ids','sp_folders','finley_sessions','sp_revplan','sp_exams',
-  'sp_question_notes','sp_topic_materials'
+  'sp_question_notes','sp_topic_materials','sp_unsynced','sp_synced_at'
 ];
+
+function _spIdTime(id) { var t = parseInt(String(id || ''), 10); return isNaN(t) ? 0 : t; }
+function _spMergeRevplan(cloud, local, cloudMs) {
+  var map = {};
+  (cloud || []).forEach(function(item) { if (item.id) map[item.id] = item; });
+  (local || []).forEach(function(item) {
+    if (!item.id) return;
+    var ex = map[item.id];
+    if (!ex) { if (_spIdTime(item.id) > cloudMs) map[item.id] = item; return; }
+    if (item.updatedAt || ex.updatedAt) { if ((item.updatedAt || 0) > (ex.updatedAt || 0)) map[item.id] = item; return; }
+    if ((item.level || 0) > (ex.level || 0) ||
+        ((item.level || 0) === (ex.level || 0) && (item.doneReviews || []).length > (ex.doneReviews || []).length)) map[item.id] = item;
+  });
+  return Object.values(map);
+}
+function _spOrgProgress(t) { return (t.mcq_count || 0) + (t.saq_count || 0) + (t.blurting_count || 0) + (t.revision_count || 0); }
+function _spMergeOrgTopics(cloud, local, cloudMs) {
+  var out = (cloud || []).slice(), idx = {};
+  out.forEach(function(t, i) { idx[String(t.topic_name || '').toLowerCase()] = i; });
+  (local || []).forEach(function(t) {
+    var k = String(t.topic_name || '').toLowerCase(), i = idx[k];
+    if (i === undefined) { if (_spIdTime(t.id) > cloudMs) { idx[k] = out.length; out.push(t); } return; }
+    if (_spOrgProgress(t) > _spOrgProgress(out[i])) out[i] = t;
+  });
+  return out;
+}
+// Folds another device's saved progress into this device. Questions themselves are left alone.
+function _spApplyCloudProgress(d, cloudMs) {
+  var loc = function(k, dflt) { try { return JSON.parse(localStorage.getItem(k) || 'null') || dflt; } catch(e) { return dflt; } };
+  if (d.org_topics && d.org_topics.length) localStorage.setItem('sp_org_topics', JSON.stringify(_spMergeOrgTopics(d.org_topics, loc('sp_org_topics', []), cloudMs)));
+  if (d.revplan && d.revplan.length) localStorage.setItem('sp_revplan', JSON.stringify(_spMergeRevplan(d.revplan, loc('sp_revplan', []), cloudMs)));
+  if (d.exams && d.exams.length) {
+    var exMap = {};
+    d.exams.forEach(function(e) { if (e.id) exMap[e.id] = e; });
+    loc('sp_exams', []).forEach(function(e) { if (e.id && (!exMap[e.id] || (e.updatedAt || 0) > (exMap[e.id].updatedAt || 0))) exMap[e.id] = e; });
+    localStorage.setItem('sp_exams', JSON.stringify(Object.values(exMap).sort(function(a,b){ return a.date < b.date ? -1 : 1; })));
+  }
+  if (d.blurto && d.blurto.length) {
+    var _blKey = function(s) { return (s.topic || '') + '_' + (s.savedAt || s.date || ''); };
+    var blMap = {};
+    loc('sp_blurto', []).forEach(function(s) { blMap[_blKey(s)] = s; });
+    d.blurto.forEach(function(s) { var k = _blKey(s); if (!blMap[k]) blMap[k] = s; });
+    localStorage.setItem('sp_blurto', JSON.stringify(Object.values(blMap)));
+  }
+  ['wrong_ids', 'correct_ids'].forEach(function(col) {
+    var c = d[col];
+    if (!c || !Object.keys(c).length) return;
+    var key = 'sp_' + col, l = loc(key, {}), m = Object.assign({}, c);
+    Object.keys(l).forEach(function(f) {
+      if (!m[f]) m[f] = l[f];
+      else l[f].forEach(function(id) { if (m[f].indexOf(id) === -1) m[f].push(id); });
+    });
+    localStorage.setItem(key, JSON.stringify(m));
+  });
+  if (d.org_subjects && d.org_subjects.length) {
+    var subj = d.org_subjects.slice();
+    loc('sp_org_subjects', []).forEach(function(s) { if (subj.indexOf(s) === -1) subj.push(s); });
+    localStorage.setItem('sp_org_subjects', JSON.stringify(subj));
+  }
+  if (d.folder_scores) {
+    var fs = Object.assign({}, d.folder_scores), lfs = getFolderScores();
+    Object.keys(lfs).forEach(function(k) { if (!fs[k] || lfs[k].best > fs[k].best) fs[k] = lfs[k]; });
+    localStorage.setItem('sp_folder_scores', JSON.stringify(fs));
+  }
+  if (typeof orgLoadData === 'function') orgLoadData();
+  if (typeof blurtoLoad  === 'function') blurtoLoad();
+  if (typeof rpExamLoad  === 'function') rpExamLoad();
+  if (typeof rpLoad      === 'function') rpLoad();
+}
+function _spMarkSynced(ms) { try { localStorage.setItem('sp_synced_at', String(ms || 0)); } catch(e) {} }
+function _spSyncedMs() { return Number(localStorage.getItem('sp_synced_at') || 0); }
+function _spHasUnsynced() { return !!localStorage.getItem('sp_unsynced'); }
 
 var _supabaseLoading = false;
 var _spCloudLoaded = false; // true once this account's saved data has come down from the cloud
@@ -12959,24 +13076,36 @@ async function _loadFromSupabase() {
     if (typeof renderSqBank === 'function') renderSqBank();
     _setSyncStatus(bank.length ? '☁ Local data uploaded to cloud' : '☁ Account ready');
   } else {
-    // Cloud is the source of truth. Local cache is only used if cloud is empty.
+    // Cloud is the source of truth, unless this device has changes it never uploaded
+    // (e.g. made offline) and no other device has saved since. Then this device wins.
+    var _cloudMs = Date.parse(r.data.updated_at) || 0;
+    var _localAhead = _spHasUnsynced() && _cloudMs <= _spSyncedMs();
     var cloudBank   = r.data.bank    || [];
     var cloudSqBank = r.data.sq_bank || [];
-    if (cloudBank.length > 0) {
+    var _lbk = null, _lsq = null;
+    if (_localAhead) {
+      try { _lbk = JSON.parse(localStorage.getItem('sp_bank_local_' + uid) || 'null'); } catch(e) {}
+      try { _lsq = JSON.parse(localStorage.getItem('sp_saqs_local_' + uid) || 'null'); } catch(e) {}
+    }
+    if (_lbk) {
+      bank = _lbk;
+    } else if (cloudBank.length > 0) {
       bank = cloudBank;
     } else {
       // Cloud empty — pull up local data and push it to cloud
       try { var _bc = JSON.parse(localStorage.getItem('sp_bank_cache_' + uid) || 'null'); if (_bc && _bc.data && _bc.data.length) bank = _bc.data; } catch(e) {}
       try { if (!bank.length) { var _lb = JSON.parse(localStorage.getItem('sp_bank_local_' + uid) || 'null'); if (_lb && _lb.length) bank = _lb; } } catch(e) {}
       try { if (!bank.length) { var _gb = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); if (_gb.length) bank = _gb; } } catch(e) {}
-      if (bank.length) setTimeout(_syncToSupabase, 500);
+      if (bank.length) localStorage.setItem('sp_unsynced', String(Date.now()));
     }
-    if (cloudSqBank.length > 0) {
+    if (_lsq) {
+      sqBank = _lsq;
+    } else if (cloudSqBank.length > 0) {
       sqBank = cloudSqBank;
     } else {
       try { var _sc = JSON.parse(localStorage.getItem('sp_saqs_cache_' + uid) || 'null'); if (_sc && _sc.data && _sc.data.length) sqBank = _sc.data; } catch(e) {}
       try { if (!sqBank.length) { var _ls = JSON.parse(localStorage.getItem('sp_saqs_local_' + uid) || 'null'); if (_ls && _ls.length) sqBank = _ls; } } catch(e) {}
-      if (sqBank.length) setTimeout(_syncToSupabase, 500);
+      if (sqBank.length) localStorage.setItem('sp_unsynced', String(Date.now()));
     }
     // Clear stale local caches — cloud is now the truth
     localStorage.removeItem('sp_bank_cache_' + uid);
@@ -13002,11 +13131,11 @@ async function _loadFromSupabase() {
     try {
       var fmr = await _spClient.from('user_data').select('folders, folder_meta').eq('user_id', uid).maybeSingle();
       if (!fmr.error && fmr.data) {
-        if (fmr.data.folders && fmr.data.folders.length) {
+        if (!_localAhead && fmr.data.folders && fmr.data.folders.length) {
           // Cloud is the authority — overwrite local completely so stale phone folders don't bleed in
           localStorage.setItem('sp_folders', JSON.stringify(fmr.data.folders));
         }
-        if (fmr.data.folder_meta && Object.keys(fmr.data.folder_meta).length) {
+        if (!_localAhead && fmr.data.folder_meta && Object.keys(fmr.data.folder_meta).length) {
           // Cloud wins for metadata too
           localStorage.setItem('sp_folder_meta', JSON.stringify(fmr.data.folder_meta));
         }
@@ -13032,7 +13161,7 @@ async function _loadFromSupabase() {
     try {
       var nmr = await _spClient.from('user_data')
         .select('question_notes, topic_materials').eq('user_id', uid).maybeSingle();
-      if (!nmr.error && nmr.data) {
+      if (!_localAhead && !nmr.error && nmr.data) {
         if (nmr.data.question_notes)  localStorage.setItem('sp_question_notes',  JSON.stringify(nmr.data.question_notes));
         if (nmr.data.topic_materials) localStorage.setItem('sp_topic_materials', JSON.stringify(nmr.data.topic_materials));
       }
@@ -13040,106 +13169,21 @@ async function _loadFromSupabase() {
     // Load planner, org, and supplementary data (columns may not exist yet — fails gracefully)
     try {
       var r2 = await _spClient.from('user_data')
-        .select('org_topics, revplan, exams, blurto, wrong_ids, correct_ids, org_subjects')
+        .select('org_topics, revplan, exams, blurto, wrong_ids, correct_ids, org_subjects, folder_scores')
         .eq('user_id', uid).maybeSingle();
       if (!r2.error && r2.data) {
-        // ── org_topics ──────────────────────────────────────────────────────
-        var cloudOT = r2.data.org_topics;
-        if (cloudOT && cloudOT.length) {
-          localStorage.setItem('sp_org_topics', JSON.stringify(cloudOT));
-          if (typeof orgLoadData === 'function') orgLoadData();
-          if (typeof orgRenderTable === 'function') orgRenderTable();
-        } else {
-          var _lot = JSON.parse(localStorage.getItem('sp_org_topics') || '[]');
-          if (_lot.length) setTimeout(_syncToSupabase, 800);
-        }
-        // ── revplan: per-item merge by id, keep whichever device is further ahead ──
-        var cloudRP = r2.data.revplan;
-        var _lrp = [];
-        try { _lrp = JSON.parse(localStorage.getItem('sp_revplan') || '[]'); } catch(_ee) {}
-        if (cloudRP && cloudRP.length) {
-          var rpMergeMap = {};
-          cloudRP.forEach(function(item) { if (item.id) rpMergeMap[item.id] = item; });
-          _lrp.forEach(function(item) {
-            if (!item.id) return;
-            var existing = rpMergeMap[item.id];
-            if (!existing) { rpMergeMap[item.id] = item; }
-            else if ((item.level || 0) > (existing.level || 0)) { rpMergeMap[item.id] = item; }
-            else if ((item.level || 0) === (existing.level || 0) &&
-                     (item.doneReviews || []).length > (existing.doneReviews || []).length) {
-              rpMergeMap[item.id] = item;
-            }
-          });
-          localStorage.setItem('sp_revplan', JSON.stringify(Object.values(rpMergeMap)));
-        } else if (_lrp.length) {
-          setTimeout(_syncToSupabase, 800);
-        }
-        if (typeof rpLoad === 'function') rpLoad();
+        _spApplyCloudProgress(r2.data, _cloudMs);
+        if (typeof orgRenderTable === 'function') orgRenderTable();
         if (typeof rpRenderToday === 'function') rpRenderToday();
-        // ── exams: union by id ───────────────────────────────────────────────
-        var cloudEx = r2.data.exams;
-        if (cloudEx && cloudEx.length) {
-          var _lex = [];
-          try { _lex = JSON.parse(localStorage.getItem('sp_exams') || '[]'); } catch(_ee) {}
-          var exMap = {};
-          cloudEx.forEach(function(e) { if (e.id) exMap[e.id] = e; });
-          _lex.forEach(function(e) { if (e.id && (!exMap[e.id] || (e.updatedAt || 0) > (exMap[e.id].updatedAt || 0))) exMap[e.id] = e; });
-          var mergedEx = Object.values(exMap).sort(function(a,b){ return a.date < b.date ? -1 : 1; });
-          localStorage.setItem('sp_exams', JSON.stringify(mergedEx));
-        } else {
-          var _lex0 = [];
-          try { _lex0 = JSON.parse(localStorage.getItem('sp_exams') || '[]'); } catch(_ee) {}
-          if (_lex0.length) setTimeout(_syncToSupabase, 800);
-        }
-        if (typeof rpExamLoad === 'function') rpExamLoad();
-        // ── blurto sessions: union by topic+savedAt key ──────────────────────
-        var cloudBl = r2.data.blurto;
-        if (cloudBl && cloudBl.length) {
-          var _lbl = [];
-          try { _lbl = JSON.parse(localStorage.getItem('sp_blurto') || '[]'); } catch(_ee) {}
-          function _blKey(s) { return (s.topic || '') + '_' + (s.savedAt || s.date || ''); }
-          var blMap = {};
-          _lbl.forEach(function(s) { blMap[_blKey(s)] = s; });
-          cloudBl.forEach(function(s) { var k = _blKey(s); if (!blMap[k]) blMap[k] = s; });
-          localStorage.setItem('sp_blurto', JSON.stringify(Object.values(blMap)));
-          if (typeof blurtoLoad === 'function') blurtoLoad();
-        }
-        // ── wrong_ids: union per folder ──────────────────────────────────────
-        if (r2.data.wrong_ids && Object.keys(r2.data.wrong_ids).length) {
-          var cloudWI = r2.data.wrong_ids, localWI = {};
-          try { localWI = JSON.parse(localStorage.getItem('sp_wrong_ids') || '{}'); } catch(_ee) {}
-          var mergedWI = Object.assign({}, cloudWI);
-          Object.keys(localWI).forEach(function(f) {
-            if (!mergedWI[f]) { mergedWI[f] = localWI[f]; }
-            else { localWI[f].forEach(function(id) { if (mergedWI[f].indexOf(id) === -1) mergedWI[f].push(id); }); }
-          });
-          localStorage.setItem('sp_wrong_ids', JSON.stringify(mergedWI));
-        }
-        // ── correct_ids: union per folder (more mastered = more progress) ────
-        if (r2.data.correct_ids && Object.keys(r2.data.correct_ids).length) {
-          var cloudCI = r2.data.correct_ids, localCI = {};
-          try { localCI = JSON.parse(localStorage.getItem('sp_correct_ids') || '{}'); } catch(_ee) {}
-          var mergedCI = Object.assign({}, cloudCI);
-          Object.keys(localCI).forEach(function(f) {
-            if (!mergedCI[f]) { mergedCI[f] = localCI[f]; }
-            else { localCI[f].forEach(function(id) { if (mergedCI[f].indexOf(id) === -1) mergedCI[f].push(id); }); }
-          });
-          localStorage.setItem('sp_correct_ids', JSON.stringify(mergedCI));
-        }
-        // ── org_subjects: union ──────────────────────────────────────────────
-        if (r2.data.org_subjects && r2.data.org_subjects.length) {
-          var cloudSubj = r2.data.org_subjects, localSubj = [];
-          try { localSubj = JSON.parse(localStorage.getItem('sp_org_subjects') || '[]'); } catch(_ee) {}
-          var mergedSubj = cloudSubj.slice();
-          localSubj.forEach(function(s) { if (mergedSubj.indexOf(s) === -1) mergedSubj.push(s); });
-          localStorage.setItem('sp_org_subjects', JSON.stringify(mergedSubj));
-          if (typeof orgLoadData === 'function') orgLoadData();
+        // Cloud had nothing yet for these: upload this device's copy
+        if (!(r2.data.org_topics && r2.data.org_topics.length) || !(r2.data.revplan && r2.data.revplan.length)) {
+          try { if (JSON.parse(localStorage.getItem('sp_org_topics') || '[]').length || JSON.parse(localStorage.getItem('sp_revplan') || '[]').length) localStorage.setItem('sp_unsynced', String(Date.now())); } catch(e) {}
         }
       } else {
         // Columns may not exist yet — push local data to cloud to bootstrap them
         var _lot2 = JSON.parse(localStorage.getItem('sp_org_topics') || '[]');
         var _lrp2 = JSON.parse(localStorage.getItem('sp_revplan') || '[]');
-        if (_lot2.length || _lrp2.length) setTimeout(_syncToSupabase, 800);
+        if (_lot2.length || _lrp2.length) localStorage.setItem('sp_unsynced', String(Date.now()));
         if (typeof rpLoad === 'function') rpLoad();
         if (typeof rpRenderToday === 'function') rpRenderToday();
       }
@@ -13150,14 +13194,40 @@ async function _loadFromSupabase() {
   }
   _supabaseLoading = false;
   _spCloudLoaded = true;
+  if (r.data && r.data.updated_at && !_spHasUnsynced()) _spMarkSynced(Date.parse(r.data.updated_at));
+  if (!r.data) _spMarkSynced(Date.now());
+  // Anything saved while the cloud copy was loading, or never uploaded before, goes up now
+  if (_spSyncAfterLoad || _spHasUnsynced()) { _spSyncAfterLoad = false; _syncToSupabase(); }
   if (typeof renderBank === 'function') renderBank(); // lets the AQA bank add itself now it's safe
   spLoadPlus();
   spLoadFoundingLeft();
 }
 
+var _spSyncAfterLoad = false, _spSyncing = false, _spSyncAgain = false;
 async function _syncToSupabase() {
   if (!_spClient || !_spUser) return;
-  var uid = _spUser.id;
+  // Uploading before this account's cloud copy has come down would overwrite it with old device data
+  if (!_spCloudLoaded) { _spSyncAfterLoad = true; return; }
+  if (_spSyncing) { _spSyncAgain = true; return; }
+  _spSyncing = true;
+  try { await _spSyncNow(); } finally {
+    _spSyncing = false;
+    if (_spSyncAgain) { _spSyncAgain = false; _scheduleSyncToSupabase(); }
+  }
+}
+async function _spSyncNow() {
+  var uid = _spUser.id, startedAt = Date.now();
+  // Another device saved since this one last synced: fold its progress in first, so it isn't overwritten
+  try {
+    var head = await _spClient.from('user_data').select('updated_at').eq('user_id', uid).maybeSingle();
+    var headMs = head.data && head.data.updated_at ? Date.parse(head.data.updated_at) : 0;
+    if (!head.error && headMs > _spSyncedMs()) {
+      var other = await _spClient.from('user_data')
+        .select('org_topics, revplan, exams, blurto, wrong_ids, correct_ids, org_subjects, folder_scores')
+        .eq('user_id', uid).maybeSingle();
+      if (!other.error && other.data) _spApplyCloudProgress(other.data, headMs);
+    }
+  } catch(_e) {}
   var payload = { user_id: uid, bank: bank, sq_bank: sqBank, updated_at: new Date().toISOString() };
   try { payload.folder_scores = getFolderScores(); } catch(_e) {}
   try { payload.folders = getAllFolders(); } catch(_e) {}
@@ -13190,12 +13260,15 @@ async function _syncToSupabase() {
   } else {
     localStorage.removeItem('sp_bank_cache_' + uid);
     localStorage.removeItem('sp_saqs_cache_' + uid);
+    _spMarkSynced(Date.parse(payload.updated_at));
+    if (Number(localStorage.getItem('sp_unsynced') || 0) <= startedAt) localStorage.removeItem('sp_unsynced');
     _setSyncStatus('☁ Saved');
   }
 }
 
 function _scheduleSyncToSupabase() {
   if (!_spUser) return;
+  try { localStorage.setItem('sp_unsynced', String(Date.now())); } catch(e) {}
   clearTimeout(_syncTimer);
   _syncTimer = setTimeout(_syncToSupabase, 1000);
 }
