@@ -799,6 +799,7 @@
     .aqa-locked-head{display:flex;align-items:center;gap:10px;font-size:.92rem;color:#3b2a1a}
     .aqa-lock{margin-left:auto;font-size:.72rem;font-weight:800;color:#6d28d9;background:rgba(124,58,237,.1);border-radius:99px;padding:3px 10px}
     .aqa-locked p{font-size:.8rem;color:#6e5438;margin:8px 0 12px;line-height:1.5}
+    .aqa-locked .aqa-upgrade{margin-top:14px;padding:11px 22px;font-size:.82rem}
     .aqa-locked-topics{display:flex;flex-wrap:wrap;gap:6px}
     .aqa-locked-topics span{font-size:.72rem;font-weight:600;color:#8a7558;border:1px solid rgba(168,85,247,.18);border-radius:99px;padding:4px 10px;background:#fffdf7}
     body.hc .aqa-locked{background:rgba(255,255,255,.03)}
@@ -2576,6 +2577,7 @@ document.addEventListener('pointerdown', function(e) {
         <label style="flex:1;background:rgba(124,58,237,.1);color:#6d28d9;border:1px solid rgba(124,58,237,.2);border-radius:8px;padding:6px 4px;font-size:.65rem;font-weight:700;cursor:pointer;font-family:'Raleway',sans-serif;text-align:center" title="Restore data from a backup file"><svg class="spi" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg> Import<input type="file" accept=".json" id="import-file-inp" style="display:none" onchange="importData(event)"/></label>
       </div>
       <a class="logout-link sb-setup-link" href="onboarding.html" style="display:block;text-decoration:none">Study setup →</a>
+      <a class="logout-link sb-setup-link" id="sp-manage-plus" href="#" target="_blank" rel="noopener" style="display:none;text-decoration:none">Manage Plus subscription →</a>
       <div class="logout-link" onclick="logout()">Log out →</div>
       <div id="sp-sync-area" style="margin-top:10px;border-top:1px solid rgba(168,85,247,.1);padding-top:10px">
         <div id="sp-sync-user" style="font-size:.68rem;color:#5a4230;margin-bottom:5px;display:none"></div>
@@ -4598,7 +4600,50 @@ function refreshFolderDatalist(){
 var AQA_BANK_ACCESS = ['test@stoday.plus'];
 var aqaBankData = null;
 function aqaIsGcse() { return !!(spProfile && spProfile.level === 'gcse'); }
-function aqaHasAccess() { return !!user && AQA_BANK_ACCESS.indexOf(String(user).toLowerCase()) !== -1; }
+function aqaHasAccess() { return spIsPlus() || (!!user && AQA_BANK_ACCESS.indexOf(String(user).toLowerCase()) !== -1); }
+
+// ── Stoday Plus (Stripe) ─────────────────────────────────────────────────
+// Parents pay through a Stripe Payment Link; the stripe-webhook edge function
+// records it in public.subscriptions; here we read the student's own row.
+// Fill the links in from the Stripe dashboard (test-mode links while testing).
+var STRIPE_PLUS_LINK = '';    // Payment Link for "Stoday Plus · £7/month", e.g. https://buy.stripe.com/test_…
+var STRIPE_PORTAL_LINK = '';  // Customer portal login link, e.g. https://billing.stripe.com/p/login/test_…
+var spPlus = null;            // the student's subscriptions row, or null
+function spIsPlus() { return !!(spPlus && (spPlus.status === 'active' || spPlus.status === 'trialing')); }
+async function spLoadPlus() {
+  if (!_spClient || !_spUser) return;
+  var r = await _spClient.from('subscriptions').select('status,current_period_end,cancel_at_period_end').eq('user_id', _spUser.id).maybeSingle();
+  if (r.error) return; // table not set up yet: stay on the free plan
+  var was = spIsPlus();
+  spPlus = r.data || null;
+  spRenderPlusUI();
+  if (spIsPlus() !== was && typeof renderBank === 'function') renderBank();
+}
+function spUpgrade() {
+  if (!STRIPE_PLUS_LINK || !_spUser) { alert(_spUser ? 'Plus is coming very soon. Join the waiting list on the homepage and we\'ll tell you first.' : 'Create a free account first, then you can upgrade to Plus.'); return; }
+  var url = STRIPE_PLUS_LINK + (STRIPE_PLUS_LINK.indexOf('?') === -1 ? '?' : '&')
+    + 'client_reference_id=' + encodeURIComponent(_spUser.id)
+    + '&prefilled_email=' + encodeURIComponent(_spUser.email || '');
+  window.location.href = url;
+}
+function spRenderPlusUI() {
+  var link = document.getElementById('sp-manage-plus');
+  if (link) link.style.display = spIsPlus() && STRIPE_PORTAL_LINK ? 'block' : 'none';
+  if (link && STRIPE_PORTAL_LINK) link.href = STRIPE_PORTAL_LINK + (_spUser && _spUser.email ? '?prefilled_email=' + encodeURIComponent(_spUser.email) : '');
+}
+// Back from Stripe checkout (?plus=success): the webhook can take a few seconds, so check a few times
+(function() {
+  if (!/[?&]plus=success/.test(location.search)) return;
+  history.replaceState(null, '', location.pathname);
+  var tries = 0;
+  var t = setInterval(function() {
+    tries++;
+    spLoadPlus().then(function() {
+      if (spIsPlus()) { clearInterval(t); if (typeof spDrop === 'function') spDrop(function() { return '🎉 Welcome to Stoday Plus. Your AQA question bank is unlocked.'; }, 8000); }
+    });
+    if (tries >= 10) clearInterval(t);
+  }, 3000);
+})();
 function aqaLoadBank() {
   if (!aqaIsGcse() || aqaBankData) return;
   fetch('bank/aqa-biology.json', { cache: 'no-cache' })
@@ -4671,6 +4716,7 @@ function aqaLockedHtml() {
     + '<div class="aqa-locked-head"><span class="aqa-badge">AQA</span><strong>Biology question bank</strong><span class="aqa-lock">' + spIco('lock') + ' Plus</span></div>'
     + '<p>' + (n ? n + ' ready-made questions' : 'Ready-made questions') + ' that follow the AQA specification, each with a hint and a "Why?". Included with Stoday Plus.</p>'
     + '<div class="aqa-locked-topics">' + topics.map(function(t) { return (t.folders.length ? t.folders : [t.name]).map(function(f) { return '<span>' + esc(f) + '</span>'; }).join(''); }).join('') + '</div>'
+    + '<button type="button" class="td-start aqa-upgrade" onclick="spPress(this, event, spUpgrade)">Upgrade to Plus · £7/month</button>'
     + '</div>';
 }
 
@@ -13055,6 +13101,7 @@ async function _loadFromSupabase() {
   _supabaseLoading = false;
   _spCloudLoaded = true;
   if (typeof renderBank === 'function') renderBank(); // lets the AQA bank add itself now it's safe
+  spLoadPlus();
 }
 
 async function _syncToSupabase() {
