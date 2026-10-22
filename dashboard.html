@@ -2347,6 +2347,10 @@
       opacity:.4;cursor:not-allowed;transform:none;filter:grayscale(.2);box-shadow:none}
     .td-ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.45);transform:scale(0);animation:tdRipple .45s ease-out forwards;pointer-events:none}
     .sp-btn2-ripple{background:rgba(124,58,237,.16)}
+    /* Done in the Today list stays green: finish the task, press the green button. Same shape and press as the family. */
+    #rp-today-content .rp-done-btn,#rp-today-content .rp-done-btn:hover:not(:disabled){background:linear-gradient(135deg,#16a34a,#15803d);box-shadow:0 4px 10px rgba(22,163,74,.26),inset 0 1px 0 rgba(255,255,255,.25)}
+    #rp-today-content .rp-done-btn:is(:active:not(:disabled),.is-pressed){box-shadow:0 2px 6px rgba(22,163,74,.28),inset 0 3px 8px rgba(5,46,22,.35)}
+    body.hc #rp-today-content .rp-done-btn{background:linear-gradient(135deg,#15803d,#166534)}
     /* secondary: one quiet outline */
     .res-btn.sec,.qr-cancel,.fs-btn,.paste-back-btn,.fe-cancel-btn{
       background:rgba(255,255,255,.7);border:1.5px solid rgba(109,40,217,.22);color:#5b3e8a;box-shadow:none;
