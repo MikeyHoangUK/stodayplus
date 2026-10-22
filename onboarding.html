@@ -126,6 +126,11 @@ var S = {
       ['combined', 'Combined Science', 'Biology, Chemistry and Physics as 2 GCSEs'],
       ['separate', 'Separate sciences', 'Biology and Chemistry as their own GCSEs'],
       ['unsure', 'Not sure']] },
+  tier: { q: 'Which tier are you sitting?', key: 'tier', opts: [
+      ['foundation', 'Foundation'],
+      ['higher', 'Higher'],
+      ['unsure', 'Not sure yet', 'We\'ll show you everything, Higher included']],
+      sub: function() { return 'Ask your teacher if you\'re not sure.'; } },
   mocks: { q: 'When are your mocks?', key: 'mocks', grid: true,
       opts: function() { return nextMonths(8).map(function(m) { return [m.v, m.t]; }).concat([['unsure', 'Not sure']]); },
       sub: function() { return 'Your plan works back from this date first.'; } },
@@ -138,7 +143,7 @@ var S = {
 
 function flow() {
   return (A.level === 'gcse')
-    ? ['level', 'year', 'board', 'course', 'mocks', 'focus', 'done']
+    ? ['level', 'year', 'board', 'course', 'tier', 'mocks', 'focus', 'done']
     : ['level', 'prep', 'examDate', 'focus', 'done'];
 }
 
@@ -197,7 +202,7 @@ function go(dir) {
   render();
 }
 
-var LBL = { aqa: 'AQA', edexcel: 'Edexcel', ocr: 'OCR', combined: 'Combined Science', separate: 'Separate sciences' };
+var LBL = { aqa: 'AQA', edexcel: 'Edexcel', ocr: 'OCR', combined: 'Combined Science', separate: 'Separate sciences', foundation: 'Foundation tier', higher: 'Higher tier' };
 function profile() {
   var p = { v: 1, level: A.level, focus: Number(A.focus || 45), completedAt: new Date().toISOString() };
   if (A.level === 'gcse') {
@@ -207,6 +212,7 @@ function profile() {
     p.boardUnsure = A.board === 'unsure';
     p.course = A.course === 'unsure' ? 'separate' : A.course;
     p.courseUnsure = A.course === 'unsure';
+    p.tier = A.tier || 'unsure';
     p.subjects = ['Biology', 'Chemistry'];
     p.mocks = A.mocks === 'unsure' ? null : A.mocks;
   } else {
@@ -222,6 +228,7 @@ function doneHtml() {
     chips.push('Year ' + p.year + ' · exams summer ' + p.examYear);
     chips.push(LBL[p.board] + (p.boardUnsure ? ' (for now)' : ''));
     chips.push(LBL[p.course]);
+    if (LBL[p.tier]) chips.push(LBL[p.tier]);
     if (p.mocks) { var d = new Date(p.mocks + '-01'); chips.push('Mocks ' + d.toLocaleString('en-GB', { month: 'long', year: 'numeric' })); }
   } else {
     chips.push(esc(p.prep));
@@ -261,6 +268,7 @@ try {
     if (prev.level === 'gcse') {
       A.year = String(prev.year); A.board = prev.boardUnsure ? 'unsure' : prev.board;
       A.course = prev.courseUnsure ? 'unsure' : prev.course; A.mocks = prev.mocks || 'unsure';
+      if (prev.tier) A.tier = prev.tier;
     } else { A.prep = prev.prep; A.examDate = prev.examDate || 'unsure'; }
   }
 } catch (e) {}

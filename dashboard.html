@@ -4669,7 +4669,8 @@ function aqaLoadBank() {
     .catch(function() {});
 }
 // Make the student's bank match the AQA file: add missing questions, update changed ones
-// (so central fixes reach everyone), and drop separate-only ones for Combined Science.
+// (so central fixes reach everyone), and drop separate-only ones for Combined Science
+// and Higher-only ones for Foundation tier (no tier set = Higher, so older accounts keep everything).
 // Returns true if anything changed.
 function aqaBankEnsure() {
   // Never write before the account's own questions have loaded, or the sync could overwrite them
@@ -4678,8 +4679,9 @@ function aqaBankEnsure() {
   if (!aqaIsGcse()) return aqaBankRemove();
   if (!aqaBankData) return false;
   var combined = spProfile.course === 'combined';
+  var foundation = spProfile.tier === 'foundation';
   var want = {};
-  aqaBankData.questions.forEach(function(q) { if (!(combined && q.sep)) want[q.id] = q; });
+  aqaBankData.questions.forEach(function(q) { if (!(combined && q.sep) && !(foundation && q.ht)) want[q.id] = q; });
   var changed = false, have = {};
   bank = bank.filter(function(q) {
     if (q.src !== 'aqa') return true;
