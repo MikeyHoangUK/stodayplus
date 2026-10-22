@@ -81,7 +81,7 @@
     #app{display:flex;height:100vh;overflow:hidden}
 
     /* ── SIDEBAR ── */
-    #sidebar{position:fixed;left:0;top:0;height:100%;width:210px;min-width:210px;background:#e6d4ab;border-right:1px solid rgba(168,85,247,.14);display:flex;flex-direction:column;overflow-y:auto;z-index:1000;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1)}
+    #sidebar{position:fixed;left:0;top:0;height:100%;width:210px;min-width:210px;background:#e6d4ab;border-right:1px solid rgba(168,85,247,.14);display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:transparent transparent;z-index:1000;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1),scrollbar-color .3s}
     #sidebar.open{transform:translateX(0)}
     .sb-overlay{position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:999;opacity:0;pointer-events:none;transition:opacity .28s ease}
     .sb-overlay.show{opacity:1;pointer-events:auto}
@@ -91,6 +91,13 @@
     .sb-logo img{width:36px;height:36px;object-fit:contain;flex-shrink:0}
     .sb-logo span{font-weight:900;font-size:.86rem;color:#1c1208;letter-spacing:.01em}
     .sb-logo em{color:#6d28d9;font-style:normal}
+    /* Side menu scrollbar: invisible until you hover the menu, then a thin faint line */
+    #sidebar:hover{scrollbar-color:rgba(109,40,217,.22) transparent}
+    #sidebar::-webkit-scrollbar{width:4px}
+    #sidebar::-webkit-scrollbar-track{background:transparent}
+    #sidebar::-webkit-scrollbar-thumb{background:transparent;border-radius:4px}
+    #sidebar:hover::-webkit-scrollbar-thumb{background:rgba(109,40,217,.22)}
+    .logout-link.sb-setup-link{color:#6d28d9} /* settings link, not a warning */
     .sb-nav{padding:10px 8px;flex:1}
     .sb-sec{margin-bottom:14px}
     .sb-lbl{font-size:.6rem;font-weight:700;letter-spacing:.1em;color:#4a3824;text-transform:uppercase;padding:0 8px;margin-bottom:4px}
@@ -2456,7 +2463,7 @@
         <button onclick="exportData()" style="flex:1;background:rgba(124,58,237,.1);color:#6d28d9;border:1px solid rgba(124,58,237,.2);border-radius:8px;padding:6px 4px;font-size:.65rem;font-weight:700;cursor:pointer;font-family:'Raleway',sans-serif" title="Download all your data as a backup file">⬇ Export</button>
         <label style="flex:1;background:rgba(124,58,237,.1);color:#6d28d9;border:1px solid rgba(124,58,237,.2);border-radius:8px;padding:6px 4px;font-size:.65rem;font-weight:700;cursor:pointer;font-family:'Raleway',sans-serif;text-align:center" title="Restore data from a backup file">⬆ Import<input type="file" accept=".json" id="import-file-inp" style="display:none" onchange="importData(event)"/></label>
       </div>
-      <a class="logout-link" href="onboarding.html" style="display:block;text-decoration:none">Study setup →</a>
+      <a class="logout-link sb-setup-link" href="onboarding.html" style="display:block;text-decoration:none">Study setup →</a>
       <div class="logout-link" onclick="logout()">Log out →</div>
       <div id="sp-sync-area" style="margin-top:10px;border-top:1px solid rgba(168,85,247,.1);padding-top:10px">
         <div id="sp-sync-user" style="font-size:.68rem;color:#5a4230;margin-bottom:5px;display:none"></div>
