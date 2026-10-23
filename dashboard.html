@@ -3871,6 +3871,11 @@ function spYmd(d) {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
 
+// Build stamp, set automatically by the git pre-commit hook (also writes version.txt).
+// A page left open for days keeps running old code, so the app compares this with the
+// live version.txt and reloads itself when a newer version is out.
+var SP_BUILD = '20261023150931';
+
 var LTRS = ['A','B','C','D','E'];
 var STORAGE_KEY = 'sp_questions';
 var _qzKbIdx = 0;
@@ -4437,6 +4442,24 @@ document.addEventListener('visibilitychange', function() {
     _spPullProgress();
   }
 });
+// New version out? Reload when the student comes back to the app (not mid-Focus session),
+// after saving anything not yet uploaded. Progress saved on the device survives a reload.
+var _spLastVersionCheck = 0;
+async function spCheckForUpdate() {
+  if (SP_BUILD === 'dev' || Date.now() - _spLastVersionCheck < 60000) return;
+  _spLastVersionCheck = Date.now();
+  try {
+    var r = await fetch('/version.txt?' + Date.now(), { cache: 'no-store' });
+    if (!r.ok) return;
+    var live = (await r.text()).trim();
+    if (!live || live === SP_BUILD || pomoRunning) return;
+    if (_spClient && _spUser && _spCloudLoaded && (_syncTimer || _spHasUnsynced())) { clearTimeout(_syncTimer); _syncTimer = null; await _syncToSupabase(); }
+    location.reload();
+  } catch(e) {}
+}
+document.addEventListener('visibilitychange', function() { if (document.visibilityState === 'visible') spCheckForUpdate(); });
+window.addEventListener('pageshow', function(e) { if (e.persisted) spCheckForUpdate(); });
+setInterval(function() { if (document.visibilityState === 'visible') spCheckForUpdate(); }, 15 * 60000);
 window.addEventListener('pageshow', function(e) {
   if (e.persisted && _spClient && _spUser && _spCloudLoaded) _spPullProgress();
 });
