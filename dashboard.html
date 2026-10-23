@@ -4637,11 +4637,13 @@ function refreshFolderDatalist(){
 }
 
 // ── AQA question bank (GCSE track) ─────────────────────────────────────────
-// Ready-made AQA questions from bank/aqa-biology.json, added to a GCSE student's
-// study space as normal topics, so quizzes, mastery and the planner all just work.
+// Ready-made AQA questions from bank/aqa-biology.json and bank/aqa-chemistry.json, added to a GCSE
+// student's study space as normal topics, so quizzes, mastery and the planner all just work.
 // Plus only. Until payments are live, access is this allowlist (Mikey's test accounts).
 var AQA_BANK_ACCESS = ['test@stoday.plus'];
-var aqaBankData = null;
+var AQA_BANK_FILES = ['bank/aqa-biology.json', 'bank/aqa-chemistry.json'];
+var aqaBankData = null;     // { questions: [...each with .subject], specs: { '8461': true, ... } }
+var aqaBankLoading = false;
 function aqaIsGcse() { return !!(spProfile && spProfile.level === 'gcse'); }
 function aqaHasAccess() { return spIsPlus() || (!!user && AQA_BANK_ACCESS.indexOf(String(user).toLowerCase()) !== -1); }
 
@@ -4697,15 +4699,31 @@ function spRenderPlusUI() {
   }, 3000);
 })();
 function aqaLoadBank() {
-  if (!aqaIsGcse() || aqaBankData) return;
-  fetch('bank/aqa-biology.json', { cache: 'no-cache' })
-    .then(function(r) { return r.ok ? r.json() : null; })
-    .then(function(d) { if (d && d.questions) { aqaBankData = d; if (typeof renderBank === 'function') renderBank(); } })
-    .catch(function() {});
+  if (!aqaIsGcse() || aqaBankData || aqaBankLoading) return;
+  aqaBankLoading = true;
+  Promise.all(AQA_BANK_FILES.map(function(url) {
+    return fetch(url, { cache: 'no-cache' })
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .catch(function() { return null; });
+  })).then(function(files) {
+    aqaBankLoading = false;
+    var all = { questions: [], specs: {} };
+    files.forEach(function(d) {
+      if (!d || !d.questions) return;
+      all.specs[String(d.spec)] = true;
+      d.questions.forEach(function(q) { q.subject = d.subject; all.questions.push(q); });
+    });
+    if (!all.questions.length) return;
+    aqaBankData = all;
+    if (typeof renderBank === 'function') renderBank();
+  });
 }
+// The subject file a bank question came from, by its ID (8461… = Biology, 8462… = Chemistry)
+function aqaSpecOf(id) { return String(id).slice(0, 4); }
 // Make the student's bank match the AQA file: add missing questions, update changed ones
 // (so central fixes reach everyone), and drop separate-only ones for Combined Science
 // and Higher-only ones for Foundation tier (no tier set = Higher, so older accounts keep everything).
+// If one subject's file failed to load, that subject's questions are left alone.
 // Returns true if anything changed.
 function aqaBankEnsure() {
   // Never write before the account's own questions have loaded, or the sync could overwrite them
@@ -4720,11 +4738,12 @@ function aqaBankEnsure() {
   var changed = false, have = {};
   bank = bank.filter(function(q) {
     if (q.src !== 'aqa') return true;
+    if (!aqaBankData.specs[aqaSpecOf(q.id)]) return true;
     if (!want[q.id]) { changed = true; return false; }
     return true;
   });
   bank.forEach(function(q) {
-    if (q.src !== 'aqa') return;
+    if (q.src !== 'aqa' || !want[q.id]) return;
     var w = want[q.id]; have[q.id] = true;
     ['stem', 'correct', 'hint', 'rationale', 'reference', 'difficulty', 'folder'].forEach(function(k) {
       if (q[k] !== w[k]) { q[k] = w[k]; changed = true; }
@@ -4737,9 +4756,9 @@ function aqaBankEnsure() {
     var w = want[id];
     bank.push({ id: w.id, src: 'aqa', stem: w.stem, options: w.options.slice(), correct: w.correct, difficulty: w.difficulty,
                 folder: w.folder, hint: w.hint, rationale: w.rationale, reference: w.reference });
-    newFolders[w.folder] = true; changed = true;
+    newFolders[w.folder] = w.subject; changed = true;
   });
-  Object.keys(newFolders).forEach(function(f) { saveFolderMeta(f, aqaBankData.subject); ensureFolder(f, aqaBankData.subject); });
+  Object.keys(newFolders).forEach(function(f) { saveFolderMeta(f, newFolders[f]); ensureFolder(f, newFolders[f]); });
   if (changed) saveBank();
   return changed;
 }
