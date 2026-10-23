@@ -22,7 +22,8 @@ set search_path = public
 as $$
   select greatest(0, 50 - (
     select count(*) from public.subscriptions
-    where founding and status not in ('incomplete', 'incomplete_expired')
+    where founding and livemode  -- test-mode (sandbox) payments never take a real place
+      and status not in ('incomplete', 'incomplete_expired')
   ))::int;
 $$;
 
