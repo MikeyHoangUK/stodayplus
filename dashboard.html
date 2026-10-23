@@ -4437,6 +4437,9 @@ document.addEventListener('visibilitychange', function() {
     _spPullProgress();
   }
 });
+window.addEventListener('pageshow', function(e) {
+  if (e.persisted && _spClient && _spUser && _spCloudLoaded) _spPullProgress();
+});
 window.addEventListener('online', function() {
   if (!_spClient || !_spUser) return;
   if (!_spCloudLoaded) _loadFromSupabase();
@@ -4450,9 +4453,10 @@ async function _spPullProgress() {
       .eq('user_id', _spUser.id).maybeSingle();
     if (r.error || !r.data) return;
     var ms = Date.parse(r.data.updated_at) || 0;
-    if (ms <= _spSyncedMs()) return; // nothing new
-    _spApplyCloudProgress(r.data, ms);
+    if (!ms || ms === _spSyncedMs()) return; // nothing new
+    var ahead = _spApplyCloudProgress(r.data, ms);
     _spMarkSynced(ms);
+    if (ahead) _syncToSupabase();
     if (typeof orgRenderBanner === 'function') orgRenderBanner();
     if (typeof orgRenderTable  === 'function') orgRenderTable();
     if (typeof rpRenderToday   === 'function') rpRenderToday();
@@ -12965,22 +12969,27 @@ function _spMergeOrgTopics(cloud, local, cloudMs) {
   return out;
 }
 // Folds another device's saved progress into this device. Questions themselves are left alone.
+// Returns true when this device now has progress the cloud doesn't, so the caller uploads it.
+// (Without that, each device kept its own extra progress and they never matched.)
 function _spApplyCloudProgress(d, cloudMs) {
   var loc = function(k, dflt) { try { return JSON.parse(localStorage.getItem(k) || 'null') || dflt; } catch(e) { return dflt; } };
-  if (d.org_topics && d.org_topics.length) localStorage.setItem('sp_org_topics', JSON.stringify(_spMergeOrgTopics(d.org_topics, loc('sp_org_topics', []), cloudMs)));
-  if (d.revplan && d.revplan.length) localStorage.setItem('sp_revplan', JSON.stringify(_spMergeRevplan(d.revplan, loc('sp_revplan', []), cloudMs)));
+  var changed = false;
+  var put = function(key, val, cloudVal) { var j = JSON.stringify(val); localStorage.setItem(key, j); if (j !== JSON.stringify(cloudVal)) changed = true; };
+  if (d.org_topics && d.org_topics.length) put('sp_org_topics', _spMergeOrgTopics(d.org_topics, loc('sp_org_topics', []), cloudMs), d.org_topics);
+  if (d.revplan && d.revplan.length) put('sp_revplan', _spMergeRevplan(d.revplan, loc('sp_revplan', []), cloudMs), d.revplan);
   if (d.exams && d.exams.length) {
     var exMap = {};
     d.exams.forEach(function(e) { if (e.id) exMap[e.id] = e; });
     loc('sp_exams', []).forEach(function(e) { if (e.id && (!exMap[e.id] || (e.updatedAt || 0) > (exMap[e.id].updatedAt || 0))) exMap[e.id] = e; });
-    localStorage.setItem('sp_exams', JSON.stringify(Object.values(exMap).sort(function(a,b){ return a.date < b.date ? -1 : 1; })));
+    put('sp_exams', Object.values(exMap).sort(function(a,b){ return a.date < b.date ? -1 : 1; }), d.exams.slice().sort(function(a,b){ return a.date < b.date ? -1 : 1; }));
   }
   if (d.blurto && d.blurto.length) {
     var _blKey = function(s) { return (s.topic || '') + '_' + (s.savedAt || s.date || ''); };
     var blMap = {};
     loc('sp_blurto', []).forEach(function(s) { blMap[_blKey(s)] = s; });
     d.blurto.forEach(function(s) { var k = _blKey(s); if (!blMap[k]) blMap[k] = s; });
-    localStorage.setItem('sp_blurto', JSON.stringify(Object.values(blMap)));
+    localStorage.setItem('sp_blurto', JSON.stringify(Object.values(blMap))); // order differs, so compare counts
+    if (Object.keys(blMap).length !== d.blurto.length) changed = true;
   }
   ['wrong_ids', 'correct_ids'].forEach(function(col) {
     var c = d[col];
@@ -12990,23 +12999,26 @@ function _spApplyCloudProgress(d, cloudMs) {
       if (!m[f]) m[f] = l[f];
       else l[f].forEach(function(id) { if (m[f].indexOf(id) === -1) m[f].push(id); });
     });
-    localStorage.setItem(key, JSON.stringify(m));
+    put(key, m, c);
   });
   if (d.org_subjects && d.org_subjects.length) {
     var subj = d.org_subjects.slice();
     loc('sp_org_subjects', []).forEach(function(s) { if (subj.indexOf(s) === -1) subj.push(s); });
-    localStorage.setItem('sp_org_subjects', JSON.stringify(subj));
+    put('sp_org_subjects', subj, d.org_subjects);
   }
   if (d.folder_scores) {
     var fs = Object.assign({}, d.folder_scores), lfs = getFolderScores();
     Object.keys(lfs).forEach(function(k) { if (!fs[k] || lfs[k].best > fs[k].best) fs[k] = lfs[k]; });
-    localStorage.setItem('sp_folder_scores', JSON.stringify(fs));
+    put('sp_folder_scores', fs, d.folder_scores);
   }
   if (typeof orgLoadData === 'function') orgLoadData();
   if (typeof blurtoLoad  === 'function') blurtoLoad();
   if (typeof rpExamLoad  === 'function') rpExamLoad();
   if (typeof rpLoad      === 'function') rpLoad();
+  return changed;
 }
+// sp_synced_at = the cloud copy's save time as this device last saw it. Compared for equality only
+// ("has it changed?"), never earlier/later, because each device stamps saves with its own clock.
 function _spMarkSynced(ms) { try { localStorage.setItem('sp_synced_at', String(ms || 0)); } catch(e) {} }
 function _spSyncedMs() { return Number(localStorage.getItem('sp_synced_at') || 0); }
 function _spHasUnsynced() { return !!localStorage.getItem('sp_unsynced'); }
@@ -13098,7 +13110,7 @@ async function _loadFromSupabase() {
     // Cloud is the source of truth, unless this device has changes it never uploaded
     // (e.g. made offline) and no other device has saved since. Then this device wins.
     var _cloudMs = Date.parse(r.data.updated_at) || 0;
-    var _localAhead = _spHasUnsynced() && _cloudMs <= _spSyncedMs();
+    var _localAhead = _spHasUnsynced() && _cloudMs === _spSyncedMs();
     var cloudBank   = r.data.bank    || [];
     var cloudSqBank = r.data.sq_bank || [];
     var _lbk = null, _lsq = null;
@@ -13191,7 +13203,7 @@ async function _loadFromSupabase() {
         .select('org_topics, revplan, exams, blurto, wrong_ids, correct_ids, org_subjects, folder_scores')
         .eq('user_id', uid).maybeSingle();
       if (!r2.error && r2.data) {
-        _spApplyCloudProgress(r2.data, _cloudMs);
+        if (_spApplyCloudProgress(r2.data, _cloudMs)) localStorage.setItem('sp_unsynced', String(Date.now()));
         if (typeof orgRenderTable === 'function') orgRenderTable();
         if (typeof rpRenderToday === 'function') rpRenderToday();
         // Cloud had nothing yet for these: upload this device's copy
@@ -13240,7 +13252,7 @@ async function _spSyncNow() {
   try {
     var head = await _spClient.from('user_data').select('updated_at').eq('user_id', uid).maybeSingle();
     var headMs = head.data && head.data.updated_at ? Date.parse(head.data.updated_at) : 0;
-    if (!head.error && headMs > _spSyncedMs()) {
+    if (!head.error && headMs && headMs !== _spSyncedMs()) {
       var other = await _spClient.from('user_data')
         .select('org_topics, revplan, exams, blurto, wrong_ids, correct_ids, org_subjects, folder_scores')
         .eq('user_id', uid).maybeSingle();
