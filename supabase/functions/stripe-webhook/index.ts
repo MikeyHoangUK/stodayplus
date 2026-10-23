@@ -5,7 +5,9 @@
 // against STRIPE_WEBHOOK_SECRET so only Stripe can unlock Plus.
 //
 // Secrets (Supabase → Edge Functions → Secrets):
-//   STRIPE_WEBHOOK_SECRET   whsec_… from the Stripe webhook endpoint (required)
+//   STRIPE_WEBHOOK_SECRET   whsec_… from the TEST-mode webhook destination
+//   STRIPE_WEBHOOK_SECRET_LIVE  whsec_… from the LIVE-mode destination (same URL)
+//   At least one is required; a request passes if it matches either.
 //   STRIPE_SECRET_KEY       optional; not needed for these events
 // SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided by Supabase.
 //
@@ -19,7 +21,9 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || 'sk_unused', {
   httpClient: Stripe.createFetchHttpClient(),
 })
 const cryptoProvider = Stripe.createSubtleCryptoProvider()
-const WEBHOOK_SECRET = Deno.env.get('STRIPE_WEBHOOK_SECRET')!
+// Test and live destinations point at this one URL, each with its own signing secret
+const WEBHOOK_SECRETS = [Deno.env.get('STRIPE_WEBHOOK_SECRET_LIVE'), Deno.env.get('STRIPE_WEBHOOK_SECRET')]
+  .filter((s): s is string => !!s)
 const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -35,16 +39,21 @@ function periodEnd(sub: Stripe.Subscription): string | null {
 
 Deno.serve(async (req: Request) => {
   if (req.method !== 'POST') return reply(405, 'POST only')
-  if (!WEBHOOK_SECRET) return reply(500, 'STRIPE_WEBHOOK_SECRET is not set')
+  if (!WEBHOOK_SECRETS.length) return reply(500, 'STRIPE_WEBHOOK_SECRET is not set')
 
   const signature = req.headers.get('Stripe-Signature')
   const body = await req.text()
-  let event: Stripe.Event
-  try {
-    event = await stripe.webhooks.constructEventAsync(body, signature!, WEBHOOK_SECRET, undefined, cryptoProvider)
-  } catch (err) {
-    return reply(400, 'Bad signature: ' + (err instanceof Error ? err.message : 'unknown'))
+  let event: Stripe.Event | null = null
+  let lastErr = 'unknown'
+  for (const secret of WEBHOOK_SECRETS) {
+    try {
+      event = await stripe.webhooks.constructEventAsync(body, signature!, secret, undefined, cryptoProvider)
+      break
+    } catch (err) {
+      lastErr = err instanceof Error ? err.message : 'unknown'
+    }
   }
+  if (!event) return reply(400, 'Bad signature: ' + lastErr)
 
   try {
     if (event.type === 'checkout.session.completed') {
