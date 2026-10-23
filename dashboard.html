@@ -3874,7 +3874,7 @@ function spYmd(d) {
 // Build stamp, set automatically by the git pre-commit hook (also writes version.txt).
 // A page left open for days keeps running old code, so the app compares this with the
 // live version.txt and reloads itself when a newer version is out.
-var SP_BUILD = '20261023151929';
+var SP_BUILD = '20261023184315';
 
 var LTRS = ['A','B','C','D','E'];
 var STORAGE_KEY = 'sp_questions';
@@ -4678,16 +4678,16 @@ function aqaHasAccess() { return spIsPlus() || (!!user && AQA_BANK_ACCESS.indexO
 // Parents pay through a Stripe Payment Link; the stripe-webhook edge function
 // records it in public.subscriptions; here we read the student's own row.
 // Fill the links in from the Stripe dashboard (test-mode links while testing).
-var STRIPE_PLUS_LINK = 'https://buy.stripe.com/test_5kQbJ1e3n2pRdS08QZ6Zy00';    // Payment Link for "Stoday Plus · £7/month", e.g. https://buy.stripe.com/test_…
-var STRIPE_PORTAL_LINK = 'https://billing.stripe.com/p/login/test_5kQbJ1e3n2pRdS08QZ6Zy00';
-var STRIPE_FOUNDING_LINK = 'https://buy.stripe.com/test_4gMcN53oJ9Sj6py9V36Zy01'; // £5/month for life, first 50 families
+var STRIPE_PLUS_LINK = 'https://buy.stripe.com/4gMcN53oJ9Sj6py9V36Zy01';    // Live Payment Link for "Stoday Plus · £7/month"
+var STRIPE_PORTAL_LINK = 'https://billing.stripe.com/p/login/5kQbJ1e3n2pRdS08QZ6Zy00';  // Live customer portal login
+var STRIPE_FOUNDING_LINK = 'https://buy.stripe.com/5kQbJ1e3n2pRdS08QZ6Zy00'; // Live: £5/month for life, first 50 families
 var spFoundingLeft = null; // real number from founding_places_left(); null until loaded
 async function spLoadFoundingLeft() {
   if (!_spClient) return;
   var r = await _spClient.rpc('founding_places_left');
   if (!r.error && typeof r.data === 'number') { spFoundingLeft = r.data; if (typeof renderBank === 'function' && bankFolder === 'all') renderBank(); }
 }
-function spFoundingOpen() { return spFoundingLeft !== null && spFoundingLeft > 0 && !!STRIPE_FOUNDING_LINK; }  // Customer portal login link, e.g. https://billing.stripe.com/p/login/test_…
+function spFoundingOpen() { return spFoundingLeft !== null && spFoundingLeft > 0 && !!STRIPE_FOUNDING_LINK; }
 var spPlus = null;            // the student's subscriptions row, or null
 function spIsPlus() { return !!(spPlus && (spPlus.status === 'active' || spPlus.status === 'trialing')); }
 async function spLoadPlus() {
