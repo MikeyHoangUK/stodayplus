@@ -3874,7 +3874,7 @@ function spYmd(d) {
 // Build stamp, set automatically by the git pre-commit hook (also writes version.txt).
 // A page left open for days keeps running old code, so the app compares this with the
 // live version.txt and reloads itself when a newer version is out.
-var SP_BUILD = '20261023150931';
+var SP_BUILD = '20261023151929';
 
 var LTRS = ['A','B','C','D','E'];
 var STORAGE_KEY = 'sp_questions';
@@ -13295,8 +13295,18 @@ async function _spSyncNow() {
   try { payload.org_subjects  = JSON.parse(localStorage.getItem('sp_org_subjects')  || 'null') || []; } catch(_e) {}
   try { payload.question_notes  = JSON.parse(localStorage.getItem('sp_question_notes')  || 'null') || {}; } catch(_e) {}
   try { payload.topic_materials = JSON.parse(localStorage.getItem('sp_topic_materials') || 'null') || {}; } catch(_e) {}
-  var r = await _spClient.from('user_data').upsert(payload, { onConflict: 'user_id' });
+  // A column missing in the database used to fail the whole save; the fallback below then saved
+  // only the questions, so reviews and exams silently stopped syncing (Oct 2026). Drop just that column.
+  var r, _tries = 0;
+  while (true) {
+    r = await _spClient.from('user_data').upsert(payload, { onConflict: 'user_id' });
+    var _mc = r.error && /'([a-z_]+)' column/.exec(r.error.message || '');
+    if (!_mc || !(_mc[1] in payload) || _mc[1] === 'bank' || ++_tries > 5) break;
+    console.warn('Supabase: column ' + _mc[1] + ' is missing, saving without it');
+    delete payload[_mc[1]];
+  }
   if (r.error) {
+    console.warn('Supabase save:', r.error.message);
     // Columns org_topics/revplan/exams may not exist yet — retry without them
     var _fb = { user_id: uid, bank: bank, sq_bank: sqBank, updated_at: payload.updated_at };
     try { _fb.folder_scores = payload.folder_scores; } catch(_e) {}
